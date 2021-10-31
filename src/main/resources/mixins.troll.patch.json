@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "compatibilityLevel": "JAVA_8",
+  "package": "cum.xiaro.trollhack.patch",
+  "refmap": "mixins.troll.refmap.json",
+  "client": [
+    "baritone.MixinBaritoneSettings",
+    "entity.MixinEntityDataManager",
+    "gui.MixinGuiInventory",
+    "optifine.MixinConfig",
+    "player.MixinPlayerControllerMP",
+    "world.MixinBlock"
+  ]
+}
