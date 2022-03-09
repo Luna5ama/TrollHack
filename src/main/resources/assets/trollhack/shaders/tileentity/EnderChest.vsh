@@ -1,5 +1,4 @@
 #version 330
-precision highp float;
 
 uniform mat4 projection;
 uniform mat4 modelView;
@@ -146,6 +145,6 @@ void main() {
 
     gl_Position = projection * modelView * vec4(position * rotationMatrix + renderPosition, 1.0);
     uv = vertUV;
-    normal = normal * rotationMatrix;
+    normal *= rotationMatrix;
     lightMapUV = vertLightMapUV * 0.99609375 + 0.03125;
 }

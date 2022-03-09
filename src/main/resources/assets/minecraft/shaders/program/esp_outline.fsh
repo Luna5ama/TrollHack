@@ -1,5 +1,4 @@
 #version 140
-precision mediump float;
 
 uniform sampler2D DiffuseSampler;
 

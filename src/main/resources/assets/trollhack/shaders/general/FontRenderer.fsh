@@ -1,5 +1,5 @@
-#version 140
-precision highp float;
+#version 330
+precision mediump float;
 
 uniform sampler2D texture;
 
@@ -10,6 +10,6 @@ out vec4 fragColor;
 
 void main() {
     float alpha = texture2D(texture, uv).r;
-    if (alpha <= 0.002) discard;
-    fragColor = vec4(color.rgb, alpha * color.a);
+    if (alpha == 0.0) discard;
+    fragColor = vec4(color.rgb, color.a * alpha);
 }

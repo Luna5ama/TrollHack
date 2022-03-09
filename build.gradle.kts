@@ -1,9 +1,8 @@
 import net.minecraftforge.gradle.userdev.UserDevExtension
-import org.jetbrains.kotlin.konan.properties.loadProperties
 import org.spongepowered.asm.gradle.plugins.MixinExtension
 
-group = "cum.xiaro"
-version = "0.0.1"
+group = "me.luna"
+version = "0.0.2"
 
 buildscript {
     repositories {
@@ -12,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:4.+")
+        classpath("net.minecraftforge.gradle:ForgeGradle:5.+")
         classpath("org.spongepowered:mixingradle:0.7-SNAPSHOT")
     }
 }
@@ -49,8 +48,18 @@ dependencies {
         return exclude(mapOf("module" to moduleName))
     }
 
-    fun jarOnly(dependencyNotation: Any) {
+    fun jarOnly(dependencyNotation: String) {
         library(dependencyNotation)
+    }
+
+    fun implementationAndLibrary(dependencyNotation: String) {
+        implementation(dependencyNotation)
+        library(dependencyNotation)
+    }
+
+    fun implementationAndLibrary(dependencyNotation: String, dependencyConfiguration: ExternalModuleDependency.() -> Unit) {
+        implementation(dependencyNotation, dependencyConfiguration)
+        library(dependencyNotation, dependencyConfiguration)
     }
 
     // Forge
@@ -58,24 +67,24 @@ dependencies {
     minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
 
     // Dependencies
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
+    implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib")
+    implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
+    implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementationAndLibrary("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    implementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    implementationAndLibrary("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         exclude("commons-io")
         exclude("gson")
         exclude("guava")
         exclude("launchwrapper")
-        exclude("log4j-core")
+        exclude(group = "org.apache.logging.log4j")
     }
 
-    annotationProcessor("org.spongepowered:mixin:0.8.2:processor") {
+    annotationProcessor("org.spongepowered:mixin:0.8.4:processor") {
         exclude("gson")
     }
 
-    implementation("org.joml:joml:1.10.2")
+    implementationAndLibrary("org.joml:joml:1.10.4")
 
     implementation("com.github.cabaletta:baritone:1.2.14")
     jarOnly("cabaletta:baritone-api:1.2")
@@ -86,12 +95,7 @@ configure<MixinExtension> {
 }
 
 configure<UserDevExtension> {
-    mappings(
-        mapOf(
-            "channel" to mappingsChannel,
-            "version" to mappingsVersion
-        )
-    )
+    mappings(mappingsChannel, mappingsVersion)
 
     runs {
         create("client") {
@@ -102,7 +106,7 @@ configure<UserDevExtension> {
                 mapOf(
                     "forge.logging.markers" to "SCAN,REGISTRIES,REGISTRYDUMP",
                     "forge.logging.console.level" to "info",
-                    "fml.coreMods.load" to "cum.xiaro.trollhack.TrollHackCoreMod",
+                    "fml.coreMods.load" to "me.luna.trollhack.TrollHackCoreMod",
                     "mixin.env.disableRefMap" to "true"
                 )
             )
@@ -123,38 +127,82 @@ tasks {
             freeCompilerArgs = listOf(
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xopt-in=kotlin.contracts.ExperimentalContracts",
-                "-Xlambdas=indy"
+                "-Xlambdas=indy",
+                "-Xjvm-default=all"
             )
         }
     }
 
     jar {
+
+    }
+
+    val releaseJar = register<Jar>("releaseJar") {
+        group = "build"
+        dependsOn("reobfJar")
+
         manifest {
             attributes(
                 "Manifest-Version" to 1.0,
-                "MixinConfigs" to "mixins.troll.client.json, mixins.troll.accessor.json, mixins.troll.patch.json",
+                "MixinConfigs" to "mixins.troll.core.json, mixins.troll.accessor.json, mixins.troll.patch.json",
                 "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
                 "FMLCorePluginContainsFMLMod" to true,
-                "FMLCorePlugin" to "cum.xiaro.trollhack.TrollHackCoreMod",
+                "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod",
                 "ForceLoadAsMod" to true
             )
         }
 
-        val regex = "baritone-1\\.2\\.\\d\\d\\.jar".toRegex()
+        val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
+        val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
+
+        archiveClassifier.set("Release")
+
         from(
-            (configurations.runtimeClasspath.get() - configurations["minecraft"])
-                .filterNot {
-                    it.name.matches(regex)
-                }.map {
-                    if (it.isDirectory) it else zipTree(it)
-                }
+            jar.get().outputs.files.map {
+                if (it.isDirectory) it else zipTree(it)
+            }
         )
+
+        exclude { file ->
+            file.name.endsWith("kotlin_module")
+                || excludeNames.contains(file.file.nameWithoutExtension)
+                || excludeDirs.any { file.path.contains(it) }
+        }
 
         from(
             library.map {
                 if (it.isDirectory) it else zipTree(it)
             }
         )
+    }
+
+    artifacts {
+        archives(releaseJar)
+    }
+
+    register<Task>("shrinkJar") {
+        group = "build"
+
+        doLast {
+            val outputJar = releaseJar.get().outputs.files.first()
+            val process = Runtime.getRuntime().exec("${System.getenv("JAVA_HOME_11")}${File.separator}bin${File.separator}java -jar \"JarShrink.jar\" \"$outputJar\" -out \"${outputJar.parent}/${outputJar.nameWithoutExtension}-Optimized.jar\" -t \"${project.buildDir}${File.separator}shrinkJar\" -s -n -k \"me.luna\" -k \"baritone\" -k \"org.spongepowered\"")
+            val out = process.inputStream
+            val err = process.errorStream
+
+            Thread {
+                out.bufferedReader().forEachLine {
+                    println(it)
+                }
+            }.start()
+
+            Thread {
+                err.bufferedReader().forEachLine {
+                    System.err.println(it)
+                }
+            }.start()
+
+            process.waitFor()
+        }
     }
 
     register<Task>("genRuns") {
@@ -181,7 +229,7 @@ tasks {
                             <option name="MAIN_CLASS_NAME" value="net.minecraftforge.legacydev.MainClient" />
                             <module name="${rootProject.name}.${project.name}.main" />
                             <option name="PROGRAM_PARAMETERS" value="--width 1280 --height 720" />
-                            <option name="VM_PARAMETERS" value="-Dforge.logging.console.level=info -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -Dmixin.env.disableRefMap=true -Dfml.coreMods.load=cum.xiaro.trollhack.TrollHackCoreMod" />
+                            <option name="VM_PARAMETERS" value="-Xms2G -Xmx2G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -XX:+UseLargePages -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5 -XX:G1NewSizePercent=1 -XX:G1MaxNewSizePercent=25 -XX:G1HeapRegionSize=1M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=30 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=30 -XX:G1MixedGCLiveThresholdPercent=80 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:MinHeapFreeRatio=1 -XX:MaxHeapFreeRatio=25 -XX:ParallelGCThreads=${Runtime.getRuntime().availableProcessors()} -XX:ConcGCThreads=${Runtime.getRuntime().availableProcessors() / 4} -XX:FlightRecorderOptions=stackdepth=2048 -Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -Dmixin.env.disableRefMap=true -Dfml.coreMods.load=me.luna.trollhack.TrollHackCoreMod" />
                             <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/${project.name}/run" />
                             <method v="2">
                               <option name="Gradle.BeforeRunTask" enabled="true" tasks="${project.name}:prepareRunClient" externalProjectPath="${'$'}PROJECT_DIR$" />

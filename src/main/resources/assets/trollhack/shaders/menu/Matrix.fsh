@@ -1,6 +1,5 @@
 // modified from http://glsl.heroku.com/e#15125.0
 #version 140
-precision mediump float;
 
 uniform float time;
 uniform vec2 resolution;

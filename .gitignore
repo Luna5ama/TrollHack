@@ -2,7 +2,7 @@
 
 # Logs
 run/
-scripts/jar-shrink/log.txt
+log.txt
 logs/
 
 ### Eclipse ###

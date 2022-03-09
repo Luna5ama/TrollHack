@@ -1,6 +1,5 @@
 // Necip's transf. https://www.shadertoy.com/view/MdlGz4
 #version 140
-precision mediump float;
 
 #define iTime    time
 #define iResolution resolution

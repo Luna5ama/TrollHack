@@ -6,7 +6,6 @@
 // ARE YOU SURE?
 //  >YES   NO
 #version 140
-precision mediump float;
 
 uniform float time;
 uniform vec2 mouse;

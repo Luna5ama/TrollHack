@@ -1,5 +1,4 @@
 #version 140
-precision highp float;
 
 uniform float partialTicks;
 uniform mat4 projection;

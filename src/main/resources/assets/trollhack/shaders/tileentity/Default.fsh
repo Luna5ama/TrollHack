@@ -1,5 +1,4 @@
 #version 330
-precision highp float;
 
 uniform sampler2D lightMapTexture;
 uniform sampler2D texture;

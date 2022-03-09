@@ -1,6 +1,5 @@
 //http://glslsandbox.com/e#21412
 #version 140
-precision mediump float;
 
 uniform float time;
 uniform vec2 mouse;

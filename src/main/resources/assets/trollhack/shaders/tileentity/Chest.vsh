@@ -1,8 +1,8 @@
 #version 330
-precision highp float;
 
 uniform mat4 projection;
 uniform mat4 modelView;
+
 uniform float alpha;
 uniform float partialTicks;
 
@@ -22,6 +22,7 @@ layout(location = 9) in float lidAngle;
 
 out vec2 uv;
 flat out vec3 normal;
+flat out int texID;
 out vec2 lightMapUV;
 
 const vec3 rotationPointOffset = vec3(0.0, 0.5625, -0.4375);
@@ -147,8 +148,7 @@ void main() {
 
     gl_Position = projection * modelView * vec4(position * rotationMatrix + renderPosition, 1.0);
     uv = vertUV;
-    uv.y += vertTexID;
-    uv.y *= 0.25;
     normal = normal * rotationMatrix;
+    texID = vertTexID;
     lightMapUV = vertLightMapUV * 0.99609375 + 0.03125;
 }

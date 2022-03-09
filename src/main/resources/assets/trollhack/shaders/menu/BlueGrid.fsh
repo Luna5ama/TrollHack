@@ -2,7 +2,6 @@
 // MORE NEON HACK TIME FROM THE 80'S
 
 #version 140
-precision mediump float;
 
 // YOU'RE ABOUT
 // TO HACK TIME,

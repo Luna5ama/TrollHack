@@ -1,7 +1,6 @@
 // Forked from: https://www.shadertoy.com/view/NsS3Dt
 
 #version 140
-precision lowp float;
 
 uniform float time;
 uniform vec2 resolution;

@@ -1,5 +1,4 @@
 #version 140
-precision highp float;
 
 in vec4 color;
 

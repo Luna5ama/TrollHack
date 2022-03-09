@@ -1,5 +1,4 @@
 #version 140
-precision mediump float;
 
 attribute vec4 Position;
 

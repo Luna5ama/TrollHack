@@ -1,19 +1,9 @@
 #version 140
-precision highp float;
 
 uniform sampler2D background;
 
 in vec2 coord0;
-in vec4 coord1;
-in vec4 coord2;
-in vec4 coord3;
-in vec4 coord4;
-in vec4 coord5;
-in vec4 coord6;
-in vec4 coord7;
-in vec4 coord8;
-in vec4 coord9;
-in vec4 coord10;
+in vec4 coords[10];
 
 out vec4 fragColor;
 
@@ -32,33 +22,33 @@ out vec4 fragColor;
 void main() {
     fragColor = texture2D(background, coord0) * WEIGHT_0;
 
-    fragColor += texture2D(background, coord1.xy) * WEIGHT_1;
-    fragColor += texture2D(background, coord1.zw) * WEIGHT_1;
+    fragColor += texture2D(background, coords[0].xy) * WEIGHT_1;
+    fragColor += texture2D(background, coords[0].zw) * WEIGHT_1;
 
-    fragColor += texture2D(background, coord2.xy) * WEIGHT_2;
-    fragColor += texture2D(background, coord2.zw) * WEIGHT_2;
+    fragColor += texture2D(background, coords[1].xy) * WEIGHT_2;
+    fragColor += texture2D(background, coords[1].zw) * WEIGHT_2;
 
-    fragColor += texture2D(background, coord3.xy) * WEIGHT_3;
-    fragColor += texture2D(background, coord3.zw) * WEIGHT_3;
+    fragColor += texture2D(background, coords[2].xy) * WEIGHT_3;
+    fragColor += texture2D(background, coords[2].zw) * WEIGHT_3;
 
-    fragColor += texture2D(background, coord4.xy) * WEIGHT_4;
-    fragColor += texture2D(background, coord4.zw) * WEIGHT_4;
+    fragColor += texture2D(background, coords[3].xy) * WEIGHT_4;
+    fragColor += texture2D(background, coords[3].zw) * WEIGHT_4;
 
-    fragColor += texture2D(background, coord5.xy) * WEIGHT_5;
-    fragColor += texture2D(background, coord5.zw) * WEIGHT_5;
+    fragColor += texture2D(background, coords[4].xy) * WEIGHT_5;
+    fragColor += texture2D(background, coords[4].zw) * WEIGHT_5;
 
-    fragColor += texture2D(background, coord6.xy) * WEIGHT_6;
-    fragColor += texture2D(background, coord6.zw) * WEIGHT_6;
+    fragColor += texture2D(background, coords[5].xy) * WEIGHT_6;
+    fragColor += texture2D(background, coords[5].zw) * WEIGHT_6;
 
-    fragColor += texture2D(background, coord7.xy) * WEIGHT_7;
-    fragColor += texture2D(background, coord7.zw) * WEIGHT_7;
+    fragColor += texture2D(background, coords[6].xy) * WEIGHT_7;
+    fragColor += texture2D(background, coords[6].zw) * WEIGHT_7;
 
-    fragColor += texture2D(background, coord8.xy) * WEIGHT_8;
-    fragColor += texture2D(background, coord8.zw) * WEIGHT_8;
+    fragColor += texture2D(background, coords[7].xy) * WEIGHT_8;
+    fragColor += texture2D(background, coords[7].zw) * WEIGHT_8;
 
-    fragColor += texture2D(background, coord9.xy) * WEIGHT_9;
-    fragColor += texture2D(background, coord9.zw) * WEIGHT_9;
+    fragColor += texture2D(background, coords[8].xy) * WEIGHT_9;
+    fragColor += texture2D(background, coords[8].zw) * WEIGHT_9;
 
-    fragColor += texture2D(background, coord10.xy) * WEIGHT_10;
-    fragColor += texture2D(background, coord10.zw) * WEIGHT_10;
+    fragColor += texture2D(background, coords[9].xy) * WEIGHT_10;
+    fragColor += texture2D(background, coords[9].zw) * WEIGHT_10;
 }

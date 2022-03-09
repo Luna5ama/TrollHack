@@ -2,7 +2,6 @@
  * Original shader from: https://www.shadertoy.com/view/wl2SRK
  */
 #version 140
-precision mediump float;
 
 // glslsandbox uniforms
 uniform float time;

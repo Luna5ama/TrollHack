@@ -1,7 +1,7 @@
 {
   "required": true,
   "compatibilityLevel": "JAVA_8",
-  "package": "cum.xiaro.trollhack.accessor",
+  "package": "me.luna.trollhack.mixins.accessor",
   "refmap": "mixins.troll.refmap.json",
   "client": [
     "AccessorBlockStateContainer",

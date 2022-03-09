@@ -1,5 +1,4 @@
 #version 140
-precision lowp float;
 
 uniform float time;
 uniform vec2 mouse;

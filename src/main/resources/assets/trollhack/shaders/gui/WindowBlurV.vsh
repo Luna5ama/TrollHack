@@ -1,5 +1,4 @@
 #version 140
-precision highp float;
 
 uniform mat4 projection;
 uniform mat4 modelView;
@@ -9,16 +8,7 @@ uniform vec2 resolution;
 in vec3 vertexPos;
 
 out vec2 coord0;
-out vec4 coord1;
-out vec4 coord2;
-out vec4 coord3;
-out vec4 coord4;
-out vec4 coord5;
-out vec4 coord6;
-out vec4 coord7;
-out vec4 coord8;
-out vec4 coord9;
-out vec4 coord10;
+out vec4 coords[10];
 
 void main() {
     vec2 uv = 1.0 / resolution;
@@ -36,14 +26,14 @@ void main() {
     gl_Position = projection * modelView * vec4(vertexPos.xy, 2000.0, 1.0);
 
     coord0 = (gl_Position * reverseProjection).xy * uv + 0.5;
-    coord1 = vec4(coord0.x, coord0.y - offset1, coord0.x, coord0.y + offset1);
-    coord2 = vec4(coord0.x, coord0.y - offset2, coord0.x, coord0.y + offset2);
-    coord3 = vec4(coord0.x, coord0.y - offset3, coord0.x, coord0.y + offset3);
-    coord4 = vec4(coord0.x, coord0.y - offset4, coord0.x, coord0.y + offset4);
-    coord5 = vec4(coord0.x, coord0.y - offset5, coord0.x, coord0.y + offset5);
-    coord6 = vec4(coord0.x, coord0.y - offset6, coord0.x, coord0.y + offset6);
-    coord7 = vec4(coord0.x, coord0.y - offset7, coord0.x, coord0.y + offset7);
-    coord8 = vec4(coord0.x, coord0.y - offset8, coord0.x, coord0.y + offset8);
-    coord8 = vec4(coord0.x, coord0.y - offset9, coord0.x, coord0.y + offset9);
-    coord8 = vec4(coord0.x, coord0.y - offset10, coord0.x, coord0.y + offset10);
+    coords[0] = vec4(coord0.x, coord0.y - offset1, coord0.x, coord0.y + offset1);
+    coords[1] = vec4(coord0.x, coord0.y - offset2, coord0.x, coord0.y + offset2);
+    coords[2] = vec4(coord0.x, coord0.y - offset3, coord0.x, coord0.y + offset3);
+    coords[3] = vec4(coord0.x, coord0.y - offset4, coord0.x, coord0.y + offset4);
+    coords[4] = vec4(coord0.x, coord0.y - offset5, coord0.x, coord0.y + offset5);
+    coords[5] = vec4(coord0.x, coord0.y - offset6, coord0.x, coord0.y + offset6);
+    coords[6] = vec4(coord0.x, coord0.y - offset7, coord0.x, coord0.y + offset7);
+    coords[7] = vec4(coord0.x, coord0.y - offset8, coord0.x, coord0.y + offset8);
+    coords[8] = vec4(coord0.x, coord0.y - offset9, coord0.x, coord0.y + offset9);
+    coords[9] = vec4(coord0.x, coord0.y - offset10, coord0.x, coord0.y + offset10);
 }

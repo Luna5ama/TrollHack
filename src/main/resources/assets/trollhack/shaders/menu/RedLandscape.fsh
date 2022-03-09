@@ -2,7 +2,6 @@
  * Original shader from: https://www.shadertoy.com/view/NsS3Dt
  */
 #version 140
-precision lowp float;
 
 // glslsandbox uniforms
 uniform float time;
