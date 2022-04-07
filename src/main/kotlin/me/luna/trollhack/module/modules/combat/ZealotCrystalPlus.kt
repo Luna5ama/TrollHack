@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.longs.Long2LongMaps
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
+import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.RunGameLoopEvent
 import me.luna.trollhack.event.events.TickEvent
@@ -16,6 +17,7 @@ import me.luna.trollhack.event.events.render.Render3DEvent
 import me.luna.trollhack.event.events.render.RenderEntityEvent
 import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.event.safeParallelListener
+import me.luna.trollhack.gui.hudgui.elements.client.Watermark
 import me.luna.trollhack.manager.managers.*
 import me.luna.trollhack.manager.managers.HotbarManager.serverSideItem
 import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbar
@@ -393,6 +395,7 @@ internal object ZealotCrystalPlus : Module(
     init {
         onEnable {
             loopThread.interrupt()
+            TrollHackMod.logger.trace(Watermark.nameAsString)
         }
 
         onDisable {

@@ -3,6 +3,7 @@ package me.luna.trollhack.translation
 import me.luna.trollhack.translation.TranslationManager.getTranslated
 import me.luna.trollhack.util.IDRegistry
 import me.luna.trollhack.util.extension.map
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 
 class TranslationKey private constructor(
@@ -60,7 +61,7 @@ class TranslationKey private constructor(
 
     companion object {
         private val idRegistry = IDRegistry()
-        private val translationKeyMap = HashMap<String, TranslationKey>()
+        private val translationKeyMap = ConcurrentHashMap<String, TranslationKey>()
 
         val allKeys get() = translationKeyMap.values
 

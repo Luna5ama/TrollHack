@@ -1,6 +1,7 @@
 package me.luna.trollhack
 
 import me.luna.trollhack.event.ForgeEventProcessor
+import me.luna.trollhack.translation.TranslationManager
 import me.luna.trollhack.util.ConfigUtils
 import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
 import me.luna.trollhack.util.threads.BackgroundScope
@@ -26,7 +27,8 @@ class TrollHackMod {
         val directory = File("${DIRECTORY}/")
         if (!directory.exists()) directory.mkdir()
 
-        me.luna.trollhack.LoaderWrapper.preLoadAll()
+        LoaderWrapper.preLoadAll()
+        TranslationManager.checkUpdate()
 
         Thread.currentThread().priority = Thread.MAX_PRIORITY
     }
@@ -36,7 +38,7 @@ class TrollHackMod {
     fun init(event: FMLInitializationEvent) {
         logger.info("Initializing $NAME $VERSION")
 
-        me.luna.trollhack.LoaderWrapper.loadAll()
+        LoaderWrapper.loadAll()
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
         ConfigUtils.loadAll()
         BackgroundScope.start()
@@ -54,7 +56,7 @@ class TrollHackMod {
     companion object {
         const val NAME = "Troll Hack"
         const val ID = "trollhack"
-        const val VERSION = "0.0.2"
+        const val VERSION = "0.0.3"
         const val DIRECTORY = "trollhack"
 
         @JvmField

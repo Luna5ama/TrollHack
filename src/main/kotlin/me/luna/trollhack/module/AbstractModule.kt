@@ -39,7 +39,7 @@ open class AbstractModule(
     val id = idRegistry.register()
 
     private val enabled = BooleanSetting(settingName("Enabled"), false, { false }).also(::addSetting)
-    val bind = BindSetting("Bind", Bind(), { !alwaysEnabled }, {
+    val bind = BindSetting(settingName("Bind"), Bind(), { !alwaysEnabled }, {
         when (onHold.value) {
             OnHold.OFF -> if (it) toggle()
             OnHold.ENABLE -> toggle(it)

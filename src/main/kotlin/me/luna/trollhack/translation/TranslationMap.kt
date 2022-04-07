@@ -1,7 +1,6 @@
 package me.luna.trollhack.translation
 
 import me.luna.trollhack.util.collections.ArrayMap
-import java.io.File
 import java.util.*
 
 class TranslationMap private constructor(
@@ -16,30 +15,20 @@ class TranslationMap private constructor(
     companion object {
         private val regex = "^(\\\$.+\\\$)=(.+)$".toRegex()
 
-        fun fromFile(file: File): TranslationMap {
-            if (!file.exists()) {
-                throw IllegalArgumentException("File $file does not exist!")
+        fun fromString(language: String, input: String): TranslationMap {
+            val map = ArrayMap<String>()
+
+            input.lines().forEach { line ->
+                val result = regex.matchEntire(line) ?: return@forEach
+
+                val keyString = result.groupValues[1]
+
+                TranslationKey[keyString]?.let {
+                    map[it.id] = result.groupValues[2]
+                }
             }
 
-            return file.bufferedReader().use { reader ->
-                val map = ArrayMap<String>()
-
-                reader.forEachLine { line ->
-                    val result = regex.matchEntire(line) ?: return@forEachLine
-
-                    val keyString = result.groupValues[1]
-
-                    TranslationKey[keyString]?.let {
-                        map[it.id] = result.groupValues[2]
-                    }
-                }
-
-                if (map.isEmpty()) {
-                    throw IllegalArgumentException("File $file is not a valid lang file!")
-                }
-
-                TranslationMap(file.nameWithoutExtension.lowercase(Locale.ROOT), map)
-            }
+            return TranslationMap(language, map)
         }
     }
 }

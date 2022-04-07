@@ -9,7 +9,7 @@ import me.luna.trollhack.util.extension.ceilToInt
 import me.luna.trollhack.util.graphics.font.GlyphCache
 import me.luna.trollhack.util.graphics.font.GlyphTexture
 import me.luna.trollhack.util.graphics.font.Style
-import me.luna.trollhack.util.threads.TrollHackScope
+import me.luna.trollhack.util.threads.TrollHackBackgroundScope
 import me.luna.trollhack.util.threads.onMainThreadSuspend
 import java.awt.Color
 import java.awt.Font
@@ -18,11 +18,12 @@ import java.awt.image.BufferedImage
 import java.awt.image.DataBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Suppress("NOTHING_TO_INLINE")
 class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: Font, private val textureSize: Int) {
     private val chunkArray = arrayOfNulls<GlyphChunk>(128)
-    private val loadingArray = BooleanArray(127) { false }
+    private val loadingArray = Array<AtomicBoolean>(127) { AtomicBoolean(false) }
     private val mainChunk: GlyphChunk
     private val mutex = Mutex()
 
@@ -73,18 +74,11 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 chunk = mainChunk
                 val loadingID = chunkID - 1
 
-                if (!loadingArray[loadingID]) {
-                    val loaded: Boolean
+                val boolean = loadingArray[loadingID]
 
-                    synchronized(loadingArray) {
-                        loaded = loadingArray[loadingID]
-                        loadingArray[loadingID] = true
-                    }
-
-                    if (!loaded) {
-                        TrollHackScope.launch {
-                            chunkArray[chunkID] = loadGlyphChunkAsync(chunkID)
-                        }
+                if (!boolean.getAndSet(true)) {
+                    TrollHackBackgroundScope.launch {
+                        chunkArray[chunkID] = loadGlyphChunkAsync(chunkID)
                     }
                 }
             }
@@ -128,6 +122,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
         graphics2D.background = Color(0, 0, 0, 0)
         graphics2D.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
         graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
 
         var rowHeight = 0
@@ -180,7 +175,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 while (start + regionSize < size) {
                     val regionStart = start
 
-                    launch(TrollHackScope.context) {
+                    launch {
                         val end = regionStart + regionSize
                         val data = IntArray(1)
                         for (i in regionStart until end) {
@@ -201,7 +196,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 while (start + regionSize < size) {
                     val regionStart = start
 
-                    launch(TrollHackScope.context) {
+                    launch {
                         val end = regionStart + regionSize
                         val data = ByteArray(4)
                         for (i in regionStart until end) {

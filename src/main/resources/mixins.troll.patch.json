@@ -15,6 +15,7 @@
     "render.MixinVisGraph",
     "world.MixinBlock",
     "world.MixinChunk",
-    "world.MixinWorld"
+    "world.MixinWorld",
+    "MixinDisplay"
   ]
 }

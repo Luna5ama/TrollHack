@@ -41,7 +41,8 @@ internal object HoleSnap : Module(
     category = Category.COMBAT,
     modulePriority = 120
 ) {
-    private val vRange by setting("V Range", 5, 1..8, 1)
+    private val downRange by setting("Down Range", 5, 1..8, 1)
+    private val upRange by setting("Up Range", 1, 1..8, 1)
     private val hRange by setting("H Range", 4.0f, 1.0f..8.0f, 0.25f)
     private val timer by setting("Timer", 2.0f, 1.0f..4.0f, 0.01f)
     private val postTimer by setting("Post Timer", 0.25f, 0.01f..1.0f, 0.01f, { timer > 1.0f })
@@ -119,7 +120,7 @@ internal object HoleSnap : Module(
             hole = (HolePathFinder.hole ?: findHole())?.let {
                 enabledTicks = 0
 
-                if (player.posY.toInt() - it.origin.y <= vRange
+                if (checkYRange(player.posY.toInt(), it.origin.y)
                     && distanceSq(player.posX, player.posZ, it.center.x, it.center.z) <= hRange.sq) {
                     modifyTimer(50.0f / timer, 5)
                     ranTicks++
@@ -162,10 +163,17 @@ internal object HoleSnap : Module(
 
         return HoleManager.holeInfos.asSequence()
             .filterNot { it.isTrapped }
-            .filter { playerPos.y > it.origin.y }
-            .filter { playerPos.y - it.origin.y <= vRange }
+            .filter { checkYRange(playerPos.y, it.origin.y) }
             .filter { distanceSq(player.posX, player.posZ, it.center.x, it.center.z) <= hRangeSq }
             .filter { it.canEnter(world, playerPos) }
             .minByOrNull { distanceSq(player.posX, player.posZ, it.center.x, it.center.z) }
+    }
+
+    private fun checkYRange(playerY: Int, holeY: Int): Boolean {
+        return if (playerY >= holeY) {
+            playerY - holeY <= downRange
+        } else {
+            holeY - playerY <= -upRange
+        }
     }
 }

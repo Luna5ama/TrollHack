@@ -2,7 +2,7 @@ import net.minecraftforge.gradle.userdev.UserDevExtension
 import org.spongepowered.asm.gradle.plugins.MixinExtension
 
 group = "me.luna"
-version = "0.0.2"
+version = "0.0.3"
 
 buildscript {
     repositories {
@@ -125,8 +125,8 @@ tasks {
         kotlinOptions {
             jvmTarget = "1.8"
             freeCompilerArgs = listOf(
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xopt-in=kotlin.contracts.ExperimentalContracts",
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-Xlambdas=indy",
                 "-Xjvm-default=all"
             )

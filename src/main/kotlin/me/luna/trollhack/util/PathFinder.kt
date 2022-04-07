@@ -120,9 +120,7 @@ class PathFinder(
         fun isPassable(pathFinder: PathFinder, blockSet: LongSet, current: PathNode): Boolean {
             return checkStepHeight(pathFinder, current)
                 && type.checkGround(pathFinder, blockSet, current, this)
-                && collisions.none {
-                blockSet.contains(current.toLong(it))
-            }
+                && collisions.none { blockSet.contains(current.toLong(it)) }
         }
 
         private fun checkStepHeight(pathFinder: PathFinder, node: PathNode): Boolean {
@@ -154,9 +152,16 @@ class PathFinder(
             },
             VERTICAL {
                 override fun checkGround(pathFinder: PathFinder, blockSet: LongSet, current: PathNode, next: NeighbourNode): Boolean {
-                    return (current.last == next || next.y == -1 || blockSet.contains(current.x, current.y - 1, current.z))
-                        && (current.parent == null && next.y == -1
-                        || checkWall(pathFinder, blockSet, current, next))
+                    val down = next.y == -1
+                        && (current.parent == null || checkWall(pathFinder, blockSet, current, next))
+
+                    val up = next.y == 1
+                        && (current.last.y == 1
+                        || current.last.y == 0
+                        && (current.parent == null || blockSet.contains(current.x, current.y - 1, current.z))
+                        && checkWall(pathFinder, blockSet, current, next))
+
+                    return down || up
                 }
 
                 private fun checkWall(pathFinder: PathFinder, blockSet: LongSet, current: PathNode, next: NeighbourNode): Boolean {

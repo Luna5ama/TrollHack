@@ -28,3 +28,26 @@ object TrollHackScope : CoroutineScope by CoroutineScope(context0) {
     val pool = pool0
     val context = context0
 }
+
+private val backgroundPool0 = Runtime.getRuntime().availableProcessors().let { cpuCount ->
+    ThreadPoolExecutor(
+        cpuCount,
+        cpuCount,
+        15L,
+        TimeUnit.SECONDS,
+        LinkedBlockingQueue(),
+        CountingThreadFactory("Troll Hack Pool") { priority = 1 }
+    ).apply {
+        allowCoreThreadTimeOut(true)
+    }
+}
+
+private val backgroundContext0 = backgroundPool0.asCoroutineDispatcher()
+
+/**
+ * Scope for background loads task in Troll Hack
+ */
+object TrollHackBackgroundScope : CoroutineScope by CoroutineScope(backgroundContext0) {
+    val pool = pool0
+    val context = context0
+}

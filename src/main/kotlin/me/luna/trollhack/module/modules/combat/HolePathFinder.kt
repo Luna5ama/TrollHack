@@ -19,12 +19,14 @@ import me.luna.trollhack.manager.managers.HoleManager
 import me.luna.trollhack.manager.managers.TimerManager.modifyTimer
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.module.modules.movement.Step
 import me.luna.trollhack.util.Bind
 import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.MovementUtils.applySpeedPotionEffects
 import me.luna.trollhack.util.MovementUtils.resetMove
 import me.luna.trollhack.util.PathFinder
 import me.luna.trollhack.util.combat.HoleInfo
+import me.luna.trollhack.util.extension.floorToInt
 import me.luna.trollhack.util.extension.sq
 import me.luna.trollhack.util.graphics.RenderUtils3D
 import me.luna.trollhack.util.graphics.color.ColorRGB
@@ -360,14 +362,13 @@ internal object HolePathFinder : Module(
 
                     coroutineScope {
                         val set = dumpWorld()
-                        val pathFinder = PathFinder(set)
+                        val pathFinder = PathFinder(set, stepHeight = Step.maxHeight.floorToInt())
                         val start = world.getGroundPos(player).up().toNode()
 
                         holes.forEachIndexed { i, holeInfo ->
                             launch {
                                 runCatching {
-                                    val lol = pathFinder.calculatePath(start, holeInfo.origin.toNode(), timeout * 100)
-                                    lol
+                                    pathFinder.calculatePath(start, holeInfo.origin.toNode(), timeout * 100)
                                 }.getOrNull()?.let {
                                     actor.send(IndexedValue(i, holeInfo to it))
                                 }

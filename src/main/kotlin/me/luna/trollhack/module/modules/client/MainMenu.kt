@@ -6,6 +6,8 @@ import me.luna.trollhack.module.AbstractModule
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.modules.render.AntiAlias
 import me.luna.trollhack.setting.GenericConfig
+import me.luna.trollhack.translation.TranslateType
+import me.luna.trollhack.translation.TranslationKey
 import me.luna.trollhack.util.Wrapper
 import me.luna.trollhack.util.extension.mapEach
 import me.luna.trollhack.util.extension.normalizeCase
@@ -13,6 +15,7 @@ import me.luna.trollhack.util.graphics.GlStateUtils
 import me.luna.trollhack.util.graphics.RenderUtils2D
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.graphics.font.renderer.FontRenderer
+import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
 import me.luna.trollhack.util.graphics.shaders.GLSLSandbox
 import me.luna.trollhack.util.interfaces.DisplayEnum
 import me.luna.trollhack.util.math.Box
@@ -83,6 +86,7 @@ internal object MainMenu : AbstractModule(
                 it.screen = TrollGuiMainMenu()
             }
         }
+        (TrollGuiMainMenu.Companion).toString()
     }
 
     @JvmStatic
@@ -120,16 +124,16 @@ internal object MainMenu : AbstractModule(
     class TrollGuiMainMenu : GuiScreen() {
         private val buttons = ArrayList<Button>()
 
-        private val singlePlayerButton = newButton("Single Player") {
+        private val singlePlayerButton = newButton(singlePlayer) {
             mc.displayGuiScreen(GuiWorldSelection(this))
         }
-        private val multiPlayerButton = newButton("Multi Player") {
+        private val multiPlayerButton = newButton(multiPlayer) {
             mc.displayGuiScreen(GuiMultiplayer(this))
         }
-        private val optionsButton = newButton("Options") {
+        private val optionsButton = newButton(options) {
             mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
         }
-        private val exitButton = newButton("Exit") {
+        private val exitButton = newButton(exit) {
             mc.shutdown()
         }
 
@@ -141,7 +145,7 @@ internal object MainMenu : AbstractModule(
             }
         }
 
-        private fun newButton(text: String, action: () -> Unit): Button {
+        private fun newButton(text: TranslationKey, action: () -> Unit): Button {
             val button = Button(buttons.size, text, action)
             buttons.add(button)
             return button
@@ -192,12 +196,19 @@ internal object MainMenu : AbstractModule(
             }
         }
 
-        private class Button(private val index: Int, text: String, val action: () -> Unit) {
+        companion object {
+            private val singlePlayer = TranslateType.SPECIFIC key ("singlePlayer" to "Single Player")
+            private val multiPlayer = TranslateType.SPECIFIC key ("multiPlayer" to "Multi Player")
+            private val options = TranslateType.SPECIFIC key ("options" to "Options")
+            private val exit = TranslateType.SPECIFIC key ("exit" to "Exit")
+        }
+
+        private class Button(private val index: Int, private val text: TranslationKey, val action: () -> Unit) {
             private var posX = 0.0f
             private var posY = 0.0f
 
-            private val text1 = text.first().toString()
-            private val text2 = text.substring(1)
+            private val text1 get() = text.toString().first().toString()
+            private val text2 get() = text.toString().substring(1)
 
             private val quad = Box(0.0f, 0.0f, 0.0f, 0.0f)
 
@@ -228,8 +239,15 @@ internal object MainMenu : AbstractModule(
                 RenderUtils2D.drawRectFilled(posX + 1.0f, posY + 1.0f, posX + buttonWidth + 1.0f, posY + 3.0f + 1.0f, ColorRGB(64, 64, 64, 200))
                 RenderUtils2D.drawRectFilled(posX, posY, posX + buttonWidth, posY + 3.0f, lineColor)
 
-                ButtonFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42))
-                ButtonFontRenderer.drawString(text2, posX + ButtonFontRenderer.getWidth(text1), posY + 5.0f)
+                if (Language.settingLanguage.startsWith("en")) {
+                    val scale = 0.5f
+                    ButtonFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42), scale = scale)
+                    ButtonFontRenderer.drawString(text2, posX + ButtonFontRenderer.getWidth(text1, scale = scale), posY + 5.0f, scale = scale)
+                } else {
+                    val scale = 2.0f
+                    MainFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42), scale = scale)
+                    MainFontRenderer.drawString(text2, posX + MainFontRenderer.getWidth(text1, scale = scale), posY + 5.0f, scale = scale)
+                }
             }
 
             fun onHover() {
@@ -267,5 +285,5 @@ internal object MainMenu : AbstractModule(
             get() = 4.0f
     }
 
-    private object ButtonFontRenderer : FontRenderer(Font.createFont(Font.TRUETYPE_FONT, this::class.java.getResourceAsStream("/assets/trollhack/fonts/GOTHIC.TTF")), 18.0f, 512)
+    private object ButtonFontRenderer : FontRenderer(Font.createFont(Font.TRUETYPE_FONT, this::class.java.getResourceAsStream("/assets/trollhack/fonts/GOTHIC.TTF")), 36.0f, 2048)
 }

@@ -1,9 +1,13 @@
 package me.luna.trollhack.module.modules.client
 
+import me.luna.trollhack.event.events.GuiEvent
+import me.luna.trollhack.event.listener
 import me.luna.trollhack.module.AbstractModule
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.setting.GenericConfig
 import me.luna.trollhack.translation.TranslationManager
+import me.luna.trollhack.util.Wrapper
+import net.minecraft.client.gui.GuiMainMenu
 
 internal object Language : AbstractModule(
     name = "Language",
@@ -13,18 +17,30 @@ internal object Language : AbstractModule(
     visible = false,
     config = GenericConfig
 ) {
-    private val overrideLanguage0 = setting("Override Language", false)
-    private val language0 = setting("Language", "en_us", { overrideLanguage })
-
-    val overrideLanguage by overrideLanguage0
-    val language by language0
+    private val overrideLanguage = setting("Override Language", false)
+    private val language = setting("Language", "en_us", { overrideLanguage.value })
 
     init {
-        overrideLanguage0.listeners.add {
+        listener<GuiEvent.Displayed>(114514) {
+            if (it.screen is GuiMainMenu || it.screen is MainMenu.TrollGuiMainMenu) {
+                TranslationManager.reload()
+            }
+        }
+    }
+
+    val settingLanguage: String
+        get() = if (overrideLanguage.value) {
+            language.value
+        } else {
+            Wrapper.minecraft.gameSettings.language
+        }
+
+    init {
+        overrideLanguage.listeners.add {
             TranslationManager.reload()
         }
 
-        language0.listeners.add {
+        language.listeners.add {
             TranslationManager.reload()
         }
     }

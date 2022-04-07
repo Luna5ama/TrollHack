@@ -3,7 +3,7 @@ package me.luna.trollhack.command.commands
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.luna.trollhack.command.ClientCommand
-import me.luna.trollhack.translation.I18N_DIR
+import me.luna.trollhack.translation.I18N_LOCAL_DIR
 import me.luna.trollhack.translation.TranslationManager
 import me.luna.trollhack.util.text.NoSpamMessage
 import me.luna.trollhack.util.threads.defaultScope
@@ -17,7 +17,7 @@ object TranslationCommand : ClientCommand(
             execute {
                 defaultScope.launch(Dispatchers.Default) {
                     TranslationManager.dump()
-                    NoSpamMessage.sendMessage(TranslationCommand, "Dumped root lang to $I18N_DIR")
+                    NoSpamMessage.sendMessage(TranslationCommand, "Dumped root lang to $I18N_LOCAL_DIR")
                 }
             }
         }
