@@ -59,7 +59,7 @@ object WorldManager : Manager(), IWorldEventListener {
 
     }
 
-    override fun playEvent(player: EntityPlayer?, type: Int, blockPosIn: BlockPos, data: Int) {
+    override fun playEvent(player: EntityPlayer, type: Int, blockPosIn: BlockPos, data: Int) {
 
     }
 }

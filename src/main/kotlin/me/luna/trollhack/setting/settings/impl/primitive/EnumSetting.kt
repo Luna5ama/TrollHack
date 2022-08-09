@@ -16,7 +16,7 @@ class EnumSetting<T : Enum<T>>(
     description: CharSequence = ""
 ) : MutableSetting<T>(name, value, visibility, consumer, description), MutableNonPrimitive<T> {
 
-    val enumClass: Class<T> = value.declaringClass
+    val enumClass: Class<T> = value.declaringJavaClass
     val enumValues: Array<out T> = enumClass.enumConstants
 
     fun nextValue() {

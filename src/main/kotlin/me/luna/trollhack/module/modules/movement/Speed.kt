@@ -14,6 +14,7 @@ import me.luna.trollhack.manager.managers.TimerManager.modifyTimer
 import me.luna.trollhack.manager.managers.TimerManager.resetTimer
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.module.modules.combat.Burrow
 import me.luna.trollhack.module.modules.combat.HoleSnap
 import me.luna.trollhack.util.*
 import me.luna.trollhack.util.EntityUtils.betterPosition
@@ -161,9 +162,7 @@ internal object Speed : Module(
         }
 
         safeListener<PlayerTravelEvent> {
-            val playerPos = player.betterPosition
-            val box = world.getBlockState(playerPos).getCollisionBoundingBox(world, playerPos)
-            if (box != null && box.maxY + playerPos.y > player.posY) {
+            if (Burrow.isBurrowed(player)) {
                 burrowTicks = 0
             }
 

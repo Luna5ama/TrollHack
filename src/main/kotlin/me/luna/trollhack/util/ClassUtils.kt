@@ -2,6 +2,7 @@ package me.luna.trollhack.util
 
 import java.io.File
 import java.net.URL
+import java.nio.file.Paths
 import java.util.function.Predicate
 import java.util.jar.JarInputStream
 
@@ -18,9 +19,8 @@ object ClassUtils {
         val classes = ArrayList<Class<*>>()
 
         if (isJar) {
-            val path = root.path
-            val url = URL(path.substring(0, path.lastIndexOf('!')))
-            findClassesInJar(classLoader, File(url.file), packagePath, predicate, classes)
+            val path = Paths.get(URL(root.path.substringBeforeLast('!')).toURI())
+            findClassesInJar(classLoader, path.toFile(), packagePath, predicate, classes)
         } else {
             classLoader.getResources(packagePath)?.let {
                 for (url in it) {

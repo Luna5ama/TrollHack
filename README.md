@@ -1,4 +1,4 @@
 # TrollHack
 Strong hack
 
-Enjoy
+If you leak this nmsl

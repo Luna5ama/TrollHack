@@ -791,7 +791,7 @@ internal object TrollAura : Module(
             if (canSwap && autoSwap) {
                 val slot = player.getCrystalSlot() ?: return
                 if (!spoofHotbar) {
-                    MainHandPause.withPause(TrollAura, 1000L) {
+                    MainHandPause.withPause(TrollAura, placeDelay * 2) {
                         swapToSlot(slot)
                         connection.sendPacket(placePacket(pos, EnumHand.MAIN_HAND))
                     }

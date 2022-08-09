@@ -85,10 +85,11 @@ internal object InventorySorter : Module(
             val itemStack = slotTo.stack
 
             if (itemStack.item != item || (itemStack.isStackable && itemStack.count < itemStack.maxStackSize)) {
-                slots.getCompatibleStack(slotTo, item, itemStack)?.let {
-                    lastTask = moveItem(it, slotTo, itemStack)
+                val slot = slots.getCompatibleStack(slotTo, item, itemStack)
+                if (slot != null) {
+                    lastTask = moveItem(slot, slotTo, itemStack)
                     return
-                } ?: if (itemStack.item == item) {
+                } else if (itemStack.item == item) {
                     checkSet.add(index)
                 }
             } else {

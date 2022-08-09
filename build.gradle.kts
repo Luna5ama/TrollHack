@@ -2,7 +2,7 @@ import net.minecraftforge.gradle.userdev.UserDevExtension
 import org.spongepowered.asm.gradle.plugins.MixinExtension
 
 group = "me.luna"
-version = "0.0.3"
+version = "0.0.4"
 
 buildscript {
     repositories {
@@ -90,6 +90,13 @@ dependencies {
     jarOnly("cabaletta:baritone-api:1.2")
 }
 
+idea {
+    module {
+        excludeDirs.add(file("log.txt"))
+        excludeDirs.add(file("run"))
+    }
+}
+
 configure<MixinExtension> {
     add(sourceSets["main"], "mixins.troll.refmap.json")
 }
@@ -114,7 +121,45 @@ configure<UserDevExtension> {
     }
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
+kotlin {
+    kotlinDaemonJvmArgs = listOf(
+        "-Xms1G",
+        "-Xmx2G",
+        "-XX:+UnlockExperimentalVMOptions",
+        "-XX:+AlwaysPreTouch",
+        "-XX:+ParallelRefProcEnabled",
+        "-XX:+UseG1GC",
+        "-XX:+UseStringDeduplication",
+        "-XX:MaxGCPauseMillis=200",
+        "-XX:G1NewSizePercent=10",
+        "-XX:G1MaxNewSizePercent=25",
+        "-XX:G1HeapRegionSize=1M",
+        "-XX:G1ReservePercent=10",
+        "-XX:G1HeapWastePercent=10",
+        "-XX:G1MixedGCCountTarget=8",
+        "-XX:InitiatingHeapOccupancyPercent=75",
+        "-XX:G1MixedGCLiveThresholdPercent=60",
+        "-XX:G1RSetUpdatingPauseTimePercent=30",
+        "-XX:G1OldCSetRegionThresholdPercent=25",
+        "-XX:SurvivorRatio=8"
+    )
+}
+
 tasks {
+    clean {
+        val set = mutableSetOf<Any>()
+        buildDir.listFiles()?.filterNotTo(set) {
+            it.name == "fg_cache"
+        }
+        delete = set
+    }
+
     compileJava {
         options.encoding = "UTF-8"
         sourceCompatibility = "1.8"
@@ -131,10 +176,6 @@ tasks {
                 "-Xjvm-default=all"
             )
         }
-    }
-
-    jar {
-
     }
 
     val releaseJar = register<Jar>("releaseJar") {
@@ -208,31 +249,35 @@ tasks {
     register<Task>("genRuns") {
         group = "ide"
         doLast {
-            file(File(rootDir, ".idea/runConfigurations/${project.name}_runClient.xml")).writer().use {
+            val dir = File(rootDir, ".idea/runConfigurations")
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
+            File(dir, "runClient.xml").writer().use {
                 it.write(
                     """
                         <component name="ProjectRunConfigurationManager">
-                          <configuration default="false" name="${project.name} runClient" type="Application" factoryName="Application">
+                          <configuration default="false" name="runClient" type="Application" factoryName="Application">
                             <envs>
-                              <env name="MCP_TO_SRG" value="${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/createSrgToMcp/output.srg" />
-                              <env name="MOD_CLASSES" value="${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/resources/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/java/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/kotlin/main" />
+                              <env name="MCP_TO_SRG" value="${'$'}PROJECT_DIR$/build/createSrgToMcp/output.srg" />
+                              <env name="MOD_CLASSES" value="${'$'}PROJECT_DIR$/build/resources/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/java/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/kotlin/main" />
                               <env name="mainClass" value="net.minecraft.launchwrapper.Launch" />
                               <env name="MCP_MAPPINGS" value="${mappingsChannel}_$mappingsVersion" />
                               <env name="FORGE_VERSION" value="$forgeVersion" />
                               <env name="assetIndex" value="${minecraftVersion.substringBeforeLast('.')}" />
                               <env name="assetDirectory" value="${gradle.gradleUserHomeDir.path.replace('\\', '/')}/caches/forge_gradle/assets" />
-                              <env name="nativesDirectory" value="${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/natives" />
+                              <env name="nativesDirectory" value="${'$'}PROJECT_DIR$/../${rootProject.name}/build/natives" />
                               <env name="FORGE_GROUP" value="net.minecraftforge" />
                               <env name="tweakClass" value="net.minecraftforge.fml.common.launcher.FMLTweaker" />
                               <env name="MC_VERSION" value="${'$'}{MC_VERSION}" />
                             </envs>
                             <option name="MAIN_CLASS_NAME" value="net.minecraftforge.legacydev.MainClient" />
-                            <module name="${rootProject.name}.${project.name}.main" />
+                            <module name="${rootProject.name}.main" />
                             <option name="PROGRAM_PARAMETERS" value="--width 1280 --height 720" />
-                            <option name="VM_PARAMETERS" value="-Xms2G -Xmx2G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -XX:+UseLargePages -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5 -XX:G1NewSizePercent=1 -XX:G1MaxNewSizePercent=25 -XX:G1HeapRegionSize=1M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=30 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=30 -XX:G1MixedGCLiveThresholdPercent=80 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:MinHeapFreeRatio=1 -XX:MaxHeapFreeRatio=25 -XX:ParallelGCThreads=${Runtime.getRuntime().availableProcessors()} -XX:ConcGCThreads=${Runtime.getRuntime().availableProcessors() / 4} -XX:FlightRecorderOptions=stackdepth=2048 -Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -Dmixin.env.disableRefMap=true -Dfml.coreMods.load=me.luna.trollhack.TrollHackCoreMod" />
-                            <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/${project.name}/run" />
+                            <option name="VM_PARAMETERS" value="-Xms2G -Xmx2G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5 -XX:G1NewSizePercent=1 -XX:G1MaxNewSizePercent=25 -XX:G1HeapRegionSize=1M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=30 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=30 -XX:G1MixedGCLiveThresholdPercent=80 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:MinHeapFreeRatio=1 -XX:MaxHeapFreeRatio=25 -XX:ParallelGCThreads=${Runtime.getRuntime().availableProcessors()} -XX:ConcGCThreads=${Runtime.getRuntime().availableProcessors() / 4} -XX:FlightRecorderOptions=stackdepth=2048 -Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -Dmixin.env.disableRefMap=true -Dfml.coreMods.load=me.luna.trollhack.TrollHackCoreMod" />
+                            <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/run" />
                             <method v="2">
-                              <option name="Gradle.BeforeRunTask" enabled="true" tasks="${project.name}:prepareRunClient" externalProjectPath="${'$'}PROJECT_DIR$" />
+                              <option name="Gradle.BeforeRunTask" enabled="true" tasks="prepareRunClient" externalProjectPath="${'$'}PROJECT_DIR$" />
                             </method>
                           </configuration>
                         </component>

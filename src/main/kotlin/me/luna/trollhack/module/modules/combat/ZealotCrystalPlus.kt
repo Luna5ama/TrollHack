@@ -25,6 +25,7 @@ import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.module.modules.client.GuiSetting
+import me.luna.trollhack.module.modules.combat.ZealotCrystalPlus.eyeDistanceSq
 import me.luna.trollhack.util.EntityUtils.eyePosition
 import me.luna.trollhack.util.EntityUtils.isPassive
 import me.luna.trollhack.util.MovementUtils.realSpeed
@@ -58,6 +59,9 @@ import me.luna.trollhack.util.math.RotationUtils.getRotationTo
 import me.luna.trollhack.util.math.VectorUtils.setAndAdd
 import me.luna.trollhack.util.math.VectorUtils.toViewVec
 import me.luna.trollhack.util.math.vector.*
+import me.luna.trollhack.util.pause.HandPause
+import me.luna.trollhack.util.pause.MainHandPause
+import me.luna.trollhack.util.pause.withPause
 import me.luna.trollhack.util.threads.TrollHackScope
 import me.luna.trollhack.util.threads.onMainThread
 import me.luna.trollhack.util.threads.runSafe
@@ -165,6 +169,7 @@ internal object ZealotCrystalPlus : Module(
     private val placeBalance by setting("Place Balance", -3.0f, -10.0f..10.0f, 0.25f, { page == Page.PLACE })
     private val placeDelay by setting("Place Delay", 50, 0..500, 1, { page == Page.PLACE })
     private val placeRange by setting("Place Range", 5.0f, 0.0f..8.0f, 0.1f, { page == Page.PLACE })
+    private val placeRangeMode by setting("Place Range Mode", RangeMode.FEET, { page == Page.PLACE })
 
     // Break
     private val breakMode by setting("Break Mode", BreakMode.SMART, { page == Page.BREAK })
@@ -179,6 +184,7 @@ internal object ZealotCrystalPlus : Module(
     private val breakBalance by setting("Break Balance", -4.0f, -10.0f..10.0f, 0.25f, { page == Page.BREAK })
     private val breakDelay by setting("Break Delay", 100, 0..500, 1, { page == Page.BREAK })
     private val breakRange by setting("Break Range", 5.0f, 0.0f..8.0f, 0.1f, { page == Page.BREAK })
+    private val breakRangeMode by setting("Break Range Mode", RangeMode.FEET, { page == Page.BREAK })
 
     // Misc
     private val swingMode by setting("Swing Mode", SwingMode.CLIENT, { page == Page.RENDER })
@@ -242,6 +248,11 @@ internal object ZealotCrystalPlus : Module(
         OWN("Own"),
         SMART("Smart"),
         ALL("All"),
+    }
+
+    private enum class RangeMode(override val displayName: String) : DisplayEnum {
+        FEET("Feet"),
+        EYES("Eye")
     }
 
     private enum class RenderMode(override val displayName: String) : DisplayEnum {
@@ -372,24 +383,6 @@ internal object ZealotCrystalPlus : Module(
     }, "Zealot+ Loop").apply {
         isDaemon = true
         start()
-    }
-
-    private fun runUpdate(): Future<*> {
-        return TrollHackScope.pool.submit {
-            try {
-                targets.get()
-                if (rotation) rotationInfo.get(mc.timer.tickLength.toInt())
-                placeInfo.get(updateDelay)
-
-                if (explosionTimer.tickAndReset(250L)) {
-                    val count = explosionCount
-                    explosionCount = 0
-                    explosionCountArray.add(count)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     init {
@@ -930,16 +923,19 @@ internal object ZealotCrystalPlus : Module(
                     return
                 }
                 SwapMode.SWAP -> {
-                    val slot = player.getCrystalSlot() ?: return
+                    val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
                     onMainThread {
-                        swapToSlot(slot)
-                        connection.sendPacket(placePacket(placeInfo, EnumHand.MAIN_HAND))
+                        val slot = player.getCrystalSlot() ?: return@onMainThread
+                        MainHandPause.withPause(ZealotCrystalPlus, placeDelay * 2) {
+                            swapToSlot(slot)
+                            connection.sendPacket(packet)
+                        }
                     }
                 }
                 SwapMode.SPOOF -> {
-                    val slot = player.getCrystalSlot() ?: return
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
                     onMainThread {
+                        val slot = player.getCrystalSlot() ?: return@onMainThread
                         spoofHotbar(slot) {
                             connection.sendPacket(packet)
                         }
@@ -947,7 +943,11 @@ internal object ZealotCrystalPlus : Module(
                 }
             }
         } else {
-            connection.sendPacket(placePacket(placeInfo, hand))
+            onMainThread {
+                HandPause[hand].withPause(ZealotCrystalPlus, placeDelay * 2) {
+                    connection.sendPacket(placePacket(placeInfo, hand))
+                }
+            }
         }
 
         placedPosMap[placeInfo.blockPos.toLong()] = System.currentTimeMillis() + ownTimeout
@@ -975,10 +975,12 @@ internal object ZealotCrystalPlus : Module(
                 }
                 SwapMode.SWAP -> {
                     val slot = getWeaponSlot() ?: return
-                    swapToSlot(slot)
-                    if (autoSwap != SwapMode.SPOOF && swapDelay != 0) return
-                    connection.sendPacket(attackPacket(entityID))
-                    swingHand()
+                    MainHandPause.withPause(ZealotCrystalPlus, placeDelay * 2) {
+                        swapToSlot(slot)
+                        if (autoSwap != SwapMode.SPOOF && swapDelay != 0) return
+                        connection.sendPacket(attackPacket(entityID))
+                        swingHand()
+                    }
                 }
                 SwapMode.SPOOF -> {
                     val slot = getWeaponSlot() ?: return
@@ -1265,7 +1267,7 @@ internal object ZealotCrystalPlus : Module(
                     val crystalY = pos.y + 1.0
                     val crystalZ = pos.z + 0.5
 
-                    if (eyePos.squareDistanceTo(crystalX, crystalY, crystalZ) > rangeSq) continue
+                    if (player.placeDistanceSq(crystalX, crystalY, crystalZ) > rangeSq) continue
                     if (!isPlaceable(pos, newPlacement, mutableBlockPos)) continue
                     if (feetPos.squareDistanceTo(crystalX, crystalY, crystalZ) > wallRangeSq
                         && !world.rayTraceVisible(eyePos, crystalX, crystalY + 1.7, crystalZ, 20, mutableBlockPos)) continue
@@ -1398,9 +1400,23 @@ internal object ZealotCrystalPlus : Module(
         z: Double,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
-        return player.eyeDistanceSq(x, y, z) <= breakRange.sq
+        return player.breakDistanceSq(x, y, z) <= breakRange.sq
             && (player.getDistanceSq(x, y, z) <= wallRange.sq
             || world.rayTraceVisible(player.posX, player.posY + player.eyeHeight, player.posZ, x, y + 1.7, z, 20, mutableBlockPos))
+    }
+
+    private inline fun Entity.placeDistanceSq(x: Double, y: Double, z: Double): Double {
+        return when (placeRangeMode) {
+            RangeMode.FEET -> distanceSqTo(x, y, z)
+            RangeMode.EYES -> eyeDistanceSq(x, y, z)
+        }
+    }
+
+    private inline fun Entity.breakDistanceSq(x: Double, y: Double, z: Double): Double {
+        return when (breakRangeMode) {
+            RangeMode.FEET -> distanceSqTo(x, y, z)
+            RangeMode.EYES -> eyeDistanceSq(x, y, z)
+        }
     }
 
     private inline fun Entity.eyeDistanceSq(x: Double, y: Double, z: Double): Double {

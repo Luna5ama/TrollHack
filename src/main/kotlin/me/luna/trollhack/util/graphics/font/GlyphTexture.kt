@@ -7,14 +7,12 @@ import org.lwjgl.opengl.GL14.GL_GENERATE_MIPMAP_HINT
 import org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS
 import org.lwjgl.opengl.GL30.GL_COMPRESSED_RED_RGTC1
 import org.lwjgl.opengl.GL30.glGenerateMipmap
-import org.lwjgl.opengl.GL42.glTexStorage2D
-import org.lwjgl.opengl.GL45.glCreateTextures
 import java.nio.ByteBuffer
 
 class GlyphTexture(data: ByteBuffer, override val width: Int, override val height: Int, levels: Int) : AbstractTexture() {
     init {
         // Generate texture id and bind it
-        textureID = glCreateTextures(GL_TEXTURE_2D)
+        textureID = glGenTextures()
         bindTexture()
 
         // Setup mipmap levels
@@ -31,8 +29,7 @@ class GlyphTexture(data: ByteBuffer, override val width: Int, override val heigh
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0.0f)
 
-        glTexStorage2D(GL_TEXTURE_2D, 5, GL_COMPRESSED_RED_RGTC1, width, height)
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RED, GL_UNSIGNED_BYTE, data)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RED_RGTC1, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data)
 
         glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST)
         glGenerateMipmap(GL_TEXTURE_2D)

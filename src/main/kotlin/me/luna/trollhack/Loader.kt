@@ -12,24 +12,24 @@ import me.luna.trollhack.util.threads.mainScope
 import kotlin.system.measureTimeMillis
 
 internal object LoaderWrapper {
-    private val loaderList = ArrayList<me.luna.trollhack.AsyncLoader<*>>()
+    private val loaderList = ArrayList<AsyncLoader<*>>()
 
     init {
-        me.luna.trollhack.LoaderWrapper.loaderList.add(ModuleManager)
-        me.luna.trollhack.LoaderWrapper.loaderList.add(CommandManager)
-        me.luna.trollhack.LoaderWrapper.loaderList.add(ManagerLoader)
-        me.luna.trollhack.LoaderWrapper.loaderList.add(GuiManager)
+        loaderList.add(ModuleManager)
+        loaderList.add(CommandManager)
+        loaderList.add(ManagerLoader)
+        loaderList.add(GuiManager)
     }
 
     @JvmStatic
     fun preLoadAll() {
-        me.luna.trollhack.LoaderWrapper.loaderList.forEach { it.preLoad() }
+        loaderList.forEach { it.preLoad() }
     }
 
     @JvmStatic
     fun loadAll() {
         runBlocking {
-            me.luna.trollhack.LoaderWrapper.loaderList.forEach { it.load() }
+            loaderList.forEach { it.load() }
         }
     }
 }

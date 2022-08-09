@@ -2,7 +2,7 @@ package me.luna.trollhack.util.extension
 
 import me.luna.trollhack.util.interfaces.DisplayEnum
 
-fun <E : Enum<E>> E.next(): E = declaringClass.enumConstants.run {
+fun <E : Enum<E>> E.next(): E = declaringJavaClass.enumConstants.run {
     get((ordinal + 1) % size)
 }
 

@@ -1,14 +1,11 @@
 package me.luna.trollhack.util.threads
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.*
 
 /**
  * Single thread scope to use in Troll Hack
  */
-@Suppress("EXPERIMENTAL_API_USAGE")
+@OptIn(DelicateCoroutinesApi::class)
 val mainScope = CoroutineScope(newSingleThreadContext("Troll Hack Main"))
 
 /**

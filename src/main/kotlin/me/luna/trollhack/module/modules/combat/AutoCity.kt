@@ -108,7 +108,7 @@ internal object AutoCity : Module(
                 }?.first?.entityId ?: -1
 
             if (block != Blocks.AIR) {
-                PacketMine.mineBlock(AutoCity, posUp)
+                PacketMine.mineBlock(AutoCity, posUp, AutoCity.modulePriority)
             }
         }
 
@@ -147,7 +147,7 @@ internal object AutoCity : Module(
                         packetBreakTimer.reset()
                     }
                 } else {
-                    PacketMine.mineBlock(AutoCity, posUp)
+                    PacketMine.mineBlock(AutoCity, posUp, AutoCity.modulePriority)
                 }
             }
         }

@@ -185,7 +185,7 @@ internal object CevBreaker : Module(
                     renderer.add(AxisAlignedBB(pos), ColorRGB(255, 255, 255))
                     packetTimer.reset(-69420)
 
-                    PacketMine.mineBlock(CevBreaker, pos)
+                    PacketMine.mineBlock(CevBreaker, pos, CevBreaker.modulePriority)
                     player.swingArm(EnumHand.MAIN_HAND)
                 }
             }

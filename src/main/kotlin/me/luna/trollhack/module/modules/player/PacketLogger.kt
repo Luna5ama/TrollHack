@@ -99,6 +99,7 @@ internal object PacketLogger : Module(
                             "x" to it.packet.blockPosition.x
                             "y" to it.packet.blockPosition.y
                             "z" to it.packet.blockPosition.z
+                            "block" to it.packet.blockState.block.toString()
                         }
                     }
                     is SPacketChat -> {

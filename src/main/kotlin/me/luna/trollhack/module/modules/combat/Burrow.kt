@@ -14,6 +14,7 @@ import me.luna.trollhack.manager.managers.TimerManager.resetTimer
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.module.modules.movement.AutoCenter
+import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.EntityUtils.isFakeOrSelf
 import me.luna.trollhack.util.EntityUtils.spoofSneak
 import me.luna.trollhack.util.atValue
@@ -30,6 +31,7 @@ import me.luna.trollhack.util.world.getGroundPos
 import me.luna.trollhack.util.world.getNeighborSequence
 import me.luna.trollhack.util.world.isReplaceable
 import me.luna.trollhack.util.world.placeBlock
+import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -313,5 +315,16 @@ internal object Burrow : Module(
 
         timeout = System.currentTimeMillis() + 100L
         postBlockPos = blockPos
+    }
+
+    fun isBurrowed(entity: Entity): Boolean {
+        val pos = entity.betterPosition
+        val box = entity.world?.let {
+            it.getBlockState(pos).getCollisionBoundingBox(it, pos)
+        }
+        if (box != null && box.maxY + pos.y > entity.posY) {
+            return true
+        }
+        return false
     }
 }
