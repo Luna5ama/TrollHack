@@ -1,0 +1,38 @@
+name: TranslationHashing
+
+on:
+  push:
+    branches:
+      - translation-src
+      
+  workflow_dispatch:
+
+jobs:
+  hashing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: translation-src
+
+      - name: Hashing
+        id: hashing
+        uses: theowenyoung/folder-hash@v2.0.1
+        with:
+          path: $GITHUB_WORKSPACE
+          
+      - name: Write File
+        uses: "DamianReeves/write-file-action@master"
+        with:
+          path: ${{ github.workspace }}/.hash
+          contents: ${{ steps.hashing.outputs.hash }}
+
+      - name: Commit
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git checkout --orphan translation
+          git add $GITHUB_WORKSPACE
+          git commit -m 'Update translation' || true
+          git push --force origin translation
