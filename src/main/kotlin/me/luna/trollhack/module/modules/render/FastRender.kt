@@ -21,7 +21,7 @@ internal object FastRender : Module(
     name = "FastRender",
     description = "Fps boost",
     category = Category.RENDER,
-    enabledByDefault = true
+    enabledByDefault = false //somebody can't use FastRender
 ) {
     private val renderEntryMap = HashMap<Class<out TileEntity>, RenderEntry<out TileEntity>>()
 
