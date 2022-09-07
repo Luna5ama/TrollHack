@@ -6,6 +6,7 @@ import me.luna.trollhack.event.safeParallelListener
 import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbar
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.util.TickTimer
 import me.luna.trollhack.util.TimeUnit
 import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.executedOrTrue
@@ -34,6 +35,7 @@ internal object AutoArmor : Module(
     description = "Automatically equips armour",
     modulePriority = 500
 ) {
+    private val antiGlitchArmor by setting("Anti Glitch Armor", true)
     private val stackedArmor by setting("Stacked Armor", false)
     private val swapSlot by setting("Swap Slot", 9, 1..9, 1, { stackedArmor })
     private val blastProtectionLeggings by setting("Blast Protection Leggings", true, description = "Prefer leggings with blast protection enchantment")
@@ -41,6 +43,7 @@ internal object AutoArmor : Module(
     private val duraThreshold by setting("Durability Threshold", 10, 1..50, 1, { !stackedArmor && armorSaver })
     private val delay by setting("Delay", 2, 1..10, 1)
 
+    private val moveTimer = TickTimer(TimeUnit.TICKS)
     private var lastTask: InventoryTask? = null
 
     init {
@@ -62,8 +65,24 @@ internal object AutoArmor : Module(
             findBestArmor(player.inventorySlots, bestArmors, isElytraOn)
 
             // equip better armor
-            equipArmor(armorSlots, bestArmors)
+            if (equipArmor(armorSlots, bestArmors)) {
+                moveTimer.reset()
+            } else if (antiGlitchArmor && moveTimer.tick(5) && player.totalArmorValue != player.armorSlots.sumOf { getRawArmorValue(it.stack) }) {
+                inventoryTask {
+                    for (slot in player.armorSlots) {
+                        pickUp(slot)
+                        pickUp(slot)
+                    }
+                    delay(1, TimeUnit.TICKS)
+                    postDelay(delay, TimeUnit.TICKS)
+                }
+            }
         }
+    }
+
+    private fun getRawArmorValue(itemStack: ItemStack): Int {
+        val item = itemStack.item
+        return if (item !is ItemArmor) 0 else item.damageReduceAmount
     }
 
     private fun findBestArmor(slots: List<Slot>, bestArmors: Array<Pair<Slot, Float>>, isElytraOn: Boolean) {
@@ -112,7 +131,7 @@ internal object AutoArmor : Module(
         return 1.0f + 0.04f * level
     }
 
-    private fun SafeClientEvent.equipArmor(armorSlots: List<Slot>, bestArmors: Array<Pair<Slot, Float>>) {
+    private fun SafeClientEvent.equipArmor(armorSlots: List<Slot>, bestArmors: Array<Pair<Slot, Float>>): Boolean {
         for ((index, pair) in bestArmors.withIndex()) {
             val slotFrom = pair.first
             if (slotFrom.slotNumber in 5..8) continue // Skip if we didn't find a better armor in inventory
@@ -129,11 +148,13 @@ internal object AutoArmor : Module(
                 }
             }
 
-            break // Don't move more than one at once
+            return true // Don't move more than one at once
         }
+
+        return false
     }
 
-    private fun SafeClientEvent.moveStackedArmor(slotFrom: Slot, slotTo: Slot): InventoryTask? {
+    private fun SafeClientEvent.moveStackedArmor(slotFrom: Slot, slotTo: Slot): InventoryTask {
         return slotFrom.toHotbarSlotOrNull()?.let {
             if (slotTo.hasStack) {
                 inventoryTask {
@@ -187,6 +208,7 @@ internal object AutoArmor : Module(
                     postDelay(delay, TimeUnit.TICKS)
                 }
             }
+
             player.inventorySlots.hasEmpty() -> {
                 inventoryTask {
                     quickMove(slotTo) // Move out the old one
@@ -194,6 +216,7 @@ internal object AutoArmor : Module(
                     postDelay(delay, TimeUnit.TICKS)
                 }
             }
+
             else -> {
                 inventoryTask {
                     pickUp(slotFrom) // Pick up the new one

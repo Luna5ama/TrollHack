@@ -3,6 +3,7 @@ package me.luna.trollhack.module.modules.chat
 import me.luna.trollhack.manager.managers.EmojiManager
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.module.modules.client.CustomFont
 import me.luna.trollhack.util.extension.fastCeil
 import me.luna.trollhack.util.graphics.GlStateUtils
 import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
@@ -38,7 +39,7 @@ internal object Emoji : Module(
                 val index = text.indexOf(emojiText)
                 if (index == -1) continue
 
-                val x = mc.fontRenderer.getStringWidth(text.substring(0, index)) + fontHeight / 4
+                val x = getStringWidth(text.substring(0, index)) + fontHeight / 4
                 drawEmoji(texture, (posX + x).toDouble(), posY.toDouble(), fontHeight.toFloat())
             }
 
@@ -69,13 +70,13 @@ internal object Emoji : Module(
     @JvmStatic
     fun getStringWidth(inputWidth: Int, inputText: String, fontHeight: Int): Int {
         var reducedWidth = inputWidth
-        val replacementWidth = mc.fontRenderer.getStringWidth(getReplacement(fontHeight))
+        val replacementWidth = getStringWidth(getReplacement(fontHeight))
 
         for (result in regex.findAll(inputText)) {
             val emojiName = result.groupValues.getOrNull(1) ?: continue
             if (!EmojiManager.isEmoji(emojiName)) continue
             val emojiText = result.value
-            val emojiTextWidth = mc.fontRenderer.getStringWidth(emojiText)
+            val emojiTextWidth = getStringWidth(emojiText)
             reducedWidth -= emojiTextWidth - replacementWidth
         }
 
@@ -94,12 +95,47 @@ internal object Emoji : Module(
         return String(spaces)
     }
 
+    fun getStringWidth(text: String): Int {
+        if (CustomFont.isEnabled && CustomFont.overrideMinecraft) {
+            return getStringWidthCustomFont(text)
+        }
+
+        var i = 0
+        var flag = false
+        var j = 0
+        
+        while (j < text.length) {
+            var c0 = text[j]
+            var k: Int = mc.fontRenderer.getCharWidth(c0)
+            if (k < 0 && j < text.length - 1) {
+                ++j
+                c0 = text[j]
+                if (c0 != 'l' && c0 != 'L') {
+                    if (c0 == 'r' || c0 == 'R') {
+                        flag = false
+                    }
+                } else {
+                    flag = true
+                }
+                k = 0
+            }
+            i += k
+            if (flag && k > 0) {
+                ++i
+            }
+            ++j
+        }
+        
+        return i
+    }
+
     /* This is created because vanilla one doesn't take double position input */
     private fun drawEmoji(texture: MipmapTexture, x: Double, y: Double, size: Float) {
         val tessellator = Tessellator.getInstance()
         val bufBuilder = tessellator.buffer
 
         texture.bindTexture()
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
 
         bufBuilder.begin(GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_TEX)
         bufBuilder.pos(x, y + size, 0.0).tex(0.0, 1.0).endVertex()

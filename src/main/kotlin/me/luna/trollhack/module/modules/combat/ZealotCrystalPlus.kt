@@ -269,6 +269,10 @@ internal object ZealotCrystalPlus : Module(
         CALCULATION_TIME("Calculation Time")
     }
 
+    override fun isActive(): Boolean {
+        return isEnabled && target != null && !paused()
+    }
+
     private val renderTargetSet = CachedValueN(5L) {
         IntOpenHashSet().apply {
             targets.getLazy()?.forEach {
@@ -880,7 +884,6 @@ internal object ZealotCrystalPlus : Module(
         return valid?.crystal
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private inline fun SafeClientEvent.checkCrystalRotation(x: Double, y: Double, z: Double): Boolean {
         if (!rotation) return true
 
@@ -945,6 +948,7 @@ internal object ZealotCrystalPlus : Module(
         } else {
             onMainThread {
                 HandPause[hand].withPause(ZealotCrystalPlus, placeDelay * 2) {
+                    mc.playerController.syncCurrentPlayItem()
                     connection.sendPacket(placePacket(placeInfo, hand))
                 }
             }
@@ -977,7 +981,7 @@ internal object ZealotCrystalPlus : Module(
                     val slot = getWeaponSlot() ?: return
                     MainHandPause.withPause(ZealotCrystalPlus, placeDelay * 2) {
                         swapToSlot(slot)
-                        if (autoSwap != SwapMode.SPOOF && swapDelay != 0) return
+                        if (autoSwap != SwapMode.SPOOF && swapDelay != 0) return@withPause
                         connection.sendPacket(attackPacket(entityID))
                         swingHand()
                     }

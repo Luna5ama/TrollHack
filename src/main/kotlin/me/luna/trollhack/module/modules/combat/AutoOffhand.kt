@@ -185,8 +185,11 @@ internal object AutoOffhand : Module(
             && (checkBedAuraB && BedAura.isEnabled && BedAura.needOffhandBed)
     }
 
-    private fun checkCrystal() = offhandCrystal
-        && checkCACrystal && TrollAura.isEnabled && CombatManager.isOnTopPriority(TrollAura)
+    private fun checkCrystal(): Boolean {
+        return offhandCrystal && checkCACrystal
+            && (TrollAura.isEnabled && CombatManager.isOnTopPriority(TrollAura)
+            || ZealotCrystalPlus.isActive() && CombatManager.isOnTopPriority(ZealotCrystalPlus))
+    }
 
     private fun SafeClientEvent.checkStrength() = offhandStrength
         && !player.isPotionActive(MobEffects.STRENGTH)

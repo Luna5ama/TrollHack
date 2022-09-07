@@ -10,6 +10,7 @@ import me.luna.trollhack.event.safeConcurrentListener
 import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.manager.managers.HotbarManager
 import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbar
+import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbarBypass
 import me.luna.trollhack.manager.managers.PlayerPacketManager
 import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import me.luna.trollhack.module.AbstractModule
@@ -29,6 +30,7 @@ import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.interfaces.DisplayEnum
 import me.luna.trollhack.util.inventory.findBestTool
 import me.luna.trollhack.util.inventory.operation.swapToSlot
+import me.luna.trollhack.util.inventory.slot.currentHotbarSlot
 import me.luna.trollhack.util.inventory.slot.hotbarSlots
 import me.luna.trollhack.util.items.isTool
 import me.luna.trollhack.util.math.RotationUtils.getRotationTo
@@ -64,6 +66,8 @@ internal object PacketMine : Module(
 ) {
     private val miningMode by setting("Mining Mode", MiningMode.NORMAL_RETRY)
     private val swapMode by setting("Swap Mode", SwapMode.SPOOF)
+    private val preSwapDelay by setting("Pre Swap Delay", 1, 0..20, 1, { swapMode == SwapMode.SWAP })
+    private val postSwapDelay by setting("Post Swap Delay", 1, 0..20, 1, { swapMode == SwapMode.SWAP })
     private val rotation by setting("Rotation", false)
     private val rotateTime by setting("Rotate Time", 100, 0..1000, 10, ::rotation)
     private val startPacketOnClick by setting("Start Packet On Click", true)
@@ -89,13 +93,14 @@ internal object PacketMine : Module(
 
     private val miningQueue = HashMap<AbstractModule, MiningTask>().synchronized()
 
-    private var swapInfo = AtomicReference<SwapInfo>(null)
+    private val swapInfo = AtomicReference<SwapInfo>(null)
     private var tickCount = 0
 
     private enum class SwapMode(override val displayName: String) : DisplayEnum {
         OFF("Off"),
         SWAP("Swap"),
-        SPOOF("Spoof")
+        SPOOF("Spoof"),
+        SPOOF_BYPASS("Spoof Bypass")
     }
 
     private enum class MiningMode(override val displayName: CharSequence, val continous: Boolean) : DisplayEnum {
@@ -138,12 +143,12 @@ internal object PacketMine : Module(
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Post> {
-            val swapInfo = swapInfo.get()
-            if (swapInfo != null && swapInfo.swapTick < tickCount) {
-                if (HotbarManager.serverSideHotbar == swapInfo.swapSlot){
-                    swapToSlot(swapInfo.prevSlot)
+            val temp = swapInfo.get()
+            if (temp != null && tickCount - temp.swapTick >= preSwapDelay + postSwapDelay + 1) {
+                if (HotbarManager.serverSideHotbar == temp.swapSlot) {
+                    swapToSlot(temp.prevSlot)
                 }
-                this@PacketMine.swapInfo.compareAndSet(swapInfo, null)
+                swapInfo.compareAndSet(temp, null)
             }
             tickCount++
         }
@@ -243,7 +248,6 @@ internal object PacketMine : Module(
             if (isFinished(miningInfo, blockState) && checkRotation(miningInfo)) {
                 if (packetTimer.tick(packetDelay)) {
                     if (finishMining(blockState, miningInfo)) {
-                        swingMode.swingHand(this, EnumHand.MAIN_HAND)
                         if (miningMode == MiningMode.NORMAL_ONCE) reset(miningInfo.module)
                     }
                 }
@@ -258,17 +262,24 @@ internal object PacketMine : Module(
     }
 
     private fun SafeClientEvent.finishMining(blockState: IBlockState, miningInfo: MiningInfo): Boolean {
+        var result = false
+
         when (swapMode) {
             SwapMode.OFF -> {
                 // do nothing
             }
             SwapMode.SWAP -> {
                 findBestTool(blockState)?.let {
-                    MainHandPause.withPause<Unit>(PacketMine, 50L) {
-                        swapInfo.set(SwapInfo(HotbarManager.serverSideHotbar, it.hotbarSlot, tickCount))
-                        swapToSlot(it)
-                        sendMiningPacket(miningInfo, true)
-                        return true
+                    MainHandPause.withPause(PacketMine, 150L) {
+                        val temp = swapInfo.get()
+                        if (temp == null || player.currentHotbarSlot != it) {
+                            swapInfo.set(SwapInfo(HotbarManager.serverSideHotbar, it.hotbarSlot, tickCount))
+                            swapToSlot(it)
+                        } else if (tickCount - temp.swapTick >= preSwapDelay) {
+                            mc.playerController.updateController()
+                            sendMiningPacket(miningInfo, true)
+                            result = true
+                        }
                     }
                 }
             }
@@ -276,12 +287,21 @@ internal object PacketMine : Module(
                 findBestTool(blockState)?.let {
                     spoofHotbar(it) {
                         sendMiningPacket(miningInfo, true)
-                        return true
                     }
+                    result = true
+                }
+            }
+            SwapMode.SPOOF_BYPASS -> {
+                findBestTool(blockState)?.let {
+                    spoofHotbarBypass(it) {
+                        sendMiningPacket(miningInfo, true)
+                    }
+                    result = true
                 }
             }
         }
-        return false
+
+        return result
     }
 
     fun mineBlock(module: AbstractModule, pos: BlockPos, priority: Int) {
@@ -407,6 +427,7 @@ internal object PacketMine : Module(
         if (endPacketOnBreak && end) connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, miningInfo.pos, miningInfo.side))
         if (noAnimation && !miningInfo.mined) connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, miningInfo.pos, miningInfo.side))
         packetTimer.reset()
+        if (end) swingMode.swingHand(this, EnumHand.MAIN_HAND)
     }
 
     private fun reset() {

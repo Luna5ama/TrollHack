@@ -7,19 +7,28 @@ import org.spongepowered.asm.launch.MixinBootstrap
 import org.spongepowered.asm.mixin.MixinEnvironment
 import org.spongepowered.asm.mixin.Mixins
 
-@IFMLLoadingPlugin.Name("TrollHackCoreMod")
+@IFMLLoadingPlugin.Name("TrollHackDevFixCoreMod")
 @MCVersion("1.12.2")
-class TrollHackCoreMod : IFMLLoadingPlugin {
+class TrollHackDevFixCoreMod : IFMLLoadingPlugin {
+    private val enableMod = true
+
     init {
         MixinBootstrap.init()
-        Mixins.addConfigurations(
-            "mixins.troll.core.json",
-            "mixins.troll.accessor.json",
-            "mixins.troll.patch.json",
-            "mixins.baritone.json"
-        )
         MixinEnvironment.getDefaultEnvironment().obfuscationContext = "searge"
-        LogManager.getLogger("Troll Hack").info("Troll Hack and Baritone mixins initialised.")
+        if (enableMod) {
+            Mixins.addConfigurations(
+                "mixins.troll.core.json",
+                "mixins.troll.accessor.json",
+                "mixins.troll.patch.json",
+                "mixins.troll.devfix.json",
+                "mixins.baritone.json"
+            )
+            LogManager.getLogger("Troll Hack").info("Troll Hack and Baritone mixins initialised.")
+        } else {
+            Mixins.addConfigurations(
+                "mixins.troll.devfix.json"
+            )
+        }
     }
 
     override fun injectData(data: Map<String, Any>) {

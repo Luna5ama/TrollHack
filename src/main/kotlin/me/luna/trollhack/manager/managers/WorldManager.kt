@@ -59,7 +59,7 @@ object WorldManager : Manager(), IWorldEventListener {
 
     }
 
-    @Suppress("WRONG_NULLABILITY_FOR_JAVA_OVERRIDE") // is Nullable in World.playEvent
+    @Suppress("WRONG_NULLABILITY_FOR_JAVA_OVERRIDE")
     override fun playEvent(player: EntityPlayer?, type: Int, blockPosIn: BlockPos, data: Int) {
 
     }

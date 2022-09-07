@@ -33,19 +33,16 @@ import java.io.IOException;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
-
     @Shadow public WorldClient world;
     @Shadow public EntityPlayerSP player;
     @Shadow public GuiScreen currentScreen;
     @Shadow public GameSettings gameSettings;
     @Shadow public PlayerControllerMP playerController;
     @Shadow public RayTraceResult objectMouseOver;
-    @Shadow public GuiIngame ingameGUI;
-    @Shadow private int fpsCounter;
+
     private RayTraceResult.Type type = null;
     private boolean handActive = false;
     private boolean isHittingBlock = false;
-    @Shadow private Framebuffer framebuffer;
 
     @Shadow
     protected abstract void clickMouse();

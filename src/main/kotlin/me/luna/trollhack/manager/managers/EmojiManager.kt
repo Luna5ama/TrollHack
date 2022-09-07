@@ -12,91 +12,72 @@ import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE
 import org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
-import java.util.zip.ZipInputStream
+import java.util.zip.ZipFile
 import javax.imageio.ImageIO
 
 object EmojiManager : Manager() {
-
-    private const val directory = "${TrollHackMod.DIRECTORY}/emojis"
+    private val localFile = File("${TrollHackMod.DIRECTORY}/emoji.zip")
     private const val versionURL = "https://raw.githubusercontent.com/2b2t-Utilities/emojis/master/version.json"
     private const val zipUrl = "https://github.com/2b2t-Utilities/emojis/archive/master.zip"
 
     private val parser = JsonParser()
     private val emojiMap = HashMap<String, MipmapTexture>()
-    private val fileMap = HashMap<String, File>()
+    private var zipCache: ZipCache? = null
 
     private val job = defaultScope.launch(Dispatchers.IO) {
-        val directory = File(directory)
-
-        if (!directory.exists()) {
-            directory.mkdir()
-        }
-
         try {
             checkEmojiUpdate()
         } catch (e: Exception) {
             TrollHackMod.logger.warn("Failed to check emoji update", e)
         }
 
-        directory.listFiles()?.forEach {
-            if (it.isFile && it.extension == "png") {
-                fileMap[it.nameWithoutExtension] = it
-            }
+        try {
+            zipCache = ZipCache(ZipFile(localFile))
+            TrollHackMod.logger.info("Emoji Initialized")
+        } catch (e: Exception) {
+            TrollHackMod.logger.warn("Failed to load emojis", e)
         }
-
-        TrollHackMod.logger.info("Emoji Initialized")
     }
 
     private fun checkEmojiUpdate() {
-        val localVersion = File("$directory/version.json")
+        val globalVer = streamToJson(URL(versionURL).openStream())
+        val localVer = getLocalVersion()
 
-        if (!localVersion.exists()) {
-            updateEmojis()
-        } else {
-            val globalVer = streamToJson(URL(versionURL).openStream())
-            val localVer = streamToJson(FileInputStream(localVersion))
-
-            if (globalVer != null) {
-                if (!globalVer.has("version")) {
-                    updateEmojis()
-                } else if (globalVer["version"].asInt != localVer?.get("version")?.asInt ?: 8) {
-                    updateEmojis()
-                }
+        if (localVer == null
+            || globalVer != null && globalVer["version"] != localVer["version"]) {
+            URL(zipUrl).openStream().use {
+                localFile.writeBytes(it.readBytes())
             }
+        }
+    }
+
+    private fun getLocalVersion(): JsonObject? {
+        if (!localFile.exists()) {
+            return null
+        }
+
+        val zipFile = ZipFile(localFile)
+        return zipFile.entries().asSequence().filterNot {
+            it.isDirectory
+        }.find {
+            it.name.substringAfterLast("/") == "version.json"
+        }?.let {
+            streamToJson(zipFile.getInputStream(it))
         }
     }
 
     private fun streamToJson(stream: InputStream): JsonObject? {
         return try {
-            parser.parse(stream.reader()).asJsonObject
+            stream.use {
+                parser.parse(it.readBytes().decodeToString()).asJsonObject
+            }
         } catch (e: Exception) {
             TrollHackMod.logger.warn("Failed to parse emoji version Json", e)
             null
         }
-    }
-
-    private fun updateEmojis() {
-        val zip = ZipInputStream(URL(zipUrl).openStream())
-        var entry = zip.nextEntry
-
-        while (entry != null) {
-            if (!entry.isDirectory) {
-                val path = "$directory/${entry.name.substringAfterLast('/')}"
-                File(path).apply {
-                    if (!exists()) createNewFile()
-                    writeBytes(zip.readBytes())
-                }
-            }
-
-            zip.closeEntry()
-            entry = zip.nextEntry
-        }
-
-        zip.close()
     }
 
     fun getEmoji(name: String?): MipmapTexture? {
@@ -118,11 +99,12 @@ object EmojiManager : Manager() {
     fun isEmoji(name: String?) = getEmoji(name) != null
 
     private fun loadEmoji(name: String) {
-        val file = fileMap[name] ?: return
-        if (!file.exists()) return
+        val inputStream = zipCache?.get(name) ?: return
 
         try {
-            val image = ImageIO.read(file)
+            val image = inputStream.use {
+                ImageIO.read(it)
+            }
             val texture = MipmapTexture(image, GL_RGBA, 3)
 
             texture.bindTexture()
@@ -139,4 +121,19 @@ object EmojiManager : Manager() {
         }
     }
 
+    private class ZipCache(private val zipFile: ZipFile) {
+        private val entries = zipFile.entries().asSequence().filterNot {
+            it.isDirectory
+        }.filter {
+            it.name.endsWith(".png")
+        }.associateBy {
+            it.name.substring(it.name.lastIndexOf('/') + 1, it.name.lastIndexOf('.'))
+        }
+
+        operator fun get(name: String) : InputStream? {
+            return entries[name]?.let {
+                zipFile.getInputStream(it)
+            }
+        }
+    }
 }

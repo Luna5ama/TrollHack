@@ -19,6 +19,7 @@ import me.luna.trollhack.manager.managers.HoleManager
 import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbar
 import me.luna.trollhack.manager.managers.PlayerPacketManager
 import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
+import me.luna.trollhack.manager.managers.WorldManager
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.util.EntityUtils.eyePosition
@@ -176,7 +177,7 @@ internal object AutoHoleFill : Module(
         val sqRange = detectRange.sq
         val set = LongOpenHashSet()
 
-        for (entity in world.playerEntities) {
+        for (entity in EntityManager.players) {
             if (entity == player) continue
             if (!entity.isEntityAlive) continue
             if (entity == player) continue
@@ -211,7 +212,7 @@ internal object AutoHoleFill : Module(
 
         val placeable = Object2FloatOpenHashMap<BlockPos>()
 
-        for (entity in world.playerEntities) {
+        for (entity in EntityManager.players) {
             if (entity == player) continue
             if (!entity.isEntityAlive) continue
             if (entity == player) continue
@@ -265,7 +266,7 @@ internal object AutoHoleFill : Module(
         var minDist = Double.MAX_VALUE
         var minDistPos: BlockPos? = null
 
-        for (entity in world.playerEntities) {
+        for (entity in EntityManager.players) {
             if (entity == player) continue
             if (!entity.isEntityAlive) continue
             if (entity == player) continue

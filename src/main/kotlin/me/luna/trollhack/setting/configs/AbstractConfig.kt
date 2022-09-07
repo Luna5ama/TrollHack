@@ -27,14 +27,21 @@ abstract class AbstractConfig<T : Any>(
     abstract fun addSettingToConfig(owner: T, setting: AbstractSetting<*>)
 
     override fun save() {
-        File(filePath).run {
-            if (!exists()) mkdirs()
+        val directory = File(filePath)
+        if (!directory.exists()) {
+            directory.mkdirs()
         }
 
         saveToFile(this, file, backup)
     }
 
     override fun load() {
+        val directory = File(filePath)
+        if (!directory.exists()) {
+            directory.mkdirs()
+            return
+        }
+
         try {
             loadFromFile(this, file)
         } catch (e: Exception) {

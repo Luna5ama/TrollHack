@@ -1,8 +1,9 @@
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import org.spongepowered.asm.gradle.plugins.MixinExtension
+import kotlin.math.max
 
 group = "me.luna"
-version = "0.0.4"
+version = "0.0.5"
 
 buildscript {
     repositories {
@@ -12,7 +13,7 @@ buildscript {
 
     dependencies {
         classpath("net.minecraftforge.gradle:ForgeGradle:5.+")
-        classpath("org.spongepowered:mixingradle:0.7-SNAPSHOT")
+        classpath("org.spongepowered:mixingradle:0.7.+")
     }
 }
 
@@ -72,7 +73,7 @@ dependencies {
     implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementationAndLibrary("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    implementationAndLibrary("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    implementationAndLibrary("org.spongepowered:mixin:0.7.+") {
         exclude("commons-io")
         exclude("gson")
         exclude("guava")
@@ -80,7 +81,7 @@ dependencies {
         exclude(group = "org.apache.logging.log4j")
     }
 
-    annotationProcessor("org.spongepowered:mixin:0.8.4:processor") {
+    annotationProcessor("org.spongepowered:mixin:0.8.5:processor") {
         exclude("gson")
     }
 
@@ -178,6 +179,12 @@ tasks {
         }
     }
 
+    jar {
+        exclude {
+            it.name.contains("devfix", true)
+        }
+    }
+
     val releaseJar = register<Jar>("releaseJar") {
         group = "build"
         dependsOn("reobfJar")
@@ -217,16 +224,12 @@ tasks {
         )
     }
 
-    artifacts {
-        archives(releaseJar)
-    }
-
     register<Task>("shrinkJar") {
         group = "build"
 
         doLast {
             val outputJar = releaseJar.get().outputs.files.first()
-            val process = Runtime.getRuntime().exec("${System.getenv("JAVA_HOME_11")}${File.separator}bin${File.separator}java -jar \"JarShrink.jar\" \"$outputJar\" -out \"${outputJar.parent}/${outputJar.nameWithoutExtension}-Optimized.jar\" -t \"${project.buildDir}${File.separator}shrinkJar\" -s -n -k \"me.luna\" -k \"baritone\" -k \"org.spongepowered\"")
+            val process = Runtime.getRuntime().exec("java -Dfile.encoding=UTF-8 -jar \"JarOptimizer.jar\" -i \"$outputJar\" -o \"${outputJar.parent}/${outputJar.nameWithoutExtension}-Optimized.jar\" -k \"me.luna\" -k \"baritone\" -k \"org.spongepowered\"")
             val out = process.inputStream
             val err = process.errorStream
 
@@ -249,6 +252,37 @@ tasks {
     register<Task>("genRuns") {
         group = "ide"
         doLast {
+            val threads = Runtime.getRuntime().availableProcessors()
+            val vmOptions = listOf(
+                "-Xms2G",
+                "-Xmx2G",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+AlwaysPreTouch",
+                "-XX:+ExplicitGCInvokesConcurrent",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:+UseG1GC",
+                "-XX:+UseStringDeduplication",
+                "-XX:MaxGCPauseMillis=1",
+                "-XX:G1NewSizePercent=2",
+                "-XX:G1MaxNewSizePercent=10",
+                "-XX:G1HeapRegionSize=1M",
+                "-XX:G1ReservePercent=15",
+                "-XX:G1HeapWastePercent=10",
+                "-XX:G1MixedGCCountTarget=16",
+                "-XX:InitiatingHeapOccupancyPercent=50",
+                "-XX:G1MixedGCLiveThresholdPercent=50",
+                "-XX:G1RSetUpdatingPauseTimePercent=25",
+                "-XX:G1OldCSetRegionThresholdPercent=5",
+                "-XX:SurvivorRatio=5",
+                "-XX:ParallelGCThreads=$threads",
+                "-XX:ConcGCThreads=${max(threads / 4, 1)}",
+                "-XX:FlightRecorderOptions=stackdepth=512",
+                "-Dforge.logging.console.level=debug",
+                "-Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP",
+                "-Dmixin.env.disableRefMap=true",
+                "-Dfml.coreMods.load=me.luna.trollhack.TrollHackCoreMod"
+            ).joinToString(" ")
+
             val dir = File(rootDir, ".idea/runConfigurations")
             if (!dir.exists()) {
                 dir.mkdirs()
@@ -273,8 +307,8 @@ tasks {
                             </envs>
                             <option name="MAIN_CLASS_NAME" value="net.minecraftforge.legacydev.MainClient" />
                             <module name="${rootProject.name}.main" />
-                            <option name="PROGRAM_PARAMETERS" value="--width 1280 --height 720" />
-                            <option name="VM_PARAMETERS" value="-Xms2G -Xmx2G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5 -XX:G1NewSizePercent=1 -XX:G1MaxNewSizePercent=25 -XX:G1HeapRegionSize=1M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=30 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=30 -XX:G1MixedGCLiveThresholdPercent=80 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:MinHeapFreeRatio=1 -XX:MaxHeapFreeRatio=25 -XX:ParallelGCThreads=${Runtime.getRuntime().availableProcessors()} -XX:ConcGCThreads=${Runtime.getRuntime().availableProcessors() / 4} -XX:FlightRecorderOptions=stackdepth=2048 -Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -Dmixin.env.disableRefMap=true -Dfml.coreMods.load=me.luna.trollhack.TrollHackCoreMod" />
+                            <option name="PROGRAM_PARAMETERS" value="--width 1280 --height 720 --username TEST" />
+                            <option name="VM_PARAMETERS" value="$vmOptions" />
                             <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/run" />
                             <method v="2">
                               <option name="Gradle.BeforeRunTask" enabled="true" tasks="prepareRunClient" externalProjectPath="${'$'}PROJECT_DIR$" />
@@ -285,5 +319,16 @@ tasks {
                 )
             }
         }
+    }
+
+    register<Copy>("updateMods") {
+        group = "build"
+        dependsOn(releaseJar)
+        from(releaseJar.get().outputs.files.first())
+        into(File(System.getProperty("user.home"), "AppData/Roaming/.minecraft/mods/1.12.2"))
+    }
+
+    artifacts {
+        archives(releaseJar)
     }
 }

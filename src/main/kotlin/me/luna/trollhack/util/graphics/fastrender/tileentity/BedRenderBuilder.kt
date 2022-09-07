@@ -43,13 +43,13 @@ class BedRenderBuilder(
 
         when (getTileEntityBlockMetadata(tileEntity) and 3) {
             1 -> {
-                byteArrayList.add(1)
+                byteArrayList.add(-1)
             }
             2 -> {
                 byteArrayList.add(0)
             }
             3 -> {
-                byteArrayList.add(-1)
+                byteArrayList.add(1)
             }
             else -> {
                 byteArrayList.add(2)

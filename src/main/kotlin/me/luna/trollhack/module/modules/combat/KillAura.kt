@@ -127,7 +127,7 @@ internal object KillAura : Module(
             inactiveTicks = 0
             if (!armorDdos) {
                 if (autoWeapon && player.scaledHealth > minSwapHealth) equipBestWeapon(prefer)
-                if (weaponOnly && !player.heldItemMainhand.item.isWeapon) return
+                if (weaponOnly && !player.heldItemMainhand.item.isWeapon) return@withPause
             }
 
             rotate(target)

@@ -1,6 +1,10 @@
 package me.luna.trollhack.util.graphics.texture
 
+import me.luna.trollhack.util.Wrapper
+import me.luna.trollhack.util.math.MathUtils
 import net.minecraft.client.renderer.GLAllocation
+import net.minecraft.client.renderer.texture.TextureUtil
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_BGRA
 import org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV
@@ -19,9 +23,9 @@ object TextureUtils {
     fun uploadRGBA(data: IntArray, format: Int, width: Int, height: Int) {
         intBuffer.put(data)
 
-        buffer.flip()
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, buffer)
-        buffer.clear()
+        intBuffer.flip()
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, intBuffer)
+        intBuffer.clear()
     }
 
     fun uploadAlpha(bufferedImage: BufferedImage) {
@@ -94,5 +98,30 @@ object TextureUtils {
         }
 
         return rgbArray
+    }
+
+    @JvmStatic
+    fun combineTexturesVertically(images: Array<BufferedImage>): BufferedImage {
+        check(images.isNotEmpty())
+
+        val firstImage = images[0]
+        val height = firstImage.height
+        val totalHeight = MathUtils.ceilToPOT(height * images.size)
+        val finalImage = BufferedImage(firstImage.width, totalHeight, firstImage.type)
+        val graphics = finalImage.createGraphics()
+
+        for (i in images.indices) {
+            val src = images[i]
+            graphics.drawImage(src, 0, height * i, null)
+        }
+
+        graphics.dispose()
+
+        return finalImage
+    }
+
+    @JvmStatic
+    fun ResourceLocation.readImage(): BufferedImage {
+        return TextureUtil.readBufferedImage(Wrapper.minecraft.resourceManager.getResource(this).inputStream)
     }
 }

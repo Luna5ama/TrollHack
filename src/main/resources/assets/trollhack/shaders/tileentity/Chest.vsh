@@ -148,7 +148,8 @@ void main() {
 
     gl_Position = projection * modelView * vec4(position * rotationMatrix + renderPosition, 1.0);
     uv = vertUV;
+    uv.y += vertTexID;
+    uv.y *= 0.25;
     normal = normal * rotationMatrix;
-    texID = vertTexID;
     lightMapUV = vertLightMapUV * 0.99609375 + 0.03125;
 }

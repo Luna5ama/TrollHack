@@ -42,8 +42,11 @@ public abstract class MixinFontRenderer {
 
     private void handleDrawString(String text, float x, float y, int color, boolean drawShadow, CallbackInfoReturnable<Integer> cir) {
         if (TrollHackMod.isReady() && CustomFont.INSTANCE.getOverrideMinecraft()) {
+            posX = x;
+            posY = y;
+
             if (Emoji.INSTANCE.isEnabled() && text.contains(":")) {
-                text = Emoji.renderText(text, FONT_HEIGHT, drawShadow, posX, posY, alpha);
+                text = Emoji.renderText(text, FONT_HEIGHT, false, posX, posY, alpha);
                 GlStateManager.color(red, blue, green, alpha); // Big Mojang meme :monkey:
             }
 

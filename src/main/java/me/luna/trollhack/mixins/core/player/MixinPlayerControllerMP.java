@@ -38,17 +38,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(PlayerControllerMP.class)
 public abstract class MixinPlayerControllerMP {
-    @Shadow @Final private Minecraft mc;
-    @Shadow private float curBlockDamageMP;
-    @Shadow private boolean isHittingBlock;
-    @Shadow private BlockPos currentBlock;
-    @Shadow private ItemStack currentItemHittingBlock;
-    @Shadow private float stepSoundTickCounter;
     @Shadow private GameType currentGameType;
     @Shadow @Final private NetHandlerPlayClient connection;
-
-    @Shadow
-    public abstract boolean onPlayerDestroyBlock(BlockPos pos);
 
     @Shadow
     protected abstract void syncCurrentPlayItem();
@@ -75,32 +66,6 @@ public abstract class MixinPlayerControllerMP {
         event.post();
 
         if (event.getCancelled()) {
-            IBlockState blockState = this.mc.world.getBlockState(pos);
-            this.mc.getTutorial().onHitBlock(this.mc.world, pos, blockState, 0.0F);
-            boolean flag = blockState.getMaterial() != Material.AIR;
-
-            if (flag && this.curBlockDamageMP == 0.0F) {
-                if (forgeEvent.getUseBlock() != Event.Result.DENY) {
-                    blockState.getBlock().onBlockClicked(this.mc.world, pos, this.mc.player);
-                }
-            }
-
-            if (forgeEvent.getUseItem() == Event.Result.DENY) {
-                cir.setReturnValue(true);
-                return;
-            }
-
-            if (flag && blockState.getPlayerRelativeBlockHardness(this.mc.player, this.mc.player.world, pos) >= 1.0F) {
-                this.onPlayerDestroyBlock(pos);
-            } else {
-                this.isHittingBlock = true;
-                this.currentBlock = pos;
-                this.currentItemHittingBlock = this.mc.player.getHeldItemMainhand();
-                this.curBlockDamageMP = 0.0F;
-                this.stepSoundTickCounter = 0.0F;
-                this.mc.world.sendBlockBreakProgress(this.mc.player.getEntityId(), this.currentBlock, (int) (this.curBlockDamageMP * 10.0F) - 1);
-            }
-
             cir.setReturnValue(true);
         }
     }

@@ -1,4 +1,4 @@
 # TrollHack
-Strong hack for anarchy servers (and only meant to be used in those servers)
+Strong hack
 
-Default keybind for GUI is `Y`.
+If you leak this nmsl

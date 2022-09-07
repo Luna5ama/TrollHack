@@ -27,7 +27,11 @@ abstract class AbstractMultiConfig<T : Any>(
     }
 
     override fun load() {
-        if (!file.exists()) file.mkdirs()
+        val directory = File(filePath)
+        if (!directory.exists()) {
+            directory.mkdirs()
+            return
+        }
 
         for (group in subGroup.values) {
             val file = getFiles(group)
@@ -48,6 +52,6 @@ abstract class AbstractMultiConfig<T : Any>(
      * @return Pair of this group's main file to its backup file
      */
     private fun getFiles(group: SettingMultiGroup) =
-        File("${file.path}/${group.name}.json") to File("${file.path}/${group.name}.bak")
+        File(file, "${group.name}.json") to File(file, "${group.name}.bak")
 
 }

@@ -1,5 +1,6 @@
 {
   "required": true,
+  "minVersion": "0.7",
   "compatibilityLevel": "JAVA_8",
   "package": "me.luna.trollhack.mixins.accessor",
   "refmap": "mixins.troll.refmap.json",

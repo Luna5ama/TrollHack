@@ -3,11 +3,14 @@ package me.luna.trollhack.util.graphics.fastrender.tileentity
 import me.luna.trollhack.util.graphics.fastrender.model.Model
 import me.luna.trollhack.util.graphics.fastrender.model.tileentity.ModelChest
 import me.luna.trollhack.util.graphics.fastrender.model.tileentity.ModelLargeChest
-import me.luna.trollhack.util.graphics.use
+import me.luna.trollhack.util.graphics.texture.TextureUtils
+import me.luna.trollhack.util.graphics.texture.TextureUtils.readImage
 import me.luna.trollhack.util.interfaces.Helper
 import net.minecraft.block.BlockChest
 import net.minecraft.client.renderer.GLAllocation
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.texture.AbstractTexture
+import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.tileentity.TileEntityChest
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
@@ -122,10 +125,10 @@ class ChestRenderBuilder(
         }
 
         override fun uploadBuffer(buffer: ByteBuffer): AbstractTileEntityRenderBuilder.Renderer {
-            return upload(buffer, model, textures)
+            return upload(buffer, model, texture)
         }
 
-        protected fun upload(buffer: ByteBuffer, model: Model, textures: Array<ResourceLocation>): AbstractTileEntityRenderBuilder.Renderer {
+        protected fun upload(buffer: ByteBuffer, model: Model, texture: AbstractTexture): AbstractTileEntityRenderBuilder.Renderer {
             val vaoID = glGenVertexArrays()
             val vboID = glGenBuffers()
 
@@ -161,7 +164,7 @@ class ChestRenderBuilder(
             glBindBuffer(GL_ARRAY_BUFFER, 0)
             glBindVertexArray(0)
 
-            return Renderer(shader, vaoID, vboID, model.modelSize, size, builtPosX, builtPosY, builtPosZ, textures)
+            return Renderer(shader, vaoID, vboID, model.modelSize, size, builtPosX, builtPosY, builtPosZ, texture)
         }
 
         override fun buildBuffer(): ByteBuffer {
@@ -197,22 +200,14 @@ class ChestRenderBuilder(
             builtPosX: Double,
             builtPosY: Double,
             builtPosZ: Double,
-            private val textures: Array<ResourceLocation>
+            private val texture: AbstractTexture
         ) : AbstractTileEntityRenderBuilder.Renderer(shader, vaoID, vboID, modelSize, size, builtPosX, builtPosY, builtPosZ), Helper {
             override fun preRender() {
                 GlStateManager.setActiveTexture(GL_TEXTURE0)
-                mc.renderEngine.bindTexture(textures[0])
-                GlStateManager.setActiveTexture(GL_TEXTURE2)
-                mc.renderEngine.bindTexture(textures[1])
-                GlStateManager.setActiveTexture(GL_TEXTURE3)
-                mc.renderEngine.bindTexture(textures[2])
+                GlStateManager.bindTexture(texture.glTextureId)
             }
 
             override fun postRender() {
-                GlStateManager.setActiveTexture(GL_TEXTURE3)
-                GlStateManager.bindTexture(0)
-                GlStateManager.setActiveTexture(GL_TEXTURE2)
-                GlStateManager.bindTexture(0)
                 GlStateManager.setActiveTexture(GL_TEXTURE0)
                 GlStateManager.bindTexture(0)
             }
@@ -221,23 +216,15 @@ class ChestRenderBuilder(
         protected companion object {
             private val model = ModelChest().apply { init() }
 
-            private val textures = arrayOf(
-                ResourceLocation("textures/entity/chest/normal.png"),
-                ResourceLocation("textures/entity/chest/trapped.png"),
-                ResourceLocation("textures/entity/chest/christmas.png")
-            )
+            private val texture = DynamicTexture(TextureUtils.combineTexturesVertically(
+                arrayOf(
+                    ResourceLocation("textures/entity/chest/normal.png").readImage(),
+                    ResourceLocation("textures/entity/chest/trapped.png").readImage(),
+                    ResourceLocation("textures/entity/chest/christmas.png").readImage()
+                )
+            ))
 
-            val shader = Shader("/assets/trollhack/shaders/tileentity/Chest.vsh", "/assets/trollhack/shaders/tileentity/Chest.fsh").apply {
-                val buffer = GLAllocation.createDirectIntBuffer(3)
-                buffer.put(0)
-                buffer.put(2)
-                buffer.put(3)
-                buffer.flip()
-
-                use {
-                    glUniform1(glGetUniformLocation(id, "textures"), buffer)
-                }
-            }
+            val shader = Shader("/assets/trollhack/shaders/tileentity/Chest.vsh", "/assets/trollhack/shaders/tileentity/Default.fsh")
 
             val isChristmas = Calendar.getInstance().let { calendar ->
                 calendar[2] + 1 == 12 && calendar[5] >= 24 && calendar[5] <= 26
@@ -298,17 +285,19 @@ class ChestRenderBuilder(
         }
 
         override fun uploadBuffer(buffer: ByteBuffer): AbstractTileEntityRenderBuilder.Renderer {
-            return upload(buffer, model, textures)
+            return upload(buffer, model, texture)
         }
 
         private companion object {
             val model = ModelLargeChest().apply { init() }
 
-            val textures = arrayOf(
-                ResourceLocation("textures/entity/chest/normal_double.png"),
-                ResourceLocation("textures/entity/chest/trapped_double.png"),
-                ResourceLocation("textures/entity/chest/christmas_double.png")
-            )
+            val texture = DynamicTexture(TextureUtils.combineTexturesVertically(
+                arrayOf(
+                    ResourceLocation("textures/entity/chest/normal_double.png").readImage(),
+                    ResourceLocation("textures/entity/chest/trapped_double.png").readImage(),
+                    ResourceLocation("textures/entity/chest/christmas_double.png").readImage()
+                )
+            ))
         }
     }
 }

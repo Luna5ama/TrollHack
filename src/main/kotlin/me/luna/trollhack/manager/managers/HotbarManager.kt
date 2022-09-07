@@ -29,11 +29,7 @@ object HotbarManager : Manager() {
         }
     }
 
-    inline fun SafeClientEvent.spoofHotbar(slot: HotbarSlot, block: () -> Unit) {
-        //contract {
-        //    callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-        //}
-
+    inline fun SafeClientEvent.spoofHotbar(slot: HotbarSlot, crossinline block: () -> Unit) {
         synchronized(playerController) {
             spoofHotbar(slot)
             block.invoke()
@@ -41,15 +37,29 @@ object HotbarManager : Manager() {
         }
     }
 
-    inline fun SafeClientEvent.spoofHotbar(slot: Int, block: () -> Unit) {
-        //contract {
-        //    callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-        //}
-
+    inline fun SafeClientEvent.spoofHotbar(slot: Int, crossinline block: () -> Unit) {
         synchronized(playerController) {
             spoofHotbar(slot)
             block.invoke()
             resetHotbar()
+        }
+    }
+
+    inline fun SafeClientEvent.spoofHotbarBypass(slot: HotbarSlot, crossinline block: () -> Unit) {
+        synchronized(playerController) {
+            val swap = slot.hotbarSlot != serverSideHotbar
+            if (swap) playerController.pickItem(slot.hotbarSlot)
+            block.invoke()
+            if (swap) playerController.pickItem(slot.hotbarSlot)
+        }
+    }
+
+    inline fun SafeClientEvent.spoofHotbarBypass(slot: Int, crossinline block: () -> Unit) {
+        synchronized(playerController) {
+            val swap = slot != serverSideHotbar
+            if (swap) playerController.pickItem(slot)
+            block.invoke()
+            if (swap) playerController.pickItem(slot)
         }
     }
 
