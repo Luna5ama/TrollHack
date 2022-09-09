@@ -6,6 +6,8 @@ import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.longs.Long2LongMaps
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.RunGameLoopEvent
@@ -25,7 +27,6 @@ import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.module.modules.client.GuiSetting
-import me.luna.trollhack.module.modules.combat.ZealotCrystalPlus.eyeDistanceSq
 import me.luna.trollhack.util.EntityUtils.eyePosition
 import me.luna.trollhack.util.EntityUtils.isPassive
 import me.luna.trollhack.util.MovementUtils.realSpeed
@@ -62,10 +63,7 @@ import me.luna.trollhack.util.math.vector.*
 import me.luna.trollhack.util.pause.HandPause
 import me.luna.trollhack.util.pause.MainHandPause
 import me.luna.trollhack.util.pause.withPause
-import me.luna.trollhack.util.threads.TrollHackScope
-import me.luna.trollhack.util.threads.onMainThread
-import me.luna.trollhack.util.threads.runSafe
-import me.luna.trollhack.util.threads.runSynchronized
+import me.luna.trollhack.util.threads.*
 import me.luna.trollhack.util.world.FastRayTraceAction
 import me.luna.trollhack.util.world.fastRaytrace
 import me.luna.trollhack.util.world.isAir
@@ -106,7 +104,6 @@ import net.minecraft.world.EnumDifficulty
 import net.minecraft.world.World
 import org.lwjgl.opengl.GL11.*
 import java.util.*
-import java.util.concurrent.Future
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -332,8 +329,8 @@ internal object ZealotCrystalPlus : Module(
     private var calculationTimesPending = IntArrayList()
 
     private val loopThread = Thread({
-        var updateTask: Future<*>? = null
-        var loopTask: Future<*>? = null
+        var updateTask: Job? = null
+        var loopTask: Job? = null
 
         while (true) {
             val loopStart = System.nanoTime()
@@ -346,8 +343,8 @@ internal object ZealotCrystalPlus : Module(
                     }
                 }
 
-                if (updateTask?.isDone != false) {
-                    updateTask = TrollHackScope.pool.submit {
+                if (!updateTask.isActiveOrFalse) {
+                    updateTask = defaultScope.launch {
                         try {
                             targets.get()
                             if (rotation) rotationInfo.get(mc.timer.tickLength.toInt())
@@ -364,8 +361,8 @@ internal object ZealotCrystalPlus : Module(
                     }
                 }
 
-                if (loopTask?.isDone != false) {
-                    loopTask = TrollHackScope.pool.submit {
+                if (!loopTask.isActiveOrFalse) {
+                    loopTask = defaultScope.launch {
                         try {
                             runLoop()
                         } catch (e: Exception) {

@@ -11,7 +11,6 @@ import me.luna.trollhack.util.accessor.renderPosX
 import me.luna.trollhack.util.accessor.renderPosY
 import me.luna.trollhack.util.accessor.renderPosZ
 import me.luna.trollhack.util.graphics.fastrender.tileentity.*
-import me.luna.trollhack.util.threads.TrollHackScope
 import me.luna.trollhack.util.threads.runSafe
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.tileentity.TileEntity
@@ -127,7 +126,7 @@ internal object FastRender : Module(
             if (tileEntities.isEmpty()) {
                 updateRenderer(null)
             } else {
-                scope.launch(TrollHackScope.context) {
+                scope.launch(Dispatchers.Default) {
                     val builder = newBuilder.invoke()
 
                     tileEntities.forEach {

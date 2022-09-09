@@ -17,7 +17,7 @@ import me.luna.trollhack.util.TickTimer
 import me.luna.trollhack.util.combat.HoleInfo
 import me.luna.trollhack.util.combat.HoleUtils.checkHoleM
 import me.luna.trollhack.util.math.vector.distanceSqTo
-import me.luna.trollhack.util.threads.TrollHackScope
+import me.luna.trollhack.util.threads.defaultScope
 import me.luna.trollhack.util.threads.runSafe
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
@@ -48,7 +48,7 @@ object HoleManager : Manager() {
         }
 
         safeListener<WorldEvent.RenderUpdate> {
-            TrollHackScope.launch {
+            defaultScope.launch {
                 val playerPos = player.flooredPosition
                 val mutablePos = BlockPos.MutableBlockPos()
 
@@ -68,7 +68,7 @@ object HoleManager : Manager() {
         }
 
         safeListener<WorldEvent.BlockUpdate> {
-            TrollHackScope.launch {
+            defaultScope.launch {
                 val playerPos = player.flooredPosition
                 val mutablePos = BlockPos.MutableBlockPos()
 
@@ -89,7 +89,7 @@ object HoleManager : Manager() {
 
         safeConcurrentListener<RunGameLoopEvent.Render> {
             if (mainTimer.tickAndReset(100L)) {
-                TrollHackScope.launch {
+                defaultScope.launch {
                     if (removeTimer.tickAndReset(500L)) {
                         removeInvalidPos()
                     }

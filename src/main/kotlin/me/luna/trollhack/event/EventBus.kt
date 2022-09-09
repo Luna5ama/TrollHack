@@ -1,10 +1,10 @@
 package me.luna.trollhack.event
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.luna.trollhack.util.collections.ArrayMap
 import me.luna.trollhack.util.interfaces.Helper
-import me.luna.trollhack.util.threads.TrollHackScope
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -58,7 +58,7 @@ open class EventBus : EventPosting {
         if (!parallelListeners.isEmpty()) {
             runBlocking {
                 for (listener in parallelListeners) {
-                    launch(TrollHackScope.context) {
+                    launch(Dispatchers.Default) {
                         listener.function.invoke(event)
                     }
                 }

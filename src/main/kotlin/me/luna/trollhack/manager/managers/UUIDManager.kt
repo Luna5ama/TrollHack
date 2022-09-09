@@ -1,8 +1,6 @@
 package me.luna.trollhack.manager.managers
 
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.manager.Manager
 import me.luna.trollhack.util.ConfigUtils
@@ -14,12 +12,9 @@ import java.io.File
 import java.util.*
 
 object UUIDManager : Manager() {
-
     private val file = File("${TrollHackMod.DIRECTORY}/uuid_cache.txt")
 
     private val parser = JsonParser()
-    private val gson = GsonBuilder().setPrettyPrinting().create()
-    private val type = object : TypeToken<Map<String, UUID>>() {}.type
     private val nameProfileMap = LinkedHashMap<String, PlayerProfile>().synchronized()
     private val uuidNameMap = LinkedHashMap<UUID, PlayerProfile>().synchronized()
 

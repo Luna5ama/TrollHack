@@ -32,7 +32,7 @@ import me.luna.trollhack.util.graphics.RenderUtils3D
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.math.VectorUtils.setAndAdd
 import me.luna.trollhack.util.math.vector.distanceSqTo
-import me.luna.trollhack.util.threads.TrollHackScope
+import me.luna.trollhack.util.threads.defaultScope
 import me.luna.trollhack.util.threads.isActiveOrFalse
 import me.luna.trollhack.util.threads.runSafe
 import me.luna.trollhack.util.world.getGroundPos
@@ -326,7 +326,7 @@ internal object HolePathFinder : Module(
 
     private fun SafeClientEvent.calculatePath() {
         if (!job.isActiveOrFalse) {
-            job = TrollHackScope.launch {
+            job = defaultScope.launch {
                 val playerPos = player.betterPosition
                 val rangeSq = range.sq
                 val targetPos = getTargetPos()

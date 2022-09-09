@@ -330,13 +330,13 @@ object CombatManager : Manager() {
             CombatManager.contextTarget = contextTarget
 
             if (flag1) {
-                placeJob = TrollHackScope.launch {
+                placeJob = defaultScope.launch {
                     updatePlaceMap(contextSelf, contextTarget, remove)
                     updatePlaceList()
                 }
             }
             if (flag2) {
-                crystalJob = TrollHackScope.launch {
+                crystalJob = defaultScope.launch {
                     updateCrystalMap(contextSelf, contextTarget, remove)
                     updateCrystalList()
                 }

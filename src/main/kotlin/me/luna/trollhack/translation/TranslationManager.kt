@@ -5,7 +5,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.module.modules.client.Language
-import me.luna.trollhack.util.threads.TrollHackScope
 import me.luna.trollhack.util.threads.defaultScope
 import me.luna.trollhack.util.threads.isActiveOrFalse
 import java.io.File

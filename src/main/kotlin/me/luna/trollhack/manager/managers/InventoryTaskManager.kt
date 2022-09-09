@@ -1,5 +1,6 @@
 package me.luna.trollhack.manager.managers
 
+import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.ConnectionEvent
 import me.luna.trollhack.event.events.PacketEvent
@@ -18,7 +19,7 @@ import net.minecraft.network.play.server.SPacketConfirmTransaction
 import java.util.*
 
 object InventoryTaskManager : Manager() {
-    private val confirmMap = HashMap<Short, ClickFuture>()
+    private val confirmMap = Short2ObjectOpenHashMap<ClickFuture>()
     private val taskQueue = PriorityQueue<InventoryTask>()
     private val timer = TickTimer()
     private var lastTask: InventoryTask? = null

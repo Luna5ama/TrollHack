@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
@@ -32,7 +33,6 @@ import me.luna.trollhack.util.graphics.esp.StaticTracerRenderer
 import me.luna.trollhack.util.math.vector.distanceSq
 import me.luna.trollhack.util.math.vector.distanceSqTo
 import me.luna.trollhack.util.or
-import me.luna.trollhack.util.threads.TrollHackScope
 import me.luna.trollhack.util.threads.defaultScope
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
@@ -148,7 +148,7 @@ internal object Search : Module(
             val maxChunkRange = rangeSq + 256
             var mainList = emptyArray<BlockRenderInfo>()
 
-            val actor = actor<ObjectArrayList<BlockRenderInfo>>(TrollHackScope.context) {
+            val actor = actor<ObjectArrayList<BlockRenderInfo>>(Dispatchers.Default) {
                 loop@ for (list in channel) {
                     @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
                     val newArray = Arrays.copyOf(mainList, mainList.size + list.size)
@@ -188,7 +188,7 @@ internal object Search : Module(
 
                         if (distanceSq(eyeX, eyeZ, chunkX, chunkZ) > maxChunkRange) continue
 
-                        launch(TrollHackScope.context) {
+                        launch(Dispatchers.Default) {
                             findBlocksInChunk(actor, chunk, eyeX, eyeY, eyeZ, rangeSq)
                         }
                     }

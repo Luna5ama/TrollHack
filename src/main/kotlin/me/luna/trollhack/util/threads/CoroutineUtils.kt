@@ -19,5 +19,5 @@ val defaultScope = CoroutineScope(Dispatchers.Default)
 inline val Job?.isActiveOrFalse get() = this?.isActive ?: false
 
 suspend inline fun delay(timeMillis: Int) {
-    kotlinx.coroutines.delay(timeMillis.toLong())
+    delay(timeMillis.toLong())
 }
