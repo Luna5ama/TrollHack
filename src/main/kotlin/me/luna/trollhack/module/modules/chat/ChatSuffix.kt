@@ -55,7 +55,7 @@ internal object ChatSuffix : Module(
     }
 
     private fun getText() = when (textMode) {
-        TextMode.NAME -> "ＴＲＯＬＬ　ＨＡＣＫ"
+        TextMode.NAME -> "ＴＲＯＬＬ ＨＡＣＫ"
         TextMode.CUSTOM -> customText
     }
 
