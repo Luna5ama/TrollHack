@@ -156,7 +156,7 @@ internal object Speed : Module(
         }
 
         safeListener<InputUpdateEvent> {
-            if (it.movementInput is MovementInputFromOptions && shouldStrafe()) {
+            if (it.movementInput is MovementInputFromOptions && autoJump && shouldStrafe()) {
                 it.movementInput.jump = false
             }
         }
