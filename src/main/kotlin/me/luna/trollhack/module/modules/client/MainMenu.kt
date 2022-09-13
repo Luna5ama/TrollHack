@@ -41,7 +41,7 @@ internal object MainMenu : AbstractModule(
 ) {
     private val title by setting("Title", Title.TROLL_HACK)
     private val mode by setting("Mode", Mode.SET)
-    private val shader by setting("Shader", ShaderEnum.BLACK_HOLE, { mode == Mode.SET })
+    private val background by setting("Background", ShaderEnum.PLANET, { mode == Mode.SET })
     private val fpsLimit by setting("Fps Limit", 60, 10..240, 10)
 
     @Suppress("unused")
@@ -56,6 +56,7 @@ internal object MainMenu : AbstractModule(
 
     @Suppress("UNUSED")
     private enum class ShaderEnum {
+        PLANET,
         BLACK_HOLE,
         BLUE_GRID,
         BLUE_LANDSCAPE,
@@ -113,7 +114,7 @@ internal object MainMenu : AbstractModule(
         val shader = if (mode == Mode.RANDOM) {
             ShaderEnum.values().random()
         } else {
-            shader
+            background
         }
 
         return shaderCache.getOrPut(shader) {
