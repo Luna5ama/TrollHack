@@ -241,7 +241,7 @@ internal object InventoryManager : Module(
     }
 
     private fun SafeClientEvent.getCompatibleStack(stack: ItemStack): Slot? {
-        return player.storageSlots.firstByStack {
+        return player.inventoryContainer.getSlots(9..44).firstByStack {
             stack.isItemEqual(it) && ItemStack.areItemStackTagsEqual(stack, it)
         }
     }
