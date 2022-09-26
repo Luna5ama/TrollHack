@@ -1,5 +1,6 @@
 package me.luna.trollhack.module.modules.player
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.TickEvent
 import me.luna.trollhack.event.events.player.PlayerTravelEvent
@@ -9,7 +10,7 @@ import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.process.PauseProcess.pauseBaritone
 import me.luna.trollhack.process.PauseProcess.unpauseBaritone
-import me.luna.trollhack.setting.settings.impl.collection.CollectionSetting
+import me.luna.trollhack.setting.settings.impl.collection.MapSetting
 import me.luna.trollhack.util.TimeUnit
 import me.luna.trollhack.util.atTrue
 import me.luna.trollhack.util.extension.fastCeil
@@ -24,6 +25,7 @@ import me.luna.trollhack.util.inventory.slot.*
 import me.luna.trollhack.util.items.id
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.inventory.Slot
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 
 internal object InventoryManager : Module(
@@ -32,15 +34,16 @@ internal object InventoryManager : Module(
     description = "Manages your inventory automatically",
     modulePriority = 10
 ) {
-    private val defaultEjectList = linkedSetOf(
-        "minecraft:grass",
-        "minecraft:dirt",
-        "minecraft:netherrack",
-        "minecraft:gravel",
-        "minecraft:sand",
-        "minecraft:stone",
-        "minecraft:cobblestone"
-    )
+    private val defaultEjectList = Object2IntOpenHashMap<String>().apply {
+        defaultReturnValue(-1)
+        put("minecraft:grass", 0)
+        put("minecraft:dirt", 0)
+        put("minecraft:netherrack", 0)
+        put("minecraft:gravel", 0)
+        put("minecraft:sand", 0)
+        put("minecraft:stone", 0)
+        put("minecraft:cobblestone", 0)
+    }
 
     private val autoRefill0 = setting("Auto Refill", true)
     private val autoRefill by autoRefill0
@@ -55,7 +58,7 @@ internal object InventoryManager : Module(
     private val fullOnly by setting("Only At Full", false, autoEject0.atTrue())
     private val pauseMovement by setting("Pause Movement", true)
     private val delay by setting("Delay Ticks", 1, 0..20, 1)
-    val ejectList = setting(CollectionSetting("Eject List", defaultEjectList))
+    val ejectMap = setting(MapSetting("Eject Map", defaultEjectList))
 
     enum class State {
         IDLE, SAVING_ITEM, REFILLING_BUILDING, REFILLING, EJECTING
@@ -145,7 +148,7 @@ internal object InventoryManager : Module(
     }
 
     private fun SafeClientEvent.ejectCheck(): Boolean {
-        return autoEject && ejectList.isNotEmpty()
+        return autoEject && ejectMap.value.isNotEmpty()
             && (!fullOnly || player.inventorySlots.firstEmpty() == null)
             && getEjectSlot() != null
     }
@@ -233,7 +236,7 @@ internal object InventoryManager : Module(
         return slots.firstByStack {
             !it.isEmpty
                 && (!buildingMode || it.item.id != buildingBlockID)
-                && (!autoEject || !ejectList.contains(it.item.registryName.toString()))
+                && (!autoEject || !ejectMap.value.containsKey(it.item.registryName.toString()))
                 && it.isStackable
                 && it.count < (it.maxStackSize / 64.0f * refillThreshold).fastCeil()
                 && getCompatibleStack(it) != null
@@ -247,10 +250,23 @@ internal object InventoryManager : Module(
     }
 
     private fun SafeClientEvent.getEjectSlot(): Slot? {
-        return player.inventorySlots.firstByStack {
-            !it.isEmpty
-                && (!buildingMode || it.item.id != buildingBlockID)
-                && ejectList.contains(it.item.registryName.toString())
+        val countMap = Object2IntOpenHashMap<Item>()
+        countMap.defaultReturnValue(0)
+
+        for (slot in player.inventoryContainer.inventorySlots) {
+            val stack = slot.stack
+            val item = stack.item
+
+            if (stack.isEmpty) continue
+            if (buildingMode && item.id == buildingBlockID) continue
+
+            val ejectThreshold = ejectMap.value[item.registryName.toString()] ?: continue
+            countMap.put(item, countMap.getInt(item) + 1)
+            if (countMap.getInt(item) > ejectThreshold) {
+                return slot
+            }
         }
+
+        return null
     }
 }

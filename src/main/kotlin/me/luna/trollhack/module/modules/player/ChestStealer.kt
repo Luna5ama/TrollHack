@@ -122,7 +122,7 @@ internal object ChestStealer : Module(
         return container.getSlots(0 until getContainerSlotSize()).firstByStack {
             !it.isEmpty
                 && (!shulkersOnly || it.item is ItemShulkerBox)
-                && (!ignoreEjectItem || !InventoryManager.ejectList.contains(it.item.registryName.toString()))
+                && (!ignoreEjectItem || !InventoryManager.ejectMap.value.containsKey(it.item.registryName.toString()))
         }
     }
 
