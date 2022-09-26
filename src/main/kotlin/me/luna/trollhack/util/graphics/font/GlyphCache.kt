@@ -63,7 +63,7 @@ object GlyphCache {
     }
 
     fun loadInfo(file: File): Array<CharInfo> {
-        return DataInputStream(file.inputStream().buffered(4096)).use { stream ->
+        return DataInputStream(file.inputStream().buffered(2048)).use { stream ->
             Array(512) {
                 CharInfo(
                     stream.readFloat(),
@@ -79,7 +79,7 @@ object GlyphCache {
     }
 
     fun saveInfo(file: File, charInfoArray: Array<CharInfo>) {
-        DataOutputStream(file.outputStream().buffered(4096)).use { stream ->
+        DataOutputStream(file.outputStream().buffered(2048)).use { stream ->
             for (charInfo in charInfoArray) {
                 stream.writeFloat(charInfo.width)
                 stream.writeFloat(charInfo.height)

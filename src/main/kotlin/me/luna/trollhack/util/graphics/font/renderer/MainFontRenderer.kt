@@ -12,8 +12,9 @@ object MainFontRenderer : IFontRenderer {
     private val defaultFont: Font
 
     init {
-        val inputStream = this.javaClass.getResourceAsStream("/assets/trollhack/fonts/LexendDeca-Regular.ttf")
-        defaultFont = Font.createFont(Font.TRUETYPE_FONT, inputStream)
+        this.javaClass.getResourceAsStream("/assets/trollhack/fonts/LexendDeca-Regular.ttf").use {
+            defaultFont = Font.createFont(Font.TRUETYPE_FONT, it)
+        }
 
         delegate = loadFont()
     }

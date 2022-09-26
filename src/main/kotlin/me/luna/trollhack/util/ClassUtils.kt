@@ -64,7 +64,7 @@ object ClassUtils {
         predicate: Predicate<String> = Predicate { true },
         list: MutableList<Class<*>>
     ) {
-        JarInputStream(jarFile.inputStream()).use {
+        JarInputStream(jarFile.inputStream().buffered(1024 * 1024)).use {
             var entry = it.nextJarEntry
             while (entry != null) {
                 if (!entry.isDirectory) {

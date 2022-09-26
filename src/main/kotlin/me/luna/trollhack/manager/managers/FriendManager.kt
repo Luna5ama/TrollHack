@@ -8,7 +8,6 @@ import me.luna.trollhack.util.ConfigUtils
 import me.luna.trollhack.util.PlayerProfile
 import me.luna.trollhack.util.extension.synchronized
 import java.io.File
-import java.io.FileReader
 import java.io.FileWriter
 
 object FriendManager : Manager() {
@@ -44,7 +43,7 @@ object FriendManager : Manager() {
         ConfigUtils.fixEmptyJson(file)
 
         return try {
-            friendFile = gson.fromJson(FileReader(file), object : TypeToken<FriendFile>() {}.type)
+            friendFile = gson.fromJson(file.readText(), object : TypeToken<FriendFile>() {}.type)
             friends.clear()
             friends.putAll(friendFile.friends.associateBy { it.name.lowercase() })
             TrollHackMod.logger.info("Friend loaded")

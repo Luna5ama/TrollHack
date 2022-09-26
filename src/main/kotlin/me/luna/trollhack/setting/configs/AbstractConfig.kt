@@ -76,9 +76,7 @@ abstract class AbstractConfig<T : Any>(
     protected fun loadFromFile(group: SettingGroup, file: File) {
         ConfigUtils.fixEmptyJson(file)
 
-        file.bufferedReader().use {
-            parser.parse(it).asJsonObject
-        }?.let {
+        parser.parse(file.readText()).asJsonObject?.let {
             group.read(it)
         }
     }

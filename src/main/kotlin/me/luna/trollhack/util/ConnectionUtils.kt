@@ -9,7 +9,7 @@ object ConnectionUtils {
         return runConnection(url, { connection ->
             connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
             connection.requestMethod = "GET"
-            connection.inputStream.readBytes().toString(Charsets.UTF_8)
+            connection.inputStream.use { it.readText() }
         }, catch)
     }
 

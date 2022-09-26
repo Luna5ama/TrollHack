@@ -1,13 +1,13 @@
 package me.luna.trollhack.util.graphics.fastrender.tileentity
 
 import me.luna.trollhack.util.graphics.fastrender.model.tileentity.ModelShulkerBox
+import me.luna.trollhack.util.graphics.texture.TextureUtils.readImage
 import me.luna.trollhack.util.interfaces.Helper
 import net.minecraft.block.BlockShulkerBox
 import net.minecraft.client.renderer.GLAllocation
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.texture.ITextureObject
-import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.tileentity.TileEntityShulkerBox
 import net.minecraft.util.EnumFacing
@@ -180,8 +180,7 @@ class ShulkerBoxRenderBuilder(
 
         init {
             val images = Array(EnumDyeColor.values().size) {
-                val iResource = mc.resourceManager.getResource(textures[it])
-                TextureUtil.readBufferedImage(iResource.inputStream)
+                mc.resourceManager.getResource(textures[it]).readImage()
             }
 
             val firstImage = images[0]

@@ -3,7 +3,7 @@ package me.luna.trollhack.util.graphics.texture
 import me.luna.trollhack.util.Wrapper
 import me.luna.trollhack.util.math.MathUtils
 import net.minecraft.client.renderer.GLAllocation
-import net.minecraft.client.renderer.texture.TextureUtil
+import net.minecraft.client.resources.IResource
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_BGRA
@@ -11,7 +11,9 @@ import org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV
 import org.lwjgl.opengl.GL30.GL_R8
 import java.awt.image.BufferedImage
 import java.awt.image.DataBuffer
+import javax.imageio.ImageIO
 
+@Suppress("NOTHING_TO_INLINE")
 object TextureUtils {
     private val buffer = GLAllocation.createDirectByteBuffer(0x4000000)
     private val intBuffer = buffer.asIntBuffer()
@@ -121,7 +123,14 @@ object TextureUtils {
     }
 
     @JvmStatic
-    fun ResourceLocation.readImage(): BufferedImage {
-        return TextureUtil.readBufferedImage(Wrapper.minecraft.resourceManager.getResource(this).inputStream)
+    inline fun ResourceLocation.readImage(): BufferedImage {
+        return Wrapper.minecraft.resourceManager.getResource(this).readImage()
+    }
+
+    @JvmStatic
+    inline fun IResource.readImage(): BufferedImage {
+        return this.inputStream.use {
+            ImageIO.read(it)
+        }
     }
 }

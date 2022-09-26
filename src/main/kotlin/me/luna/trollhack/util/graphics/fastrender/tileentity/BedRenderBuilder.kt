@@ -1,12 +1,12 @@
 package me.luna.trollhack.util.graphics.fastrender.tileentity
 
 import me.luna.trollhack.util.graphics.fastrender.model.tileentity.ModelBed
+import me.luna.trollhack.util.graphics.texture.TextureUtils.readImage
 import me.luna.trollhack.util.interfaces.Helper
 import net.minecraft.client.renderer.GLAllocation
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.texture.ITextureObject
-import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.tileentity.TileEntityBed
 import net.minecraft.util.ResourceLocation
@@ -155,7 +155,7 @@ class BedRenderBuilder(
         init {
             val images = Array(EnumDyeColor.values().size) {
                 val iResource = mc.resourceManager.getResource(textures[it])
-                val oldImage = TextureUtil.readBufferedImage(iResource.inputStream)
+                val oldImage = iResource.readImage()
                 transformBedTexture(oldImage)
             }
 

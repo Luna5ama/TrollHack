@@ -5,6 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.module.modules.client.Language
+import me.luna.trollhack.util.readText
 import me.luna.trollhack.util.threads.defaultScope
 import me.luna.trollhack.util.threads.isActiveOrFalse
 import java.io.File
@@ -31,15 +32,19 @@ object TranslationManager {
                     val zipFile = ZipFile(onlineCacheFile)
                     localHash = zipFile.entries().asSequence()
                         .find { it.name.substringAfterLast('/') == ".hash" }
-                        ?.let {
-                            zipFile.getInputStream(it).readBytes().toString(Charsets.UTF_8)
+                        ?.let { entry ->
+                            zipFile.getInputStream(entry).use { it.readText() }
                         }
                 }
 
                 val onlineHash = URL(I18N_ONLINE_HASH_URL).readText()
 
                 if (localHash != onlineHash) {
-                    onlineCacheFile.writeBytes(URL(I18N_ONLINE_DOWNLOAD_URL).readBytes())
+                    URL(I18N_ONLINE_DOWNLOAD_URL).openStream().use { online ->
+                        onlineCacheFile.outputStream().use {
+                            online.copyTo(it)
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 TrollHackMod.logger.warn("Failed to check for translation updates", e)
@@ -111,8 +116,8 @@ object TranslationManager {
             val zipFile = ZipFile(file)
             zipFile.entries().asSequence()
                 .find { it.name.substringAfterLast('/') == "$language.lang" }
-                ?.let {
-                    return zipFile.getInputStream(it).readBytes().toString(Charsets.UTF_8)
+                ?.let { entry ->
+                    return zipFile.getInputStream(entry).use { it.readText() }
                 }
         }
 

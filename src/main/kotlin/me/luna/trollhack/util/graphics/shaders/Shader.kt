@@ -4,6 +4,7 @@ import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.util.graphics.GLObject
 import me.luna.trollhack.util.graphics.GlStateUtils
 import me.luna.trollhack.util.interfaces.Helper
+import me.luna.trollhack.util.readText
 import org.lwjgl.opengl.GL20.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -36,7 +37,7 @@ open class Shader(vertShaderPath: String, fragShaderPath: String) : GLObject, He
     }
 
     private fun createShader(path: String, shaderType: Int): Int {
-        val srcString = javaClass.getResourceAsStream(path)!!.readBytes().decodeToString()
+        val srcString = javaClass.getResourceAsStream(path)!!.use { it.readText() }
         val id = glCreateShader(shaderType)
 
         glShaderSource(id, srcString)

@@ -31,7 +31,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraftforge.event.world.NoteBlockEvent
 import java.io.DataInputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
 import java.util.*
 import javax.sound.midi.InvalidMidiDataException
@@ -166,7 +165,7 @@ internal object NoteBot : Module(
     private fun readNbs(fileName: String): TreeMap<Long, ArrayList<Note>> {
         val noteSequence = TreeMap<Long, ArrayList<Note>>()
         val file = File(fileName)
-        val dataInputStream = DataInputStream(FileInputStream(file))
+        val dataInputStream = DataInputStream(file.inputStream().buffered())
         val length = dataInputStream.readShort()
 
         var nbsVersion = 0
@@ -232,7 +231,7 @@ internal object NoteBot : Module(
         // This reads a short ( 2 * bytes), it has to be inverted from the normal readShort function.
         val byte1 = readUnsignedByte()
         val byte2 = readUnsignedByte()
-        return (byte1 + (byte2 shl 8)).toShort()
+        return (byte1 or (byte2 shl 8)).toShort()
     }
 
     private fun DataInputStream.readIntCustom(): Int {
@@ -241,7 +240,7 @@ internal object NoteBot : Module(
         val byte2 = readUnsignedByte()
         val byte3 = readUnsignedByte()
         val byte4 = readUnsignedByte()
-        return byte1 + (byte2 shl 8) + (byte3 shl 16) + (byte4 shl 24)
+        return byte1 or (byte2 shl 8) or  (byte3 shl 16) or (byte4 shl 24)
     }
 
     private fun DataInputStream.skipString() {

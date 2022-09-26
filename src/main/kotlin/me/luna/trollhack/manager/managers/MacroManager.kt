@@ -10,7 +10,6 @@ import me.luna.trollhack.manager.Manager
 import me.luna.trollhack.util.ConfigUtils
 import me.luna.trollhack.util.text.MessageSendUtils
 import java.io.File
-import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
 
@@ -35,9 +34,7 @@ object MacroManager : Manager() {
         ConfigUtils.fixEmptyJson(file)
 
         return try {
-            FileReader(file).buffered().use {
-                macroMap = gson.fromJson(it, type)
-            }
+            macroMap = gson.fromJson(file.readText(), type)
             TrollHackMod.logger.info("Macro loaded")
             true
         } catch (e: Exception) {

@@ -27,9 +27,7 @@ object WaypointManager : Manager() {
         ConfigUtils.fixEmptyJson(file, true)
 
         val success = try {
-            val cacheArray = FileReader(file).buffered().use {
-                gson.fromJson(it, Array<Waypoint>::class.java)
-            }
+            val cacheArray = gson.fromJson(file.readText(), Array<Waypoint>::class.java)
 
             waypoints.clear()
             waypoints.addAll(cacheArray)

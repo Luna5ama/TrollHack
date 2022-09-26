@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import me.luna.trollhack.TrollHackMod
 import me.luna.trollhack.manager.Manager
 import me.luna.trollhack.util.graphics.texture.MipmapTexture
+import me.luna.trollhack.util.readText
 import me.luna.trollhack.util.threads.defaultScope
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE
@@ -48,8 +49,10 @@ object EmojiManager : Manager() {
 
         if (localVer == null
             || globalVer != null && globalVer["version"] != localVer["version"]) {
-            URL(zipUrl).openStream().use {
-                localFile.writeBytes(it.readBytes())
+            URL(zipUrl).openStream().use { online ->
+                localFile.outputStream().use {
+                    online.copyTo(it, 1024 * 1024)
+                }
             }
         }
     }
@@ -72,7 +75,7 @@ object EmojiManager : Manager() {
     private fun streamToJson(stream: InputStream): JsonObject? {
         return try {
             stream.use {
-                parser.parse(it.readBytes().decodeToString()).asJsonObject
+                parser.parse(it.readText()).asJsonObject
             }
         } catch (e: Exception) {
             TrollHackMod.logger.warn("Failed to parse emoji version Json", e)
