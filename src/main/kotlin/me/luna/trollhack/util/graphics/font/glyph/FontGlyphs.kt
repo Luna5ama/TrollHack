@@ -4,14 +4,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.sync.withPermit
 import me.luna.trollhack.util.extension.ceilToInt
 import me.luna.trollhack.util.graphics.font.GlyphCache
 import me.luna.trollhack.util.graphics.font.GlyphTexture
 import me.luna.trollhack.util.graphics.font.Style
-import me.luna.trollhack.util.threads.TrollHackBackgroundScope
+import me.luna.trollhack.util.threads.defaultScope
 import me.luna.trollhack.util.threads.onMainThreadSuspend
 import java.awt.Color
 import java.awt.Font
@@ -21,12 +19,10 @@ import java.awt.image.DataBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.math.max
 
 @Suppress("NOTHING_TO_INLINE")
 class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: Font, private val textureSize: Int) {
     private val chunkArray = arrayOfNulls<GlyphChunk>(128)
-    private val loadingLimiter = Semaphore(max(1, Runtime.getRuntime().availableProcessors() / 4))
     private val loadingArray = Array(127) { AtomicBoolean(false) }
     private val mainChunk: GlyphChunk
     private val mutex = Mutex()
@@ -81,7 +77,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 val boolean = loadingArray[loadingID]
 
                 if (!boolean.getAndSet(true)) {
-                    TrollHackBackgroundScope.launch {
+                    defaultScope.launch {
                         chunkArray[chunkID] = loadGlyphChunkAsync(chunkID)
                     }
                 }
@@ -101,7 +97,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
     }
 
     private suspend fun loadGlyphChunkAsync(chunkID: Int): GlyphChunk {
-        return loadingLimiter.withPermit {
+        return mutex.withLock {
             val textureImage: BufferedImage
             val charInfoArray: Array<CharInfo>
 
@@ -116,11 +112,9 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             }
 
             val data = getAlphaParallel(textureImage)
-            val texture = mutex.withLock {
-                onMainThreadSuspend {
-                    GlyphTexture(data, textureImage.width, textureImage.height, 4)
-                }.await()
-            }
+            val texture = onMainThreadSuspend {
+                GlyphTexture(data, textureImage.width, textureImage.height, 4)
+            }.await()
 
             GlyphChunk(chunkID, texture, charInfoArray)
         }
