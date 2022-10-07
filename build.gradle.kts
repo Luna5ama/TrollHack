@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:5.+")
+        classpath("net.minecraftforge.gradle:ForgeGradle:5.1.53")
         classpath("org.spongepowered:mixingradle:0.7.+")
     }
 }
