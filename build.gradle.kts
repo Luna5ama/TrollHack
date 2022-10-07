@@ -1,3 +1,4 @@
+import me.luna.jaroptimizer.JarOptimizerPluginExtension
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import org.spongepowered.asm.gradle.plugins.MixinExtension
 import kotlin.math.max
@@ -21,6 +22,7 @@ plugins {
     idea
     java
     kotlin("jvm")
+    id("me.luna.jaroptimizer").version("1.1")
 }
 
 apply {
@@ -186,6 +188,8 @@ tasks {
     }
 
     val releaseJar = register<Jar>("releaseJar") {
+        finalizedBy(optimizeJars)
+
         group = "build"
         dependsOn("reobfJar")
 
@@ -224,29 +228,8 @@ tasks {
         )
     }
 
-    register<Task>("shrinkJar") {
-        group = "build"
-
-        doLast {
-            val outputJar = releaseJar.get().outputs.files.first()
-            val process = Runtime.getRuntime().exec("java -Dfile.encoding=UTF-8 -jar \"JarOptimizer.jar\" -i \"$outputJar\" -o \"${outputJar.parent}/${outputJar.nameWithoutExtension}-Optimized.jar\" -k \"me.luna\" -k \"baritone\" -k \"org.spongepowered\"")
-            val out = process.inputStream
-            val err = process.errorStream
-
-            Thread {
-                out.bufferedReader().forEachLine {
-                    println(it)
-                }
-            }.start()
-
-            Thread {
-                err.bufferedReader().forEachLine {
-                    System.err.println(it)
-                }
-            }.start()
-
-            process.waitFor()
-        }
+    configure<JarOptimizerPluginExtension> {
+        add(releaseJar, "me.luna", "baritone", "org.spongepowered")
     }
 
     register<Task>("genRuns") {
