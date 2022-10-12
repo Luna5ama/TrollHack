@@ -168,7 +168,6 @@ internal object ActiveModules : HudElement(
                 val margin = 2.0f * dockingH.offset
 
                 var yOffset = timedFlag.displayHeight
-                if (dockingV == VAlign.BOTTOM) yOffset *= -1.0f
 
                 GlStateManager.translate(animationXOffset - margin - stringPosX, 0.0f, 0.0f)
 
@@ -187,6 +186,8 @@ internal object ActiveModules : HudElement(
                 }
 
                 module.newTextLine(color).drawLine(progress, HAlign.LEFT)
+
+                if (dockingV == VAlign.BOTTOM) yOffset *= -1.0f
                 GlStateManager.popMatrix()
                 GlStateManager.translate(0.0f, yOffset, 0.0f)
                 index++
@@ -208,7 +209,6 @@ internal object ActiveModules : HudElement(
                 val margin = 2.0f * dockingH.offset
 
                 var yOffset = timedFlag.displayHeight
-                if (dockingV == VAlign.BOTTOM) yOffset *= -1.0f
 
                 GlStateManager.translate(animationXOffset - margin - stringPosX, 0.0f, 0.0f)
 
@@ -227,6 +227,8 @@ internal object ActiveModules : HudElement(
                 }
 
                 textLine.drawLine(progress, HAlign.LEFT)
+
+                if (dockingV == VAlign.BOTTOM) yOffset *= -1.0f
                 GlStateManager.popMatrix()
                 GlStateManager.translate(0.0f, yOffset, 0.0f)
             }
