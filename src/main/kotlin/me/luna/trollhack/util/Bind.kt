@@ -1,19 +1,19 @@
 package me.luna.trollhack.util
 
+import it.unimi.dsi.fastutil.ints.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
-import java.util.*
 
 class Bind(
-    modifierKeysIn: TreeSet<Int>,
+    modifierKeysIn: IntAVLTreeSet,
     keyIn: Int
 ) {
 
     constructor() : this(0)
 
-    constructor(key: Int) : this(TreeSet(keyComparator), key)
+    constructor(key: Int) : this(IntAVLTreeSet(keyComparator), key)
 
-    constructor(vararg modifierKeys: Int, key: Int) : this(TreeSet(keyComparator).apply { modifierKeys.forEach { add(it) } }, key)
+    constructor(vararg modifierKeys: Int, key: Int) : this(IntAVLTreeSet(keyComparator).apply { modifierKeys.forEach { add(it) } }, key)
 
     val modifierKeys = modifierKeysIn
     var key = keyIn; private set
@@ -57,7 +57,7 @@ class Bind(
         }
 
     fun setBind(keyIn: Int) {
-        val cache = ArrayList<Int>()
+        val cache = IntArrayList(0)
 
         for (key in Keyboard.KEYBOARD_SIZE - 1 downTo 1) {
             if (key == keyIn) continue
@@ -68,7 +68,7 @@ class Bind(
         setBind(cache, keyIn)
     }
 
-    fun setBind(modifierKeysIn: Collection<Int>, keyIn: Int) {
+    fun setBind(modifierKeysIn: IntCollection, keyIn: Int) {
         synchronized(this) {
             modifierKeys.clear()
             modifierKeys.addAll(modifierKeysIn)
@@ -112,18 +112,18 @@ class Bind(
     }
 
     companion object {
-        private val modifierName: Map<Int, String> = hashMapOf(
-            Keyboard.KEY_LCONTROL to "Ctrl",
-            Keyboard.KEY_RCONTROL to "Ctrl",
-            Keyboard.KEY_LMENU to "Alt",
-            Keyboard.KEY_RMENU to "Alt",
-            Keyboard.KEY_LSHIFT to "Shift",
-            Keyboard.KEY_RSHIFT to "Shift",
-            Keyboard.KEY_LMETA to "Meta",
-            Keyboard.KEY_RMETA to "Meta"
-        )
+        private val modifierName = Int2ObjectLinkedOpenHashMap<String>().apply {
+            put(Keyboard.KEY_LCONTROL, "Ctrl")
+            put(Keyboard.KEY_RCONTROL, "Ctrl")
+            put(Keyboard.KEY_LMENU, "Alt")
+            put(Keyboard.KEY_RMENU, "Alt")
+            put(Keyboard.KEY_LSHIFT, "Shift")
+            put(Keyboard.KEY_RSHIFT, "Shift")
+            put(Keyboard.KEY_LMETA, "Meta")
+            put(Keyboard.KEY_RMETA, "Meta")
+        }
 
-        private val priorityMap: Map<Int, Int> = HashMap<Int, Int>().apply {
+        private val priorityMap = Int2IntLinkedOpenHashMap().apply {
             val priorityKey = arrayOf(
                 Keyboard.KEY_LCONTROL, Keyboard.KEY_RCONTROL,
                 Keyboard.KEY_LMENU, Keyboard.KEY_RMENU,
@@ -143,7 +143,7 @@ class Bind(
         }
 
         val keyComparator = compareBy<Int> {
-            priorityMap[it] ?: -1
+            priorityMap[it]
         }
     }
 }

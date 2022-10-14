@@ -2,6 +2,8 @@ package me.luna.trollhack.setting.settings.impl.other
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import it.unimi.dsi.fastutil.ints.IntAVLTreeSet
+import it.unimi.dsi.fastutil.ints.IntArrayList
 import me.luna.trollhack.event.AlwaysListening
 import me.luna.trollhack.event.events.InputEvent
 import me.luna.trollhack.event.listener
@@ -27,7 +29,7 @@ class BindSetting(
         binds.add(this)
     }
 
-    override val defaultValue: Bind = Bind(TreeSet(value.modifierKeys), value.key)
+    override val defaultValue: Bind = Bind(IntAVLTreeSet(value.modifierKeys), value.key)
 
     override fun resetValue() {
         value.setBind(defaultValue.modifierKeys, defaultValue.key)
@@ -54,7 +56,7 @@ class BindSetting(
             return
         }
 
-        val modifierKeys = TreeSet(Bind.keyComparator)
+        val modifierKeys = IntArrayList(0)
         for (index in 0 until splitNames.size - 1) {
             val name = splitNames[index]
             val key = KeyboardUtils.getKey(name)

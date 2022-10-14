@@ -48,7 +48,7 @@ object MacroCommand : ClientCommand(
                     val stringBuilder = StringBuffer()
                     stringBuilder.appendLine("You have the following macros:")
 
-                    for ((key, value) in MacroManager.macros) {
+                    for ((key, value) in MacroManager.macros.withIndex()) {
                         val formattedName = formatValue(KeyboardUtils.getDisplayName(key) ?: "Unknown")
                         stringBuilder.appendLine("$formattedName $value")
                     }
