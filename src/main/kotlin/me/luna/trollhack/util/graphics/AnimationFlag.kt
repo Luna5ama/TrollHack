@@ -1,6 +1,6 @@
 package me.luna.trollhack.util.graphics
 
-class AnimationFlag(private val interpolation: me.luna.trollhack.util.graphics.InterpolateFunction) {
+class AnimationFlag(private val interpolation: InterpolateFunction) {
 
     constructor(easing: Easing, length: Float) : this({ time, prev, current ->
         easing.incOrDec(Easing.toDelta(time, length), prev, current)

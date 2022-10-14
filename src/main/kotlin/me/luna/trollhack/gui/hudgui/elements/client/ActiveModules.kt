@@ -256,9 +256,9 @@ internal object ActiveModules : HudElement(
 
     private val TimedFlag<Boolean>.progress
         get() = if (value) {
-            Easing.OUT_CUBIC.inc(Easing.toDelta(lastUpdateTime, 200L))
+            Easing.OUT_CUBIC.inc(Easing.toDelta(lastUpdateTime, 300L))
         } else {
-            Easing.IN_CUBIC.dec(Easing.toDelta(lastUpdateTime, 200L))
+            Easing.IN_CUBIC .dec(Easing.toDelta(lastUpdateTime, 300L))
         }
 
     private class ModuleToggleFlag(val module: AbstractModule) : TimedFlag<Boolean>(module.state) {

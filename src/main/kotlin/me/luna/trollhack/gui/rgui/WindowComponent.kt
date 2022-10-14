@@ -37,7 +37,7 @@ open class WindowComponent(
     // Render info
     private var minimizedTime = 0L
     val renderMinimizeProgress by FrameValue {
-        val deltaTime = Easing.toDelta(minimizedTime, 200.0f)
+        val deltaTime = Easing.toDelta(minimizedTime, 400.0f)
         if (minimized) Easing.OUT_CUBIC.dec(deltaTime)
         else Easing.OUT_CUBIC.inc(deltaTime)
     }

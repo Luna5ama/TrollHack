@@ -9,5 +9,5 @@ open class BooleanSlider(
     description: CharSequence,
     visibility: ((() -> Boolean))? = null
 ) : Slider(name, value, description, visibility) {
-    override val renderProgress: Float by FrameValue { Easing.OUT_CIRC.incOrDecOpposite(Easing.toDelta(prevValue.lastUpdateTime, 200L), prevValue.value, this.value) }
+    override val renderProgress: Float by FrameValue { Easing.OUT_CIRC.incOrDecOpposite(Easing.toDelta(prevValue.lastUpdateTime, 300L), prevValue.value, this.value) }
 }

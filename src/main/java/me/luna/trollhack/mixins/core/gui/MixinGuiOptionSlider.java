@@ -20,7 +20,7 @@ import static org.lwjgl.opengl.GL11.GL_QUADS;
 
 @Mixin(GuiOptionSlider.class)
 public class MixinGuiOptionSlider extends GuiButton {
-    private final AnimationFlag animation = new AnimationFlag(Easing.OUT_QUAD, 100);
+    private final AnimationFlag animation = new AnimationFlag(Easing.OUT_QUAD, 200);
     @Shadow private float sliderValue;
 
     public MixinGuiOptionSlider(int buttonId, int x, int y, String buttonText) {

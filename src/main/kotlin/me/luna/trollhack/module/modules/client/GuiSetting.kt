@@ -25,7 +25,7 @@ internal object GuiSetting : Module(
     val windowBlur by windowBlur0
     val darkness by setting("Darkness", 0.25f, 0.0f..1.0f, 0.05f)
     val fadeInTime by setting("Fade In Time", 0.4f, 0.0f..1.0f, 0.05f)
-    val fadeOutTime by setting("Fade Out Time", 0.3f, 0.0f..1.0f, 0.05f)
+    val fadeOutTime by setting("Fade Out Time", 0.4f, 0.0f..1.0f, 0.05f)
     private val primarySetting by setting("Primary Color", ColorRGB(255, 160, 240, 220))
     private val outlineSetting by setting("Outline Color", ColorRGB(240, 250, 255, 48))
     private val backgroundSetting by setting("Background Color", ColorRGB(36, 40, 48, 160))

@@ -118,7 +118,7 @@ internal object AutoHoleFill : Module(
                     if (it.longValue == -1L) {
                         ESPRenderer.Info(it.key, color)
                     } else {
-                        val progress = Easing.IN_CUBIC.dec(Easing.toDelta(it.longValue, 500L))
+                        val progress = Easing.IN_CUBIC.dec(Easing.toDelta(it.longValue, 1000L))
                         val size = progress * 0.5
                         val n = 0.5 - size
                         val p = 0.5 + size

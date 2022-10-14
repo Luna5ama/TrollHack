@@ -33,7 +33,7 @@ open class Slider(
 
     protected val prevValue = TimedFlag(this.value)
     protected open val renderProgress by FrameValue {
-        Easing.OUT_QUAD.incOrDec(Easing.toDelta(prevValue.lastUpdateTime, 100.0f), prevValue.value, this.value)
+        Easing.OUT_QUAD.incOrDec(Easing.toDelta(prevValue.lastUpdateTime, 200.0f), prevValue.value, this.value)
     }
 
     override val maxHeight
@@ -143,8 +143,8 @@ open class Slider(
                 return
             }
 
-            val alpha = if (mouseState == MouseState.HOVER) Easing.OUT_CUBIC.inc(deltaTime / 250.0f)
-            else Easing.OUT_CUBIC.dec(deltaTime / 250.0f)
+            val alpha = if (mouseState == MouseState.HOVER) Easing.OUT_CUBIC.inc(deltaTime / 200.0f)
+            else Easing.OUT_CUBIC.dec(deltaTime / 200.0f)
 
             val textWidth = displayDescription.getWidth()
             val textHeight = displayDescription.getHeight(2)
