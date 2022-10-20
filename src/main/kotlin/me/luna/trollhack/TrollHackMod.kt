@@ -1,6 +1,7 @@
 package me.luna.trollhack
 
 import me.luna.trollhack.event.ForgeEventProcessor
+import me.luna.trollhack.event.events.ShutdownEvent
 import me.luna.trollhack.translation.TranslationManager
 import me.luna.trollhack.util.ConfigUtils
 import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
@@ -51,6 +52,10 @@ class TrollHackMod {
     @Mod.EventHandler
     fun postInit(event: FMLPostInitializationEvent) {
         ready = true
+        Runtime.getRuntime().addShutdownHook(Thread {
+            ShutdownEvent.post()
+            ConfigUtils.saveAll()
+        })
     }
 
     companion object {

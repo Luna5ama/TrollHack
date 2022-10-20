@@ -237,21 +237,5 @@ public abstract class MixinMinecraft {
     public void rightClickMouseBlock$Inject$RETURN$3(CallbackInfo ci) {
         FastUse.updateRightClickDelay();
     }
-
-    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", shift = At.Shift.BEFORE))
-    public void run$Inject$INVOKE$displayCrashReport(CallbackInfo info) {
-        save();
-    }
-
-    @Inject(method = "shutdown", at = @At("HEAD"))
-    public void shutdown$Inject$HEAD(CallbackInfo info) {
-        save();
-    }
-
-    private void save() {
-        if (!TrollHackMod.isReady()) return;
-        ShutdownEvent.INSTANCE.post();
-        ConfigUtils.INSTANCE.saveAll();
-    }
 }
 
