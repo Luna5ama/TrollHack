@@ -11,7 +11,6 @@ MacOS is unsupported and will NOT be fixed since it is an Apple issue.
 
 # FAQ
 Before opening an issue, please consider the following:  
-- Is OptiFine installed? (If yes, disable it. If no, install it)
 - Are you on the very latest version? In this case, it should be 0.0.5
 - Did you compile it yourself, or did you use the release?
 - Are your graphics drivers up to date?
