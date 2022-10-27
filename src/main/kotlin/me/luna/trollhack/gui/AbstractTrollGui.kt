@@ -120,7 +120,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         val mousePos = getRealMousePos()
 
         settingMap.getOrPut(element) {
-            newSettingWindow(element, mousePos)
+            newSettingWindow(element, mousePos).apply { onGuiInit() }
         }.apply {
             lastClickedWindow = this
             settingWindow = this
@@ -137,7 +137,6 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
 
             posY = min(mousePos.y, screenHeight - this.height)
 
-            onGuiInit()
             onDisplayed()
         }
     }

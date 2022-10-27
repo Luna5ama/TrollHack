@@ -25,28 +25,29 @@ abstract class SettingWindow<T : Any>(
     override val minimizable get() = false
 
     var listeningChild: Slider? = null; private set
-    private var initialized = false
 
     protected abstract fun getSettingList(): List<AbstractSetting<*>>
 
     override fun onGuiInit() {
-        super.onGuiInit()
-        if (!initialized) {
-            for (setting in getSettingList()) {
-                when (setting) {
-                    is BooleanSetting -> SettingButton(setting)
-                    is NumberSetting -> SettingSlider(setting)
-                    is EnumSetting -> EnumSlider(setting)
-                    is ColorSetting -> Button(setting.name, { displayColorPicker(setting) }, setting.description, setting.visibility)
-                    is StringSetting -> StringButton(setting)
-                    is BindSetting -> BindButton(setting)
-                    else -> null
-                }?.also {
-                    children.add(it)
-                }
+        for (setting in getSettingList()) {
+            when (setting) {
+                is BooleanSetting -> SettingButton(setting)
+                is NumberSetting -> SettingSlider(setting)
+                is EnumSetting -> EnumSlider(setting)
+                is ColorSetting -> Button(
+                    setting.name,
+                    { displayColorPicker(setting) },
+                    setting.description,
+                    setting.visibility
+                )
+                is StringSetting -> StringButton(setting)
+                is BindSetting -> BindButton(setting)
+                else -> null
+            }?.also {
+                children.add(it)
             }
-            initialized = true
         }
+        super.onGuiInit()
     }
 
     private fun displayColorPicker(colorSetting: ColorSetting) {

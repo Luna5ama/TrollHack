@@ -52,6 +52,8 @@ open class Slider(
     }
 
     override fun onDisplayed() {
+        height = maxHeight
+        if (visibility != null) visible = visibility.invoke()
         super.onDisplayed()
         prevValue.value = 0.0f
         value = 0.0f

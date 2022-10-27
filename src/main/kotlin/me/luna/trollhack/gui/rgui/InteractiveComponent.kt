@@ -26,8 +26,8 @@ open class InteractiveComponent(
     protected var prevState = MouseState.NONE; private set
     protected var lastStateUpdateTime = System.currentTimeMillis(); private set
 
-    override fun onGuiInit() {
-        super.onGuiInit()
+    override fun onDisplayed() {
+        super.onDisplayed()
         mouseState = MouseState.NONE
         prevState = MouseState.NONE
         lastStateUpdateTime = System.currentTimeMillis()

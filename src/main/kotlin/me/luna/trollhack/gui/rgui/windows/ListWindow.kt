@@ -75,6 +75,8 @@ open class ListWindow(
     override fun onDisplayed() {
         super.onDisplayed()
         for (child in children) child.onDisplayed()
+        updateChild()
+        onTick()
     }
 
     override fun onClosed() {

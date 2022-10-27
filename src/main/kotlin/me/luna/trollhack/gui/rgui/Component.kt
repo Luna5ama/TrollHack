@@ -98,14 +98,14 @@ open class Component(
     private val prevDockHeight get() = prevHeight * dockingV.multiplier
 
     // Update methods
-    open fun onDisplayed() {}
-
-    open fun onClosed() {}
-
-    open fun onGuiInit() {
+    open fun onDisplayed() {
         updatePrevPos()
         updatePrevSize()
     }
+
+    open fun onClosed() {}
+
+    open fun onGuiInit() {}
 
     open fun onTick() {
         updatePrevPos()
