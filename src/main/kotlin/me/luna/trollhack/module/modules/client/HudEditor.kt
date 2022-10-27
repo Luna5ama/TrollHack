@@ -5,6 +5,7 @@ import me.luna.trollhack.event.listener
 import me.luna.trollhack.gui.hudgui.TrollHudGui
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.util.threads.onMainThreadSafe
 
 internal object HudEditor : Module(
     name = "HudEditor",
@@ -14,16 +15,20 @@ internal object HudEditor : Module(
 ) {
     init {
         onEnable {
-            if (mc.currentScreen !is TrollHudGui) {
-                ClickGUI.disable()
-                mc.displayGuiScreen(TrollHudGui)
-                TrollHudGui.onDisplayed()
+            onMainThreadSafe {
+                if (mc.currentScreen !is TrollHudGui) {
+                    ClickGUI.disable()
+                    mc.displayGuiScreen(TrollHudGui)
+                    TrollHudGui.onDisplayed()
+                }
             }
         }
 
         onDisable {
-            if (mc.currentScreen is TrollHudGui) {
-                mc.displayGuiScreen(null)
+            onMainThreadSafe {
+                if (mc.currentScreen is TrollHudGui) {
+                    mc.displayGuiScreen(null)
+                }
             }
         }
 

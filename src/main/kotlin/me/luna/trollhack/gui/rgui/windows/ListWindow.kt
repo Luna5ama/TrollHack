@@ -101,6 +101,9 @@ open class ListWindow(
             ?: draggableHeight
 
         scrollProgress = (scrollProgress + scrollSpeed)
+        if (scrollSpeed != 0.0f) {
+            updateHovered(AbstractTrollGui.getRealMousePos().minus(posX, posY))
+        }
         scrollSpeed *= 0.5f
         if (scrollTimer.tick(100L)) {
             if (scrollProgress < 0.0) {
@@ -163,7 +166,7 @@ open class ListWindow(
 
     override fun onMouseInput(mousePos: Vec2f) {
         super.onMouseInput(mousePos)
-        val relativeMousePos = mousePos.minus(posX, posY - renderScrollProgress)
+        val relativeMousePos = mousePos.minus(posX, posY)
         if (Mouse.getEventDWheel() != 0) {
             scrollTimer.reset()
             scrollSpeed -= Mouse.getEventDWheel() * 0.1f
@@ -179,7 +182,7 @@ open class ListWindow(
 
     private fun updateHovered(relativeMousePos: Vec2f) {
         hoveredChild = if (relativeMousePos.y < draggableHeight || relativeMousePos.x < lineSpace || relativeMousePos.x > renderWidth - lineSpace) null
-        else children.firstOrNull { it.visible && relativeMousePos.y in it.posY..it.posY + it.height }
+        else children.firstOrNull { it.visible && relativeMousePos.y + renderScrollProgress in it.posY..it.posY + it.height }
     }
 
     override fun onLeave(mousePos: Vec2f) {

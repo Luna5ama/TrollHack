@@ -3,8 +3,10 @@ package me.luna.trollhack.module.modules.client
 import me.luna.trollhack.event.events.ShutdownEvent
 import me.luna.trollhack.event.listener
 import me.luna.trollhack.gui.clickgui.TrollClickGui
+import me.luna.trollhack.gui.hudgui.component.HudButton
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.util.threads.onMainThreadSafe
 import org.lwjgl.input.Keyboard
 
 internal object ClickGUI : Module(
@@ -20,16 +22,20 @@ internal object ClickGUI : Module(
         }
 
         onEnable {
-            if (mc.currentScreen !is TrollClickGui) {
-                HudEditor.disable()
-                mc.displayGuiScreen(TrollClickGui)
-                TrollClickGui.onDisplayed()
+            onMainThreadSafe {
+                if (mc.currentScreen !is TrollClickGui) {
+                    HudEditor.disable()
+                    mc.displayGuiScreen(TrollClickGui)
+                    TrollClickGui.onDisplayed()
+                }
             }
         }
 
         onDisable {
-            if (mc.currentScreen is TrollClickGui) {
-                mc.displayGuiScreen(null)
+            onMainThreadSafe {
+                if (mc.currentScreen is TrollClickGui) {
+                    mc.displayGuiScreen(null)
+                }
             }
         }
 
