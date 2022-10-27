@@ -5,15 +5,9 @@ import me.luna.trollhack.gui.rgui.component.BooleanSlider
 import me.luna.trollhack.module.AbstractModule
 import me.luna.trollhack.util.math.vector.Vec2f
 
-class ModuleButton(val module: AbstractModule) : BooleanSlider(module.name, 0.0f, module.description) {
-    init {
-        if (module.isEnabled) value = 1.0f
-    }
-
-    override fun onTick() {
-        super.onTick()
-        value = if (module.isEnabled) 1.0f else 0.0f
-    }
+class ModuleButton(val module: AbstractModule) : BooleanSlider(module.name, module.description) {
+    override val progress: Float
+        get() = if (module.isEnabled) 1.0f else 0.0f
 
     override fun onClick(mousePos: Vec2f, buttonId: Int) {
         super.onClick(mousePos, buttonId)

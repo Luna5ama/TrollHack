@@ -8,11 +8,7 @@ import org.lwjgl.input.Keyboard
 
 class BindButton(
     private val setting: BindSetting
-) : Slider(setting.name, 0.0f, setting.description, setting.visibility) {
-
-    override val renderProgress: Float
-        get() = 0.0f
-
+) : Slider(setting.name, setting.description, setting.visibility) {
     override fun onRelease(mousePos: Vec2f, buttonId: Int) {
         super.onRelease(mousePos, buttonId)
         if (listening) {

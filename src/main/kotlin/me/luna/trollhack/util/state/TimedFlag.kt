@@ -11,4 +11,8 @@ open class TimedFlag<T>(value: T) {
 
     var lastUpdateTime = System.currentTimeMillis()
         private set
+
+    fun resetTime() {
+        lastUpdateTime = System.currentTimeMillis()
+    }
 }

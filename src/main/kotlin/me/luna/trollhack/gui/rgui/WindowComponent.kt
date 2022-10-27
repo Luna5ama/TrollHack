@@ -37,12 +37,11 @@ open class WindowComponent(
     // Render info
     private var minimizedTime = 0L
     val renderMinimizeProgress by FrameValue {
-        val deltaTime = Easing.toDelta(minimizedTime, 400.0f)
-        if (minimized) Easing.OUT_CUBIC.dec(deltaTime)
-        else Easing.OUT_CUBIC.inc(deltaTime)
+        val deltaTime = Easing.toDelta(minimizedTime, 300.0f)
+        if (minimized) Easing.OUT_QUART.dec(deltaTime) else Easing.OUT_QUART.inc(deltaTime)
     }
     override val renderHeight: Float
-        get() = max(super.renderHeight * renderMinimizeProgress, draggableHeight)
+        get() = (super.renderHeight - draggableHeight) * renderMinimizeProgress + draggableHeight
 
     open val resizable get() = true
     open val minimizable get() = false

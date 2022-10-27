@@ -5,7 +5,10 @@ import me.luna.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
 import kotlin.math.max
 
-class StringButton(val setting: StringSetting) : BooleanSlider(setting.name, 1.0f, setting.description, setting.visibility) {
+class StringButton(val setting: StringSetting) : BooleanSlider(setting.name, setting.description, setting.visibility) {
+    override val progress: Float
+        get() = if (!listening) 1.0f else 0.0f
+
     override fun onStopListening(success: Boolean) {
         if (success) {
             setting.setValue(inputField)
@@ -13,7 +16,6 @@ class StringButton(val setting: StringSetting) : BooleanSlider(setting.name, 1.0
 
         super.onStopListening(success)
         inputField = ""
-        value = 1.0f
     }
 
     override fun onMouseInput(mousePos: Vec2f) {
@@ -38,7 +40,6 @@ class StringButton(val setting: StringSetting) : BooleanSlider(setting.name, 1.0
             if (!listening) {
                 listening = true
                 inputField = setting.value
-                value = 0.0f
             } else {
                 onStopListening(false)
             }

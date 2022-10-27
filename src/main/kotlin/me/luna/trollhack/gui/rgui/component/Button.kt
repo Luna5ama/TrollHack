@@ -7,22 +7,27 @@ class Button(
     private val action: (Button) -> Unit,
     description: CharSequence = "",
     visibility: ((() -> Boolean))? = null
-) : BooleanSlider(name, 0.0f, description, visibility) {
+) : BooleanSlider(name, description, visibility) {
+    private var state = false
+
+    override val progress: Float
+        get() = if (state) 1.0f else 0.0f
+
     override fun onClick(mousePos: Vec2f, buttonId: Int) {
         super.onClick(mousePos, buttonId)
-        value = 1.0f
+        state = true
     }
 
     override fun onRelease(mousePos: Vec2f, buttonId: Int) {
         super.onRelease(mousePos, buttonId)
         if (prevState != MouseState.DRAG) {
-            value = 0.0f
+            state = false
             action(this)
         }
     }
 
     override fun onLeave(mousePos: Vec2f) {
         super.onLeave(mousePos)
-        value = 0.0f
+        state = false
     }
 }

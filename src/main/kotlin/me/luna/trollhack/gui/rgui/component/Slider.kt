@@ -3,7 +3,7 @@ package me.luna.trollhack.gui.rgui.component
 import me.luna.trollhack.gui.rgui.InteractiveComponent
 import me.luna.trollhack.module.modules.client.GuiSetting
 import me.luna.trollhack.module.modules.client.Tooltips
-import me.luna.trollhack.util.delegate.FrameValue
+import me.luna.trollhack.util.graphics.AnimationFlag
 import me.luna.trollhack.util.graphics.Easing
 import me.luna.trollhack.util.graphics.RenderUtils2D
 import me.luna.trollhack.util.graphics.font.TextComponent
@@ -11,30 +11,20 @@ import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
 import me.luna.trollhack.util.graphics.shaders.WindowBlurShader
 import me.luna.trollhack.util.math.vector.Vec2d
 import me.luna.trollhack.util.math.vector.Vec2f
-import me.luna.trollhack.util.state.TimedFlag
 import org.lwjgl.opengl.GL11.*
 
 open class Slider(
     name: CharSequence,
-    value: Float,
     private val description: CharSequence = "",
-    private val visibility: ((() -> Boolean))?
+    private val visibility: (() -> Boolean)?
 ) : InteractiveComponent(name, 0.0f, 0.0f, 40.0f, 10.0f, SettingGroup.NONE) {
 
     protected var inputField = ""
 
-    protected var value = value
-        set(value) {
-            if (value != field) {
-                prevValue.value = renderProgress
-                field = value.coerceIn(0.0f, 1.0f)
-            }
-        }
+    protected open val progress: Float
+        get() = 0.0f
 
-    protected val prevValue = TimedFlag(this.value)
-    protected open val renderProgress by FrameValue {
-        Easing.OUT_QUAD.incOrDec(Easing.toDelta(prevValue.lastUpdateTime, 200.0f), prevValue.value, this.value)
-    }
+    protected val renderProgress = AnimationFlag(Easing.OUT_QUART, 200.0f)
 
     override val maxHeight
         get() = MainFontRenderer.getHeight() + 3.0f
@@ -55,8 +45,7 @@ open class Slider(
         height = maxHeight
         if (visibility != null) visible = visibility.invoke()
         super.onDisplayed()
-        prevValue.value = 0.0f
-        value = 0.0f
+        renderProgress.forceUpdate(0.0f, 0.0f)
         setupDescription()
     }
 
@@ -98,34 +87,32 @@ open class Slider(
     }
 
     override fun onRender(absolutePos: Vec2f) {
+
         // Slider bar
-        if (renderProgress > 0.0f) {
-            RenderUtils2D.drawRectFilled(0.0f, 0.0f, renderWidth * renderProgress, renderHeight, GuiSetting.primary)
+        val progress = renderProgress.getAndUpdate(progress)
+        if (progress > 0.0f) {
+            RenderUtils2D.drawRectFilled(0.0f, 0.0f, renderWidth * progress, renderHeight, GuiSetting.primary)
         }
 
         // Slider hover overlay
-        val overlayColor = getStateColor(prevState).mix(getStateColor(mouseState), Easing.OUT_CUBIC.inc(Easing.toDelta(lastStateUpdateTime, 200)))
+        val overlayColor = getStateColor(prevState).mix(getStateColor(mouseState), Easing.OUT_CUBIC.inc(Easing.toDelta(lastStateUpdateTime, 200.0f)))
         RenderUtils2D.drawRectFilled(0.0f, 0.0f, renderWidth, renderHeight, overlayColor)
 
         // Slider frame
         RenderUtils2D.drawRectOutline(0.0f, 0.0f, renderWidth, renderHeight, 1.25f, GuiSetting.outline)
 
         // Slider name
-
-        // TODO: do something with this https://discord.com/channels/573954110454366214/789630848194183209/795732239211429909
-        //GlStateUtils.pushScissor()
-        /*if (protectedWidth > 0.0) {
-            GlStateUtils.scissor(
-                    ((absolutePos.x + renderWidth - protectedWidth) * ClickGUI.getScaleFactor()).roundToInt(),
-                    (mc.displayHeight - (absolutePos.y + renderHeight) * ClickGUI.getScaleFactor()).roundToInt(),
-                    (protectedWidth * ClickGUI.getScaleFactor()).roundToInt(),
-                    (renderHeight * ClickGUI.getScaleFactor()).roundToInt()
-            )
-        }*/
-
-        val lol = inputField.takeIf { listening } ?: name
-        MainFontRenderer.drawString(lol, 1.5f, 1.0f, color = GuiSetting.text)
-        //GlStateUtils.popScissor()
+        val displayText = inputField.takeIf { listening } ?: name
+        val prev = if (prevState == MouseState.NONE) 0.0f else 1.0f
+        val curr = if (mouseState == MouseState.NONE) 0.0f else 1.0f
+        val scale = Easing.OUT_BACK.incOrDec(Easing.toDelta(lastStateUpdateTime, 300.0f), prev, curr)
+        MainFontRenderer.drawString(
+            displayText,
+            2.0f + 2.0f * scale,
+            1.0f - 0.025f * scale * MainFontRenderer.getHeight(),
+            color = GuiSetting.text,
+            scale = 1.0f + 0.05f * scale
+        )
     }
 
     override fun onPostRender(absolutePos: Vec2f) {
@@ -145,8 +132,8 @@ open class Slider(
                 return
             }
 
-            val alpha = if (mouseState == MouseState.HOVER) Easing.OUT_CUBIC.inc(deltaTime / 200.0f)
-            else Easing.OUT_CUBIC.dec(deltaTime / 200.0f)
+            val alpha = if (mouseState == MouseState.HOVER) Easing.OUT_CUBIC.inc(deltaTime / 250.0f)
+            else Easing.OUT_CUBIC.dec(deltaTime / 250.0f)
 
             val textWidth = displayDescription.getWidth()
             val textHeight = displayDescription.getHeight(2)

@@ -7,13 +7,13 @@ class CheckButton(
     stateIn: Boolean,
     description: String = "",
     visibility: ((() -> Boolean))? = null
-) : BooleanSlider(name, 0.0f, description, visibility) {
-    init {
-        value = if (stateIn) 1.0f else 0.0f
-    }
+) : BooleanSlider(name, description, visibility) {
+    private var state = stateIn
+    override val progress: Float
+        get() = if (state) 1.0f else 0.0f
 
     override fun onClick(mousePos: Vec2f, buttonId: Int) {
         super.onClick(mousePos, buttonId)
-        value = if (value == 1.0f) 0.0f else 1.0f
+        state = !state
     }
 }

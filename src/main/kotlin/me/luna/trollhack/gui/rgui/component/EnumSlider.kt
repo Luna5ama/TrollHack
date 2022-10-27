@@ -3,22 +3,24 @@ package me.luna.trollhack.gui.rgui.component
 import me.luna.trollhack.module.modules.client.GuiSetting
 import me.luna.trollhack.setting.settings.impl.primitive.EnumSetting
 import me.luna.trollhack.util.extension.readableName
+import me.luna.trollhack.util.graphics.AnimationFlag
 import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
 import me.luna.trollhack.util.math.vector.Vec2f
 import kotlin.math.floor
 
-class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, 0.0f, setting.description, setting.visibility) {
+class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, setting.description, setting.visibility) {
     private val enumValues = setting.enumValues
 
-    override fun onTick() {
-        super.onTick()
-        if (mouseState != MouseState.DRAG) {
-            val settingValue = setting.value.ordinal
-            if (roundInput(value) != settingValue) {
-                value = (settingValue + settingValue / (enumValues.size - 1.0f)) / enumValues.size.toFloat()
+    override val progress: Float
+        get() {
+            if (mouseState != MouseState.DRAG) {
+                val settingValue = setting.value.ordinal
+                if (roundInput(renderProgress.current) != settingValue) {
+                    return (settingValue + settingValue / (enumValues.size - 1.0f)) / enumValues.size.toFloat()
+                }
             }
+            return Float.NaN
         }
-    }
 
     override fun onRelease(mousePos: Vec2f, buttonId: Int) {
         super.onRelease(mousePos, buttonId)
@@ -31,8 +33,7 @@ class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, 0.0f, setti
     }
 
     private fun updateValue(mousePos: Vec2f) {
-        value = (mousePos.x / width)
-        setting.setValue(enumValues[roundInput(value)].name)
+        setting.setValue(enumValues[roundInput(mousePos.x / width)].name)
     }
 
     private fun roundInput(input: Float) = floor(input * enumValues.size).toInt().coerceIn(0, enumValues.size - 1)

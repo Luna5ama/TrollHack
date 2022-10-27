@@ -6,34 +6,32 @@ class AnimationFlag(private val interpolation: InterpolateFunction) {
         easing.incOrDec(Easing.toDelta(time, length), prev, current)
     })
 
-    private var prev = 0.0f
-    private var current = 0.0f
-    private var time = System.currentTimeMillis()
+    var prev = 0.0f; private set
+    var current = 0.0f; private set
+    var time = System.currentTimeMillis(); private set
 
     fun forceUpdate(prev: Float, current: Float) {
+        if (prev.isNaN() || current.isNaN()) return
+
         this.prev = prev
         this.current = current
         time = System.currentTimeMillis()
     }
 
-    fun getAndUpdate(input: Float): Float {
-        val render = interpolation.invoke(time, prev, current)
-
-        if (input != current) {
-            prev = render
-            current = input
+    fun update(current: Float) {
+        if (!current.isNaN() && this.current != current) {
+            prev = this.current
+            this.current = current
             time = System.currentTimeMillis()
         }
-
-        return render
     }
 
-    fun get(input: Float, update: Boolean): Float {
-        val render = interpolation.invoke(time, prev, current)
+    fun getAndUpdate(current: Float): Float {
+        val render = interpolation.invoke(time, prev, this.current)
 
-        if (update && input != current) {
+        if (!current.isNaN() && current != this.current) {
             prev = render
-            current = input
+            this.current = current
             time = System.currentTimeMillis()
         }
 
