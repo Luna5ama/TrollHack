@@ -283,6 +283,8 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
 
     // Rendering
     final override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
+        handleInput()
+
         mc.profiler.startSection("trollGui")
 
         mc.profiler.startSection("pre")
