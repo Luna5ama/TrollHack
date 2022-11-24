@@ -318,7 +318,7 @@ internal object ZealotCrystalPlus : Module(
     private val placeTimer = TickTimer()
     private val breakTimer = TickTimer()
 
-    private var lastActiveTime = 0L
+    var lastActiveTime = 0L; private set
     private var lastRotation: PlaceInfo? = null
 
     private val explosionTimer = TickTimer()

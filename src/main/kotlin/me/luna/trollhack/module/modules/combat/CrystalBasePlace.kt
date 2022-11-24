@@ -43,6 +43,7 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import java.util.PriorityQueue
 import kotlin.math.max
 
 @CombatManager.CombatModule
@@ -59,6 +60,8 @@ internal object CrystalBasePlace : Module(
             }
         }
     })
+    private val minDamage by setting("Min Damage", 8.0f, 0.0f..20.0f, 0.5f)
+    private val maxSelfDamage by setting("Max Self Damage", 8.0f, 0.0f..20.0f, 0.5f)
     private val minDamageIncManual by setting("Min Damage Inc Inactive", 2.0f, 0.0f..20.0f, 0.25f)
     private val minDamageIncInactive by setting("Min Damage Inc Inactive", 4.0f, 0.0f..20.0f, 0.25f)
     private val minDamageIncActive by setting("Min Damage Inc Active", 8.0f, 0.0f..20.0f, 0.25f)
@@ -109,10 +112,18 @@ internal object CrystalBasePlace : Module(
 
             if (CombatManager.isOnTopPriority(CrystalBasePlace)
                 && !CombatSetting.pause
-                && TrollAura.isEnabled
+                && (TrollAura.isEnabled || ZealotCrystalPlus.isEnabled)
                 && player.allSlots.hasItem(Items.END_CRYSTAL)) {
-                prePlace(if (TrollAura.inactiveTicks > 10) minDamageIncInactive else minDamageIncActive)
+                prePlace(if (checkInactivity()) minDamageIncInactive else minDamageIncActive)
             }
+        }
+    }
+
+    private fun checkInactivity(): Boolean {
+        return if (ZealotCrystalPlus.isEnabled) {
+            System.currentTimeMillis() - ZealotCrystalPlus.lastActiveTime > 500L
+        } else {
+            TrollAura.isEnabled && TrollAura.inactiveTicks > 10
         }
     }
 
@@ -151,7 +162,7 @@ internal object CrystalBasePlace : Module(
         val contextTarget = CombatManager.contextTarget ?: return null
 
         val mutableBlockPos = BlockPos.MutableBlockPos()
-        val cacheList = ArrayList<CrystalDamage>()
+        val cacheList = PriorityQueue<CrystalDamage>(compareByDescending { it.targetDamage })
         val maxCurrentDamage = CombatManager.placeMap.entries
             .filter { eyePos.distanceTo(it.key) < range }
             .maxOfOrNull { it.value.targetDamage } ?: 0.0f
@@ -172,10 +183,13 @@ internal object CrystalBasePlace : Module(
             cacheList.add(crystalDamage)
         }
 
-        cacheList.sortByDescending { it.targetDamage }
-
-        for (crystalDamage in cacheList) {
-            return getNeighbor(crystalDamage.blockPos, 1) ?: continue
+        var current = cacheList.poll()
+        while (current != null) {
+            val neighbor = getNeighbor(current.blockPos, 1)
+            if (neighbor != null) {
+                return neighbor
+            }
+            current = cacheList.poll()
         }
 
         return null
@@ -210,7 +224,7 @@ internal object CrystalBasePlace : Module(
     }
 
     private fun checkDamage(crystalDamage: CrystalDamage, maxCurrentDamage: Float, minDamageInc: Float) =
-        crystalDamage.selfDamage <= TrollAura.maxSelfDamage
-            && (crystalDamage.targetDamage >= TrollAura.minDamage
+        crystalDamage.selfDamage <= maxSelfDamage
+            && (crystalDamage.targetDamage >= minDamage
             && (crystalDamage.targetDamage - maxCurrentDamage >= minDamageInc))
 }
