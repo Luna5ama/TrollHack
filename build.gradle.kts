@@ -4,7 +4,7 @@ import org.spongepowered.asm.gradle.plugins.MixinExtension
 import kotlin.math.max
 
 group = "me.luna"
-version = "0.0.5"
+version = "0.0.6"
 
 buildscript {
     repositories {
@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:5.1.53")
+        classpath("net.minecraftforge.gradle:ForgeGradle:5.1.36")
         classpath("org.spongepowered:mixingradle:0.7.+")
     }
 }
@@ -75,7 +75,7 @@ dependencies {
     implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementationAndLibrary("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    implementationAndLibrary("org.spongepowered:mixin:0.7.+") {
+    implementationAndLibrary("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         exclude("commons-io")
         exclude("gson")
         exclude("guava")
