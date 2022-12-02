@@ -254,7 +254,7 @@ $RECYCLE.BIN/
 
 ### Gradle ###
 .gradle
-/build/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -275,3 +275,4 @@ gradle-app.setting
 .DS_Store
 
 github.properties
+.run/
