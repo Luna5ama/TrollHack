@@ -48,6 +48,7 @@ internal object AutoCity : Module(
     description = "Trolling",
     modulePriority = 100
 ) {
+    private val useAnvil by setting("Use Anvil", false)
     private val placeDelay by setting("Place Delay", 100, 0..1000, 5)
     private val breakDelay by setting("Break Delay", 100, 0..1000, 5)
     private val minDamage by setting("Min Damage", 4.0f, 1.0f..10.0f, 0.1f)
@@ -312,6 +313,7 @@ internal object AutoCity : Module(
     }
 
     private fun SafeClientEvent.placeAnvil(targetPos: BlockPos) {
+        if (!useAnvil) return
         player.hotbarSlots.firstBlock(Blocks.ANVIL)?.let {
             player.spoofSneak {
                 spoofHotbar(it) {
