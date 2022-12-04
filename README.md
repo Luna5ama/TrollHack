@@ -6,7 +6,7 @@
 ![Download count](https://img.shields.io/github/downloads/Luna5ama/TrollHack/latest/total)
 
 # TrollHack
-Strong hack
+Strong hack for Minecraft anarchy servers.
 
 Discord server link: https://discord.gg/RFd2ugHC2S
 
