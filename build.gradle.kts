@@ -131,27 +131,13 @@ java {
 }
 
 kotlin {
-    kotlinDaemonJvmArgs = listOf(
-        "-Xms1G",
-        "-Xmx2G",
-        "-XX:+UnlockExperimentalVMOptions",
-        "-XX:+AlwaysPreTouch",
-        "-XX:+ParallelRefProcEnabled",
-        "-XX:+UseG1GC",
-        "-XX:+UseStringDeduplication",
-        "-XX:MaxGCPauseMillis=200",
-        "-XX:G1NewSizePercent=10",
-        "-XX:G1MaxNewSizePercent=25",
-        "-XX:G1HeapRegionSize=1M",
-        "-XX:G1ReservePercent=10",
-        "-XX:G1HeapWastePercent=10",
-        "-XX:G1MixedGCCountTarget=8",
-        "-XX:InitiatingHeapOccupancyPercent=75",
-        "-XX:G1MixedGCLiveThresholdPercent=60",
-        "-XX:G1RSetUpdatingPauseTimePercent=30",
-        "-XX:G1OldCSetRegionThresholdPercent=25",
-        "-XX:SurvivorRatio=8"
-    )
+    val jvmArgs = mutableSetOf<String>()
+    (rootProject.findProperty("kotlin.daemon.jvm.options") as? String)
+        ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+    System.getProperty("gradle.kotlin.daemon.jvm.options")
+        ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+
+    kotlinDaemonJvmArgs = jvmArgs.toList()
 }
 
 tasks {
@@ -176,7 +162,8 @@ tasks {
                 "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-Xlambdas=indy",
-                "-Xjvm-default=all"
+                "-Xjvm-default=all",
+                "-Xbackend-threads=0"
             )
         }
     }
