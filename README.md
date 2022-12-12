@@ -10,9 +10,17 @@ Strong hack for Minecraft anarchy servers.
 
 Discord server link: https://discord.gg/RFd2ugHC2S
 
-# Note
+# System Requirements
 
-MacOS is unsupported and will NOT be fixed since it is an Apple issue.
+OS: Windows or Linux (Mac OS is unsupported)
+
+CPU: 3rd gen Intel Core i3 or AMD equivalent
+
+RAM: 4 GB
+
+GPU: Intel HD Graphics 2500/4000 (2012), NVIDIA GeForce 9000 Series (2009), AMD Radeon HD 4000 Series (2008) or newer
+
+Software: Java 8, Minecraft 1.12.2 with Forge
 
 
 # FAQ
