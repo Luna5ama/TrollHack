@@ -1,22 +1,18 @@
 {
-  "required": false,
-  "minVersion": "0.7",
-  "compatibilityLevel": "JAVA_8",
-  "package": "me.luna.trollhack.mixins.patch",
-  "refmap": "mixins.troll.refmap.json",
-  "client": [
-    "MixinJsonUtils",
-    "baritone.MixinBaritoneSettings",
-    "entity.MixinEntityDataManager",
-    "gui.MixinGuiInventory",
-    "gui.MixinPacketThreadUtil",
-    "optifine.MixinConfig",
-    "player.MixinPlayerControllerMP",
-    "render.MixinRenderGlobal",
-    "render.MixinVisGraph",
-    "world.MixinBlock",
-    "world.MixinChunk",
-    "world.MixinWorld",
-    "MixinDisplay"
-  ]
+    "required" : false,
+    "minVersion" : "0.7",
+    "compatibilityLevel" : "JAVA_8",
+    "package" : "me.luna.trollhack.mixins.patch",
+    "refmap" : "mixins.troll.refmap.json",
+    "client" : [
+        "MixinDisplay",
+        "MixinJsonUtils",
+        "baritone.MixinBaritoneSettings",
+        "gui.MixinGuiInventory",
+        "gui.MixinPacketThreadUtil",
+        "optifine.MixinConfig",
+        "player.MixinPlayerControllerMP",
+        "render.MixinVisGraph",
+        "world.MixinWorld"
+    ]
 }

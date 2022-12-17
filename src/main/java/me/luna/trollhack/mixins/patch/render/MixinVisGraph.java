@@ -49,10 +49,4 @@ public abstract class MixinVisGraph implements IPatchedVisGraph {
             }
         }
     }
-
-    @Override
-    public void setOpaqueCube(int x, int y, int z) {
-        this.bitSet.set(x | y << 8 | z << 4, true);
-        --this.empty;
-    }
 }
