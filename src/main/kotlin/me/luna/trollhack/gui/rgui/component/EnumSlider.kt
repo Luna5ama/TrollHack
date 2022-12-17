@@ -3,7 +3,6 @@ package me.luna.trollhack.gui.rgui.component
 import me.luna.trollhack.module.modules.client.GuiSetting
 import me.luna.trollhack.setting.settings.impl.primitive.EnumSetting
 import me.luna.trollhack.util.extension.readableName
-import me.luna.trollhack.util.graphics.AnimationFlag
 import me.luna.trollhack.util.graphics.font.renderer.MainFontRenderer
 import me.luna.trollhack.util.math.vector.Vec2f
 import kotlin.math.floor
@@ -11,15 +10,19 @@ import kotlin.math.floor
 class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, setting.description, setting.visibility) {
     private val enumValues = setting.enumValues
 
-    override val progress: Float
+    override var progress = 0.0f
         get() {
-            if (mouseState != MouseState.DRAG) {
-                val settingValue = setting.value.ordinal
-                if (roundInput(renderProgress.current) != settingValue) {
-                    return (settingValue + settingValue / (enumValues.size - 1.0f)) / enumValues.size.toFloat()
-                }
+            if (mouseState == MouseState.DRAG) {
+                return field
             }
-            return Float.NaN
+
+            val settingValue = setting.value.ordinal
+            return if (roundInput(renderProgress.current) != settingValue) {
+                field = (settingValue + settingValue / (enumValues.size - 1.0f)) / enumValues.size.toFloat()
+                field
+            } else {
+                Float.NaN
+            }
         }
 
     override fun onRelease(mousePos: Vec2f, buttonId: Int) {
@@ -33,7 +36,8 @@ class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, setting.des
     }
 
     private fun updateValue(mousePos: Vec2f) {
-        setting.setValue(enumValues[roundInput(mousePos.x / width)].name)
+        progress = (mousePos.x / width).coerceIn(0.0f, 1.0f)
+        setting.setValue(enumValues[roundInput(progress)].name)
     }
 
     private fun roundInput(input: Float) = floor(input * enumValues.size).toInt().coerceIn(0, enumValues.size - 1)
