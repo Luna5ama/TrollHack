@@ -12,7 +12,6 @@
         "gui.MixinPacketThreadUtil",
         "optifine.MixinConfig",
         "player.MixinPlayerControllerMP",
-        "render.MixinVisGraph",
         "world.MixinWorld"
     ]
 }
