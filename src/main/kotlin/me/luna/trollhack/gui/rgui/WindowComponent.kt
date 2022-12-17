@@ -61,10 +61,6 @@ open class WindowComponent(
             minimized = true
             minimized = false
         }
-    }
-
-    override fun onGuiInit() {
-        super.onGuiInit()
         updatePreDrag(null)
     }
 
