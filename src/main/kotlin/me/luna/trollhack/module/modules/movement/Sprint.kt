@@ -56,7 +56,8 @@ internal object Sprint : Module(
     @JvmStatic
     fun shouldSprint(): Boolean {
         return runSafeOrFalse {
-            !mc.gameSettings.keyBindSneak.isKeyDown
+            isEnabled
+                && !mc.gameSettings.keyBindSneak.isKeyDown
                 && !player.isElytraFlying
                 && player.foodStats.foodLevel > 6
                 && !BaritoneUtils.isPathing
