@@ -15,7 +15,7 @@ internal object AutoQueue : Module(
     description = "Automatically answer questions at 2b2t.xin queue",
     category = Category.MISC
 ) {
-    private val questions = arrayOf<String>("本服的:2020","苦力怕:爬行者","钻石的:264","大箱子:54","小箱子:27","羊驼会:不会","南瓜的:不需要","无限水:3","猪被闪:僵尸猪人","红石火:15","定位末:0","凋零死:下界之星","挖掘速:金镐")
+    private val questions = arrayOf<String>("本服务:2020","苦力怕:爬行者","钻石的:264","大箱子:54","小箱子:27","羊驼会:不会","南瓜的:不需要","无限水:3","猪被闪:僵尸猪人","红石火:15","定位末:0","凋零死:下界之星","挖掘速:金镐")
 
     init {
 
@@ -38,7 +38,6 @@ internal object AutoQueue : Module(
                 }
                 if (i != -1) {
                     sendServerMessage(it.packet.chatComponent.unformattedText.substring(i - 2, i - 1))
-                    return@listener
                 }else{
                     MessageSendUtils.sendChatMessage("This is an unknown question, please add")
                 }
