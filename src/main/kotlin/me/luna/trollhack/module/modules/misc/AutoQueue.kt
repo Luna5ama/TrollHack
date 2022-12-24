@@ -15,37 +15,48 @@ internal object AutoQueue : Module(
     description = "Automatically answer questions at 2b2t.xin queue",
     category = Category.MISC
 ) {
-    private val questions = arrayOf<String>("本服务:2020","苦力怕:爬行者","钻石的:264","大箱子:54","小箱子:27","羊驼会:不会","南瓜的:不需要","无限水:3","猪被闪:僵尸猪人","红石火:15","定位末:0","凋零死:下界之星","挖掘速:金镐")
+    private val questions: HashMap<String,String> = hashMapOf(
+        "本服务" to "2020",
+        "苦力怕" to "爬行者",
+        "钻石的" to "264",
+        "大箱子" to "54",
+        "小箱子" to "27",
+        "羊驼会" to "不会",
+        "南瓜的" to "不需要",
+        "无限水" to "3",
+        "猪被闪" to "僵尸猪人",
+        "红石火" to "15",
+        "定位末" to "0",
+        "凋零死" to "下界之星",
+        "挖掘速" to "金镐"
+    )
+
+    private var is2B2T:Boolean = false
 
     init {
-
-        onEnable {
+        listener<ConnectionEvent.Connect>{
             if (!mc.currentServerData?.serverIP.equals("2b2t.xin")) {
-                MessageSendUtils.sendNoSpamChatMessage("This feature is only support 2b2t.xin")
-                disable()
+                is2B2T = true
             }
+            is2B2T = false
         }
 
         listener<PacketEvent.Receive> {
-            if (it.packet !is SPacketChat || MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformattedText) return@listener
-            if(it.packet.chatComponent.unformattedText.contains("A.")){
-                var i = -1
-                for (index in questions) {
-                    if (it.packet.chatComponent.unformattedText.contains(index.substring(0,3))) {
-                        i = it.packet.chatComponent.unformattedText.indexOf(index.substring(4), 0, false)
-                        break
+            if(is2B2T){
+                if (it.packet !is SPacketChat || MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformattedText) return@listener
+                if(it.packet.chatComponent.unformattedText.contains("?丨选项：A.")){
+                    var i = -1
+                    for ((question, answer) in questions) {
+                        if (it.packet.chatComponent.unformattedText.contains(question)) {
+                            i = it.packet.chatComponent.unformattedText.indexOf(answer, 0, false)
+                            if(i != -1){
+                                sendServerMessage(String.format("%s",it.packet.chatComponent.unformattedText.substring(i - 2, i - 1)))
+                            }
+                            break
+                        }
                     }
                 }
-                if (i != -1) {
-                    sendServerMessage(it.packet.chatComponent.unformattedText.substring(i - 2, i - 1))
-                }else{
-                    MessageSendUtils.sendChatMessage("This is an unknown question, please add")
-                }
             }
-        }
-
-        listener<ConnectionEvent.Disconnect>{
-            disable()
         }
     }
 }
