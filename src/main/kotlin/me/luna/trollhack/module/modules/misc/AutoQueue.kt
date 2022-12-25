@@ -6,7 +6,6 @@ import me.luna.trollhack.event.listener
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.util.text.MessageDetection
-import me.luna.trollhack.util.text.MessageSendUtils
 import me.luna.trollhack.util.text.MessageSendUtils.sendServerMessage
 import net.minecraft.network.play.server.SPacketChat
 
@@ -31,20 +30,22 @@ internal object AutoQueue : Module(
         "挖掘速" to "金镐"
     )
 
-    private var is2B2T:Boolean = false
+    private var is2B2T = false
 
     init {
+
         listener<ConnectionEvent.Connect>{
-            if (!mc.currentServerData?.serverIP.equals("2b2t.xin")) {
-                is2B2T = true
-            }
-            is2B2T = false
+            is2B2T = mc.currentServerData?.serverIP?.contains("2b2t.xin") == true
+        }
+
+        onEnable {
+            is2B2T = mc.currentServerData?.serverIP?.contains("2b2t.xin") == true
         }
 
         listener<PacketEvent.Receive> {
             if(is2B2T){
                 if (it.packet !is SPacketChat || MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformattedText) return@listener
-                if(it.packet.chatComponent.unformattedText.contains("?丨选项：A.")){
+                if(it.packet.chatComponent.unformattedText.contains("A.")){
                     var i = -1
                     for ((question, answer) in questions) {
                         if (it.packet.chatComponent.unformattedText.contains(question)) {
