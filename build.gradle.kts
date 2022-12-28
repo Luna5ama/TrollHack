@@ -1,6 +1,6 @@
+import dev.fastmc.remapper.mapping.MappingName
 import me.luna.jaroptimizer.JarOptimizerPluginExtension
 import net.minecraftforge.gradle.userdev.UserDevExtension
-import org.spongepowered.asm.gradle.plugins.MixinExtension
 import kotlin.math.max
 
 group = "me.luna"
@@ -13,8 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:5.1.36")
-        classpath("org.spongepowered:mixingradle:0.7.+")
+        classpath("net.minecraftforge.gradle:ForgeGradle:5.+")
     }
 }
 
@@ -22,12 +21,12 @@ plugins {
     idea
     java
     kotlin("jvm")
+    id("dev.fastmc.fast-remapper").version("1.0-SNAPSHOT")
     id("me.luna.jaroptimizer").version("1.1")
 }
 
 apply {
     plugin("net.minecraftforge.gradle")
-    plugin("org.spongepowered.mixin")
 }
 
 repositories {
@@ -83,10 +82,6 @@ dependencies {
         exclude(group = "org.apache.logging.log4j")
     }
 
-    annotationProcessor("org.spongepowered:mixin:0.8.5:processor") {
-        exclude("gson")
-    }
-
     implementationAndLibrary("org.joml:joml:1.10.4")
 
     implementation("com.github.cabaletta:baritone:1.2.14")
@@ -100,26 +95,12 @@ idea {
     }
 }
 
-configure<MixinExtension> {
-    add(sourceSets["main"], "mixins.troll.refmap.json")
-}
-
 configure<UserDevExtension> {
     mappings(mappingsChannel, mappingsVersion)
 
     runs {
         create("client") {
-            workingDirectory = project.file("run").path
-            ideaModule("${rootProject.name}.${project.name}.main")
 
-            properties(
-                mapOf(
-                    "forge.logging.markers" to "SCAN,REGISTRIES,REGISTRYDUMP",
-                    "forge.logging.console.level" to "info",
-                    "fml.coreMods.load" to "me.luna.trollhack.TrollHackCoreMod",
-                    "mixin.env.disableRefMap" to "true"
-                )
-            )
         }
     }
 }
@@ -140,7 +121,27 @@ kotlin {
     kotlinDaemonJvmArgs = jvmArgs.toList()
 }
 
+fastRemapper {
+    mcVersion(minecraftVersion)
+    forge()
+    mapping.set(MappingName.Mcp(mappingsChannel, 39))
+    minecraftJar.set {
+        configurations["minecraft"].copy().apply { isTransitive = false }.singleFile
+    }
+
+    mixin(
+        "mixins.troll.accessor.json",
+        "mixins.troll.core.json",
+        "mixins.troll.patch.json"
+    )
+    remap(tasks.jar)
+}
+
 tasks {
+    afterEvaluate {
+        getByName("reobfJar").enabled = false
+    }
+
     clean {
         val set = mutableSetOf<Any>()
         buildDir.listFiles()?.filterNotTo(set) {
@@ -175,15 +176,20 @@ tasks {
     }
 
     val releaseJar = register<Jar>("releaseJar") {
-        finalizedBy(optimizeJars)
+        val fastRemapJar = provider {
+            named<AbstractArchiveTask>("fastRemapJar").get()
+        }
+        val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
 
         group = "build"
-        dependsOn("reobfJar")
+        dependsOn(fastRemapJar)
+        finalizedBy(optimizeJars)
+
 
         manifest {
+            from(fastRemapJarZipTree.map { zipTree -> zipTree.find { it.name == "MANIFEST.MF" }!! })
             attributes(
                 "Manifest-Version" to 1.0,
-                "MixinConfigs" to "mixins.troll.core.json, mixins.troll.accessor.json, mixins.troll.patch.json",
                 "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
                 "FMLCorePluginContainsFMLMod" to true,
                 "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod",
@@ -196,11 +202,7 @@ tasks {
 
         archiveClassifier.set("Release")
 
-        from(
-            jar.get().outputs.files.map {
-                if (it.isDirectory) it else zipTree(it)
-            }
-        )
+        from(fastRemapJarZipTree)
 
         exclude { file ->
             file.name.endsWith("kotlin_module")
