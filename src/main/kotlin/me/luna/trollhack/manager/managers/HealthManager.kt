@@ -43,12 +43,13 @@ object HealthManager : Manager() {
                     }
                 }
                 is SPacketEntityMetadata -> {
+                    val dataManagerEntries = event.packet.dataManagerEntries ?: return@safeListener
                     val entity = world.getEntityByID(event.packet.entityId) as? EntityPlayer? ?: return@safeListener
                     val tracker = trackerMap.computeIfAbsent(entity.entityId) {
                         Tracker(entity)
                     }
 
-                    val entry = event.packet.dataManagerEntries.find {
+                    val entry = dataManagerEntries.find {
                         it.isDirty && it.key == runCatching { me.luna.trollhack.mixins.accessor.entity.AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
                     } ?: return@safeListener
 

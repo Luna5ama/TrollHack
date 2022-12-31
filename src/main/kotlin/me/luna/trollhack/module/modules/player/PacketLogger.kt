@@ -280,7 +280,13 @@ internal object PacketLogger : Module(
                 is SPacketEntityMetadata -> {
                     logServer(it) {
                         "dataEntries" to buildString {
-                            for (entry in it.packet.dataManagerEntries) {
+                            val dataManagerEntries = it.packet.dataManagerEntries
+                            @Suppress("SENSELESS_COMPARISON")
+                            if (dataManagerEntries == null) {
+                                append("null")
+                                return@buildString
+                            }
+                            for (entry in dataManagerEntries) {
                                 append("> isDirty: ")
                                 append(entry.isDirty)
 

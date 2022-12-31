@@ -10,6 +10,7 @@ import me.luna.trollhack.event.events.combat.CombatEvent
 import me.luna.trollhack.event.events.combat.CrystalSetDeadEvent
 import me.luna.trollhack.event.events.combat.CrystalSpawnEvent
 import me.luna.trollhack.manager.Manager
+import me.luna.trollhack.mixins.accessor.entity.AccessorEntityLivingBase
 import me.luna.trollhack.module.AbstractModule
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.ModuleManager
@@ -155,9 +156,10 @@ object CombatManager : Manager() {
                     }
                 }
                 is SPacketEntityMetadata -> {
+                    val dataManagerEntries = event.packet.dataManagerEntries ?: return@safeListener
                     val entity = world.getEntityByID(event.packet.entityId) as? EntityLivingBase? ?: return@safeListener
-                    val entry = event.packet.dataManagerEntries.find {
-                        it.isDirty && it.key == runCatching { me.luna.trollhack.mixins.accessor.entity.AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
+                    val entry = dataManagerEntries.find {
+                        it.isDirty && it.key == runCatching { AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
                     } ?: return@safeListener
 
                     (entry.value as? Float)?.let {
