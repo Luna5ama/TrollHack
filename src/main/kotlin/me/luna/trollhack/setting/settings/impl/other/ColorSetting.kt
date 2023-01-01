@@ -28,7 +28,7 @@ class ColorSetting(
 
             value = ColorRGB(r, g, b, a)
         } else {
-            anti0x.toIntOrNull(16)?.let {
+            anti0x.toUIntOrNull(16)?.toInt()?.let {
                 value = ColorRGB(it)
             }
         }
