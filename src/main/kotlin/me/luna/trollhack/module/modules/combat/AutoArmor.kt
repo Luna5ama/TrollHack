@@ -67,7 +67,7 @@ internal object AutoArmor : Module(
             // equip better armor
             if (equipArmor(armorSlots, bestArmors)) {
                 moveTimer.reset()
-            } else if (antiGlitchArmor && moveTimer.tick(5) && player.totalArmorValue != player.armorSlots.sumOf { getRawArmorValue(it.stack) }) {
+            } else if (antiGlitchArmor && moveTimer.tick(10) && player.totalArmorValue != player.armorSlots.sumOf { getRawArmorValue(it.stack) }) {
                 inventoryTask {
                     for (slot in player.armorSlots) {
                         pickUp(slot)
@@ -76,6 +76,7 @@ internal object AutoArmor : Module(
                     delay(1, TimeUnit.TICKS)
                     postDelay(delay, TimeUnit.TICKS)
                 }
+                moveTimer.reset()
             }
         }
     }
