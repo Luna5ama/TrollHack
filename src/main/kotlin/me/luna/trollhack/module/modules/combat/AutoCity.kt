@@ -1,9 +1,9 @@
 package me.luna.trollhack.module.modules.combat
 
 import me.luna.trollhack.event.SafeClientEvent
-import me.luna.trollhack.event.events.PacketEvent
 import me.luna.trollhack.event.events.RunGameLoopEvent
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.combat.CrystalSetDeadEvent
 import me.luna.trollhack.event.events.combat.CrystalSpawnEvent
 import me.luna.trollhack.event.safeListener
@@ -36,7 +36,6 @@ import net.minecraft.init.Items
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.network.play.client.CPacketUseEntity
-import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
@@ -127,29 +126,28 @@ internal object AutoCity : Module(
             }
         }
 
-        safeListener<PacketEvent.Receive> {
+        safeListener<WorldEvent.ServerBlockUpdate> {
             val entityID = crystalID
 
             val anvilPos = anvilPos ?: return@safeListener
             val crystalPos = crystalPos ?: return@safeListener
             val posUp = anvilPos.up()
 
-            if (it.packet is SPacketBlockChange
-                && it.packet.blockPosition == posUp) {
-                if (it.packet.blockState.block == Blocks.AIR) {
-                    anvilPlaced = false
+            if (it.pos != posUp) return@safeListener
 
-                    if (entityID != -1
-                        && packetBreakTimer.tick(packetBreakDelay)
-                        && breakTimer.tick(0)) {
-                        breakCrystal(entityID)
-                        placeAnvil(anvilPos)
-                        placeCrystal(crystalPos)
-                        packetBreakTimer.reset()
-                    }
-                } else {
-                    PacketMine.mineBlock(AutoCity, posUp, AutoCity.modulePriority)
+            if (it.newState.block == Blocks.AIR) {
+                anvilPlaced = false
+
+                if (entityID != -1
+                    && packetBreakTimer.tick(packetBreakDelay)
+                    && breakTimer.tick(0)) {
+                    breakCrystal(entityID)
+                    placeAnvil(anvilPos)
+                    placeCrystal(crystalPos)
+                    packetBreakTimer.reset()
                 }
+            } else {
+                PacketMine.mineBlock(AutoCity, posUp, AutoCity.modulePriority)
             }
         }
 

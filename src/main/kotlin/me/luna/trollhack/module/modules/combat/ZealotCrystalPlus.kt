@@ -533,7 +533,7 @@ internal object ZealotCrystalPlus : Module(
             rawPosList.updateForce()
         }
 
-        safeListener<WorldEvent.BlockUpdate>(114514) {
+        safeListener<WorldEvent.ClientBlockUpdate>(114514) {
             if (player.distanceSqTo(it.pos) < (placeRange.ceilToInt() + 1).sq
                 && isResistant(it.oldState) != isResistant(it.newState)) {
                 rawPosList.updateLazy()

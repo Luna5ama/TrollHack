@@ -181,7 +181,7 @@ internal object BedAura : Module(
             reset()
         }
 
-        safeListener<WorldEvent.BlockUpdate> { event ->
+        safeListener<WorldEvent.ClientBlockUpdate> { event ->
             placeInfo?.let {
                 if (event.pos == it.basePos) {
                     it.updateBlacklisted(event.newState.block)

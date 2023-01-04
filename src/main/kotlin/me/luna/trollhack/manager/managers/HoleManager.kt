@@ -67,7 +67,7 @@ object HoleManager : Manager() {
             }
         }
 
-        safeListener<WorldEvent.BlockUpdate> {
+        safeListener<WorldEvent.ClientBlockUpdate> {
             defaultScope.launch {
                 val playerPos = player.flooredPosition
                 val mutablePos = BlockPos.MutableBlockPos()

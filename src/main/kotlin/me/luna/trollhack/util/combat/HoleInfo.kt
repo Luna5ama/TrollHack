@@ -1,5 +1,7 @@
 package me.luna.trollhack.util.combat
 
+import it.unimi.dsi.fastutil.objects.ObjectSet
+import it.unimi.dsi.fastutil.objects.ObjectSets
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -9,8 +11,8 @@ class HoleInfo(
     val origin: BlockPos,
     val center: Vec3d,
     val boundingBox: AxisAlignedBB,
-    val holePos: Array<BlockPos>,
-    val surroundPos: Array<BlockPos>,
+    val holePos: ObjectSet<BlockPos>,
+    val surroundPos: ObjectSet<BlockPos>,
     val type: HoleType,
     val isTrapped: Boolean,
     val isFullyTrapped: Boolean
@@ -27,29 +29,30 @@ class HoleInfo(
         return !world.collidesWithAnyBlock(box)
     }
 
-    override fun equals(other: Any?) =
-        this === other
+    override fun equals(other: Any?): Boolean {
+        return (this === other
             || other is HoleInfo
-            && origin == other.origin
+            && origin == other.origin)
+    }
 
-    override fun hashCode() =
-        origin.hashCode()
+    override fun hashCode(): Int {
+        return origin.hashCode()
+    }
 
     companion object {
-        fun empty(pos: BlockPos) =
-            HoleInfo(
+        fun empty(pos: BlockPos): HoleInfo {
+            return HoleInfo(
                 pos,
                 Vec3d.ZERO,
                 emptyAxisAlignedBB,
-                emptyBlockPosArray,
-                emptyBlockPosArray,
+                ObjectSets.emptySet(),
+                ObjectSets.emptySet(),
                 HoleType.NONE,
                 isTrapped = false,
                 isFullyTrapped = false,
             )
+        }
 
         private val emptyAxisAlignedBB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
-
-        private val emptyBlockPosArray = emptyArray<BlockPos>()
     }
 }

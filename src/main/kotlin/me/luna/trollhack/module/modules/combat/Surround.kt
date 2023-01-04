@@ -5,10 +5,10 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSets
 import me.luna.trollhack.event.SafeClientEvent
-import me.luna.trollhack.event.events.PacketEvent
 import me.luna.trollhack.event.events.RunGameLoopEvent
 import me.luna.trollhack.event.events.StepEvent
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.combat.CrystalSetDeadEvent
 import me.luna.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import me.luna.trollhack.event.events.player.PlayerMoveEvent
@@ -47,7 +47,6 @@ import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketUseEntity
-import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.SoundCategory
@@ -64,6 +63,7 @@ internal object Surround : Module(
 ) {
     private val placeDelay by setting("Place delay", 50, 0..1000, 1)
     private val multiPlace by setting("Multi Place", 2, 1..5, 1)
+    private val placeTimeout by setting("Place Timeout", 200, 0..1000, 10)
     private val strictDirection by setting("Strict Direction", false)
     private val autoCenter by setting("Auto Center", true)
     private val rotation by setting("Rotation", true)
@@ -144,23 +144,21 @@ internal object Surround : Module(
             }
         }
 
-        safeListener<PacketEvent.Receive> { event ->
-            if (event.packet is SPacketBlockChange) {
-                if (!event.packet.blockState.isReplaceable) {
-                    val long = event.packet.blockPosition.toLong()
-                    if (placingSet.contains(long)) {
-                        pendingPlacing.remove(long)
-                        placed.add(long)
-                    }
-                } else {
-                    val pos = event.packet.blockPosition
-                    val relative = pos.subtract(player.betterPosition)
-                    if (SurroundOffset.values().any { it.offset == relative } && checkColliding(pos)) {
-                        getNeighbor(pos)?.let { placeInfo ->
-                            if (checkRotation(placeInfo)) {
-                                placingSet.add(placeInfo.placedPos.toLong())
-                                placeBlock(placeInfo)
-                            }
+        safeListener<WorldEvent.ServerBlockUpdate> { event ->
+            val pos = event.pos
+            if (!event.newState.isReplaceable) {
+                val long = pos.toLong()
+                if (placingSet.contains(long)) {
+                    pendingPlacing.remove(long)
+                    placed.add(long)
+                }
+            } else {
+                val relative = pos.subtract(player.betterPosition)
+                if (SurroundOffset.values().any { it.offset == relative } && checkColliding(pos)) {
+                    getNeighbor(pos)?.let { placeInfo ->
+                        if (checkRotation(placeInfo)) {
+                            placingSet.add(placeInfo.placedPos.toLong())
+                            placeBlock(placeInfo)
                         }
                     }
                 }
@@ -400,7 +398,7 @@ internal object Surround : Module(
             world.playSound(player, placeInfo.pos, soundType.placeSound, SoundCategory.BLOCKS, (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f)
         }
 
-        pendingPlacing[placeInfo.placedPos.toLong()] = System.currentTimeMillis() + 50L
+        pendingPlacing[placeInfo.placedPos.toLong()] = System.currentTimeMillis() + placeTimeout
     }
 
     private fun SafeClientEvent.getSlot(): HotbarSlot? {

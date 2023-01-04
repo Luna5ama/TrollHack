@@ -1,7 +1,7 @@
 package me.luna.trollhack.module.modules.player
 
 import me.luna.trollhack.event.SafeClientEvent
-import me.luna.trollhack.event.events.PacketEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
 import me.luna.trollhack.event.listener
@@ -25,7 +25,6 @@ import me.luna.trollhack.util.threads.runSafe
 import me.luna.trollhack.util.world.*
 import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.CPacketEntityAction
-import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.SoundCategory
@@ -70,8 +69,8 @@ internal object HypixelScaffold : Module(
             switchBack = false
         }
 
-        listener<PacketEvent.PostReceive> {
-            if (it.packet is SPacketBlockChange && it.packet.blockPosition == lastPos && !it.packet.getBlockState().isReplaceable) {
+        listener<WorldEvent.ServerBlockUpdate> {
+            if (it.pos == lastPos && !it.newState.isReplaceable) {
                 lastPos = null
             }
         }

@@ -19,7 +19,6 @@ import me.luna.trollhack.manager.managers.HoleManager
 import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbar
 import me.luna.trollhack.manager.managers.PlayerPacketManager
 import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
-import me.luna.trollhack.manager.managers.WorldManager
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.util.EntityUtils.eyePosition
@@ -95,7 +94,7 @@ internal object AutoHoleFill : Module(
             renderer.replaceAll(Collections.emptyList())
         }
 
-        listener<WorldEvent.BlockUpdate> {
+        listener<WorldEvent.ClientBlockUpdate> {
             if (!it.newState.isReplaceable) {
                 placeMap.remove(it.pos.toLong())
                 if (it.pos == nextHole) nextHole = null

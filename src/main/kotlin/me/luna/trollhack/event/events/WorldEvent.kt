@@ -21,7 +21,15 @@ sealed class WorldEvent : Event {
         }
     }
 
-    class BlockUpdate(
+    class ServerBlockUpdate(
+        val pos: BlockPos,
+        val oldState: IBlockState,
+        val newState: IBlockState
+    ) : WorldEvent(), EventPosting by Companion {
+        companion object : EventBus()
+    }
+
+    class ClientBlockUpdate(
         val pos: BlockPos,
         val oldState: IBlockState,
         val newState: IBlockState

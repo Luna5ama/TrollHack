@@ -1,11 +1,16 @@
 package me.luna.trollhack.manager.managers
 
-import me.luna.trollhack.event.events.BlockBreakEvent
-import me.luna.trollhack.event.events.WorldEvent
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import me.luna.trollhack.event.events.*
+import me.luna.trollhack.event.listener
+import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.manager.Manager
 import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
 import net.minecraft.util.math.BlockPos
@@ -13,9 +18,74 @@ import net.minecraft.world.IWorldEventListener
 import net.minecraft.world.World
 
 object WorldManager : Manager(), IWorldEventListener {
+    private val lock = Any()
+    private val oldBlockStateMap = Object2ObjectOpenHashMap<BlockPos, IBlockState>()
+    private val newBlockStateMap = Object2ObjectOpenHashMap<BlockPos, IBlockState>()
+    private val timeoutMap = Object2LongOpenHashMap<BlockPos>()
+    private val pendingPos = ObjectArrayList<BlockPos>()
+    private val pendingOldState = ObjectArrayList<IBlockState>()
+    private val pendingNewState = ObjectArrayList<IBlockState>()
+
+    init {
+        listener<ConnectionEvent.Disconnect> {
+            synchronized(lock) {
+                oldBlockStateMap.clear()
+                oldBlockStateMap.trim()
+                newBlockStateMap.clear()
+                newBlockStateMap.trim()
+                timeoutMap.clear()
+                timeoutMap.trim()
+            }
+
+            pendingPos.clear()
+            pendingPos.trim()
+            pendingNewState.clear()
+            pendingNewState.trim()
+        }
+
+        safeListener<PacketEvent.Receive> { event ->
+            if (event.packet !is SPacketBlockChange) return@safeListener
+            synchronized(lock) {
+                val key = event.packet.blockPosition
+                oldBlockStateMap.computeIfAbsent(key) { world.getBlockState(it) }
+                newBlockStateMap[key] = event.packet.blockState
+                timeoutMap[key] = System.currentTimeMillis() + 1L
+            }
+        }
+
+        listener<RunGameLoopEvent.Tick> {
+            synchronized(lock) {
+                val iterator = timeoutMap.object2LongEntrySet().fastIterator()
+                while (iterator.hasNext()) {
+                    val entry = iterator.next()
+                    if (System.currentTimeMillis() > entry.longValue) {
+                        val oldState = oldBlockStateMap.remove(entry.key)
+                        val newState = newBlockStateMap.remove(entry.key)
+                        oldState ?: continue
+                        newState ?: continue
+                        pendingPos.add(entry.key)
+                        pendingOldState.add(oldState)
+                        pendingNewState.add(newState)
+                        iterator.remove()
+                    }
+                }
+            }
+
+            for (i in pendingPos.indices) {
+                val pos = pendingPos[i]
+                val oldState = pendingOldState[i]
+                val newState = pendingNewState[i]
+                WorldEvent.ServerBlockUpdate(pos, oldState, newState).post()
+            }
+
+            pendingPos.clear()
+            pendingNewState.clear()
+        }
+    }
+
     override fun notifyBlockUpdate(worldIn: World, pos: BlockPos, oldState: IBlockState, newState: IBlockState, flags: Int) {
         if (flags and 3 != 0) {
-            WorldEvent.BlockUpdate(pos, oldState, newState).post()
+            WorldEvent.ClientBlockUpdate(pos, oldState, newState).post()
         }
     }
 

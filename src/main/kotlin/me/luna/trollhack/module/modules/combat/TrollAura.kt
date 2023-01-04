@@ -8,10 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import kotlinx.coroutines.launch
 import me.luna.trollhack.event.SafeClientEvent
-import me.luna.trollhack.event.events.BlockBreakEvent
-import me.luna.trollhack.event.events.PacketEvent
-import me.luna.trollhack.event.events.RunGameLoopEvent
-import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.*
 import me.luna.trollhack.event.events.combat.CrystalSetDeadEvent
 import me.luna.trollhack.event.events.combat.CrystalSpawnEvent
 import me.luna.trollhack.event.events.player.InteractEvent
@@ -363,18 +360,19 @@ internal object TrollAura : Module(
             }
         }
 
+        safeListener<WorldEvent.ServerBlockUpdate> { event ->
+            if (event.newState.block != Blocks.AIR) return@safeListener
+
+            val target = CombatManager.target ?: return@safeListener
+            val holeInfo = HoleManager.getHoleInfo(target)
+
+            if (holeInfo.isHole && holeInfo.surroundPos.contains(event.pos)) {
+                antiSurround(event.pos, canSwap = true, placeOn = false, breakCrystal = true)
+            }
+        }
+
         safeListener<PacketEvent.Receive> { event ->
             when (event.packet) {
-                is SPacketBlockChange -> {
-                    if (event.packet.blockState.block != Blocks.AIR) return@safeListener
-
-                    val target = CombatManager.target ?: return@safeListener
-                    val holeInfo = HoleManager.getHoleInfo(target)
-
-                    if (holeInfo.isHole && holeInfo.surroundPos.contains(event.packet.blockPosition)) {
-                        antiSurround(event.packet.blockPosition, canSwap = true, placeOn = false, breakCrystal = true)
-                    }
-                }
                 is SPacketSpawnExperienceOrb -> {
                     crystalID.set(-1)
                     predictBreakTimer.reset(500L)

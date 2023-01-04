@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.PacketEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import me.luna.trollhack.event.listener
 import me.luna.trollhack.event.safeListener
@@ -31,7 +32,6 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.CPacketCloseWindow
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
-import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.network.play.server.SPacketOpenWindow
 import net.minecraft.tileentity.TileEntityShulkerBox
 import net.minecraft.util.EnumFacing
@@ -112,24 +112,25 @@ internal object AntiCamp : Module(
                         timer.reset()
                     }
                 }
-                is SPacketBlockChange -> {
-                    val (pos, side) = placeInfo ?: return@listener
+            }
+        }
 
-                    when (shulkerState) {
-                        ShulkerState.OBBY -> {
-                            if (it.packet.blockPosition == pos.offset(side.opposite) && it.packet.blockState.block != Blocks.AIR) {
-                                shulkerState = ShulkerState.SHULKER
-                            }
-                        }
-                        ShulkerState.SHULKER -> {
-                            if (it.packet.blockPosition == pos && it.packet.blockState.block is BlockShulkerBox) {
-                                shulkerState = ShulkerState.OPEN
-                            }
-                        }
-                        else -> {
+        listener<WorldEvent.ServerBlockUpdate> {
+            val (pos, side) = placeInfo ?: return@listener
 
-                        }
+            when (shulkerState) {
+                ShulkerState.OBBY -> {
+                    if (it.pos == pos.offset(side.opposite) && it.newState.block != Blocks.AIR) {
+                        shulkerState = ShulkerState.SHULKER
                     }
+                }
+                ShulkerState.SHULKER -> {
+                    if (it.pos == pos && it.newState.block is BlockShulkerBox) {
+                        shulkerState = ShulkerState.OPEN
+                    }
+                }
+                else -> {
+
                 }
             }
         }

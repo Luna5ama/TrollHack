@@ -8,6 +8,7 @@ import me.luna.trollhack.event.*
 import me.luna.trollhack.event.events.BlockBreakEvent
 import me.luna.trollhack.event.events.PacketEvent
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
 import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import me.luna.trollhack.module.Category
@@ -47,7 +48,6 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.item.ItemShulkerBox
 import net.minecraft.network.play.client.CPacketPlayerDigging
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
-import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
@@ -170,12 +170,12 @@ internal object AutoObsidian : Module(
             }
         }
 
-        safeParallelListener<PacketEvent.Receive> {
-            if (!instantMining || it.packet !is SPacketBlockChange) return@safeParallelListener
-            if (it.packet.blockPosition != placingPos) return@safeParallelListener
+        safeListener<WorldEvent.ServerBlockUpdate> {
+            if (!instantMining) return@safeListener
+            if (it.pos != placingPos) return@safeListener
 
-            val prevBlock = world.getBlockState(it.packet.blockPosition).block
-            val newBlock = it.packet.blockState.block
+            val prevBlock = it.oldState.block
+            val newBlock = it.newState.block
 
             if (prevBlock != newBlock) {
                 if (prevBlock != Blocks.AIR && newBlock == Blocks.AIR) {

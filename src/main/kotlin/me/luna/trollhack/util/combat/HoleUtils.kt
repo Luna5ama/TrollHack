@@ -1,5 +1,7 @@
 package me.luna.trollhack.util.combat
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import it.unimi.dsi.fastutil.objects.ObjectSet
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.util.math.vector.toVec3d
 import me.luna.trollhack.util.world.isAir
@@ -304,10 +306,13 @@ object HoleUtils {
             world.isAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
         }
 
-    private inline fun Array<BlockPos>.offset(pos: BlockPos) =
-        Array(this.size) {
-            pos.add(this[it])
+    private inline fun Array<BlockPos>.offset(pos: BlockPos): ObjectSet<BlockPos> {
+        val result = ObjectOpenHashSet<BlockPos>(size)
+        for (blockPos in this) {
+            result.add(pos.add(blockPos))
         }
+        return result
+    }
 
     private inline fun SafeClientEvent.checkType(
         pos: BlockPos,

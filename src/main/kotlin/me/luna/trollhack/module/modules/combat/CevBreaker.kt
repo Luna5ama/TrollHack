@@ -4,6 +4,7 @@ import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.PacketEvent
 import me.luna.trollhack.event.events.RunGameLoopEvent
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.combat.CrystalSpawnEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
 import me.luna.trollhack.event.listener
@@ -38,7 +39,6 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.network.play.client.CPacketUseEntity
-import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.network.play.server.SPacketSoundEffect
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
@@ -81,32 +81,30 @@ internal object CevBreaker : Module(
             }
         }
 
-        safeListener<PacketEvent.Receive> { event ->
+        safeListener<WorldEvent.ServerBlockUpdate> { event ->
             val info = posInfo ?: return@safeListener
 
-            when (event.packet) {
-                is SPacketBlockChange -> {
-                    if (event.packet.blockPosition == info.pos) {
-                        val current = world.getBlock(info.pos)
-                        val new = event.packet.blockState.block
+            if (event.pos == info.pos) {
+                val current = event.oldState.block
+                val new = event.newState.block
 
-                        if (new != current) {
-                            if (new == Blocks.AIR) {
-                                val id = crystalID
-                                if (id != -69420 && safeCheck()) {
-                                    breakCrystal(id)
-                                }
-                            }
-                        }
+                if (new != current && new == Blocks.AIR) {
+                    val id = crystalID
+                    if (id != -69420 && safeCheck()) {
+                        breakCrystal(id)
                     }
                 }
-                is SPacketSoundEffect -> {
-                    if (event.packet.category == SoundCategory.BLOCKS
-                        && event.packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE
-                        && info.pos.distanceSqToCenter(event.packet.x, event.packet.y - 0.5, event.packet.z) < 0.25) {
-                        crystalID = -69420
-                    }
-                }
+            }
+        }
+
+        safeListener<PacketEvent.Receive> { event ->
+            if (event.packet !is SPacketSoundEffect) return@safeListener
+            val info = posInfo ?: return@safeListener
+
+            if (event.packet.category == SoundCategory.BLOCKS
+                && event.packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE
+                && info.pos.distanceSqToCenter(event.packet.x, event.packet.y - 0.5, event.packet.z) < 0.25) {
+                crystalID = -69420
             }
         }
 

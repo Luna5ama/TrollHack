@@ -96,7 +96,7 @@ internal object Search : Module(
             lastUpdatePos = BlockPos.ORIGIN
         }
 
-        safeListener<WorldEvent.BlockUpdate> {
+        safeListener<WorldEvent.ClientBlockUpdate> {
             val eyeX = player.posX.fastFloor()
             val eyeY = (player.posY + player.getEyeHeight()).fastFloor()
             val eyeZ = player.posZ.fastFloor()
