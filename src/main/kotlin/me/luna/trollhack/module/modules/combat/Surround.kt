@@ -63,7 +63,7 @@ internal object Surround : Module(
 ) {
     private val placeDelay by setting("Place delay", 50, 0..1000, 1)
     private val multiPlace by setting("Multi Place", 2, 1..5, 1)
-    private val placeTimeout by setting("Place Timeout", 200, 0..1000, 10)
+    private val placeTimeout by setting("Place Timeout", 100, 0..1000, 10)
     private val strictDirection by setting("Strict Direction", false)
     private val autoCenter by setting("Auto Center", true)
     private val rotation by setting("Rotation", true)
@@ -283,6 +283,7 @@ internal object Surround : Module(
             keys.removeIf {
                 if (!world.getBlockState(BlockPos.fromLong(it)).isReplaceable) {
                     placed.add(it)
+                    true
                 } else {
                     false
                 }

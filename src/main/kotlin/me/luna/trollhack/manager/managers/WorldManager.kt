@@ -49,16 +49,17 @@ object WorldManager : Manager(), IWorldEventListener {
                 val key = event.packet.blockPosition
                 oldBlockStateMap.computeIfAbsent(key) { world.getBlockState(it) }
                 newBlockStateMap[key] = event.packet.blockState
-                timeoutMap[key] = System.currentTimeMillis() + 1L
+                timeoutMap[key] = System.currentTimeMillis() + 5L
             }
         }
 
         listener<RunGameLoopEvent.Tick> {
             synchronized(lock) {
                 val iterator = timeoutMap.object2LongEntrySet().fastIterator()
+                val current = System.currentTimeMillis()
                 while (iterator.hasNext()) {
                     val entry = iterator.next()
-                    if (System.currentTimeMillis() > entry.longValue) {
+                    if (current > entry.longValue) {
                         val oldState = oldBlockStateMap.remove(entry.key)
                         val newState = newBlockStateMap.remove(entry.key)
                         oldState ?: continue
