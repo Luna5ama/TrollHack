@@ -31,7 +31,6 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 
-@Suppress("NOTHING_TO_INLINE")
 internal object BetterEat : Module(
     name = "BetterEat",
     description = "Optimize eating",
@@ -166,7 +165,7 @@ internal object BetterEat : Module(
             && isValidItem(this.activeItemStack.item)
     }
 
-    private inline fun isValidItem(item: Item): Boolean {
+    private fun isValidItem(item: Item): Boolean {
         return item is ItemFood || item == Items.POTIONITEM
     }
 

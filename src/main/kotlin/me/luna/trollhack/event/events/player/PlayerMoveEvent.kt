@@ -23,8 +23,7 @@ sealed class PlayerMoveEvent : Event {
         var z = Double.NaN
             get() = get(field, player.motionZ)
 
-        @Suppress("NOTHING_TO_INLINE")
-        private inline fun get(x: Double, y: Double): Double {
+        private fun get(x: Double, y: Double): Double {
             return when {
                 cancelled -> 0.0
                 !x.isNaN() -> x

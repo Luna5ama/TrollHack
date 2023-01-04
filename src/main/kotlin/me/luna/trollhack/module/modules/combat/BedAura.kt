@@ -71,7 +71,6 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import kotlin.math.max
 
-@Suppress("NOTHING_TO_INLINE")
 @CombatManager.CombatModule
 internal object BedAura : Module(
     name = "BedAura",
@@ -270,7 +269,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.runLoop() {
+    private fun SafeClientEvent.runLoop() {
         val placeInfo = placeInfo
         if (placeInfo == null || CombatSetting.pause) {
             needOffhandBed = false
@@ -299,7 +298,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.refillBed(hotbarSlot: HotbarSlot) {
+    private fun SafeClientEvent.refillBed(hotbarSlot: HotbarSlot) {
         (player.storageSlots.firstItem(Items.BED)
             ?: player.craftingSlots.firstItem(Items.BED))?.let {
             lastTask = inventoryTask {
@@ -308,7 +307,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.instantTiming(placeInfo: PlaceInfo, validDamage: Boolean) {
+    private fun SafeClientEvent.instantTiming(placeInfo: PlaceInfo, validDamage: Boolean) {
         if (validDamage) {
             if (timer.tick(getDelay(placeInfo, delay, slowDelay))) {
                 placeBed(placeInfo)
@@ -319,7 +318,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.syncTiming(placeInfo: PlaceInfo, validDamage: Boolean) {
+    private fun SafeClientEvent.syncTiming(placeInfo: PlaceInfo, validDamage: Boolean) {
         if (validDamage) {
             if (timer.tick(getDelay(placeInfo, delay, slowDelay))) {
                 if (isBedPlaced(placeInfo)) {
@@ -334,7 +333,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.switchTiming(placeInfo: PlaceInfo, validDamage: Boolean) {
+    private fun SafeClientEvent.switchTiming(placeInfo: PlaceInfo, validDamage: Boolean) {
         if (validDamage) {
             if (switchPlacing) {
                 if (timer.tick(getDelay(placeInfo, placeDelay, slowPlaceDelay))) {
@@ -352,7 +351,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.breakIfPlaced(placeInfo: PlaceInfo, delay: Int) {
+    private fun SafeClientEvent.breakIfPlaced(placeInfo: PlaceInfo, delay: Int) {
         if (timer.tick(delay)) {
             if (isBedPlaced(placeInfo)) {
                 breakBed(placeInfo)
@@ -360,12 +359,12 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.isBedPlaced(placeInfo: PlaceInfo): Boolean {
+    private fun SafeClientEvent.isBedPlaced(placeInfo: PlaceInfo): Boolean {
         return world.getBlock(placeInfo.bedPosFoot) == Blocks.BED
             || world.getBlock(placeInfo.bedPosHead) == Blocks.BED
     }
 
-    private inline fun SafeClientEvent.breakBed(placeInfo: PlaceInfo) {
+    private fun SafeClientEvent.breakBed(placeInfo: PlaceInfo) {
         val side = getMiningSide(placeInfo.bedPosFoot) ?: EnumFacing.UP
         val hitVecOffset = getHitVecOffset(side)
         player.isSneaking
@@ -379,7 +378,7 @@ internal object BedAura : Module(
         inactiveTicks = 0
     }
 
-    private inline fun SafeClientEvent.placeBed(placeInfo: PlaceInfo) {
+    private fun SafeClientEvent.placeBed(placeInfo: PlaceInfo) {
         val shouldSneak = !player.isSneaking && placeInfo.blackListed
         if (shouldSneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
         val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, handMode, 0.5f, 1.0f, 0.5f)
@@ -402,7 +401,7 @@ internal object BedAura : Module(
         inactiveTicks = 0
     }
 
-    private inline fun getDelay(placeInfo: PlaceInfo, delay: Int, slowDelay: Int): Int {
+    private fun getDelay(placeInfo: PlaceInfo, delay: Int, slowDelay: Int): Int {
         return if (slowMode
             && !targetMoving
             && !selfMoving
@@ -414,7 +413,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.update() {
+    private fun SafeClientEvent.update() {
         if (player.dimension == 0 || !player.allSlots.hasItem(Items.BED)) {
             reset()
         } else if (updateTimer.tickAndReset(updateDelay)) {
@@ -448,7 +447,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.calcDamage(): PlaceInfo? {
+    private fun SafeClientEvent.calcDamage(): PlaceInfo? {
         val contextSelf = CombatManager.contextSelf ?: return null
         val contextTarget = CombatManager.contextTarget ?: return null
         val eyePos = player.eyePosition
@@ -469,7 +468,7 @@ internal object BedAura : Module(
             ?.toPlaceInfo()
     }
 
-    private inline fun Sequence<BlockPos>.mapToCalcInfo(eyePos: Vec3d): Sequence<CalcInfo> {
+    private fun Sequence<BlockPos>.mapToCalcInfo(eyePos: Vec3d): Sequence<CalcInfo> {
         return if (strictRotation) {
             map {
                 val bedPos = it.up()
@@ -499,7 +498,7 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
+    private fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
         val x = hitVec.x - eyePos.x
         val z = hitVec.z - eyePos.z
 
@@ -508,7 +507,7 @@ internal object BedAura : Module(
         } ?: EnumFacing.NORTH
     }
 
-    private inline fun newCalcInfo(side: EnumFacing, pos: BlockPos, hitVec: Vec3d): CalcInfo {
+    private fun newCalcInfo(side: EnumFacing, pos: BlockPos, hitVec: Vec3d): CalcInfo {
         val bedPos = pos.up()
 
         return CalcInfo(
@@ -521,11 +520,11 @@ internal object BedAura : Module(
         )
     }
 
-    private inline fun SafeClientEvent.isValidBasePos(basePos: BlockPos): Boolean {
+    private fun SafeClientEvent.isValidBasePos(basePos: BlockPos): Boolean {
         return world.getBlockState(basePos).isSideSolid(world, basePos, EnumFacing.UP)
     }
 
-    private inline fun SafeClientEvent.isValidBedPos(calcInfo: CalcInfo): Boolean {
+    private fun SafeClientEvent.isValidBedPos(calcInfo: CalcInfo): Boolean {
         val blockState2 = world.getBlockState(calcInfo.bedPosHead)
         val block1 = world.getBlockState(calcInfo.bedPosFoot).block
         val block2 = blockState2.block
@@ -535,7 +534,7 @@ internal object BedAura : Module(
             && blockState2.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD && blockState2.getValue(BlockBed.FACING) == calcInfo.side)
     }
 
-    private inline fun checkDamage(
+    private fun checkDamage(
         map: Long2ObjectOpenHashMap<Vec2f>,
         contextSelf: CalcContext,
         contextTarget: CalcContext,
@@ -571,20 +570,20 @@ internal object BedAura : Module(
         }
     }
 
-    private inline fun checkSelfDamage(selfDamage: Float): Boolean {
+    private fun checkSelfDamage(selfDamage: Float): Boolean {
         return selfMoving && selfDamage <= motionMaxSelfDamage || selfDamage <= maxSelfDamage
     }
 
-    private inline fun checkDamage(targetDamage: Float, diff: Float): Boolean {
+    private fun checkDamage(targetDamage: Float, diff: Float): Boolean {
         return (targetMoving && targetDamage >= motionMinDamage || targetDamage >= minDamage)
             && (targetMoving && diff >= motionDamageBalance || diff >= damageBalance)
     }
 
-    private inline fun checkForcePlaceDamage(targetDamage: Float, diff: Float): Boolean {
+    private fun checkForcePlaceDamage(targetDamage: Float, diff: Float): Boolean {
         return (toggleForcePlace || shouldForcePlace) && targetDamage >= forcePlaceMinDamage && diff >= forcePlaceDamageBalance
     }
 
-    private inline fun DamageInfo.toPlaceInfo(): PlaceInfo {
+    private fun DamageInfo.toPlaceInfo(): PlaceInfo {
         val directionVec = side.directionVec
         val boxBase = AxisAlignedBB(
             basePos.x.toDouble(), basePos.y + 0.4375, basePos.z.toDouble(),
@@ -609,7 +608,7 @@ internal object BedAura : Module(
         )
     }
 
-    private inline fun reset() {
+    private fun reset() {
         updateTimer.reset(-69420L)
         timer.reset(-69420L)
         renderer.clear()

@@ -156,12 +156,12 @@ internal object CevBreaker : Module(
         }
     }
 
-    private inline fun SafeClientEvent.safeCheck(): Boolean {
+    private fun SafeClientEvent.safeCheck(): Boolean {
         return player.health >= minHealth
             && AutoOffhand.lastType != AutoOffhand.Type.TOTEM
     }
 
-    private inline fun SafeClientEvent.updateTarget() {
+    private fun SafeClientEvent.updateTarget() {
         CombatManager.target?.let {
             val feetPos = it.betterPosition
             if (world.getBlockState(feetPos).getCollisionBoundingBox(world, feetPos) != null) {
@@ -192,13 +192,13 @@ internal object CevBreaker : Module(
         }
     }
 
-    private inline fun SafeClientEvent.wallCheck(pos: BlockPos): Boolean {
+    private fun SafeClientEvent.wallCheck(pos: BlockPos): Boolean {
         val eyePos = player.eyePosition
         return eyePos.squareDistanceTo(pos.x + 0.5, pos.y + 1.0, pos.z + 0.5) <= 9.0
             || world.rayTraceBlocks(eyePos, pos.toVec3d(0.5, 2.7, 0.5), false, true, false) == null
     }
 
-    private inline fun SafeClientEvent.place(info: Info) {
+    private fun SafeClientEvent.place(info: Info) {
         val obbySlot = player.storageSlots.firstBlock(Blocks.OBSIDIAN) ?: return
         val crystalSlot = player.storageSlots.firstItem(Items.END_CRYSTAL) ?: return
         val placeInfo = getNeighbor(info.pos, 3, 6.0f, sides = arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN))
@@ -228,7 +228,7 @@ internal object CevBreaker : Module(
         removeHoldingItem()
     }
 
-    private inline fun SafeClientEvent.breakCrystal(id: Int) {
+    private fun SafeClientEvent.breakCrystal(id: Int) {
         val packet = CPacketUseEntity().apply {
             this.id = id
             this.packetAction = CPacketUseEntity.Action.ATTACK
@@ -237,7 +237,7 @@ internal object CevBreaker : Module(
         connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
     }
 
-    private inline fun reset() {
+    private fun reset() {
         placeTimer.reset(-69420)
         breakTimer.reset(-69420)
         packetTimer.reset(-69420)

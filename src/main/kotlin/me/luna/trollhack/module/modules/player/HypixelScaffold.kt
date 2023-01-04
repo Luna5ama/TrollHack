@@ -30,7 +30,6 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 
-@Suppress("NOTHING_TO_INLINE")
 internal object HypixelScaffold : Module(
     name = "HypixelScaffold",
     category = Category.PLAYER,

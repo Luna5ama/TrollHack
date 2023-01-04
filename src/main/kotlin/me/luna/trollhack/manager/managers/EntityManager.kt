@@ -11,7 +11,6 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.AxisAlignedBB
 
-@Suppress("NOTHING_TO_INLINE")
 object EntityManager : Manager() {
     private var entity0 = emptyList<Entity>()
     val entity: List<Entity>
@@ -63,7 +62,7 @@ object EntityManager : Manager() {
         }
     }
 
-    inline fun checkEntityCollision(box: AxisAlignedBB, noinline predicate: (Entity) -> Boolean): Boolean {
+    fun checkEntityCollision(box: AxisAlignedBB, predicate: (Entity) -> Boolean): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.preventEntitySpawning }
@@ -72,7 +71,7 @@ object EntityManager : Manager() {
             .none()
     }
 
-    inline fun checkEntityCollision(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
+    fun checkEntityCollision(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.preventEntitySpawning }
@@ -81,7 +80,7 @@ object EntityManager : Manager() {
             .none()
     }
 
-    inline fun checkEntityCollision(box: AxisAlignedBB): Boolean {
+    fun checkEntityCollision(box: AxisAlignedBB): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.preventEntitySpawning }
@@ -89,7 +88,7 @@ object EntityManager : Manager() {
             .none()
     }
 
-    inline fun checkAnyEntity(box: AxisAlignedBB, noinline predicate: (Entity) -> Boolean): Boolean {
+    fun checkAnyEntity(box: AxisAlignedBB, predicate: (Entity) -> Boolean): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.entityBoundingBox.intersects(box) }
@@ -97,7 +96,7 @@ object EntityManager : Manager() {
             .none()
     }
 
-    inline fun checkAnyEntity(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
+    fun checkAnyEntity(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it != ignoreEntity }
@@ -105,7 +104,7 @@ object EntityManager : Manager() {
             .none()
     }
 
-    inline fun checkAnyEntity(box: AxisAlignedBB): Boolean {
+    fun checkAnyEntity(box: AxisAlignedBB): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.entityBoundingBox.intersects(box) }

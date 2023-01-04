@@ -88,7 +88,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-@Suppress("NOTHING_TO_INLINE")
 @CombatManager.CombatModule
 internal object TrollAura : Module(
     name = "TrollAura",
@@ -339,7 +338,7 @@ internal object TrollAura : Module(
                 breakDirect(attackPacket(event.entityID))
             }
 
-            ddosQueue.peekFirst()?.let { it ->
+            ddosQueue.peekFirst()?.let {
                 if (event.crystalDamage.blockPos == it.blockPos) {
                     ddosQueue.pollFirst()
                 }
@@ -471,7 +470,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.updateDdosQueue() {
+    private fun SafeClientEvent.updateDdosQueue() {
         val target = CombatManager.target
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
@@ -518,7 +517,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.doRotation() {
+    private fun SafeClientEvent.doRotation() {
         var placing = inactiveTicks <= 5
         getPlacingPos(false, BlockPos.MutableBlockPos())?.blockPos?.let {
             lastRotation = it
@@ -550,7 +549,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun updateTimeouts() {
+    private fun updateTimeouts() {
         val removeTime = System.currentTimeMillis()
 
         if (System.currentTimeMillis() > overrideTime) {
@@ -589,7 +588,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.runLoop() {
+    private fun SafeClientEvent.runLoop() {
         CombatManager.target?.let { target ->
             if (!CombatSetting.pause && target.isEntityAlive && (!ddosArmor || System.currentTimeMillis() - CombatManager.getHurtTime(target) !in 450L..500L)) {
                 doBreak()
@@ -598,7 +597,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.doBreak() {
+    private fun SafeClientEvent.doBreak() {
         if (doBreak && breakTimer.tick(breakDelay)) {
             getBreakCrystal()?.let { (crystal, crystalDamage) ->
                 if (checkSlowMode(crystalDamage) && !breakTimer.tick(slowBreakDelay)) return
@@ -608,7 +607,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.preBreak(entityID: Int): Boolean {
+    private fun SafeClientEvent.preBreak(entityID: Int): Boolean {
         if (antiWeakness && player.isWeaknessActive() && !isHoldingTool()) {
             if (HandPause[EnumHand.MAIN_HAND].requestPause(TrollAura, (swapDelay + 1) * 50)) {
                 equipBestWeapon(allowTool = true)
@@ -639,14 +638,14 @@ internal object TrollAura : Module(
         return true
     }
 
-    private inline fun EntityPlayerSP.isWeaknessActive(): Boolean {
+    private fun EntityPlayerSP.isWeaknessActive(): Boolean {
         return this.isPotionActive(MobEffects.WEAKNESS)
             && this.getActivePotionEffect(MobEffects.STRENGTH)?.let {
             it.amplifier > 0
         } ?: false
     }
 
-    private inline fun SafeClientEvent.breakDirect(packet: CPacketUseEntity) {
+    private fun SafeClientEvent.breakDirect(packet: CPacketUseEntity) {
         breakTimer.reset()
         inactiveTicks = 0
         CombatManager.target?.let { target -> player.setLastAttackedEntity(target) }
@@ -656,7 +655,7 @@ internal object TrollAura : Module(
         swingHand()
     }
 
-    private inline fun SafeClientEvent.swingHand() {
+    private fun SafeClientEvent.swingHand() {
         val hand = when (swingHand) {
             SwingHand.AUTO -> if (player.heldItemOffhand.item == Items.END_CRYSTAL) EnumHand.OFF_HAND else EnumHand.MAIN_HAND
             SwingHand.OFF_HAND -> EnumHand.OFF_HAND
@@ -668,7 +667,7 @@ internal object TrollAura : Module(
     /* End of main functions */
 
     /* Placing */
-    private inline fun SafeClientEvent.antiSurround(surroundPos: BlockPos, canSwap: Boolean, placeOn: Boolean, breakCrystal: Boolean) {
+    private fun SafeClientEvent.antiSurround(surroundPos: BlockPos, canSwap: Boolean, placeOn: Boolean, breakCrystal: Boolean) {
         if (!canPlace()) return
 
         defaultScope.launch {
@@ -687,7 +686,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.getAntiSurroundPos(
+    private fun SafeClientEvent.getAntiSurroundPos(
         surroundPos: BlockPos,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): BlockPos? {
@@ -699,7 +698,7 @@ internal object TrollAura : Module(
             ?.blockPos
     }
 
-    private inline fun SafeClientEvent.getAlternativePos(
+    private fun SafeClientEvent.getAlternativePos(
         surroundPos: BlockPos,
         placeOn: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos
@@ -718,7 +717,7 @@ internal object TrollAura : Module(
         return null
     }
 
-    private inline fun SafeClientEvent.antiSurroundBreakCrystal(pos: BlockPos) {
+    private fun SafeClientEvent.antiSurroundBreakCrystal(pos: BlockPos) {
         for ((crystal, crystalDamage) in CombatManager.crystalList) {
             if (abs(crystalDamage.blockPos.x - pos.x) > 1
                 || abs(crystalDamage.blockPos.y + 1 - pos.y) > 1
@@ -732,7 +731,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.checkAntiSurroundPos(
+    private fun SafeClientEvent.checkAntiSurroundPos(
         surroundPos: BlockPos,
         pos: BlockPos,
         mutableBlockPos: BlockPos.MutableBlockPos
@@ -762,14 +761,14 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.antiSurroundDirect(pos: BlockPos, canSwap: Boolean) {
+    private fun SafeClientEvent.antiSurroundDirect(pos: BlockPos, canSwap: Boolean) {
         placeDirect(canSwap || (autoSwap && spoofHotbar), pos)
 
         overridePos = pos
         overrideTime = System.currentTimeMillis() + 1000L
     }
 
-    private inline fun SafeClientEvent.doPlace() {
+    private fun SafeClientEvent.doPlace() {
         if (!canPlace()) return
         val mutableBlockPos = BlockPos.MutableBlockPos()
         val crystalDamage = getPlacingPos(rotation, mutableBlockPos) ?: return
@@ -782,7 +781,7 @@ internal object TrollAura : Module(
         placeDirect(true, crystalDamage.blockPos)
     }
 
-    private inline fun SafeClientEvent.placeDirect(canSwap: Boolean, pos: BlockPos) {
+    private fun SafeClientEvent.placeDirect(canSwap: Boolean, pos: BlockPos) {
         val hand = getHandNullable()
 
         if (hand == null) {
@@ -818,7 +817,7 @@ internal object TrollAura : Module(
         placedPosMap[pos.toLong()] = current + 1000L
     }
 
-    private inline fun SafeClientEvent.placePacket(pos: BlockPos, hand: EnumHand): CPacketPlayerTryUseItemOnBlock {
+    private fun SafeClientEvent.placePacket(pos: BlockPos, hand: EnumHand): CPacketPlayerTryUseItemOnBlock {
         return if (buildLimitBypass) {
             CPacketPlayerTryUseItemOnBlock(pos, EnumFacing.DOWN, hand, 0.5f, 1.0f, 0.5f)
         } else {
@@ -828,7 +827,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.predictBreak(pos: BlockPos) {
+    private fun SafeClientEvent.predictBreak(pos: BlockPos) {
         val id = crystalID.get()
         if (id != -1 && predictBreakTimer.tick(predictBreakDelay)) {
             val spawnTime = getSpawnTime(pos)
@@ -841,20 +840,20 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun attackPacket(entityID: Int): CPacketUseEntity {
+    private fun attackPacket(entityID: Int): CPacketUseEntity {
         return CPacketUseEntity().apply {
             this.id = entityID
             this.packetAction = CPacketUseEntity.Action.ATTACK
         }
     }
 
-    private inline fun SafeClientEvent.canPlace() =
+    private fun SafeClientEvent.canPlace() =
         doPlace && placeTimer.tick(placeDelay) && player.allSlots.countItem(Items.END_CRYSTAL) > 0
 
-    private inline fun EntityPlayerSP.getCrystalSlot() =
+    private fun EntityPlayerSP.getCrystalSlot() =
         this.hotbarSlots.firstItem(Items.END_CRYSTAL)
 
-    private inline fun SafeClientEvent.getPlacingPos(
+    private fun SafeClientEvent.getPlacingPos(
         checkRotation: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): CrystalDamage? {
@@ -869,7 +868,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.getOverridePos(
+    private fun SafeClientEvent.getOverridePos(
         checkRotation: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): CrystalDamage? {
@@ -883,7 +882,7 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.getNormalPos(
+    private fun SafeClientEvent.getNormalPos(
         checkRotation: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): CrystalDamage? {
@@ -921,7 +920,7 @@ internal object TrollAura : Module(
         return null
     }
 
-    private inline fun SafeClientEvent.checkPos(
+    private fun SafeClientEvent.checkPos(
         contextSelf: CalcContext,
         contextTarget: CalcContext,
         mutableBlockPos: BlockPos.MutableBlockPos,
@@ -950,7 +949,7 @@ internal object TrollAura : Module(
         return true
     }
 
-    private inline fun SafeClientEvent.placeDistCheck(
+    private fun SafeClientEvent.placeDistCheck(
         eyePos: Vec3d,
         crystalDamage: CrystalDamage,
         mutableBlockPos: BlockPos.MutableBlockPos
@@ -959,7 +958,7 @@ internal object TrollAura : Module(
             || world.rayTraceVisible(eyePos, crystalDamage.crystalPos.add(0.0, 1.7, 0.0), 20, mutableBlockPos))
     }
 
-    private inline fun placeSyncCheck(pos: BlockPos): Boolean {
+    private fun placeSyncCheck(pos: BlockPos): Boolean {
         return pos == overridePos || when (placeMode) {
             PlaceSyncMode.NORMAL -> {
                 CrystalUtils.placeCollideCheck(pos)
@@ -989,7 +988,7 @@ internal object TrollAura : Module(
     /**
      * @return True if passed placing damage check
      */
-    private inline fun checkDamagePlace(crystalDamage: CrystalDamage): Boolean {
+    private fun checkDamagePlace(crystalDamage: CrystalDamage): Boolean {
         return lethalPlace && lethalCheck(crystalDamage)
             || compareLessEqual(selfMoving, crystalDamage.selfDamage, placeMaxSelfDamage, motionPlaceMaxSelfDamage)
             && (compareGreatEqual(targetMoving, crystalDamage.targetDamage, placeMinDamage, motionPlaceMinDamage)
@@ -997,7 +996,7 @@ internal object TrollAura : Module(
             || shouldFacePlace(crystalDamage))
     }
 
-    private inline fun SafeClientEvent.prePlace(pos: BlockPos, mutableBlockPos: BlockPos.MutableBlockPos): Boolean {
+    private fun SafeClientEvent.prePlace(pos: BlockPos, mutableBlockPos: BlockPos.MutableBlockPos): Boolean {
         val mode = placeMode
         val spam = mode == PlaceSyncMode.SPAM
         val ignore = mode == PlaceSyncMode.IGNORE
@@ -1041,7 +1040,7 @@ internal object TrollAura : Module(
         return count < maxCrystal
     }
 
-    private inline fun SafeClientEvent.getPlaceSide(pos: BlockPos): EnumFacing {
+    private fun SafeClientEvent.getPlaceSide(pos: BlockPos): EnumFacing {
         return if (strictDirection) {
             getMiningSide(pos) ?: EnumFacing.UP
         } else {
@@ -1049,16 +1048,16 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun getSpawnTime(crystal: EntityEnderCrystal): Long {
+    private fun getSpawnTime(crystal: EntityEnderCrystal): Long {
         return getSpawnTime(crystal.blockPos)
     }
 
-    private inline fun getSpawnTime(pos: BlockPos): Long {
+    private fun getSpawnTime(pos: BlockPos): Long {
         return System.currentTimeMillis() - spawnTimeMap[pos.toLong()]
     }
     /* End of placing */
 
-    private inline fun SafeClientEvent.getBreakCrystal(): Pair<EntityEnderCrystal, CrystalDamage>? {
+    private fun SafeClientEvent.getBreakCrystal(): Pair<EntityEnderCrystal, CrystalDamage>? {
         val eyePos = player.eyePosition
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
@@ -1074,7 +1073,7 @@ internal object TrollAura : Module(
             .firstOrNull()
     }
 
-    private inline fun SafeClientEvent.checkCrystalRotation(crystalDamage: CrystalDamage): Boolean {
+    private fun SafeClientEvent.checkCrystalRotation(crystalDamage: CrystalDamage): Boolean {
         if (!rotation) return true
 
         val box = CrystalUtils.getCrystalBB(crystalDamage.blockPos)
@@ -1085,11 +1084,11 @@ internal object TrollAura : Module(
             || RotationUtils.getRotationDiff(rotationToCenter, PlayerPacketManager.rotation) <= breakRotationRange
     }
 
-    private inline fun checkSelfCrystal(crystalDamage: CrystalDamage): Boolean {
+    private fun checkSelfCrystal(crystalDamage: CrystalDamage): Boolean {
         return !ownCrystal || (placedPosMap.isEmpty() || placedPosMap.containsKey(crystalDamage.blockPos.toLong()))
     }
 
-    private inline fun SafeClientEvent.checkDamageBreak(
+    private fun SafeClientEvent.checkDamageBreak(
         crystalDamage: CrystalDamage,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
@@ -1101,7 +1100,7 @@ internal object TrollAura : Module(
             || shouldForceBreak(crystalDamage, mutableBlockPos))
     }
 
-    private inline fun SafeClientEvent.shouldForceBreak(
+    private fun SafeClientEvent.shouldForceBreak(
         crystalDamage: CrystalDamage,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
@@ -1119,7 +1118,7 @@ internal object TrollAura : Module(
     /* End of exploding */
 
     /* General */
-    private inline fun SafeClientEvent.getHandNullable(): EnumHand? {
+    private fun SafeClientEvent.getHandNullable(): EnumHand? {
         return when (Items.END_CRYSTAL) {
             player.heldItemOffhand.item -> EnumHand.OFF_HAND
             player.serverSideItem.item -> EnumHand.MAIN_HAND
@@ -1127,30 +1126,30 @@ internal object TrollAura : Module(
         }
     }
 
-    private inline fun SafeClientEvent.noSuicideCheck(crystalDamage: CrystalDamage): Boolean {
+    private fun SafeClientEvent.noSuicideCheck(crystalDamage: CrystalDamage): Boolean {
         return player.scaledHealth - crystalDamage.selfDamage > noSuicide
     }
 
-    private inline fun lethalCheck(crystalDamage: CrystalDamage): Boolean {
+    private fun lethalCheck(crystalDamage: CrystalDamage): Boolean {
         return CombatManager.target?.let { crystalDamage.targetDamage > it.scaledHealth } ?: false
     }
 
-    private inline fun SafeClientEvent.isHoldingTool(): Boolean {
+    private fun SafeClientEvent.isHoldingTool(): Boolean {
         val item = player.heldItemMainhand.item
         return item is ItemTool || item is ItemSword
     }
 
-    private inline fun shouldFacePlace(crystalDamage: CrystalDamage) =
+    private fun shouldFacePlace(crystalDamage: CrystalDamage) =
         crystalDamage.targetDamage >= forcePlaceMinDamage
             && crystalDamage.damageBalance >= forcePlaceDamageBalance
             && (forcePlacing || checkForcePlaceTotemPop() || checkForcePlaceArmorHealth())
 
-    private inline fun checkForcePlaceArmorHealth(): Boolean {
+    private fun checkForcePlaceArmorHealth(): Boolean {
         return (forcePlaceHealth > 0.0f && CombatManager.target?.let { it.scaledHealth <= forcePlaceHealth } ?: false)
             || checkForcePlaceArmor()
     }
 
-    private inline fun checkForcePlaceTotemPop(): Boolean {
+    private fun checkForcePlaceTotemPop(): Boolean {
         return CombatManager.target?.let { target ->
             TotemPopManager.getTracker(target)?.let {
                 System.currentTimeMillis() - it.popTime < 2000L
@@ -1158,11 +1157,11 @@ internal object TrollAura : Module(
         } ?: false
     }
 
-    private inline fun checkForcePlaceArmor(): Boolean {
+    private fun checkForcePlaceArmor(): Boolean {
         return forcePlaceArmorDura > 0.0f && getMinArmorDura() <= forcePlaceArmorDura
     }
 
-    private inline fun getMinArmorDura(): Int {
+    private fun getMinArmorDura(): Int {
         val target = CombatManager.target ?: return 100
         return target.armorInventoryList.asSequence()
             .filter { it.isItemStackDamageable }
@@ -1171,7 +1170,7 @@ internal object TrollAura : Module(
             ?: 100
     }
 
-    private inline fun checkSlowMode(crystalDamage: CrystalDamage): Boolean {
+    private fun checkSlowMode(crystalDamage: CrystalDamage): Boolean {
         return slowMode
             && !ddosArmor
             && !selfMoving
@@ -1179,11 +1178,11 @@ internal object TrollAura : Module(
             && crystalDamage.targetDamage < slowDamage && !checkForcePlaceArmorHealth()
     }
 
-    private inline fun compareLessEqual(allowB2: Boolean, a: Float, b1: Float, b2: Float): Boolean {
+    private fun compareLessEqual(allowB2: Boolean, a: Float, b1: Float, b2: Float): Boolean {
         return a <= b1 || allowB2 && a <= b2
     }
 
-    private inline fun compareGreatEqual(allowB2: Boolean, a: Float, b1: Float, b2: Float): Boolean {
+    private fun compareGreatEqual(allowB2: Boolean, a: Float, b1: Float, b2: Float): Boolean {
         return a >= b1 || allowB2 && a >= b2
     }
     /* End of general */

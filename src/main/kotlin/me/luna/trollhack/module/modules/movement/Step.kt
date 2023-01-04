@@ -106,7 +106,7 @@ internal object Step : Module(
         }
     }
 
-    private inline fun SafeClientEvent.shouldRunStep(x: Double, y: Double, z: Double): Boolean {
+    private fun SafeClientEvent.shouldRunStep(x: Double, y: Double, z: Double): Boolean {
         return !mc.gameSettings.keyBindSneak.isKeyDown
             && !player.isFlying
             && !player.isOnLadder
@@ -117,13 +117,13 @@ internal object Step : Module(
             && (x.sq + z.sq) > 0.001
     }
 
-    private inline fun SafeClientEvent.vanillaStep() {
+    private fun SafeClientEvent.vanillaStep() {
         player.stepHeight = maxHeight
         StepEvent.post()
         shouldDisable = autoDisable
     }
 
-    private inline fun SafeClientEvent.packetStep(stepHeight: Double) {
+    private fun SafeClientEvent.packetStep(stepHeight: Double) {
         val array = getStepArray(stepHeight)
         if (array != null) {
             for (offset in array) {
@@ -143,7 +143,7 @@ internal object Step : Module(
         }
     }
 
-    private inline fun SafeClientEvent.calcStepHeight(event: PlayerMoveEvent.Pre): Double {
+    private fun SafeClientEvent.calcStepHeight(event: PlayerMoveEvent.Pre): Double {
         var playerBox = player.entityBoundingBox
         var motionX = event.x
         var motionY = event.y
@@ -305,7 +305,7 @@ internal object Step : Module(
         return 0.0
     }
 
-    private inline fun getStepArray(stepHeight: Double) =
+    private fun getStepArray(stepHeight: Double) =
         when (stepHeight) {
             in 0.6..1.0 -> stepOne
             in 1.0..1.5 -> stepOneHalf
@@ -319,7 +319,7 @@ internal object Step : Module(
     private val stepTwo = doubleArrayOf(0.42, 0.78, 0.63, 0.51, 0.90, 1.21, 1.45, 1.43)
     private val stepTwoHalf = doubleArrayOf(0.425, 0.821, 0.699, 0.599, 1.022, 1.372, 1.652, 1.869, 2.019, 1.907)
 
-    inline fun isValidHeight(height: Double): Boolean {
+    fun isValidHeight(height: Double): Boolean {
         return height >= minHeight && height <= maxHeight
     }
 }

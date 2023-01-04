@@ -62,7 +62,7 @@ internal object FastSwim : Module(
         }
     }
 
-    private inline fun SafeClientEvent.runFastSwim(): Boolean {
+    private fun SafeClientEvent.runFastSwim(): Boolean {
         if (player.isFlying || ElytraFlightNew.isActive()) return false
 
         when {
@@ -82,7 +82,7 @@ internal object FastSwim : Module(
         return true
     }
 
-    private inline fun SafeClientEvent.isInLiquid(material: Material): Boolean {
+    private fun SafeClientEvent.isInLiquid(material: Material): Boolean {
         val box = player.entityBoundingBox
         val pos = BlockPos.PooledMutableBlockPos.retain()
 
@@ -104,7 +104,7 @@ internal object FastSwim : Module(
         return false
     }
 
-    private inline fun SafeClientEvent.lavaSwim() {
+    private fun SafeClientEvent.lavaSwim() {
         ySwim(lavaVBoost, lavaUpSpeed, lavaDownSpeed)
 
         if (MovementUtils.isInputtingAny) {
@@ -121,7 +121,7 @@ internal object FastSwim : Module(
         }
     }
 
-    private inline fun SafeClientEvent.waterSwim() {
+    private fun SafeClientEvent.waterSwim() {
         ySwim(waterVBoost, waterUpSpeed, waterDownSpeed * 20.0f)
 
         if (MovementUtils.isInputtingAny) {
@@ -146,7 +146,7 @@ internal object FastSwim : Module(
         }
     }
 
-    private inline fun SafeClientEvent.ySwim(vBoost: Float, upSpeed: Float, downSpeed: Float) {
+    private fun SafeClientEvent.ySwim(vBoost: Float, upSpeed: Float, downSpeed: Float) {
         val jump = player.movementInput.jump
         val sneak = player.movementInput.sneak
 
@@ -164,13 +164,13 @@ internal object FastSwim : Module(
         player.motionY = motionY
     }
 
-    private inline fun SafeClientEvent.stopMotion() {
+    private fun SafeClientEvent.stopMotion() {
         player.motionX = 0.0
         player.motionZ = 0.0
         moveSpeed = 0.0
     }
 
-    private inline fun reset() {
+    private fun reset() {
         moveSpeed = 0.0
         motionY = 0.0
     }

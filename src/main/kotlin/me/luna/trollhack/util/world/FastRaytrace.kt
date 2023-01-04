@@ -1,5 +1,3 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package me.luna.trollhack.util.world
 
 import me.luna.trollhack.util.extension.fastFloor

@@ -109,7 +109,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.system.measureNanoTime
 
-@Suppress("NOTHING_TO_INLINE")
 @CombatManager.CombatModule
 internal object ZealotCrystalPlus : Module(
     name = "ZealotCrystal+",
@@ -552,7 +551,7 @@ internal object ZealotCrystalPlus : Module(
         }
     }
 
-    private inline fun isValidEntityForRendering(renderMode: RenderMode, entity: Entity): Boolean {
+    private fun isValidEntityForRendering(renderMode: RenderMode, entity: Entity): Boolean {
         return when (renderMode) {
             RenderMode.OFF -> false
             RenderMode.SINGLE -> entity == (target ?: targets.getLazy()?.firstOrNull())
@@ -618,7 +617,7 @@ internal object ZealotCrystalPlus : Module(
         }
     }
 
-    private inline fun SafeClientEvent.checkBreakDamage(
+    private fun SafeClientEvent.checkBreakDamage(
         crystalX: Double,
         crystalY: Double,
         crystalZ: Double,
@@ -697,11 +696,11 @@ internal object ZealotCrystalPlus : Module(
     }
 
 
-    private inline fun paused(): Boolean {
+    private fun paused(): Boolean {
         return AutoCity.isActive()
     }
 
-    private inline fun runLoop() {
+    private fun runLoop() {
         if (paused()) return
 
         val breakFlag = breakMode != BreakMode.OFF && breakTimer.tick(breakDelay)
@@ -723,7 +722,7 @@ internal object ZealotCrystalPlus : Module(
         }
     }
 
-    private inline fun updateTimeouts() {
+    private fun updateTimeouts() {
         val current = System.currentTimeMillis()
 
         placedPosMap.runSynchronized {
@@ -751,7 +750,7 @@ internal object ZealotCrystalPlus : Module(
         }
     }
 
-    private inline fun SafeClientEvent.checkPausing(): Boolean {
+    private fun SafeClientEvent.checkPausing(): Boolean {
         return eatingPause && player.isHandActive && player.activeItemStack.item is ItemFood
     }
 
@@ -806,13 +805,13 @@ internal object ZealotCrystalPlus : Module(
         else this
     }
 
-    private inline fun getSpawnTime(crystal: EntityEnderCrystal): Long {
+    private fun getSpawnTime(crystal: EntityEnderCrystal): Long {
         return crystalSpawnMap.computeIfAbsent(crystal.entityId) {
             System.currentTimeMillis() - crystal.ticksExisted * 50
         }
     }
 
-    private inline fun getTargetCrystal(placeInfo: PlaceInfo, crystalList: List<EntityEnderCrystal>): EntityEnderCrystal? {
+    private fun getTargetCrystal(placeInfo: PlaceInfo, crystalList: List<EntityEnderCrystal>): EntityEnderCrystal? {
         return crystalList.firstOrNull {
             CrystalUtils.crystalPlaceBoxIntersectsCrystalBox(placeInfo.blockPos, it.posX, it.posY, it.posZ)
         }
@@ -881,7 +880,7 @@ internal object ZealotCrystalPlus : Module(
         return valid?.crystal
     }
 
-    private inline fun SafeClientEvent.checkCrystalRotation(x: Double, y: Double, z: Double): Boolean {
+    private fun SafeClientEvent.checkCrystalRotation(x: Double, y: Double, z: Double): Boolean {
         if (!rotation) return true
 
         val eyePos = PlayerPacketManager.position.add(0.0, player.getEyeHeight().toDouble(), 0.0)
@@ -890,19 +889,19 @@ internal object ZealotCrystalPlus : Module(
         return checkCrystalRotation(CrystalUtils.getCrystalBB(x, y, z), eyePos, sight)
     }
 
-    private inline fun checkCrystalRotation(box: AxisAlignedBB, eyePos: Vec3d, sight: Vec3d): Boolean {
+    private fun checkCrystalRotation(box: AxisAlignedBB, eyePos: Vec3d, sight: Vec3d): Boolean {
         return !rotation
             || box.calculateIntercept(eyePos, sight) != null
             || breakRotationRange != 0.0f && checkRotationDiff(getRotationTo(eyePos, box.center), breakRotationRange)
     }
 
-    private inline fun SafeClientEvent.doPlace(placeInfo: PlaceInfo) {
+    private fun SafeClientEvent.doPlace(placeInfo: PlaceInfo) {
         if (spamPlace || checkPlaceCollision(placeInfo)) {
             placeDirect(placeInfo)
         }
     }
 
-    private inline fun checkPlaceCollision(placeInfo: PlaceInfo): Boolean {
+    private fun checkPlaceCollision(placeInfo: PlaceInfo): Boolean {
         return EntityManager.entity.asSequence()
             .filterIsInstance<EntityEnderCrystal>()
             .filter { it.isEntityAlive }
@@ -912,7 +911,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
 
-    private inline fun SafeClientEvent.placeDirect(placeInfo: PlaceInfo) {
+    private fun SafeClientEvent.placeDirect(placeInfo: PlaceInfo) {
         if (player.allSlots.countItem(Items.END_CRYSTAL) == 0) return
 
         val hand = getHandNullable()
@@ -962,7 +961,7 @@ internal object ZealotCrystalPlus : Module(
         lastActiveTime = System.currentTimeMillis()
     }
 
-    private inline fun placePacket(placeInfo: PlaceInfo, hand: EnumHand): CPacketPlayerTryUseItemOnBlock {
+    private fun placePacket(placeInfo: PlaceInfo, hand: EnumHand): CPacketPlayerTryUseItemOnBlock {
         return CPacketPlayerTryUseItemOnBlock(placeInfo.blockPos, placeInfo.side, hand, placeInfo.hitVecOffset.x, placeInfo.hitVecOffset.y, placeInfo.hitVecOffset.z)
     }
 
@@ -1010,30 +1009,30 @@ internal object ZealotCrystalPlus : Module(
         lastActiveTime = System.currentTimeMillis()
     }
 
-    private inline fun attackPacket(entityID: Int): CPacketUseEntity {
+    private fun attackPacket(entityID: Int): CPacketUseEntity {
         val packet = CPacketUseEntity()
         packet.packetAction = CPacketUseEntity.Action.ATTACK
         packet.id = entityID
         return packet
     }
 
-    private inline fun EntityPlayerSP.isWeaknessActive(): Boolean {
+    private fun EntityPlayerSP.isWeaknessActive(): Boolean {
         return this.isPotionActive(MobEffects.WEAKNESS)
             && this.getActivePotionEffect(MobEffects.STRENGTH)?.let {
             it.amplifier <= 0
         } ?: true
     }
 
-    private inline fun SafeClientEvent.isHoldingTool(): Boolean {
+    private fun SafeClientEvent.isHoldingTool(): Boolean {
         val item = player.serverSideItem.item
         return item is ItemTool || item is ItemSword
     }
 
-    private inline fun EntityPlayerSP.getCrystalSlot(): HotbarSlot? {
+    private fun EntityPlayerSP.getCrystalSlot(): HotbarSlot? {
         return this.hotbarSlots.firstItem(Items.END_CRYSTAL)
     }
 
-    private inline fun SafeClientEvent.getWeaponSlot(): HotbarSlot? {
+    private fun SafeClientEvent.getWeaponSlot(): HotbarSlot? {
         return player.hotbarSlots.filterByStack {
             val item = it.item
             item is ItemSword || item is ItemTool
@@ -1130,7 +1129,7 @@ internal object ZealotCrystalPlus : Module(
         return placeInfo
     }
 
-    private inline fun calcCollidingCrystalDamage(
+    private fun calcCollidingCrystalDamage(
         crystals: List<Pair<EntityEnderCrystal, CrystalDamage>>,
         placeBox: AxisAlignedBB
     ): Float {
@@ -1187,7 +1186,7 @@ internal object ZealotCrystalPlus : Module(
             .take(maxTargets)
     }
 
-    private inline fun SafeClientEvent.getTargetInfo(entity: EntityLivingBase, ticks: Int): TargetInfo {
+    private fun SafeClientEvent.getTargetInfo(entity: EntityLivingBase, ticks: Int): TargetInfo {
         val motionX = (entity.posX - entity.lastTickPosX).coerceIn(-0.6, 0.6)
         val motionY = (entity.posY - entity.lastTickPosY).coerceIn(-0.5, 0.5)
         val motionZ = (entity.posZ - entity.lastTickPosZ).coerceIn(-0.6, 0.6)
@@ -1211,18 +1210,18 @@ internal object ZealotCrystalPlus : Module(
         return TargetInfo(entity, pos.add(motion), targetBox, pos, motion, ExposureSample.getExposureSample(entity.width, entity.height))
     }
 
-    private inline fun SafeClientEvent.canMove(box: AxisAlignedBB, x: Double, y: Double, z: Double): AxisAlignedBB? {
+    private fun SafeClientEvent.canMove(box: AxisAlignedBB, x: Double, y: Double, z: Double): AxisAlignedBB? {
         return box.offset(x, y, z).takeIf { !world.collidesWithAnyBlock(it) }
     }
 
-    private inline fun SafeClientEvent.shouldForcePlace(entity: EntityLivingBase): Boolean {
+    private fun SafeClientEvent.shouldForcePlace(entity: EntityLivingBase): Boolean {
         return (!forcePlaceSword || player.heldItemMainhand.item !is ItemSword)
             && (entity.totalHealth <= forcePlaceHealth
             || entity.realSpeed >= forcePlaceMotion
             || entity.getMinArmorRate() <= forcePlaceArmorRate)
     }
 
-    private inline fun EntityLivingBase.getMinArmorRate(): Int {
+    private fun EntityLivingBase.getMinArmorRate(): Int {
         var minDura = 100
 
         for (armor in armorInventoryList.toList()) {
@@ -1347,7 +1346,7 @@ internal object ZealotCrystalPlus : Module(
         return collidingEntities
     }
 
-    private inline fun checkPlaceCollision(
+    private fun checkPlaceCollision(
         pos: BlockPos,
         collidingEntities: List<Entity>
     ): Boolean {
@@ -1363,14 +1362,14 @@ internal object ZealotCrystalPlus : Module(
         }
     }
 
-    private inline fun checkPlaceRotation(pos: BlockPos, eyePos: Vec3d, sight: Vec3d): Boolean {
+    private fun checkPlaceRotation(pos: BlockPos, eyePos: Vec3d, sight: Vec3d): Boolean {
         if (AxisAlignedBB(pos).calculateIntercept(eyePos, sight) != null) return true
 
         return placeRotationRange != 0.0f
             && checkRotationDiff(getRotationTo(eyePos, pos.toVec3dCenter()), placeRotationRange)
     }
 
-    private inline fun SafeClientEvent.getHandNullable(): EnumHand? {
+    private fun SafeClientEvent.getHandNullable(): EnumHand? {
         return when (Items.END_CRYSTAL) {
             player.heldItemOffhand.item -> EnumHand.OFF_HAND
             player.heldItemMainhand.item -> EnumHand.MAIN_HAND
@@ -1378,7 +1377,7 @@ internal object ZealotCrystalPlus : Module(
         }
     }
 
-    private inline fun SafeClientEvent.swingHand() {
+    private fun SafeClientEvent.swingHand() {
         val hand = when (swingHand) {
             SwingHand.AUTO -> if (player.heldItemOffhand.item.let { it == Items.END_CRYSTAL || it != Items.GOLDEN_APPLE }) EnumHand.OFF_HAND else EnumHand.MAIN_HAND
             SwingHand.OFF_HAND -> EnumHand.OFF_HAND
@@ -1388,14 +1387,14 @@ internal object ZealotCrystalPlus : Module(
         swingMode.swingHand(this, hand)
     }
 
-    private inline fun SafeClientEvent.checkBreakRange(
+    private fun SafeClientEvent.checkBreakRange(
         entity: EntityEnderCrystal,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
         return checkBreakRange(entity.posX, entity.posY, entity.posZ, mutableBlockPos)
     }
 
-    private inline fun SafeClientEvent.checkBreakRange(
+    private fun SafeClientEvent.checkBreakRange(
         x: Double,
         y: Double,
         z: Double,
@@ -1406,29 +1405,29 @@ internal object ZealotCrystalPlus : Module(
             || world.rayTraceVisible(player.posX, player.posY + player.eyeHeight, player.posZ, x, y + 1.7, z, 20, mutableBlockPos))
     }
 
-    private inline fun Entity.placeDistanceSq(x: Double, y: Double, z: Double): Double {
+    private fun Entity.placeDistanceSq(x: Double, y: Double, z: Double): Double {
         return when (placeRangeMode) {
             RangeMode.FEET -> distanceSqTo(x, y, z)
             RangeMode.EYES -> eyeDistanceSq(x, y, z)
         }
     }
 
-    private inline fun Entity.breakDistanceSq(x: Double, y: Double, z: Double): Double {
+    private fun Entity.breakDistanceSq(x: Double, y: Double, z: Double): Double {
         return when (breakRangeMode) {
             RangeMode.FEET -> distanceSqTo(x, y, z)
             RangeMode.EYES -> eyeDistanceSq(x, y, z)
         }
     }
 
-    private inline fun Entity.eyeDistanceSq(x: Double, y: Double, z: Double): Double {
+    private fun Entity.eyeDistanceSq(x: Double, y: Double, z: Double): Double {
         return distanceSq(this.posX, this.posY + this.eyeHeight, this.posZ, x, y, z)
     }
 
-    private inline fun toLong(x: Double, y: Double, z: Double): Long {
+    private fun toLong(x: Double, y: Double, z: Double): Long {
         return toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())
     }
 
-    private inline fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
+    private fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
         val x = hitVec.x - eyePos.x
         val y = hitVec.y - eyePos.y
         val z = hitVec.z - eyePos.z
@@ -1438,13 +1437,13 @@ internal object ZealotCrystalPlus : Module(
         } ?: EnumFacing.NORTH
     }
 
-    private inline fun checkRotationDiff(rotation: Vec2f, range: Float): Boolean {
+    private fun checkRotationDiff(rotation: Vec2f, range: Float): Boolean {
         val serverSide = PlayerPacketManager.rotation
         return RotationUtils.calcAbsAngleDiff(rotation.x, serverSide.x) <= range
             && RotationUtils.calcAbsAngleDiff(rotation.y, serverSide.y) <= range
     }
 
-    private inline fun SafeClientEvent.isPlaceable(pos: BlockPos, newPlacement: Boolean, mutableBlockPos: BlockPos.MutableBlockPos): Boolean {
+    private fun SafeClientEvent.isPlaceable(pos: BlockPos, newPlacement: Boolean, mutableBlockPos: BlockPos.MutableBlockPos): Boolean {
         if (!canPlaceCrystalOn(pos)) {
             return false
         }
@@ -1474,14 +1473,14 @@ internal object ZealotCrystalPlus : Module(
             blastReduction = 1.0f - min(calcTotalEPF(entity), 20) / 25.0f
         }
 
-        inline fun calcReductionDamage(damage: Float): Float {
+        fun calcReductionDamage(damage: Float): Float {
             return CombatRules.getDamageAfterAbsorb(damage, armorValue, toughness) *
                 resistance *
                 blastReduction
         }
 
         companion object {
-            private inline fun calcTotalEPF(entity: EntityLivingBase): Int {
+            private fun calcTotalEPF(entity: EntityLivingBase): Int {
                 var epf = 0
                 for (itemStack in entity.armorInventoryList) {
                     val nbtTagList = itemStack.enchantmentTagList
@@ -1532,7 +1531,7 @@ internal object ZealotCrystalPlus : Module(
         return calcReductionDamage(entity, damage)
     }
 
-    private inline fun SafeClientEvent.calcRawDamage(
+    private fun SafeClientEvent.calcRawDamage(
         entityPos: Vec3d,
         entityBox: AxisAlignedBB,
         posX: Double,
@@ -1596,12 +1595,12 @@ internal object ZealotCrystalPlus : Module(
         return count.toFloat() / total.toFloat()
     }
 
-    private inline fun calcReductionDamage(entity: EntityLivingBase, damage: Float): Float {
+    private fun calcReductionDamage(entity: EntityLivingBase, damage: Float): Float {
         val reduction = reductionMap[entity]
         return reduction?.calcReductionDamage(damage) ?: damage
     }
 
-    private inline fun calcDifficultyDamage(world: WorldClient, damage: Float): Float {
+    private fun calcDifficultyDamage(world: WorldClient, damage: Float): Float {
         return when (world.difficulty) {
             EnumDifficulty.PEACEFUL -> 0.0f
             EnumDifficulty.EASY -> min(damage * 0.5f + 1.0f, damage)
@@ -1631,7 +1630,7 @@ internal object ZealotCrystalPlus : Module(
             override var hitVecOffset = super.hitVecOffset; private set
             override var hitVec = super.hitVec; private set
 
-            inline fun update(
+            fun update(
                 target: EntityLivingBase,
                 blockPos: BlockPos,
                 selfDamage: Float,
@@ -1643,7 +1642,7 @@ internal object ZealotCrystalPlus : Module(
                 this.targetDamage = targetDamage
             }
 
-            inline fun clear(player: EntityPlayerSP) {
+            fun clear(player: EntityPlayerSP) {
                 update(player, BlockPos.ORIGIN, Float.MAX_VALUE, forcePlaceMinDamage)
             }
 
@@ -1673,7 +1672,7 @@ internal object ZealotCrystalPlus : Module(
                 }
             }
 
-            inline fun takeValid(): Mutable? {
+            fun takeValid(): Mutable? {
                 return this.takeIf {
                     target != mc.player
                         && selfDamage != Float.MAX_VALUE
@@ -1715,7 +1714,7 @@ internal object ZealotCrystalPlus : Module(
             override var selfDamage = super.selfDamage; private set
             override var targetDamage = super.targetDamage; private set
 
-            inline fun update(
+            fun update(
                 target: EntityEnderCrystal,
                 selfDamage: Float,
                 targetDamage: Float
@@ -1725,12 +1724,12 @@ internal object ZealotCrystalPlus : Module(
                 this.targetDamage = targetDamage
             }
 
-            inline fun clear() {
+            fun clear() {
                 update(DUMMY_CRYSTAL, Float.MAX_VALUE, forcePlaceMinDamage)
             }
         }
 
-        inline fun takeValid(): BreakInfo? {
+        fun takeValid(): BreakInfo? {
             return this.takeIf {
                 crystal !== DUMMY_CRYSTAL
                     && selfDamage != Float.MAX_VALUE
@@ -1852,7 +1851,7 @@ internal object ZealotCrystalPlus : Module(
             }
         }
 
-        private inline fun toRenderBox(vec3d: Vec3d, scale: Float): AxisAlignedBB {
+        private fun toRenderBox(vec3d: Vec3d, scale: Float): AxisAlignedBB {
             val halfSize = 0.5 * scale
             return AxisAlignedBB(
                 vec3d.x - halfSize, vec3d.y - halfSize, vec3d.z - halfSize,

@@ -228,7 +228,7 @@ internal object Speed : Module(
         }
     }
 
-    private inline fun SafeClientEvent.handleVelocity(event: PacketEvent.Receive, pos: Vec3d?, speed: Double, motionY: Double) {
+    private fun SafeClientEvent.handleVelocity(event: PacketEvent.Receive, pos: Vec3d?, speed: Double, motionY: Double) {
         if (velocityBoost == 0.0) return
         if (isBurrowed()) return
         if (abs(motionY) > maxYSpeed) return
@@ -256,7 +256,7 @@ internal object Speed : Module(
         }
     }
 
-    private inline fun SafeClientEvent.shouldStrafe(): Boolean {
+    private fun SafeClientEvent.shouldStrafe(): Boolean {
         return !player.capabilities.isFlying
             && !player.isElytraFlying
             && !mc.gameSettings.keyBindSneak.isKeyDown
@@ -269,7 +269,7 @@ internal object Speed : Module(
             && !BaritoneUtils.isPathing
     }
 
-    private inline fun SafeClientEvent.updateState(baseSpeed: Double, motionX: Double, motionZ: Double) {
+    private fun SafeClientEvent.updateState(baseSpeed: Double, motionX: Double, motionZ: Double) {
         if (player.onGround) {
             state = State.JUMP
         }
@@ -302,7 +302,7 @@ internal object Speed : Module(
         }
     }
 
-    private inline fun SafeClientEvent.smartJump(motionX: Double, motionZ: Double) {
+    private fun SafeClientEvent.smartJump(motionX: Double, motionZ: Double) {
         val dist = calcBlockDistAhead(motionX * 6.0, motionZ * 6.0)
         val stepHeight = calcStepHeight(dist, motionX, motionZ)
         val multiplier = player.speedEffectMultiplier
@@ -315,7 +315,7 @@ internal object Speed : Module(
         jump()
     }
 
-    private inline fun SafeClientEvent.holeCheck(motionX: Double, motionZ: Double, dist: Double): Boolean {
+    private fun SafeClientEvent.holeCheck(motionX: Double, motionZ: Double, dist: Double): Boolean {
         if (!holeCheck || inHoleTicks <= 20 || player.movementInput.jump) return true
 
         val speed = moveSpeed * predictTicks
@@ -333,14 +333,14 @@ internal object Speed : Module(
         return true
     }
 
-    private inline fun AxisAlignedBB.toDetectBox(playerY: Double): AxisAlignedBB {
+    private fun AxisAlignedBB.toDetectBox(playerY: Double): AxisAlignedBB {
         return AxisAlignedBB(
             this.minX - hRange, this.minY, this.minZ - hRange,
             this.maxX + hRange, max(this.maxX, playerY), this.maxZ + hRange
         )
     }
 
-    private inline fun SafeClientEvent.calcBlockDistAhead(offsetX: Double, offsetZ: Double): Double {
+    private fun SafeClientEvent.calcBlockDistAhead(offsetX: Double, offsetZ: Double): Double {
         if (player.collidedHorizontally) return 0.0
 
         val box = player.entityBoundingBox
@@ -353,7 +353,7 @@ internal object Speed : Module(
         )
     }
 
-    private inline fun WorldClient.rayTraceDist(start: Vec3d, offsetX: Double, offsetZ: Double): Double {
+    private fun WorldClient.rayTraceDist(start: Vec3d, offsetX: Double, offsetZ: Double): Double {
         return this.rayTraceBlocks(start, start.add(offsetX, 0.0, offsetZ), false, true, false)
             ?.hitVec?.let {
                 val x = start.x - it.x
@@ -362,7 +362,7 @@ internal object Speed : Module(
             } ?: 999.0
     }
 
-    private inline fun SafeClientEvent.jump() {
+    private fun SafeClientEvent.jump() {
         player.motionY = calcJumpMotion()
         player.isAirBorne = true
         player.stepHeight = 0.0f
@@ -375,7 +375,7 @@ internal object Speed : Module(
         }
     }
 
-    private inline fun SafeClientEvent.calcJumpMotion(): Double {
+    private fun SafeClientEvent.calcJumpMotion(): Double {
         val motion = when {
             isBurrowed() -> 0.42
             jumpMotion == 0.4 -> 0.399399995803833
@@ -385,7 +385,7 @@ internal object Speed : Module(
         return player.applyJumpBoostPotionEffects(motion)
     }
 
-    private inline fun SafeClientEvent.updateFinalSpeed(baseSpeed: Double) {
+    private fun SafeClientEvent.updateFinalSpeed(baseSpeed: Double) {
         if (!isBurrowed()) {
             moveSpeed = max(moveSpeed, baseSpeed)
 
@@ -405,7 +405,7 @@ internal object Speed : Module(
         moveSpeed = min(moveSpeed, player.applySpeedPotionEffects(maxSpeed))
     }
 
-    private inline fun SafeClientEvent.applyVelocityBoost() {
+    private fun SafeClientEvent.applyVelocityBoost() {
         if (isBurrowed()) {
             resetBoost()
         } else {
@@ -431,7 +431,7 @@ internal object Speed : Module(
         }
     }
 
-    private inline fun SafeClientEvent.updateVelocityBoost() {
+    private fun SafeClientEvent.updateVelocityBoost() {
         val decay = boostDecay * if (player.onGround) {
             val blockPos = BlockPos(player.posX, player.entityBoundingBox.minY - 1.0, player.posZ)
             val blockState = world.getBlockState(blockPos)
@@ -453,7 +453,7 @@ internal object Speed : Module(
         }
     }
 
-    private inline fun SafeClientEvent.calcStepHeight(dist: Double, motionX: Double, motionZ: Double): Double {
+    private fun SafeClientEvent.calcStepHeight(dist: Double, motionX: Double, motionZ: Double): Double {
         val pos = player.betterPosition
         if (world.getBlockState(pos).getCollisionBoundingBox(world, pos) != null) return 0.0
 
@@ -468,7 +468,7 @@ internal object Speed : Module(
         return if (minStepHeight == Double.MAX_VALUE) 0.0 else minStepHeight
     }
 
-    private inline fun SafeClientEvent.checkBox(minStepHeight: Double, offsetX: Double, offsetZ: Double): Double {
+    private fun SafeClientEvent.checkBox(minStepHeight: Double, offsetX: Double, offsetZ: Double): Double {
         val box = player.entityBoundingBox.offset(offsetX, 0.0, offsetZ)
         if (!world.collidesWithAnyBlock(box)) return minStepHeight
 
@@ -508,11 +508,11 @@ internal object Speed : Module(
         boostingSpeed = 0.0
     }
 
-    private inline fun resetBoost() {
+    private fun resetBoost() {
         boostList.clear()
     }
 
-    private inline fun isBurrowed(): Boolean {
+    private fun isBurrowed(): Boolean {
         return burrowTicks < 10
     }
 
