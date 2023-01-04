@@ -1,5 +1,4 @@
 import dev.fastmc.remapper.mapping.MappingName
-import me.luna.jaroptimizer.JarOptimizerPluginExtension
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import kotlin.math.max
 
@@ -22,7 +21,7 @@ plugins {
     java
     kotlin("jvm")
     id("dev.fastmc.fast-remapper").version("1.0-SNAPSHOT")
-    id("me.luna.jaroptimizer").version("1.1")
+    id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
 }
 
 apply {
@@ -137,6 +136,12 @@ fastRemapper {
     remap(tasks.jar)
 }
 
+val releaseJar = tasks.register<Jar>("releaseJar")
+
+jarOptimizer {
+    optimize(releaseJar, "me.luna", "org.spongepowered", "baritone")
+}
+
 tasks {
     afterEvaluate {
         getByName("reobfJar").enabled = false
@@ -175,7 +180,7 @@ tasks {
         }
     }
 
-    val releaseJar = register<Jar>("releaseJar") {
+    releaseJar {
         val fastRemapJar = provider {
             named<AbstractArchiveTask>("fastRemapJar").get()
         }
@@ -183,7 +188,6 @@ tasks {
 
         group = "build"
         dependsOn(fastRemapJar)
-        finalizedBy(optimizeJars)
 
 
         manifest {
@@ -200,7 +204,7 @@ tasks {
         val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
         val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
 
-        archiveClassifier.set("Release")
+        archiveClassifier.set("release")
 
         from(fastRemapJarZipTree)
 
@@ -215,10 +219,6 @@ tasks {
                 if (it.isDirectory) it else zipTree(it)
             }
         )
-    }
-
-    configure<JarOptimizerPluginExtension> {
-        add(releaseJar, "me.luna", "baritone", "org.spongepowered")
     }
 
     register<Task>("genRuns") {
@@ -292,15 +292,18 @@ tasks {
             }
         }
     }
+}
 
-    register<Copy>("updateMods") {
+afterEvaluate {
+    val optimizeReleaseJar = tasks["optimizeReleaseJar"]
+
+    tasks.register<Copy>("updateMods") {
         group = "build"
-        dependsOn(releaseJar)
-        from(releaseJar.get().outputs.files.first())
-        into(File(System.getProperty("user.home"), "AppData/Roaming/.minecraft/mods/1.12.2"))
+        from(optimizeReleaseJar)
+        into(provider { File(System.getenv("mod_dir")) })
     }
 
     artifacts {
-        archives(releaseJar)
+        archives(optimizeReleaseJar)
     }
 }
