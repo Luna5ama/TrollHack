@@ -2,6 +2,7 @@ package me.luna.trollhack.manager.managers
 
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.PacketEvent
+import me.luna.trollhack.event.events.player.HotbarUpdateEvent
 import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.manager.Manager
 import me.luna.trollhack.util.accessor.currentPlayerItem
@@ -26,9 +27,15 @@ object HotbarManager : Manager() {
         safeListener<PacketEvent.Send>(Int.MIN_VALUE) {
             if (it.cancelled || it.packet !is CPacketHeldItemChange) return@safeListener
 
+            val prev = serverSideHotbar
+
             synchronized(playerController) {
                 serverSideHotbar = it.packet.slotId
                 swapTime = System.currentTimeMillis()
+            }
+
+            if (prev != serverSideHotbar) {
+                HotbarUpdateEvent(prev, serverSideHotbar).post()
             }
         }
     }

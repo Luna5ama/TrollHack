@@ -2,6 +2,7 @@ package me.luna.trollhack.module.modules.player
 
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.*
+import me.luna.trollhack.event.events.player.HotbarUpdateEvent
 import me.luna.trollhack.event.events.player.InteractEvent
 import me.luna.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
@@ -72,6 +73,7 @@ internal object PacketMine : Module(
     private val swapMode by setting("Swap Mode", SwapMode.SPOOF)
     private val preSwapDelay by setting("Pre Swap Delay", 1, 0..20, 1, { swapMode.swap })
     private val postSwapDelay by setting("Post Swap Delay", 1, 0..20, 1, { swapMode.swap })
+    private val cancelOnSwap by setting("Cancel On Swap", false, { swapMode == SwapMode.SWAP_BYPASS })
     private val rotation by setting("Rotation", false)
     private val rotateTime by setting("Rotate Time", 100, 0..1000, 10, ::rotation)
     private val startPacketOnClick by setting("Start Packet On Click", true)
@@ -228,6 +230,12 @@ internal object PacketMine : Module(
 
         safeConcurrentListener<TickEvent.Post> {
             updateMining()
+        }
+
+        listener<HotbarUpdateEvent> {
+            if (swapMode == SwapMode.SWAP_BYPASS && cancelOnSwap) {
+                reset()
+            }
         }
 
         safeListener<RunGameLoopEvent.Tick> {
