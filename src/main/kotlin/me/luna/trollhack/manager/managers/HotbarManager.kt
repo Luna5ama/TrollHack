@@ -5,7 +5,11 @@ import me.luna.trollhack.event.events.PacketEvent
 import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.manager.Manager
 import me.luna.trollhack.util.accessor.currentPlayerItem
+import me.luna.trollhack.util.inventory.inventoryTaskNow
+import me.luna.trollhack.util.inventory.operation.action
+import me.luna.trollhack.util.inventory.operation.swapWith
 import me.luna.trollhack.util.inventory.slot.HotbarSlot
+import me.luna.trollhack.util.inventory.slot.hotbarSlots
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.CPacketHeldItemChange
@@ -48,18 +52,33 @@ object HotbarManager : Manager() {
     inline fun SafeClientEvent.spoofHotbarBypass(slot: HotbarSlot, crossinline block: () -> Unit) {
         synchronized(playerController) {
             val swap = slot.hotbarSlot != serverSideHotbar
-            if (swap) playerController.pickItem(slot.hotbarSlot)
-            block.invoke()
-            if (swap) playerController.pickItem(slot.hotbarSlot)
+            if (swap) {
+                inventoryTaskNow {
+                    val hotbarSlot = player.hotbarSlots[serverSideHotbar]
+                    swapWith(slot, hotbarSlot)
+                    action { block.invoke() }
+                    swapWith(slot, hotbarSlot)
+                }
+            } else {
+                block.invoke()
+            }
         }
     }
 
     inline fun SafeClientEvent.spoofHotbarBypass(slot: Int, crossinline block: () -> Unit) {
         synchronized(playerController) {
             val swap = slot != serverSideHotbar
-            if (swap) playerController.pickItem(slot)
-            block.invoke()
-            if (swap) playerController.pickItem(slot)
+            if (swap) {
+                inventoryTaskNow {
+                    val slotFrom = player.hotbarSlots[serverSideHotbar]
+                    val hotbarSlot = player.hotbarSlots[serverSideHotbar]
+                    swapWith(slotFrom, hotbarSlot)
+                    action { block.invoke() }
+                    swapWith(slotFrom, hotbarSlot)
+                }
+            } else {
+                block.invoke()
+            }
         }
     }
 

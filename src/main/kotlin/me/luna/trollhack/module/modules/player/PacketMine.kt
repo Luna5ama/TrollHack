@@ -28,8 +28,12 @@ import me.luna.trollhack.util.graphics.ESPRenderer
 import me.luna.trollhack.util.graphics.Easing
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.interfaces.DisplayEnum
+import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.findBestTool
+import me.luna.trollhack.util.inventory.inventoryTask
+import me.luna.trollhack.util.inventory.operation.action
 import me.luna.trollhack.util.inventory.operation.swapToSlot
+import me.luna.trollhack.util.inventory.operation.swapWith
 import me.luna.trollhack.util.inventory.slot.currentHotbarSlot
 import me.luna.trollhack.util.inventory.slot.hotbarSlots
 import me.luna.trollhack.util.items.isTool
@@ -66,8 +70,8 @@ internal object PacketMine : Module(
 ) {
     private val miningMode by setting("Mining Mode", MiningMode.NORMAL_RETRY)
     private val swapMode by setting("Swap Mode", SwapMode.SPOOF)
-    private val preSwapDelay by setting("Pre Swap Delay", 1, 0..20, 1, { swapMode == SwapMode.SWAP })
-    private val postSwapDelay by setting("Post Swap Delay", 1, 0..20, 1, { swapMode == SwapMode.SWAP })
+    private val preSwapDelay by setting("Pre Swap Delay", 1, 0..20, 1, { swapMode.swap })
+    private val postSwapDelay by setting("Post Swap Delay", 1, 0..20, 1, { swapMode.swap })
     private val rotation by setting("Rotation", false)
     private val rotateTime by setting("Rotate Time", 100, 0..1000, 10, ::rotation)
     private val startPacketOnClick by setting("Start Packet On Click", true)
@@ -94,13 +98,15 @@ internal object PacketMine : Module(
     private val miningQueue = HashMap<AbstractModule, MiningTask>().synchronized()
 
     private val swapInfo = AtomicReference<SwapInfo>(null)
+    private var lastTask: InventoryTask? = null
     private var tickCount = 0
 
-    private enum class SwapMode(override val displayName: String) : DisplayEnum {
-        OFF("Off"),
-        SWAP("Swap"),
-        SPOOF("Spoof"),
-        SPOOF_BYPASS("Spoof Bypass")
+    private enum class SwapMode(override val displayName: String, val swap: Boolean, val spoof: Boolean) : DisplayEnum {
+        OFF("Off", false, false),
+        SWAP("Swap", true, false),
+        SWAP_BYPASS("Swap Bypass", true, false),
+        SPOOF("Spoof", false, true),
+        SPOOF_BYPASS("Spoof Bypass", false, true)
     }
 
     private enum class MiningMode(override val displayName: CharSequence, val continous: Boolean) : DisplayEnum {
@@ -116,6 +122,7 @@ internal object PacketMine : Module(
 
     init {
         onDisable {
+            lastTask = null
             miningQueue.clear()
             reset()
         }
@@ -145,10 +152,23 @@ internal object PacketMine : Module(
         safeListener<OnUpdateWalkingPlayerEvent.Post> {
             val temp = swapInfo.get()
             if (temp != null && tickCount - temp.swapTick >= preSwapDelay + postSwapDelay + 1) {
-                if (HotbarManager.serverSideHotbar == temp.swapSlot) {
-                    swapToSlot(temp.prevSlot)
+                when (temp.swapMode) {
+                    SwapMode.SWAP -> {
+                        if (HotbarManager.serverSideHotbar == temp.swapSlot) {
+                            swapToSlot(temp.prevSlot)
+                        }
+                    }
+                    SwapMode.SWAP_BYPASS -> {
+                        lastTask = inventoryTask {
+                            swapWith(player.hotbarSlots[temp.prevSlot], player.hotbarSlots[temp.swapSlot])
+                        }
+                    }
+                    else -> {
+                        // Do nothing
+                    }
                 }
-                swapInfo.compareAndSet(temp, null)
+                swapInfo.set(null)
+                tickCount = 0
             }
             tickCount++
         }
@@ -264,6 +284,7 @@ internal object PacketMine : Module(
     private fun SafeClientEvent.finishMining(blockState: IBlockState, miningInfo: MiningInfo): Boolean {
         var result = false
 
+        val swapMode = swapMode
         when (swapMode) {
             SwapMode.OFF -> {
                 // do nothing
@@ -271,14 +292,35 @@ internal object PacketMine : Module(
             SwapMode.SWAP -> {
                 findBestTool(blockState)?.let {
                     MainHandPause.withPause(PacketMine, 150L) {
-                        val temp = swapInfo.get()
+                        val temp: SwapInfo? = swapInfo.get()
                         if (temp == null || player.currentHotbarSlot != it) {
-                            swapInfo.set(SwapInfo(HotbarManager.serverSideHotbar, it.hotbarSlot, tickCount))
+                            swapInfo.set(SwapInfo(swapMode, HotbarManager.serverSideHotbar, it.hotbarSlot, tickCount))
                             swapToSlot(it)
                         } else if (tickCount - temp.swapTick >= preSwapDelay) {
                             mc.playerController.updateController()
                             sendMiningPacket(miningInfo, true)
                             result = true
+                        }
+                    }
+                }
+            }
+            SwapMode.SWAP_BYPASS -> {
+                findBestTool(blockState)?.let {
+                    MainHandPause.withPause(PacketMine, 150L) {
+                        val temp: SwapInfo? = swapInfo.get()
+                        val tempTask = lastTask
+                        if (HotbarManager.serverSideHotbar == it.hotbarSlot || temp != null && tickCount - temp.swapTick >= preSwapDelay) {
+                            mc.playerController.updateController()
+                            sendMiningPacket(miningInfo, true)
+                            result = true
+                        } else if (temp == null || tempTask == null || tempTask.finished) {
+                            val currentTick = tickCount
+                            val info = SwapInfo(swapMode, HotbarManager.serverSideHotbar, it.hotbarSlot, currentTick + 20)
+                            swapInfo.set(info)
+                            lastTask = inventoryTask {
+                                swapWith(player.hotbarSlots[HotbarManager.serverSideHotbar], it)
+                                action { info.swapTick = currentTick }
+                            }
                         }
                     }
                 }
@@ -437,7 +479,7 @@ internal object PacketMine : Module(
         }
     }
 
-    private class SwapInfo(val prevSlot: Int, val swapSlot: Int, val swapTick: Int)
+    private class SwapInfo(val swapMode: SwapMode, val prevSlot: Int, val swapSlot: Int, var swapTick: Int)
 
     private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int)
 
