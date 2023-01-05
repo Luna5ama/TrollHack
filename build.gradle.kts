@@ -1,3 +1,4 @@
+import dev.fastmc.loader.ModPlatform
 import dev.fastmc.remapper.mapping.MappingName
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import kotlin.math.max
@@ -8,7 +9,6 @@ version = "0.0.6"
 buildscript {
     repositories {
         maven("https://files.minecraftforge.net/maven")
-        maven("https://repo.spongepowered.org/repository/maven-public/")
     }
 
     dependencies {
@@ -22,6 +22,7 @@ plugins {
     kotlin("jvm")
     id("dev.fastmc.fast-remapper").version("1.0-SNAPSHOT")
     id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
+    id("dev.fastmc.mod-loader-plugin").version("1.0-SNAPSHOT")
 }
 
 apply {
@@ -30,8 +31,9 @@ apply {
 
 repositories {
     mavenCentral()
+    maven("https://maven.fastmc.dev/")
     maven("https://repo.spongepowered.org/repository/maven-public/")
-    maven("https://jitpack.io")
+    maven("https://jitpack.io/")
     maven("https://impactdevelopment.github.io/maven/")
 }
 
@@ -136,10 +138,15 @@ fastRemapper {
     remap(tasks.jar)
 }
 
-val releaseJar = tasks.register<Jar>("releaseJar")
+modLoader {
+    modPackage.set("me.luna.loader")
+    defaultPlatform.set(ModPlatform.FORGE)
+}
+
+val fatjar = tasks.register<Jar>("fatjar")
 
 jarOptimizer {
-    optimize(releaseJar, "me.luna", "org.spongepowered", "baritone")
+    optimize(fatjar, "me.luna", "org.spongepowered", "baritone")
 }
 
 tasks {
@@ -180,13 +187,12 @@ tasks {
         }
     }
 
-    releaseJar {
+    fatjar {
         val fastRemapJar = provider {
             named<AbstractArchiveTask>("fastRemapJar").get()
         }
         val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
 
-        group = "build"
         dependsOn(fastRemapJar)
 
 
@@ -204,7 +210,7 @@ tasks {
         val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
         val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
 
-        archiveClassifier.set("release")
+        archiveClassifier.set("fatjar")
 
         from(fastRemapJarZipTree)
 
@@ -292,18 +298,24 @@ tasks {
             }
         }
     }
+
+    modLoaderJar {
+        archiveClassifier.set("release")
+    }
 }
 
 afterEvaluate {
-    val optimizeReleaseJar = tasks["optimizeReleaseJar"]
+    val optimizeFatjar = tasks["optimizeFatjar"]
 
     tasks.register<Copy>("updateMods") {
         group = "build"
-        from(optimizeReleaseJar)
+        from(tasks.modLoaderJar)
         into(provider { File(System.getenv("mod_dir")) })
     }
 
     artifacts {
-        archives(optimizeReleaseJar)
+        archives(optimizeFatjar)
+        archives(tasks.modLoaderJar)
+        add("modLoaderPlatforms", optimizeFatjar)
     }
 }
