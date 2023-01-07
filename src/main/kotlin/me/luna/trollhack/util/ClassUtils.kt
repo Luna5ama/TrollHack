@@ -14,7 +14,16 @@ object ClassUtils {
         val classLoader = Thread.currentThread().contextClassLoader
         val packagePath = packageName.replace('.', '/')
 
-        val root = classLoader.getResource(packagePath)!!
+        val root = if (packageName.startsWith("me.luna.trollhack")) {
+            val thisFileName = this.javaClass.name.replace('.', '/') + ".class"
+            val thisURL = classLoader.getResource(thisFileName)!!
+            val file = thisURL.file.substringBeforeLast(thisFileName.substringAfter("me/luna/trollhack"))
+            println(file)
+            URL(thisURL.protocol, thisURL.host, file)
+        } else {
+            classLoader.getResource(packagePath)!!
+        }
+        println(root)
         val isJar = root.toString().startsWith("jar")
         val classes = ArrayList<Class<*>>()
 

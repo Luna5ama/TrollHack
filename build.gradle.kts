@@ -141,6 +141,7 @@ fastRemapper {
 modLoader {
     modPackage.set("me.luna.loader")
     defaultPlatform.set(ModPlatform.FORGE)
+    forgeModClass.set("me.luna.trollhack.TrollHackMod")
 }
 
 val fatjar = tasks.register<Jar>("fatjar")
@@ -201,9 +202,7 @@ tasks {
             attributes(
                 "Manifest-Version" to 1.0,
                 "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-                "FMLCorePluginContainsFMLMod" to true,
-                "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod",
-                "ForceLoadAsMod" to true
+                "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod"
             )
         }
 
