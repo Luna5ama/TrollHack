@@ -23,7 +23,7 @@ object ClassUtils {
         } else {
             classLoader.getResource(packagePath)!!
         }
-        println(root)
+
         val isJar = root.toString().startsWith("jar")
         val classes = ArrayList<Class<*>>()
 

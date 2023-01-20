@@ -50,6 +50,7 @@ internal object AutoPot : Module(
     private val healHealth by setting("Heal Health", 12.0f, 0.0f..20.0f, 0.5f, ::heal)
     private val healDelay by setting("Heal Delay", 500, 0..10000, 50, ::heal)
     private val weakness by setting("Weakness", false)
+    private val weaknessFriendRange by setting("Weakness Friend Range", 5.0f, 0.0f..10.0f, 0.5f, ::weakness)
     private val weaknessRange by setting("Weakness Range", 1.8f, 0.0f..4.0f, 0.1f, ::weakness)
     private val weaknessDelay by setting("Weakness Delay", 1500, 0..10000, 50, ::weakness)
     private val speed by setting("Speed", true)
@@ -186,6 +187,10 @@ internal object AutoPot : Module(
                 return weakness
                     && timer.tick(weaknessDelay)
                     && super.check(event)
+                    && (weaknessFriendRange == 0.0f || EntityManager.players.asSequence()
+                    .filterNot { it.isFakeOrSelf }
+                    .filter { it.isFriend }
+                    .all { event.player.getDistanceSq(it) > weaknessFriendRange * weaknessFriendRange })
                     && EntityManager.players.asSequence()
                     .filterNot { it.isFriend }
                     .filterNot { it.isFakeOrSelf }
