@@ -131,11 +131,7 @@ object HoleManager : Manager() {
 
     fun getHoleInfo(pos: BlockPos) =
         holeMap0.computeIfAbsent(pos) {
-            runSafe {
-                val holeInfo = checkHoleM(it)
-
-                holeInfo
-            } ?: HoleInfo.empty(it)
+            runSafe { checkHoleM(it) } ?: HoleInfo.empty(it)
         }
 
     private fun SafeClientEvent.removeInvalidPos() {

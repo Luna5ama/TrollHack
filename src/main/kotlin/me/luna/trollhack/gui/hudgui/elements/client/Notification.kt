@@ -1,7 +1,8 @@
 package me.luna.trollhack.gui.hudgui.elements.client
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.HashCommon
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import me.luna.trollhack.event.events.ModuleToggleEvent
 import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.gui.hudgui.HudElement
@@ -37,7 +38,7 @@ internal object Notification : HudElement(
         get() = Message.height
 
     private val notifications = CopyOnWriteArrayList<Message>()
-    private val map = Int2ObjectMaps.synchronize(Int2ObjectOpenHashMap<Message>())
+    private val map = Long2ObjectMaps.synchronize(Long2ObjectOpenHashMap<Message>())
 
     init {
         safeListener<ModuleToggleEvent> {
@@ -96,10 +97,10 @@ internal object Notification : HudElement(
     }
 
     fun send(identifier: Any, message: String, length: Long = 3000L) {
-        send(identifier.hashCode(), message, length)
+        send(identifier.hashCode().toLong(), message, length)
     }
 
-    fun send(id: Int, message: String, length: Long = 3000L) {
+    fun send(id: Long, message: String, length: Long = 3000L) {
         synchronized(map) {
             val existing = map[id]
             if (existing != null && !existing.isTimeout) {
@@ -115,7 +116,7 @@ internal object Notification : HudElement(
     private class Message(
         private var message: String,
         private var length: Long,
-        val id: Int
+        val id: Long
     ) {
         private val startTime by lazy { System.currentTimeMillis() }
         val isTimeout get() = System.currentTimeMillis() - startTime > length
@@ -222,7 +223,7 @@ internal object Notification : HudElement(
         }
 
         override fun hashCode(): Int {
-            return id
+            return HashCommon.long2int(id)
         }
 
         companion object {
