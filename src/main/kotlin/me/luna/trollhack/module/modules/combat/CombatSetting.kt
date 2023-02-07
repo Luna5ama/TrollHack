@@ -63,7 +63,7 @@ internal object CombatSetting : Module(
     /* Target Type */
     private val players = setting("Players", true, page.atValue(Page.TARGET_TYPE))
     private val friends by setting("Friends", false, page.atValue(Page.TARGET_TYPE) and players.atTrue())
-    private val teammate by setting("Teammate", false, page.atValue(Page.TARGET_TYPE) and players.atTrue())
+    private val teammate by setting("Teammate", true, page.atValue(Page.TARGET_TYPE) and players.atTrue())
     private val mobs = setting("Mobs", true, page.atValue(Page.TARGET_TYPE))
     private val passive by setting("Passive", false, page.atValue(Page.TARGET_TYPE) and mobs.atTrue())
     private val neutral by setting("Neutral", false, page.atValue(Page.TARGET_TYPE) and mobs.atTrue())
