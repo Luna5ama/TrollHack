@@ -24,6 +24,9 @@ Software: Java 8, Minecraft 1.12.2 with Forge
 
 
 # FAQ
+Crashing with `java.lang.IllegalAccessError: tried to access field net.minecraft.util.math.Vec3i.field_177962_a from class baritone.j`
+ - Please remove `-Xverify:none` from your launch JVM arguments.
+
 Before opening an issue, please consider the following:  
 - Are you on the very latest version? In this case, it should be 0.0.7
 - Did you compile it yourself, or did you use the release?
