@@ -43,7 +43,7 @@ object EjectCommand : ClientCommand(
                     if (!InventoryManager.ejectMap.value.containsKey(itemName)) {
                         MessageSendUtils.sendNoSpamErrorMessage("§c$itemName is not in the eject list")
                     } else {
-                        InventoryManager.ejectMap.value.removeInt(itemName)
+                        InventoryManager.ejectMap.value.remove(itemName)
                         MessageSendUtils.sendNoSpamChatMessage("$itemName has been removed from the eject list")
                     }
                 }

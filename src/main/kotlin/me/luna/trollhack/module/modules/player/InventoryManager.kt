@@ -34,16 +34,15 @@ internal object InventoryManager : Module(
     description = "Manages your inventory automatically",
     modulePriority = 10
 ) {
-    private val defaultEjectList = Object2IntOpenHashMap<String>().apply {
-        defaultReturnValue(-1)
-        put("minecraft:grass", 0)
-        put("minecraft:dirt", 0)
-        put("minecraft:netherrack", 0)
-        put("minecraft:gravel", 0)
-        put("minecraft:sand", 0)
-        put("minecraft:stone", 0)
-        put("minecraft:cobblestone", 0)
-    }
+    private val defaultEjectList = hashMapOf(
+        "minecraft:grass" to 0,
+        "minecraft:dirt" to 0,
+        "minecraft:netherrack" to 0,
+        "minecraft:gravel" to 0,
+        "minecraft:sand" to 0,
+        "minecraft:stone" to 0,
+        "minecraft:cobblestone" to 0,
+    )
 
     private val autoRefill0 = setting("Auto Refill", true)
     private val autoRefill by autoRefill0
