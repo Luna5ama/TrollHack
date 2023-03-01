@@ -31,7 +31,7 @@ internal object Step : Module(
     private val autoDisable by setting("Auto Disable", false)
     private val minHeight by setting("Min Height", 0.9f, 0.6f..2.5f, 0.1f)
     val maxHeight by setting("Max Height", 2.0f, 0.6f..2.5f, 0.1f)
-    private val enableTicks by setting("Enable Ticks", 10, 0..50, 1)
+    private val enableTicks by setting("Enable Ticks", 0, 0..50, 1)
 
     const val DEFAULT_HEIGHT = 0.6f
     private var timeoutTick = -1
