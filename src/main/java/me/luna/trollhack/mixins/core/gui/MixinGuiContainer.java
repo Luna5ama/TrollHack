@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GuiContainer.class)
 public class MixinGuiContainer extends GuiScreen {
-    private final ChestStealer.StealButton stealButton = new ChestStealer.StealButton();
-    private final ChestStealer.StoreButton storeButton = new ChestStealer.StoreButton();
+    private final ChestStealer.StealButton trollHackStealButton = new ChestStealer.StealButton();
+    private final ChestStealer.StoreButton trollHackStoreButton = new ChestStealer.StoreButton();
     @Shadow protected int guiLeft;
     @Shadow protected int guiTop;
     @Shadow protected int xSize;
@@ -20,16 +20,16 @@ public class MixinGuiContainer extends GuiScreen {
     @Inject(method = "initGui", at = @At("RETURN"))
     public void initGui(CallbackInfo ci) {
         if (ChestStealer.INSTANCE.isValidGui()) {
-            this.buttonList.add(stealButton);
-            this.buttonList.add(storeButton);
-            stealButton.update(this.guiLeft, this.guiTop, this.xSize);
-            storeButton.update(this.guiLeft, this.guiTop, this.xSize);
+            this.buttonList.add(trollHackStealButton);
+            this.buttonList.add(trollHackStoreButton);
+            trollHackStealButton.update(this.guiLeft, this.guiTop, this.xSize);
+            trollHackStoreButton.update(this.guiLeft, this.guiTop, this.xSize);
         }
     }
 
     @Inject(method = "updateScreen", at = @At("HEAD"))
     public void updateScreen(CallbackInfo ci) {
-        stealButton.update(this.guiLeft, this.guiTop, this.xSize);
-        storeButton.update(this.guiLeft, this.guiTop, this.xSize);
+        trollHackStealButton.update(this.guiLeft, this.guiTop, this.xSize);
+        trollHackStoreButton.update(this.guiLeft, this.guiTop, this.xSize);
     }
 }
