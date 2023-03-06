@@ -5,10 +5,7 @@ import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.manager.managers.HoleManager
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
-import me.luna.trollhack.module.modules.combat.Burrow
-import me.luna.trollhack.module.modules.combat.HolePathFinder
-import me.luna.trollhack.module.modules.combat.HoleSnap
-import me.luna.trollhack.module.modules.combat.Surround
+import me.luna.trollhack.module.modules.combat.*
 import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.MovementUtils.isCentered
 import me.luna.trollhack.util.atTrue
@@ -28,7 +25,11 @@ internal object Anchor : Module(
 
     init {
         safeListener<PlayerMoveEvent.Pre>(-1000) { event ->
-            if (Burrow.isEnabled || Surround.isEnabled || HoleSnap.isActive() || HolePathFinder.isActive()) return@safeListener
+            if (Burrow.isEnabled
+                || CornerClip.run { isEnabled || isClipped() }
+                || Surround.isEnabled
+                || HoleSnap.isActive()
+                || HolePathFinder.isActive()) return@safeListener
 
             val playerPos = player.betterPosition
             val isInHole = player.onGround && HoleManager.getHoleInfo(playerPos).isHole
