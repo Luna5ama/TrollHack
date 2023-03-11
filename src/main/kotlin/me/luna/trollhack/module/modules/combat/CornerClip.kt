@@ -28,11 +28,13 @@ internal object CornerClip : Module(
     private val yDown by setting("Y Down", 0.02, 0.0..1.0, 0.001)
     private val autoEnableInHole by setting("Auto Enable In Hole", false)
     private val enableSeconds by setting("Enable Seconds", 2.0f, 0.1f..5.0f, 0.1f, ::autoEnableInHole)
-    private val timeoutSeconds by setting("Timeout Seconds", 0.5f, 0.1f..5.0f, 0.1f)
+    private val retryTimeoutSeconds by setting("Retry Timeout Seconds", 0.2f, 0.1f..5.0f, 0.1f)
+    private val timeoutSeconds by setting("Timeout Seconds", 1.0f, 0.1f..5.0f, 0.1f)
 
     private var clippedTicks = 0
     private val enableTimer = TickTimer()
     private val timeoutTimer = TickTimer()
+    private val retryTimer = TickTimer()
     private var alternate = false
 
     init {
@@ -42,24 +44,11 @@ internal object CornerClip : Module(
 
         onEnable {
             runSafe {
-                val posX = player.posX
-                val posY = player.posY - yDown
-                val posZ = player.posZ
-                val onGround = player.onGround
-
-                player.setPosition(posX, posY, posZ)
-
-                connection.sendPacket(CPacketPlayer.Position(
-                    posX,
-                    posY,
-                    posZ,
-                    onGround
-                ))
-
                 clippedTicks = 0
+                alternate = false
                 timeoutTimer.reset()
+                retryTimer.reset(-6969420L)
             } ?: disable()
-            alternate = false
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
@@ -69,19 +58,26 @@ internal object CornerClip : Module(
                 clippedTicks = 0
             }
 
-            if (clippedTicks > 3
+            if (clippedTicks > 5
                 || abs(player.motionY) >= 0.4
-                || timeoutTimer.tick((timeoutSeconds * 1000.0f).toLong())) {
+                || timeoutTimer.tick((retryTimeoutSeconds * 1000.0f).toLong())) {
                 disable()
                 return@safeListener
             }
 
-            if (!alternate) {
+            if (alternate) {
                 sendPlayerPacket {
                     rotate(Vec2f(
                         player.rotationYaw + Random.nextInt(-180..180),
-                        (player.rotationPitch + Random.nextInt(-45..45)).coerceIn(-90.0f, 90.0f)
+                        Random.nextInt(-90..90).toFloat()
                     ))
+                }
+            } else if (retryTimer.tickAndReset((timeoutSeconds * 1000.0f).toLong())) {
+                val onGround = player.onGround
+                player.setPosition(player.posX, player.posY - yDown, player.posZ)
+                sendPlayerPacket {
+                    move(player.positionVector)
+                    onGround(onGround)
                 }
             }
 
@@ -100,6 +96,22 @@ internal object CornerClip : Module(
                 enable()
             }
         }
+    }
+
+    private fun SafeClientEvent.sendClipPacket() {
+        val posX = player.posX
+        val posY = player.posY - yDown
+        val posZ = player.posZ
+        val onGround = player.onGround
+
+        player.setPosition(posX, posY, posZ)
+
+        connection.sendPacket(CPacketPlayer.Position(
+            posX,
+            posY,
+            posZ,
+            onGround
+        ))
     }
 
     fun SafeClientEvent.isClipped(): Boolean {

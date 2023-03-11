@@ -20,7 +20,7 @@ plugins {
     idea
     java
     kotlin("jvm")
-    id("dev.fastmc.fast-remapper").version("1.0-SNAPSHOT")
+    id("dev.fastmc.fast-remapper").version("1.1-SNAPSHOT")
     id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
     id("dev.fastmc.mod-loader-plugin").version("1.0-SNAPSHOT")
 }
@@ -135,19 +135,12 @@ fastRemapper {
         "mixins.troll.core.json",
         "mixins.troll.patch.json"
     )
-    remap(tasks.jar)
 }
 
 modLoader {
     modPackage.set("me.luna.loader")
     defaultPlatform.set(ModPlatform.FORGE)
     forgeModClass.set("me.luna.trollhack.TrollHackMod")
-}
-
-val fatjar = tasks.register<Jar>("fatjar")
-
-jarOptimizer {
-    optimize(fatjar, "me.luna", "org.spongepowered", "baritone")
 }
 
 tasks {
@@ -186,44 +179,6 @@ tasks {
         exclude {
             it.name.contains("devfix", true)
         }
-    }
-
-    fatjar {
-        val fastRemapJar = provider {
-            named<AbstractArchiveTask>("fastRemapJar").get()
-        }
-        val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
-
-        dependsOn(fastRemapJar)
-
-
-        manifest {
-            from(fastRemapJarZipTree.map { zipTree -> zipTree.find { it.name == "MANIFEST.MF" }!! })
-            attributes(
-                "Manifest-Version" to 1.0,
-                "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-                "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod"
-            )
-        }
-
-        val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
-        val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
-
-        archiveClassifier.set("fatjar")
-
-        from(fastRemapJarZipTree)
-
-        exclude { file ->
-            file.name.endsWith("kotlin_module")
-                || excludeNames.contains(file.file.nameWithoutExtension)
-                || excludeDirs.any { file.path.contains(it) }
-        }
-
-        from(
-            library.map {
-                if (it.isDirectory) it else zipTree(it)
-            }
-        )
     }
 
     register<Task>("genRuns") {
@@ -303,18 +258,57 @@ tasks {
     }
 }
 
-afterEvaluate {
-    val optimizeFatjar = tasks["optimizeFatjar"]
+val fastRemapJar = fastRemapper.register(tasks.jar)
 
+val fatjar = tasks.register<Jar>("fatjar") {
+    val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
+
+    dependsOn(fastRemapJar)
+
+
+    manifest {
+        from(fastRemapJarZipTree.map { zipTree -> zipTree.find { it.name == "MANIFEST.MF" }!! })
+        attributes(
+            "Manifest-Version" to 1.0,
+            "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
+            "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod",
+            "FMLCorePluginContainsFMLMod" to true,
+            "ForceLoadAsMod" to true
+        )
+    }
+
+    val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
+    val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
+
+    archiveClassifier.set("fatjar")
+
+    from(fastRemapJarZipTree)
+
+    exclude { file ->
+        file.name.endsWith("kotlin_module")
+            || excludeNames.contains(file.file.nameWithoutExtension)
+            || excludeDirs.any { file.path.contains(it) }
+    }
+
+    from(
+        library.map {
+            if (it.isDirectory) it else zipTree(it)
+        }
+    )
+}
+
+val optimizeFatJar = jarOptimizer.register(fatjar, "me.luna", "org.spongepowered", "baritone")
+
+afterEvaluate {
     tasks.register<Copy>("updateMods") {
         group = "build"
-        from(tasks.modLoaderJar)
+        from(optimizeFatJar)
         into(provider { File(System.getenv("mod_dir")) })
     }
 
     artifacts {
-        archives(optimizeFatjar)
+        archives(optimizeFatJar)
         archives(tasks.modLoaderJar)
-        add("modLoaderPlatforms", optimizeFatjar)
+        add("modLoaderPlatforms", optimizeFatJar)
     }
 }
