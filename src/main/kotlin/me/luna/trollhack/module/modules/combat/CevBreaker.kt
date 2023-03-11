@@ -22,11 +22,9 @@ import me.luna.trollhack.util.combat.CrystalUtils
 import me.luna.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
 import me.luna.trollhack.util.graphics.ESPRenderer
 import me.luna.trollhack.util.graphics.color.ColorRGB
-import me.luna.trollhack.util.inventory.equipBestTool
-import me.luna.trollhack.util.inventory.inventoryTaskNow
+import me.luna.trollhack.util.inventory.*
 import me.luna.trollhack.util.inventory.operation.action
 import me.luna.trollhack.util.inventory.operation.pickUp
-import me.luna.trollhack.util.inventory.removeHoldingItem
 import me.luna.trollhack.util.inventory.slot.firstBlock
 import me.luna.trollhack.util.inventory.slot.firstItem
 import me.luna.trollhack.util.inventory.slot.offhandSlot
@@ -65,6 +63,7 @@ internal object CevBreaker : Module(
     private val packetTimer = TickTimer()
     private var posInfo: Info? = null
     private var crystalID = -69420
+    private var lastInventoryTask: InventoryTask? = null
 
     init {
         onEnable {
@@ -73,6 +72,7 @@ internal object CevBreaker : Module(
 
         onDisable {
             reset()
+            lastInventoryTask = null
         }
 
         listener<Render3DEvent> {
@@ -150,7 +150,7 @@ internal object CevBreaker : Module(
                 if (id != -69420) {
                     if (breakTimer.tickAndReset(breakDelay)) breakCrystal(id)
                 } else {
-                    if (placeTimer.tickAndReset(placeDelay)) place(info)
+                    if (lastInventoryTask.executedOrTrue && placeTimer.tickAndReset(placeDelay)) place(info)
                 }
             }
         }
@@ -204,7 +204,7 @@ internal object CevBreaker : Module(
         val placeInfo = getNeighbor(info.pos, 3, 6.0f, sides = arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN))
             ?: return
 
-        inventoryTaskNow {
+        inventoryTask {
             pickUp(obbySlot)
             pickUp(player.offhandSlot)
 
@@ -219,13 +219,12 @@ internal object CevBreaker : Module(
             action {
                 connection.sendPacket(CPacketPlayerTryUseItemOnBlock(info.pos, info.side, EnumHand.OFF_HAND, info.hitVecOffset.x, info.hitVecOffset.y, info.hitVecOffset.z))
                 connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
+                removeHoldingItem()
             }
 
             runInGui()
             postDelay(100L)
         }
-
-        removeHoldingItem()
     }
 
     private fun SafeClientEvent.breakCrystal(id: Int) {

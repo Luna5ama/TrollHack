@@ -30,6 +30,7 @@ apply {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://maven.fastmc.dev/")
     maven("https://repo.spongepowered.org/repository/maven-public/")
@@ -84,6 +85,7 @@ dependencies {
     }
 
     implementationAndLibrary("org.joml:joml:1.10.4")
+    implementationAndLibrary("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
 
     implementation("com.github.cabaletta:baritone:1.2.14")
     jarOnly("cabaletta:baritone-api:1.2")

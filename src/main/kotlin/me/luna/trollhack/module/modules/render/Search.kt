@@ -1,15 +1,15 @@
 package me.luna.trollhack.module.modules.render
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import dev.fastmc.common.ConcurrentObjectPool
+import dev.fastmc.common.collection.FastObjectArrayList
+import dev.fastmc.common.isCompletedOrNull
+import dev.fastmc.common.sort.ObjectIntrosort
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
@@ -38,7 +38,6 @@ import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.init.Blocks
-import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.chunk.Chunk
 import org.lwjgl.opengl.GL11.*
@@ -54,7 +53,6 @@ internal object Search : Module(
 
     private val forceUpdateDelay by setting("Force Update Delay", 250, 50..3000, 10)
     private val updateDelay by setting("Update Delay", 50, 5..500, 5)
-    private val updateDistance by setting("Update Distance", 4, 1..32, 1)
     private val range by setting("Range", 128, 0..256, 8)
     private val maximumBlocks by setting("Maximum Blocks", 512, 128..8192, 128)
     private val filled0 = setting("Filled", true)
@@ -80,7 +78,11 @@ internal object Search : Module(
     private val updateTimer = TickTimer()
 
     private var dirty = false
-    private var lastUpdatePos = BlockPos.ORIGIN
+    private var lastUpdatePos: BlockPos? = null
+    private var lastUpdateJob: Job? = null
+    private val gcTimer = TickTimer()
+    private val cachedMainList = FastObjectArrayList<BlockRenderInfo>()
+    private var cachedSublistPool = ConcurrentObjectPool<FastObjectArrayList<BlockRenderInfo>>(::FastObjectArrayList)
 
     override fun getHudInfo(): String {
         return boxRenderer.size.toString()
@@ -93,7 +95,12 @@ internal object Search : Module(
 
         onDisable {
             dirty = true
-            lastUpdatePos = BlockPos.ORIGIN
+            lastUpdatePos = null
+
+            boxRenderer.clear()
+            tracerRenderer.clear()
+            cachedMainList.clearAndTrim()
+            cachedSublistPool = ConcurrentObjectPool(::FastObjectArrayList)
         }
 
         safeListener<WorldEvent.ClientBlockUpdate> {
@@ -123,8 +130,9 @@ internal object Search : Module(
 
             val playerPos = player.flooredPosition
 
-            if (updateTimer.tick(forceUpdateDelay) || updateTimer.tick(updateDelay)
-                && (dirty || playerPos.distanceSqTo(lastUpdatePos) > updateDistance.sq)) {
+            if (lastUpdateJob.isCompletedOrNull &&
+                (updateTimer.tick(forceUpdateDelay)
+                    || updateTimer.tick(updateDelay) && (dirty || playerPos != lastUpdatePos))) {
                 updateRenderer()
                 dirty = false
                 lastUpdatePos = playerPos
@@ -135,7 +143,9 @@ internal object Search : Module(
 
     @OptIn(ObsoleteCoroutinesApi::class)
     private fun SafeClientEvent.updateRenderer() {
-        defaultScope.launch {
+        lastUpdateJob = defaultScope.launch {
+            val cleanList = gcTimer.tickAndReset(1000L)
+
             val eyeX = player.posX.fastFloor()
             val eyeY = (player.posY + player.getEyeHeight()).fastFloor()
             val eyeZ = player.posZ.fastFloor()
@@ -146,35 +156,35 @@ internal object Search : Module(
 
             val rangeSq = range.sq
             val maxChunkRange = rangeSq + 256
-            var mainList = emptyArray<BlockRenderInfo>()
+            val mainList = cachedMainList
 
-            val actor = actor<ObjectArrayList<BlockRenderInfo>>(Dispatchers.Default) {
+            @Suppress("RemoveExplicitTypeArguments")
+            val actor = actor<FastObjectArrayList<BlockRenderInfo>>(Dispatchers.Default) {
                 loop@ for (list in channel) {
-                    @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
-                    val newArray = Arrays.copyOf(mainList, mainList.size + list.size)
-                    System.arraycopy(list.elements(), 0, newArray, mainList.size, list.size)
-                    mainList = newArray
+                    mainList.addAll(list)
+                    clearList(cleanList, list)
+                    cachedSublistPool.put(list)
                 }
 
-                Arrays.parallelSort(mainList)
+                ObjectIntrosort.sort(mainList.elements(), 0, mainList.size)
 
-                launch {
+                val pos = BlockPos.MutableBlockPos()
+
+                tracerRenderer.update {
                     boxRenderer.update {
                         for ((index, info) in mainList.withIndex()) {
                             if (index >= maximumBlocks) break
-                            putBox(info.box, info.color)
+                            pos.setPos(info.x, info.y, info.z)
+                            val blockState = world.getBlockState(pos)
+                            val box = blockState.getSelectedBoundingBox(world, pos)
+                            val color = getBlockColor(pos, blockState)
+                            putBox(box, color)
+                            putTracer(box, color)
                         }
                     }
                 }
 
-                launch {
-                    tracerRenderer.update {
-                        for ((index, info) in mainList.withIndex()) {
-                            if (index >= maximumBlocks) break
-                            putTracer(info.box, info.color)
-                        }
-                    }
-                }
+                clearList(cleanList, mainList)
             }
 
             coroutineScope {
@@ -199,11 +209,23 @@ internal object Search : Module(
         }
     }
 
-    private suspend fun SafeClientEvent.findBlocksInChunk(actor: SendChannel<ObjectArrayList<BlockRenderInfo>>, chunk: Chunk, eyeX: Int, eyeY: Int, eyeZ: Int, rangeSq: Int) {
+    private fun clearList(
+        cleanList: Boolean,
+        list: FastObjectArrayList<BlockRenderInfo>
+    ) {
+        if (cleanList) {
+            val prevSize = list.size
+            list.clear()
+            list.trim(prevSize)
+        } else {
+            list.clearFast()
+        }
+    }
+
+    private suspend fun findBlocksInChunk(actor: SendChannel<FastObjectArrayList<BlockRenderInfo>>, chunk: Chunk, eyeX: Int, eyeY: Int, eyeZ: Int, rangeSq: Int) {
         val xStart = chunk.x shl 4
         val zStart = chunk.z shl 4
-        val pos = BlockPos.MutableBlockPos()
-        val list = ObjectArrayList<BlockRenderInfo>()
+        val list = cachedSublistPool.get()
 
         for (yBlock in chunk.blockStorageArray.indices) {
             val yStart = yBlock shl 4
@@ -225,11 +247,7 @@ internal object Search : Module(
                 val dist = distanceSq(eyeX, eyeY, eyeZ, x, y, z)
                 if (dist > rangeSq) continue
 
-                pos.setPos(x, y, z)
-                val box = blockState.getSelectedBoundingBox(world, pos)
-                val color = getBlockColor(pos, blockState)
-
-                list.add(BlockRenderInfo(box, color, dist))
+                list.add(BlockRenderInfo(x, y, z, dist))
             }
         }
 
@@ -244,14 +262,14 @@ internal object Search : Module(
                 ColorRGB(82, 49, 153)
             } else {
                 val colorArgb = blockState.getMapColor(world, pos).colorValue
-                ColorRGB(ColorUtils.argbToRgba(colorArgb))
+                ColorRGB(ColorUtils.argbToRgba(colorArgb)).alpha(255)
             }
         } else {
             color
         }
     }
 
-    private class BlockRenderInfo(val box: AxisAlignedBB, val color: ColorRGB, val dist: Int) : Comparable<BlockRenderInfo> {
+    private class BlockRenderInfo(val x: Int, val y: Int, val z: Int, val dist: Int) : Comparable<BlockRenderInfo> {
         override fun compareTo(other: BlockRenderInfo): Int {
             return this.dist.compareTo(other.dist)
         }
@@ -267,7 +285,7 @@ internal object Search : Module(
             }
 
             if (blockSet.size != newSet.size || !blockSet.containsAll(newSet)) {
-                updateTimer.reset(-114514L)
+                dirty = true
             }
 
             blockSet = newSet
