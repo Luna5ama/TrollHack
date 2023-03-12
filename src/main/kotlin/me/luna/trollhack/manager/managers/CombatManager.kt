@@ -99,22 +99,21 @@ object CombatManager : Manager() {
         safeListener<PacketEvent.Receive>(114514) { event ->
             when (event.packet) {
                 is SPacketSoundEffect -> {
-                    if (event.packet.category == SoundCategory.BLOCKS && event.packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE) {
-                        val list = crystalList.asSequence()
-                            .map(Pair<EntityEnderCrystal, CrystalDamage>::first)
-                            .filter { it.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) <= 144.0 }
-                            .onEach(Entity::setDead)
-                            .toList()
+                    if (event.packet.category == SoundCategory.BLOCKS && event.packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
+                    val list = crystalList.asSequence()
+                        .map(Pair<EntityEnderCrystal, CrystalDamage>::first)
+                        .filter { it.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) <= 144.0 }
+                        .onEach(Entity::setDead)
+                        .toList()
 
-                        if (list.isNotEmpty()) {
-                            onMainThreadSafe {
-                                list.forEach {
-                                    world.removeEntity(it)
-                                    world.removeEntityDangerously(it)
-                                }
+                    if (list.isNotEmpty()) {
+                        onMainThreadSafe {
+                            list.forEach {
+                                world.removeEntity(it)
+                                world.removeEntityDangerously(it)
                             }
-                            CrystalSetDeadEvent(event.packet.x, event.packet.y, event.packet.z, list).post()
                         }
+                        CrystalSetDeadEvent(event.packet.x, event.packet.y, event.packet.z, list).post()
                     }
                 }
                 is SPacketSpawnObject -> {
@@ -122,7 +121,11 @@ object CombatManager : Manager() {
                         val distSq = player.eyePosition.squareDistanceTo(event.packet.x, event.packet.y, event.packet.z)
                         if (distSq > CRYSTAL_RANGE_SQ) return@safeListener
 
-                        val blockPos = BlockPos(event.packet.x.fastFloor(), event.packet.y.fastFloor() - 1, event.packet.z.fastFloor())
+                        val blockPos = BlockPos(
+                            event.packet.x.fastFloor(),
+                            event.packet.y.fastFloor() - 1,
+                            event.packet.z.fastFloor()
+                        )
                         getCrystalDamage(blockPos)?.let {
                             CrystalSpawnEvent(event.packet.entityID, it).post()
                         }
@@ -224,7 +227,14 @@ object CombatManager : Manager() {
                         val blockPos = event.entity.blockPos
                         val mutableBlockPos = BlockPos.MutableBlockPos()
                         val crystalDamage = placeMap0.computeIfAbsent(blockPos) {
-                            calculateDamage(contextSelf, contextTarget, mutableBlockPos, blockPos.toVec3d(0.5, 1.0, 0.5), blockPos, sqrt(distSq))
+                            calculateDamage(
+                                contextSelf,
+                                contextTarget,
+                                mutableBlockPos,
+                                blockPos.toVec3d(0.5, 1.0, 0.5),
+                                blockPos,
+                                sqrt(distSq)
+                            )
                         }
 
                         crystalMap0[event.entity] = crystalDamage
@@ -362,7 +372,14 @@ object CombatManager : Manager() {
         }
 
         placeMap0.replaceAll { blockPos, crystalDamage ->
-            calculateDamage(contextSelf, contextTarget, mutableBlockPos, blockPos.toVec3d(0.5, 1.0, 0.5), blockPos, eyePos.distanceTo(crystalDamage.crystalPos))
+            calculateDamage(
+                contextSelf,
+                contextTarget,
+                mutableBlockPos,
+                blockPos.toVec3d(0.5, 1.0, 0.5),
+                blockPos,
+                eyePos.distanceTo(crystalDamage.crystalPos)
+            )
         }
 
         val blockPos = BlockPos.MutableBlockPos()
@@ -389,7 +406,14 @@ object CombatManager : Manager() {
                     }
 
                     val immutablePos = blockPos.toImmutable()
-                    placeMap0[immutablePos] = calculateDamage(contextSelf, contextTarget, mutableBlockPos, crystalPos, immutablePos, sqrt(distSq))
+                    placeMap0[immutablePos] = calculateDamage(
+                        contextSelf,
+                        contextTarget,
+                        mutableBlockPos,
+                        crystalPos,
+                        immutablePos,
+                        sqrt(distSq)
+                    )
                 }
             }
         }
@@ -411,7 +435,14 @@ object CombatManager : Manager() {
 
         crystalMap0.replaceAll { _, crystalDamage ->
             placeMap0.computeIfAbsent(crystalDamage.blockPos) {
-                calculateDamage(contextSelf, contextTarget, mutableBlockPos, it.toVec3d(0.5, 1.0, 0.5), it, eyePos.distanceTo(crystalDamage.crystalPos))
+                calculateDamage(
+                    contextSelf,
+                    contextTarget,
+                    mutableBlockPos,
+                    it.toVec3d(0.5, 1.0, 0.5),
+                    it,
+                    eyePos.distanceTo(crystalDamage.crystalPos)
+                )
             }
         }
 
@@ -424,7 +455,14 @@ object CombatManager : Manager() {
 
             crystalMap0.computeIfAbsent(entity) {
                 placeMap0.computeIfAbsent(entity.blockPos) {
-                    calculateDamage(contextSelf, contextTarget, mutableBlockPos, it.toVec3d(0.5, 1.0, 0.5), it, sqrt(distSq))
+                    calculateDamage(
+                        contextSelf,
+                        contextTarget,
+                        mutableBlockPos,
+                        it.toVec3d(0.5, 1.0, 0.5),
+                        it,
+                        sqrt(distSq)
+                    )
                 }
             }
         }
@@ -438,9 +476,19 @@ object CombatManager : Manager() {
         blockPos: BlockPos,
         distance: Double
     ): CrystalDamage {
-        val selfDamage = max(contextSelf.calcDamage(crystalPos, true, mutableBlockPos), contextSelf.calcDamage(crystalPos, false, mutableBlockPos))
+        val selfDamage = max(
+            contextSelf.calcDamage(crystalPos, true, mutableBlockPos),
+            contextSelf.calcDamage(crystalPos, false, mutableBlockPos)
+        )
         val targetDamage = contextTarget?.calcDamage(crystalPos, true, mutableBlockPos) ?: 0.0f
-        return CrystalDamage(crystalPos, blockPos, selfDamage, targetDamage, distance, contextSelf.currentPos.distanceTo(crystalPos))
+        return CrystalDamage(
+            crystalPos,
+            blockPos,
+            selfDamage,
+            targetDamage,
+            distance,
+            contextSelf.currentPos.distanceTo(crystalPos)
+        )
     }
 
     private fun updatePlaceList() {

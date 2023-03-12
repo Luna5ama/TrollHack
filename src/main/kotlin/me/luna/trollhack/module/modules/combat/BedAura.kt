@@ -3,12 +3,8 @@ package me.luna.trollhack.module.modules.combat
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.launch
 import me.luna.trollhack.event.SafeClientEvent
-import me.luna.trollhack.event.events.EntityEvent
-import me.luna.trollhack.event.events.RunGameLoopEvent
-import me.luna.trollhack.event.events.TickEvent
-import me.luna.trollhack.event.events.WorldEvent
+import me.luna.trollhack.event.events.*
 import me.luna.trollhack.event.events.combat.CombatEvent
-import me.luna.trollhack.event.events.combat.CrystalSetDeadEvent
 import me.luna.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import me.luna.trollhack.event.events.render.Render2DEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
@@ -60,11 +56,14 @@ import net.minecraft.block.BlockBed
 import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
+import net.minecraft.init.SoundEvents
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
+import net.minecraft.network.play.server.SPacketSoundEffect
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
+import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -81,12 +80,23 @@ internal object BedAura : Module(
     private val page = setting("Page", Page.GENERAL)
 
     private val handMode by setting("Hand Mode", EnumHand.OFF_HAND, page.atValue(Page.GENERAL))
-    private val bedSlot by setting("Bed Slot", 3, 1..9, 1, page.atValue(Page.GENERAL) and { handMode == EnumHand.MAIN_HAND })
+    private val bedSlot by setting(
+        "Bed Slot",
+        3,
+        1..9,
+        1,
+        page.atValue(Page.GENERAL) and { handMode == EnumHand.MAIN_HAND })
     private val strictRotation by setting("Strict Rotation", false, page.atValue(Page.GENERAL))
     private val strictDirection by setting("Strict Direction", false, page.atValue(Page.GENERAL))
     private val newPlacement by setting("1.13 Placement", false, page.atValue(Page.GENERAL))
     private val smartDamage by setting("Smart Damage", true, page.atValue(Page.GENERAL))
-    private val damageStep by setting("Damage Step", 2.0f, 0.0f..5.0f, 0.1f, page.atValue(Page.GENERAL) and ::smartDamage)
+    private val damageStep by setting(
+        "Damage Step",
+        2.0f,
+        0.0f..5.0f,
+        0.1f,
+        page.atValue(Page.GENERAL) and ::smartDamage
+    )
     private val noSuicide by setting("No Suicide", 8.0f, 0.0f..20.0f, 0.25f, page.atValue(Page.GENERAL))
     private val minDamage by setting("Min Damage", 6.0f, 0.0f..20.0f, 0.25f, page.atValue(Page.GENERAL))
     private val maxSelfDamage by setting("Max Self Damage", 6.0f, 0.0f..20.0f, 0.25f, page.atValue(Page.GENERAL))
@@ -95,14 +105,50 @@ internal object BedAura : Module(
 
     private val updateDelay by setting("Update Delay", 50, 5..250, 1, page.atValue(Page.TIMING))
     private val timingMode by setting("Timing Mode", TimingMode.INSTANT, page.atValue(Page.TIMING))
-    private val delay by setting("Delay", 75, 0..1000, 1, page.atValue(Page.TIMING) and { timingMode != TimingMode.SWITCH })
-    private val placeDelay by setting("Place Delay", 25, 0..1000, 1, page.atValue(Page.TIMING) and { timingMode == TimingMode.SWITCH })
-    private val breakDelay by setting("Break Delay", 50, 0..1000, 1, page.atValue(Page.TIMING) and { timingMode == TimingMode.SWITCH })
+    private val delay by setting(
+        "Delay",
+        75,
+        0..1000,
+        1,
+        page.atValue(Page.TIMING) and { timingMode != TimingMode.SWITCH })
+    private val placeDelay by setting(
+        "Place Delay",
+        25,
+        0..1000,
+        1,
+        page.atValue(Page.TIMING) and { timingMode == TimingMode.SWITCH })
+    private val breakDelay by setting(
+        "Break Delay",
+        50,
+        0..1000,
+        1,
+        page.atValue(Page.TIMING) and { timingMode == TimingMode.SWITCH })
     private val slowMode by setting("Slow Mode", true, page.atValue(Page.TIMING))
-    private val slowModeDamage by setting("Slow Mode Damage", 4.0f, 0.0f..10.0f, 0.25f, page.atValue(Page.TIMING) and ::slowMode)
-    private val slowDelay by setting("Slow Delay", 250, 0..1000, 5, page.atValue(Page.TIMING) and ::slowMode and { timingMode != TimingMode.SWITCH })
-    private val slowPlaceDelay by setting("Slow Place Delay", 250, 0..1000, 5, page.atValue(Page.TIMING) and ::slowMode and { timingMode == TimingMode.SWITCH })
-    private val slowBreakDelay by setting("Slow Break Delay", 50, 0..1000, 5, page.atValue(Page.TIMING) and ::slowMode and { smartDamage || timingMode == TimingMode.SWITCH })
+    private val slowModeDamage by setting(
+        "Slow Mode Damage",
+        4.0f,
+        0.0f..10.0f,
+        0.25f,
+        page.atValue(Page.TIMING) and ::slowMode
+    )
+    private val slowDelay by setting(
+        "Slow Delay",
+        250,
+        0..1000,
+        5,
+        page.atValue(Page.TIMING) and ::slowMode and { timingMode != TimingMode.SWITCH })
+    private val slowPlaceDelay by setting(
+        "Slow Place Delay",
+        250,
+        0..1000,
+        5,
+        page.atValue(Page.TIMING) and ::slowMode and { timingMode == TimingMode.SWITCH })
+    private val slowBreakDelay by setting(
+        "Slow Break Delay",
+        50,
+        0..1000,
+        5,
+        page.atValue(Page.TIMING) and ::slowMode and { smartDamage || timingMode == TimingMode.SWITCH })
 
     private val forcePlaceBind by setting("Force Place Bind", Bind(), {
         if (isEnabled && it) {
@@ -110,24 +156,82 @@ internal object BedAura : Module(
             MessageSendUtils.sendNoSpamChatMessage("$chatName Force placing" + if (toggleForcePlace) " §aenabled" else " §cdisabled")
         }
     }, page.atValue(Page.FORCE_PLACE))
-    private val forcePlaceHealth by setting("Force Place Health", 8.0f, 0.0f..20.0f, 0.5f, page.atValue(Page.FORCE_PLACE))
-    private val forcePlaceMinDamage by setting("Force Place Min Damage", 1.5f, 0.0f..10.0f, 0.25f, page.atValue(Page.FORCE_PLACE))
-    private val forcePlaceDamageBalance by setting("Force Place Damage Balance", 0.0f, -10.0f..10.0f, 0.25f, page.atValue(Page.FORCE_PLACE))
+    private val forcePlaceHealth by setting(
+        "Force Place Health",
+        8.0f,
+        0.0f..20.0f,
+        0.5f,
+        page.atValue(Page.FORCE_PLACE)
+    )
+    private val forcePlaceMinDamage by setting(
+        "Force Place Min Damage",
+        1.5f,
+        0.0f..10.0f,
+        0.25f,
+        page.atValue(Page.FORCE_PLACE)
+    )
+    private val forcePlaceDamageBalance by setting(
+        "Force Place Damage Balance",
+        0.0f,
+        -10.0f..10.0f,
+        0.25f,
+        page.atValue(Page.FORCE_PLACE)
+    )
 
     private val motionDetect by setting("Motion Detect", true, page.atValue(Page.MOTION_DETECT))
-    private val targetMotion by setting("Target Motion", 0.15f, 0.0f..0.3f, 0.01f, page.atValue(Page.MOTION_DETECT) and { motionDetect })
-    private val selfMotion by setting("Self Motion", 0.22f, 0.0f..0.3f, 0.01f, page.atValue(Page.MOTION_DETECT) and { motionDetect })
-    private val motionMinDamage by setting("Motion Min Damage", 3.0f, 0.0f..20.0f, 0.25f, page.atValue(Page.MOTION_DETECT) and { motionDetect })
-    private val motionMaxSelfDamage by setting("Motion Max Self Damage", 8.0f, 0.0f..20.0f, 0.25f, page.atValue(Page.MOTION_DETECT) and { motionDetect })
-    private val motionDamageBalance by setting("Motion Damage Balance", -5.0f, -10.0f..10.0f, 0.25f, page.atValue(Page.MOTION_DETECT) and { motionDetect })
+    private val targetMotion by setting(
+        "Target Motion",
+        0.15f,
+        0.0f..0.3f,
+        0.01f,
+        page.atValue(Page.MOTION_DETECT) and { motionDetect })
+    private val selfMotion by setting(
+        "Self Motion",
+        0.22f,
+        0.0f..0.3f,
+        0.01f,
+        page.atValue(Page.MOTION_DETECT) and { motionDetect })
+    private val motionMinDamage by setting(
+        "Motion Min Damage",
+        3.0f,
+        0.0f..20.0f,
+        0.25f,
+        page.atValue(Page.MOTION_DETECT) and { motionDetect })
+    private val motionMaxSelfDamage by setting(
+        "Motion Max Self Damage",
+        8.0f,
+        0.0f..20.0f,
+        0.25f,
+        page.atValue(Page.MOTION_DETECT) and { motionDetect })
+    private val motionDamageBalance by setting(
+        "Motion Damage Balance",
+        -5.0f,
+        -10.0f..10.0f,
+        0.25f,
+        page.atValue(Page.MOTION_DETECT) and { motionDetect })
 
     private val renderFoot by setting("Render Foot", true, page.atValue(Page.RENDER))
     private val renderHead by setting("Render Head", true, page.atValue(Page.RENDER))
     private val renderBase by setting("Render Base", false, page.atValue(Page.RENDER))
     private val renderDamage by setting("Render Damage", true, page.atValue(Page.RENDER))
-    private val footColor by setting("Foot Color", ColorRGB(255, 160, 255), false, page.atValue(Page.RENDER) and ::renderFoot)
-    private val headColor by setting("Head Color", ColorRGB(255, 32, 64), false, page.atValue(Page.RENDER) and ::renderHead)
-    private val baseColor by setting("Base Color", ColorRGB(32, 255, 32), false, page.atValue(Page.RENDER) and ::renderBase)
+    private val footColor by setting(
+        "Foot Color",
+        ColorRGB(255, 160, 255),
+        false,
+        page.atValue(Page.RENDER) and ::renderFoot
+    )
+    private val headColor by setting(
+        "Head Color",
+        ColorRGB(255, 32, 64),
+        false,
+        page.atValue(Page.RENDER) and ::renderHead
+    )
+    private val baseColor by setting(
+        "Base Color",
+        ColorRGB(32, 255, 32),
+        false,
+        page.atValue(Page.RENDER) and ::renderBase
+    )
 
     private enum class Page {
         GENERAL, TIMING, FORCE_PLACE, MOTION_DETECT, RENDER
@@ -188,12 +292,15 @@ internal object BedAura : Module(
             }
         }
 
-        listener<CrystalSetDeadEvent> { event ->
-            placeInfo?.let {
-                if (it.center.squareDistanceTo(event.x, event.y, event.z) < 0.2) {
-                    explosionCount++
-                }
-            }
+        safeListener<PacketEvent.Receive>(114514) {
+            val placeInfo = placeInfo ?: return@safeListener
+            val packet = it.packet
+            if (packet !is SPacketSoundEffect) return@safeListener
+            if (packet.category != SoundCategory.BLOCKS) return@safeListener
+            if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
+            if (placeInfo.center.squareDistanceTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
+
+            explosionCount++
         }
 
         listener<Render3DEvent> {
@@ -370,7 +477,16 @@ internal object BedAura : Module(
         player.isSneaking
 
         player.spoofUnSneak {
-            connection.sendPacket(CPacketPlayerTryUseItemOnBlock(placeInfo.bedPosFoot, side, me.luna.trollhack.module.modules.combat.BedAura.handMode, hitVecOffset.x, hitVecOffset.y, hitVecOffset.z))
+            connection.sendPacket(
+                CPacketPlayerTryUseItemOnBlock(
+                    placeInfo.bedPosFoot,
+                    side,
+                    me.luna.trollhack.module.modules.combat.BedAura.handMode,
+                    hitVecOffset.x,
+                    hitVecOffset.y,
+                    hitVecOffset.z
+                )
+            )
         }
         connection.sendPacket(CPacketAnimation(handMode))
 
@@ -389,7 +505,16 @@ internal object BedAura : Module(
             }
         } else {
             OffhandPause.withPause(BedAura) {
-                connection.sendPacket(CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, handMode, 0.5f, 1.0f, 0.5f))
+                connection.sendPacket(
+                    CPacketPlayerTryUseItemOnBlock(
+                        placeInfo.basePos,
+                        EnumFacing.UP,
+                        handMode,
+                        0.5f,
+                        1.0f,
+                        0.5f
+                    )
+                )
             }
         }
 
@@ -406,7 +531,8 @@ internal object BedAura : Module(
             && !targetMoving
             && !selfMoving
             && CombatManager.target?.let { it.health > forcePlaceHealth } == true
-            && placeInfo.targetDamage < slowModeDamage) {
+            && placeInfo.targetDamage < slowModeDamage
+        ) {
             slowDelay
         } else {
             delay
@@ -423,8 +549,20 @@ internal object BedAura : Module(
 
                 if (info != null) {
                     if (renderBase) list.add(ESPRenderer.Info(info.boxBase, baseColor))
-                    if (renderFoot) list.add(ESPRenderer.Info(info.boxFoot, footColor, EnumFacingMask.ALL xor EnumFacingMask.getMaskForSide(info.side)))
-                    if (renderHead) list.add(ESPRenderer.Info(info.boxHead, headColor, EnumFacingMask.ALL xor EnumFacingMask.getMaskForSide(info.side.opposite)))
+                    if (renderFoot) list.add(
+                        ESPRenderer.Info(
+                            info.boxFoot,
+                            footColor,
+                            EnumFacingMask.ALL xor EnumFacingMask.getMaskForSide(info.side)
+                        )
+                    )
+                    if (renderHead) list.add(
+                        ESPRenderer.Info(
+                            info.boxHead,
+                            headColor,
+                            EnumFacingMask.ALL xor EnumFacingMask.getMaskForSide(info.side.opposite)
+                        )
+                    )
                 }
 
                 renderer.replaceAll(list)
@@ -546,8 +684,10 @@ internal object BedAura : Module(
             val center = calcInfo.bedPosHead.toVec3dCenter()
             Vec2f(
                 contextTarget.calcDamage(center, true, 5.0f, mutableBlockPos, function),
-                max(contextSelf.calcDamage(center, false, 5.0f, mutableBlockPos, function),
-                    contextSelf.calcDamage(center, true, 5.0f, mutableBlockPos, function))
+                max(
+                    contextSelf.calcDamage(center, false, 5.0f, mutableBlockPos, function),
+                    contextSelf.calcDamage(center, true, 5.0f, mutableBlockPos, function)
+                )
             )
         }
 
@@ -555,7 +695,8 @@ internal object BedAura : Module(
         return if (scaledHealth - selfDamage > noSuicide
             && checkSelfDamage(selfDamage)
             && (checkDamage(targetDamage, diff)
-                || checkForcePlaceDamage(targetDamage, diff))) {
+                || checkForcePlaceDamage(targetDamage, diff))
+        ) {
             DamageInfo(
                 calcInfo.side,
                 calcInfo.hitVec,
