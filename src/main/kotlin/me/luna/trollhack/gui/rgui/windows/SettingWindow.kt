@@ -29,6 +29,7 @@ abstract class SettingWindow<T : Any>(
     protected abstract fun getSettingList(): List<AbstractSetting<*>>
 
     override fun onGuiInit() {
+        children.clear()
         for (setting in getSettingList()) {
             when (setting) {
                 is BooleanSetting -> SettingButton(setting)
