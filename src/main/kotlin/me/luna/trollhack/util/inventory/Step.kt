@@ -16,13 +16,21 @@ object InstantFuture : StepFuture {
 
 class Click(
     private val windowID: Int,
-    private val slot: Slot,
-    private val mouseButton: Int,
+    private val slotProvider: SafeClientEvent.() -> Slot?,
+    private val mouseButton: SafeClientEvent.() -> Int?,
     private val type: ClickType
 ) : Step {
-    override fun run(event: SafeClientEvent): ClickFuture {
-        val id = event.clickSlot(windowID, slot, mouseButton, type)
-        return ClickFuture(id)
+    constructor(windowID: Int, slotProvider: SafeClientEvent.() -> Slot?, mouseButton: Int, type: ClickType) : this(windowID, slotProvider, { mouseButton }, type)
+    constructor(windowID: Int, slot: Slot, mouseButton: Int, type: ClickType) : this(windowID, { slot }, mouseButton, type)
+
+    override fun run(event: SafeClientEvent): StepFuture {
+        val slot = slotProvider.invoke(event)
+        val mouseButton = mouseButton.invoke(event)
+        return if (slot != null && mouseButton != null) {
+            ClickFuture(event.clickSlot(windowID, slot, mouseButton, type))
+        } else {
+            InstantFuture
+        }
     }
 }
 

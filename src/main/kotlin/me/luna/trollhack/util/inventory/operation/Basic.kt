@@ -7,12 +7,28 @@ import me.luna.trollhack.util.inventory.slot.HotbarSlot
 import net.minecraft.inventory.ClickType
 import net.minecraft.inventory.Slot
 
+inline fun InventoryTask.Builder.pickUp(noinline slot: SafeClientEvent.() -> Slot?) {
+    pickUp(0, slot)
+}
+
+inline fun InventoryTask.Builder.pickUp(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?) {
+    +Click(windowID, slot, 0, ClickType.PICKUP)
+}
+
 inline fun InventoryTask.Builder.pickUp(slot: Slot) {
     pickUp(0, slot)
 }
 
 inline fun InventoryTask.Builder.pickUp(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.PICKUP)
+}
+
+inline fun InventoryTask.Builder.pickUpAll(noinline slot: SafeClientEvent.() -> Slot?) {
+    pickUpAll(0, slot)
+}
+
+inline fun InventoryTask.Builder.pickUpAll(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?) {
+    +Click(windowID, slot, 0, ClickType.PICKUP_ALL)
 }
 
 inline fun InventoryTask.Builder.pickUpAll(slot: Slot) {
@@ -23,12 +39,28 @@ inline fun InventoryTask.Builder.pickUpAll(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.PICKUP_ALL)
 }
 
+inline fun InventoryTask.Builder.quickMove(noinline slot: SafeClientEvent.() -> Slot?) {
+    quickMove(0, slot)
+}
+
+inline fun InventoryTask.Builder.quickMove(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?) {
+    +Click(windowID, slot, 0, ClickType.QUICK_MOVE)
+}
+
 inline fun InventoryTask.Builder.quickMove(slot: Slot) {
     quickMove(0, slot)
 }
 
 inline fun InventoryTask.Builder.quickMove(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.QUICK_MOVE)
+}
+
+inline fun InventoryTask.Builder.swapWith(noinline slot: SafeClientEvent.() -> Slot?, noinline hotbarSlot: SafeClientEvent.() -> HotbarSlot?) {
+    swapWith(0, slot, hotbarSlot)
+}
+
+inline fun InventoryTask.Builder.swapWith(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?, noinline hotbarSlot: SafeClientEvent.() -> HotbarSlot?) {
+    +Click(windowID, slot, { hotbarSlot.invoke(this)?.hotbarSlot }, ClickType.SWAP)
 }
 
 inline fun InventoryTask.Builder.swapWith(slot: Slot, hotbarSlot: HotbarSlot) {

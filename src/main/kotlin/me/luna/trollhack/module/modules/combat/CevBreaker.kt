@@ -24,11 +24,9 @@ import me.luna.trollhack.util.graphics.ESPRenderer
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.inventory.*
 import me.luna.trollhack.util.inventory.operation.action
-import me.luna.trollhack.util.inventory.operation.pickUp
-import me.luna.trollhack.util.inventory.slot.firstBlock
-import me.luna.trollhack.util.inventory.slot.firstItem
-import me.luna.trollhack.util.inventory.slot.offhandSlot
-import me.luna.trollhack.util.inventory.slot.storageSlots
+import me.luna.trollhack.util.inventory.operation.swapWith
+import me.luna.trollhack.util.inventory.slot.*
+import me.luna.trollhack.util.items.block
 import me.luna.trollhack.util.math.vector.toVec3d
 import me.luna.trollhack.util.world.*
 import net.minecraft.init.Blocks
@@ -199,22 +197,22 @@ internal object CevBreaker : Module(
     }
 
     private fun SafeClientEvent.place(info: Info) {
-        val obbySlot = player.storageSlots.firstBlock(Blocks.OBSIDIAN) ?: return
-        val crystalSlot = player.storageSlots.firstItem(Items.END_CRYSTAL) ?: return
         val placeInfo = getNeighbor(info.pos, 3, 6.0f, sides = arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN))
             ?: return
 
         inventoryTask {
-            pickUp(obbySlot)
-            pickUp(player.offhandSlot)
+            swapWith(
+                slot = { player.offhandSlot },
+                hotbarSlot = { if (player.heldItemOffhand.item.block == Blocks.OBSIDIAN) null else player.hotbarSlots.firstBlock(Blocks.OBSIDIAN) }
+            )
 
             action {
                 placeBlock(placeInfo, EnumHand.OFF_HAND)
             }
-
-            pickUp(crystalSlot)
-            pickUp(player.offhandSlot)
-            pickUp(obbySlot)
+            swapWith(
+                slot = { player.offhandSlot },
+                hotbarSlot = { if (player.heldItemOffhand.item == Items.END_CRYSTAL) null else player.hotbarSlots.firstItem(Items.END_CRYSTAL) }
+            )
 
             action {
                 connection.sendPacket(CPacketPlayerTryUseItemOnBlock(info.pos, info.side, EnumHand.OFF_HAND, info.hitVecOffset.x, info.hitVecOffset.y, info.hitVecOffset.z))
@@ -223,6 +221,7 @@ internal object CevBreaker : Module(
             }
 
             runInGui()
+            delay(0L)
             postDelay(100L)
         }
     }
