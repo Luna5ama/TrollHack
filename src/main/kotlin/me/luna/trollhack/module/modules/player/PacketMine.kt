@@ -194,7 +194,7 @@ internal object PacketMine : Module(
                             miningInfo.length = calcBreakTime(miningInfo.pos)
                             if (System.currentTimeMillis() < miningInfo.endTime) {
                                 reset(PacketMine)
-                                mineBlock(PacketMine, miningInfo.pos, Int.MAX_VALUE)
+                                mineBlock(PacketMine, miningInfo.pos, modulePriority)
                             }
                         }
                     }
@@ -219,12 +219,12 @@ internal object PacketMine : Module(
         }
 
         listener<InteractEvent.Block.LeftClick> {
-            mineBlock(PacketMine, it.pos, Int.MAX_VALUE)
+            mineBlock(PacketMine, it.pos, modulePriority)
             if (miningInfo0?.pos == it.pos) it.cancel()
         }
 
         listener<InteractEvent.Block.Damage> {
-            mineBlock(PacketMine, it.pos, Int.MAX_VALUE)
+            mineBlock(PacketMine, it.pos, modulePriority)
             if (it.pos == miningInfo0?.pos) it.cancel()
         }
 

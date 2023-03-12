@@ -7,10 +7,12 @@ import me.luna.trollhack.util.extension.fastCeil
 import net.minecraft.block.Block
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.init.Enchantments
 import net.minecraft.item.*
 import net.minecraft.network.PacketBuffer
 import net.minecraft.network.play.client.CPacketCustomPayload
+import net.minecraft.util.EnumHand
 
 val ItemStack.originalName: String get() = item.getItemStackDisplayName(this)
 
@@ -56,4 +58,12 @@ fun SafeClientEvent.itemPayload(item: ItemStack, channelIn: String) {
     val buffer = PacketBuffer(Unpooled.buffer())
     buffer.writeItemStack(item)
     player.connection.sendPacket(CPacketCustomPayload(channelIn, buffer))
+}
+
+fun EntityLivingBase.isHolding(hand: EnumHand, item: Item): Boolean {
+    return this.getHeldItem(hand).item == item
+}
+
+fun EntityLivingBase.isHolding(hand: EnumHand, block: Block): Boolean {
+    return this.getHeldItem(hand).item.block == block
 }

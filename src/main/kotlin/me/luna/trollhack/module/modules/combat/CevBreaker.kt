@@ -22,11 +22,17 @@ import me.luna.trollhack.util.combat.CrystalUtils
 import me.luna.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
 import me.luna.trollhack.util.graphics.ESPRenderer
 import me.luna.trollhack.util.graphics.color.ColorRGB
-import me.luna.trollhack.util.inventory.*
+import me.luna.trollhack.util.inventory.InventoryTask
+import me.luna.trollhack.util.inventory.equipBestTool
+import me.luna.trollhack.util.inventory.executedOrTrue
+import me.luna.trollhack.util.inventory.inventoryTask
 import me.luna.trollhack.util.inventory.operation.action
 import me.luna.trollhack.util.inventory.operation.swapWith
-import me.luna.trollhack.util.inventory.slot.*
-import me.luna.trollhack.util.items.block
+import me.luna.trollhack.util.inventory.slot.firstBlock
+import me.luna.trollhack.util.inventory.slot.firstItem
+import me.luna.trollhack.util.inventory.slot.hotbarSlots
+import me.luna.trollhack.util.inventory.slot.offhandSlot
+import me.luna.trollhack.util.items.isHolding
 import me.luna.trollhack.util.math.vector.toVec3d
 import me.luna.trollhack.util.world.*
 import net.minecraft.init.Blocks
@@ -42,14 +48,14 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 
-@Suppress("NOTHING_TO_INLINE")
 @CombatManager.CombatModule
 internal object CevBreaker : Module(
     name = "CevBreaker",
     description = "Troll module",
     category = Category.COMBAT,
-    modulePriority = 250
+    modulePriority = 400
 ) {
+    private val switchToPickaxe by setting("Switch To Pickaxe", false)
     private val minHealth by setting("Min Health", 8.0f, 0.0f..20.0f, 0.5f)
     private val placeDelay by setting("Place Delay", 500, 0..1000, 1)
     private val breakDelay by setting("Break Delay", 100, 0..1000, 1)
@@ -123,7 +129,7 @@ internal object CevBreaker : Module(
             posInfo?.let {
                 if (player.getDistanceSqToCenter(it.pos) > range * range) {
                     reset()
-                } else {
+                } else if (switchToPickaxe) {
                     equipBestTool(world.getBlockState(it.pos))
                 }
             }
@@ -197,13 +203,18 @@ internal object CevBreaker : Module(
     }
 
     private fun SafeClientEvent.place(info: Info) {
+        if (player.hotbarSlots.firstBlock(Blocks.OBSIDIAN) == null) return
+        if (player.hotbarSlots.firstItem(Items.END_CRYSTAL) == null) return
         val placeInfo = getNeighbor(info.pos, 3, 6.0f, sides = arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN))
             ?: return
 
         inventoryTask {
             swapWith(
                 slot = { player.offhandSlot },
-                hotbarSlot = { if (player.heldItemOffhand.item.block == Blocks.OBSIDIAN) null else player.hotbarSlots.firstBlock(Blocks.OBSIDIAN) }
+                hotbarSlot = {
+                    if (player.isHolding(EnumHand.OFF_HAND, Blocks.OBSIDIAN)) null
+                    else player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
+                }
             )
 
             action {
@@ -211,13 +222,24 @@ internal object CevBreaker : Module(
             }
             swapWith(
                 slot = { player.offhandSlot },
-                hotbarSlot = { if (player.heldItemOffhand.item == Items.END_CRYSTAL) null else player.hotbarSlots.firstItem(Items.END_CRYSTAL) }
+                hotbarSlot = {
+                    if (player.isHolding(EnumHand.OFF_HAND, Items.END_CRYSTAL)) null
+                    else player.hotbarSlots.firstItem(Items.END_CRYSTAL)
+                }
             )
 
             action {
-                connection.sendPacket(CPacketPlayerTryUseItemOnBlock(info.pos, info.side, EnumHand.OFF_HAND, info.hitVecOffset.x, info.hitVecOffset.y, info.hitVecOffset.z))
+                connection.sendPacket(
+                    CPacketPlayerTryUseItemOnBlock(
+                        info.pos,
+                        info.side,
+                        EnumHand.OFF_HAND,
+                        info.hitVecOffset.x,
+                        info.hitVecOffset.y,
+                        info.hitVecOffset.z
+                    )
+                )
                 connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
-                removeHoldingItem()
             }
 
             runInGui()

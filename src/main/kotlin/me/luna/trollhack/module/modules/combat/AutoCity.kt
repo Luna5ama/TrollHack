@@ -45,7 +45,7 @@ internal object AutoCity : Module(
     name = "AutoCity",
     category = Category.COMBAT,
     description = "Trolling",
-    modulePriority = 100
+    modulePriority = 300
 ) {
     private val useAnvil by setting("Use Anvil", false)
     private val placeDelay by setting("Place Delay", 100, 0..1000, 5)
