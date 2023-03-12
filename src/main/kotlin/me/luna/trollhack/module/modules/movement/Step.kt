@@ -17,7 +17,6 @@ import me.luna.trollhack.util.extension.sq
 import me.luna.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
 
-@Suppress("NOTHING_TO_INLINE")
 internal object Step : Module(
     name = "Step",
     description = "Changes the vanilla behavior for stepping up blocks",
@@ -67,7 +66,7 @@ internal object Step : Module(
         safeListener<PlayerMoveEvent.Pre>(-100, true) { event ->
             val flag = shouldRunStep(event.x, event.y, event.z)
 
-            if (isDisabled) {
+            if (isDisabled && (!HolePathFinder.enableStep || !HolePathFinder.isActive())) {
                 if (enableTicks > 0) {
                     val collided = player.collidedHorizontally
 
@@ -88,7 +87,7 @@ internal object Step : Module(
 
             if (flag && !player.isRiding && player.onGround) {
                 val stepHeight = calcStepHeight(event)
-                if (!stepHeight.isNaN() && stepHeight >= minHeight && stepHeight <= maxHeight) {
+                if (!stepHeight.isNaN() && (HolePathFinder.isActive() || stepHeight >= minHeight) && stepHeight <= maxHeight) {
                     val disabled = isDisabled
                     enable()
                     when (mode) {

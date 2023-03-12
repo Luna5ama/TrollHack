@@ -72,6 +72,7 @@ internal object HolePathFinder : Module(
             }
         }
     })
+    val enableStep by setting("Enable Step", true)
     private val maxTargetHoles by setting("Max target Holes", 5, 1..10, 1)
     private val timeout by setting("Timeout", 5, 1..100, 1)
     private val range by setting("Range", 8, 1..16, 1)
