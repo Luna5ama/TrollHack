@@ -214,7 +214,7 @@ tasks {
                 "-Dforge.logging.console.level=debug",
                 "-Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP",
                 "-Dmixin.env.disableRefMap=true",
-                "-Dfml.coreMods.load=me.luna.trollhack.TrollHackCoreMod"
+                "-Dfml.coreMods.load=me.luna.trollhack.TrollHackDevFixCoreMod"
             ).joinToString(" ")
 
             val dir = File(rootDir, ".idea/runConfigurations")

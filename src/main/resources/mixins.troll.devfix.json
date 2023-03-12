@@ -1,12 +1,13 @@
 {
-    "required" : false,
-    "minVersion" : "0.7",
-    "compatibilityLevel" : "JAVA_8",
-    "package" : "me.luna.trollhack.mixins.devfix",
-    "refmap" : "mixins.troll.refmap.json",
-    "client" : [
+    "required": false,
+    "minVersion": "0.7",
+    "compatibilityLevel": "JAVA_8",
+    "package": "me.luna.trollhack.mixins.devfix",
+    "refmap": "mixins.troll.refmap.json",
+    "client": [
         "MixinASMModParser",
         "MixinJarDiscoverer",
+        "MixinMinecraft",
         "MixinNetworkRegistry"
     ]
 }
