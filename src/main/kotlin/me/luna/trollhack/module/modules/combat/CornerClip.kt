@@ -72,11 +72,31 @@ internal object CornerClip : Module(
                         Random.nextInt(-90..90).toFloat()
                     ))
                 }
-            } else if (clippedTicks == 0 && retryTimer.tickAndReset((retryTimeoutSeconds * 1000.0f).toLong())) {
+            } else if (clippedTicks <= 1 && retryTimer.tickAndReset((retryTimeoutSeconds * 1000.0f).toLong())) {
                 val posX = player.posX
-                val posY = player.posY - yDown
+                var posY = round(player.posY)
                 val posZ = player.posZ
                 val onGround = player.onGround
+
+                connection.sendPacket(CPacketPlayer.Position(
+                    posX,
+                    posY,
+                    posZ,
+                    onGround
+                ))
+
+                val halfY = yDown / 4.0
+                posY -= halfY
+
+                player.setPosition(posX, posY, posZ)
+                connection.sendPacket(CPacketPlayer.Position(
+                    posX,
+                    posY,
+                    posZ,
+                    onGround
+                ))
+
+                posY -= halfY * 3.0
 
                 player.setPosition(posX, posY, posZ)
                 connection.sendPacket(CPacketPlayer.Position(
