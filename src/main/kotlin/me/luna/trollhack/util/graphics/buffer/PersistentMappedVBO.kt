@@ -4,15 +4,17 @@ import me.luna.trollhack.event.AlwaysListening
 import me.luna.trollhack.event.events.RunGameLoopEvent
 import me.luna.trollhack.event.listener
 import me.luna.trollhack.util.graphics.*
-import org.lwjgl.opengl.GL15.*
+import org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER
+import org.lwjgl.opengl.GL15.glBindBuffer
 import org.lwjgl.opengl.GL30.*
+import org.lwjgl.opengl.GL32.*
 import org.lwjgl.opengl.GL44.GL_MAP_COHERENT_BIT
 import org.lwjgl.opengl.GL44.GL_MAP_PERSISTENT_BIT
 import org.lwjgl.opengl.GL45.glCreateBuffers
 import org.lwjgl.opengl.GL45.glCreateVertexArrays
 
-object PersistenMappedVBO : AlwaysListening {
-    val vbo = glCreateBuffers().apply {
+object PersistentMappedVBO : AlwaysListening {
+    private val vbo = glCreateBuffers().apply {
         glNamedBufferStorage(
             this,
             64L * 1024L * 1024L,
@@ -28,18 +30,24 @@ object PersistenMappedVBO : AlwaysListening {
     )
     var drawOffset = 0
 
-    private var frameCounter = 1
+    private var sync = 0L
 
     fun end() {
         drawOffset = (array.pointer / 16L).toInt()
     }
 
     init {
-        listener<RunGameLoopEvent.Start> {
-            if (++frameCounter == 3) {
+        listener<RunGameLoopEvent.End> {
+            if (sync == 0L) {
+                if (array.pointer >= array.length / 2) {
+                    @Suppress("RemoveRedundantQualifierName", "RedundantSuppression")
+                    sync = me.luna.trollhack.util.graphics.glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0)
+                }
+            } else if (glGetSynciv(sync, GL_SYNC_STATUS) == GL_SIGNALED) {
+                glDeleteSync(sync)
+                sync = 0L
                 array.pointer = 0L
                 drawOffset = 0
-                frameCounter = 0
             }
         }
     }

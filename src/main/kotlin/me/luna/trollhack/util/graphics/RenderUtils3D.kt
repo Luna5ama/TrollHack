@@ -8,7 +8,7 @@ import me.luna.trollhack.util.accessor.renderPartialTicksPaused
 import me.luna.trollhack.util.accessor.renderPosX
 import me.luna.trollhack.util.accessor.renderPosY
 import me.luna.trollhack.util.accessor.renderPosZ
-import me.luna.trollhack.util.graphics.buffer.PersistenMappedVBO
+import me.luna.trollhack.util.graphics.buffer.PersistentMappedVBO
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.graphics.mask.EnumFacingMask
 import me.luna.trollhack.util.graphics.shaders.Shader
@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
-import org.lwjgl.opengl.GL30
 import org.lwjgl.opengl.GL30.glBindVertexArray
 import org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP
 
@@ -118,7 +117,7 @@ object RenderUtils3D : AlwaysListening {
     }
 
     fun putVertex(posX: Double, posY: Double, posZ: Double, color: ColorRGB) {
-        val array = PersistenMappedVBO.array
+        val array = PersistentMappedVBO.array
         array.pushFloat((posX + translationX).toFloat())
         array.pushFloat((posY + translationY).toFloat())
         array.pushFloat((posZ + translationZ).toFloat())
@@ -130,9 +129,9 @@ object RenderUtils3D : AlwaysListening {
         if (vertexSize == 0) return
 
         DrawShader.bind()
-        glBindVertexArray(PersistenMappedVBO.POS3_COLOR)
-        glDrawArrays(mode, PersistenMappedVBO.drawOffset, vertexSize)
-        PersistenMappedVBO.end()
+        glBindVertexArray(PersistentMappedVBO.POS3_COLOR)
+        glDrawArrays(mode, PersistentMappedVBO.drawOffset, vertexSize)
+        PersistentMappedVBO.end()
         glBindVertexArray(0)
 
         vertexSize = 0

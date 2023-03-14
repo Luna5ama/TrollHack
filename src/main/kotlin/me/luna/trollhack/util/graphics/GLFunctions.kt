@@ -1,12 +1,11 @@
 package me.luna.trollhack.util.graphics
 
 import dev.fastmc.common.DIRECT_BYTE_BUFFER_CLASS
-import dev.fastmc.common.address
+import dev.fastmc.common.allocateInt
 import dev.fastmc.memutil.MemoryArray
 import dev.fastmc.memutil.MemoryPointer
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL45
-import org.lwjgl.opengl.GLContext
+import org.lwjgl.PointerWrapperAbstract
+import org.lwjgl.opengl.*
 import sun.misc.Unsafe
 import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
@@ -167,4 +166,32 @@ fun glMapNamedBufferRange(buffer: Int, offset: Long, length: Long, access: Int):
     ) as ByteBuffer
 
     return MemoryArray.wrap(byteBuffer)
+}
+
+private val glSyncInstance = unsafe.allocateInstance(GLSync::class.java) as GLSync
+private val pointerSetter = trustedLookUp.findSetter(
+    GLSync::class.java,
+    "pointer",
+    Long::class.java
+)
+
+private val lengthBuffer = allocateInt(1).apply {
+    put(1)
+    flip()
+}
+private val valueBuffer = allocateInt(1)
+
+fun glFenceSync(condition: Int, flags: Int): Long {
+    return GL32.glFenceSync(condition, flags).pointer
+}
+
+fun glDeleteSync(sync: Long) {
+    pointerSetter.invokeExact(glSyncInstance, sync)
+    GL32.glDeleteSync(glSyncInstance)
+}
+
+fun glGetSynciv(sync: Long, pname: Int): Int {
+    pointerSetter.invokeExact(glSyncInstance, sync)
+    GL32.glGetSync(glSyncInstance, pname, lengthBuffer, valueBuffer)
+    return valueBuffer.get(0)
 }

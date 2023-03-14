@@ -2,7 +2,7 @@ package me.luna.trollhack.util.graphics
 
 import me.luna.trollhack.util.Wrapper
 import me.luna.trollhack.util.extension.toRadian
-import me.luna.trollhack.util.graphics.buffer.PersistenMappedVBO
+import me.luna.trollhack.util.graphics.buffer.PersistentMappedVBO
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.graphics.shaders.Shader
 import me.luna.trollhack.util.math.MathUtils
@@ -186,7 +186,7 @@ object RenderUtils2D {
     }
 
     fun putVertex(posX: Float, posY: Float, color: ColorRGB) {
-        val array = PersistenMappedVBO.array
+        val array = PersistentMappedVBO.array
         array.pushFloat(posX)
         array.pushFloat(posY)
         array.pushInt(color.rgba)
@@ -198,9 +198,9 @@ object RenderUtils2D {
         if (vertexSize == 0) return
 
         DrawShader.bind()
-        glBindVertexArray(PersistenMappedVBO.POS2_COLOR)
-        glDrawArrays(mode, PersistenMappedVBO.drawOffset, vertexSize)
-        PersistenMappedVBO.end()
+        glBindVertexArray(PersistentMappedVBO.POS2_COLOR)
+        glDrawArrays(mode, PersistentMappedVBO.drawOffset, vertexSize)
+        PersistentMappedVBO.end()
         glBindVertexArray(0)
 
         vertexSize = 0
