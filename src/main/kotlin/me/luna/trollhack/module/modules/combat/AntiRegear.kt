@@ -87,7 +87,7 @@ internal object AntiRegear : Module(
             if (pos == null) {
                 PacketMine.reset(AntiRegear)
             } else {
-                PacketMine.mineBlock(AntiRegear, pos, AntiRegear.modulePriority)
+                PacketMine.mineBlock(AntiRegear, pos, AntiRegear.modulePriority, true)
             }
         }
 

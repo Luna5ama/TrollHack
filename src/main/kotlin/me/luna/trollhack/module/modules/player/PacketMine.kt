@@ -354,11 +354,11 @@ internal object PacketMine : Module(
         return result
     }
 
-    fun mineBlock(module: AbstractModule, pos: BlockPos, priority: Int) {
+    fun mineBlock(module: AbstractModule, pos: BlockPos, priority: Int, once: Boolean = false) {
         runSafe {
             val prev = miningQueue[module]
             if (prev == null || prev.pos != pos || prev.priority != priority) {
-                miningQueue[module] = MiningTask(module, pos, priority)
+                miningQueue[module] = MiningTask(module, pos, priority, once)
             }
             updateMining()
         }
@@ -383,7 +383,8 @@ internal object PacketMine : Module(
             maxPriorityTask = sorted[index]
 
             while (maxPriorityTask != null && index > 0
-                && (maxPriorityTask!!.owner.isDisabled || !miningMode.continous && world.isAir(maxPriorityTask!!.pos))) {
+                && (maxPriorityTask!!.owner.isDisabled
+                    || (!miningMode.continous || maxPriorityTask!!.once) && world.isAir(maxPriorityTask!!.pos))) {
                 miningQueue.remove(maxPriorityTask!!.owner)
                 maxPriorityTask = sorted[--index]
             }
@@ -489,7 +490,7 @@ internal object PacketMine : Module(
 
     private class SwapInfo(val swapMode: SwapMode, val prevSlot: Int, val swapSlot: Int, var swapTick: Int)
 
-    private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int)
+    private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int, val once: Boolean)
 
     interface IMiningInfo {
         val pos: BlockPos
