@@ -1,8 +1,6 @@
 package me.luna.trollhack.util.graphics.font
 
-import it.unimi.dsi.fastutil.bytes.ByteArrayList
-import it.unimi.dsi.fastutil.floats.FloatArrayList
-import it.unimi.dsi.fastutil.shorts.ShortArrayList
+import dev.fastmc.memutil.MemoryArray
 import me.luna.trollhack.util.graphics.GLDataType
 import me.luna.trollhack.util.graphics.buildAttribute
 import me.luna.trollhack.util.graphics.color.ColorRGB
@@ -10,15 +8,18 @@ import me.luna.trollhack.util.graphics.font.glyph.CharInfo
 import me.luna.trollhack.util.graphics.font.glyph.GlyphChunk
 import me.luna.trollhack.util.graphics.font.renderer.AbstractFontRenderContext
 import me.luna.trollhack.util.graphics.font.renderer.AbstractFontRenderer
+import me.luna.trollhack.util.graphics.glNamedBufferStorage
 import me.luna.trollhack.util.graphics.shaders.DrawShader
 import me.luna.trollhack.util.graphics.use
-import me.luna.trollhack.util.skip
 import org.joml.Matrix4f
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.GL_TRIANGLES
+import org.lwjgl.opengl.GL11.GL_UNSIGNED_SHORT
 import org.lwjgl.opengl.GL15.*
 import org.lwjgl.opengl.GL20.*
-import org.lwjgl.opengl.GL30.*
-import java.nio.ByteBuffer
+import org.lwjgl.opengl.GL30.glBindVertexArray
+import org.lwjgl.opengl.GL30.glDeleteVertexArrays
+import org.lwjgl.opengl.GL45.glCreateBuffers
+import org.lwjgl.opengl.GL45.glCreateVertexArrays
 
 class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharSequence) {
     private val renderInfoList = ArrayList<StringRenderInfo>()
@@ -104,7 +105,6 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
             it.render(drawShadow, lodBias)
         }
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
         glBindVertexArray(0)
     }
 
@@ -139,7 +139,10 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
         return string.hashCode()
     }
 
-    private object Shader : DrawShader("/assets/trollhack/shaders/general/FontRenderer.vsh", "/assets/trollhack/shaders/general/FontRenderer.fsh") {
+    private object Shader : DrawShader(
+        "/assets/trollhack/shaders/general/FontRenderer.vsh",
+        "/assets/trollhack/shaders/general/FontRenderer.fsh"
+    ) {
         val defaultColorUniform = glGetUniformLocation(id, "defaultColor")
 
         init {
@@ -155,18 +158,28 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
         }
     }
 
-    private class StringRenderInfo private constructor(private val glyphChunk: GlyphChunk, private val size: Int, private val vaoID: Int, private val vboID: Int, private val iboID: Int) {
+    private class StringRenderInfo private constructor(
+        private val glyphChunk: GlyphChunk,
+        private val size: Int,
+        private val vaoID: Int,
+        private val vboID: Int,
+        private val iboID: Int
+    ) {
         fun render(drawShadow: Boolean, lodBias: Float) {
             glyphChunk.texture.bindTexture()
             glyphChunk.updateLodBias(lodBias)
 
             glBindVertexArray(vaoID)
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID)
 
             if (drawShadow) {
-                glDrawElements(GL_TRIANGLES, size * 2 * 6, GL_UNSIGNED_SHORT, 0L)
+                me.luna.trollhack.util.graphics.glDrawElements(GL_TRIANGLES, size * 2 * 6, GL_UNSIGNED_SHORT, 0L)
             } else {
-                glDrawElements(GL_TRIANGLES, size * 6, GL_UNSIGNED_SHORT, size * 6L * 2L)
+                me.luna.trollhack.util.graphics.glDrawElements(
+                    GL_TRIANGLES,
+                    size * 6,
+                    GL_UNSIGNED_SHORT,
+                    size * 6L * 2L
+                )
             }
         }
 
@@ -179,198 +192,156 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
         class Builder(private val glyphChunk: GlyphChunk, private val shadowDist: Float) {
             private var size = 0
 
-            private val posList = FloatArrayList()
-            private val uvList = ShortArrayList()
-            private val colorList = ByteArrayList()
+            private val array = MemoryArray.malloc(16L * 4L * 2L)
 
             fun put(posX: Float, posY: Float, charInfo: CharInfo, context: AbstractFontRenderContext) {
-                val color = context.color + 1
+                val color = (context.color + 1).toByte()
+                val overrideColor = (if (color.toInt() == 0) 1 else 0).toByte()
 
-                posList.add(posX)
-                posList.add(posY)
-                uvList.add(charInfo.uv[0])
-                uvList.add(charInfo.uv[1])
+                var pX = posX
+                var pY = posY
+                var u = charInfo.uv[0]
+                var v = charInfo.uv[1]
 
-                posList.add(posX + charInfo.renderWidth)
-                posList.add(posY)
-                uvList.add(charInfo.uv[2])
-                uvList.add(charInfo.uv[1])
+                array.ensureCapacity(++size * 16L * 4L * 2L)
 
-                posList.add(posX)
-                posList.add(posY + charInfo.height)
-                uvList.add(charInfo.uv[0])
-                uvList.add(charInfo.uv[3])
+                array.pushFloat(pX + shadowDist)
+                array.pushFloat(pY + shadowDist)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(1)
+                array.pointer++
 
-                posList.add(posX + charInfo.renderWidth)
-                posList.add(posY + charInfo.height)
-                uvList.add(charInfo.uv[2])
-                uvList.add(charInfo.uv[3])
+                array.pushFloat(pX)
+                array.pushFloat(pY)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(0)
+                array.pointer++
 
-                colorList.add(color.toByte())
+                pX = posX + charInfo.renderWidth
+                pY = posY
+                u = charInfo.uv[2]
+                v = charInfo.uv[1]
 
-                size++
+                array.pushFloat(pX + shadowDist)
+                array.pushFloat(pY + shadowDist)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(1)
+                array.pointer++
+
+                array.pushFloat(pX)
+                array.pushFloat(pY)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(0)
+                array.pointer++
+
+                pX = posX
+                pY = posY + charInfo.height
+                u = charInfo.uv[0]
+                v = charInfo.uv[3]
+
+                array.pushFloat(pX + shadowDist)
+                array.pushFloat(pY + shadowDist)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(1)
+                array.pointer++
+
+                array.pushFloat(pX)
+                array.pushFloat(pY)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(0)
+                array.pointer++
+
+                pX = posX + charInfo.renderWidth
+                pY = posY + charInfo.height
+                u = charInfo.uv[2]
+                v = charInfo.uv[3]
+
+                array.pushFloat(pX + shadowDist)
+                array.pushFloat(pY + shadowDist)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(1)
+                array.pointer++
+
+                array.pushFloat(pX)
+                array.pushFloat(pY)
+                array.pushShort(u)
+                array.pushShort(v)
+                array.pushByte(color)
+                array.pushByte(overrideColor)
+                array.pushByte(0)
+                array.pointer++
             }
 
             fun build(): StringRenderInfo {
-                val vaoID = glGenVertexArrays()
-                val vboID = glGenBuffers()
-                val iboID = glGenBuffers()
+                val vaoID = glCreateVertexArrays()
+                val vboID = glCreateBuffers()
+                val iboID = glCreateBuffers()
+
+                glNamedBufferStorage(vboID, size * 16L * 4L * 2L, array, 0)
+
+                array.clear()
+                buildIboBuffer(array)
+                glNamedBufferStorage(iboID, size * 2L * 6L * 2L, array, 0)
+                array.free()
 
                 glBindVertexArray(vaoID)
-
                 glBindBuffer(GL_ARRAY_BUFFER, vboID)
-                glBufferData(GL_ARRAY_BUFFER, size * 16L * 4L * 2L, GL_STATIC_DRAW)
-                val vboBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY, null)
-                buildVboBuffer(vboBuffer)
-                glUnmapBuffer(GL_ARRAY_BUFFER)
-
-                vertexAttribute.apply()
-                glBindBuffer(GL_ARRAY_BUFFER, 0)
-                glBindVertexArray(0)
-
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID)
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * 2L * 6L * 2L, GL_STATIC_DRAW)
-                val iboBuffer = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY, null)
-                buildIboBuffer(iboBuffer)
-                glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER)
+                vertexAttribute.apply()
+
+                glBindVertexArray(0)
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+                glBindBuffer(GL_ARRAY_BUFFER, 0)
 
                 return StringRenderInfo(glyphChunk, size, vaoID, vboID, iboID)
             }
 
-            private fun buildVboBuffer(buffer: ByteBuffer): ByteBuffer {
-                var posIndex = 0
-                var uvIndex = 0
-
-                for (i in colorList.indices) {
-                    val color = colorList.getByte(i)
-                    val overrideColor = (if (color.toInt() == 0) 1 else 0).toByte()
-
-                    var posX = posList.getFloat(posIndex++)
-                    var posY = posList.getFloat(posIndex++)
-                    var u = uvList.getShort(uvIndex++)
-                    var v = uvList.getShort(uvIndex++)
-
-                    buffer.putFloat(posX + shadowDist)
-                    buffer.putFloat(posY + shadowDist)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(1)
-                    buffer.skip(1)
-
-                    buffer.putFloat(posX)
-                    buffer.putFloat(posY)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(0)
-                    buffer.skip(1)
-
-                    posX = posList.getFloat(posIndex++)
-                    posY = posList.getFloat(posIndex++)
-                    u = uvList.getShort(uvIndex++)
-                    v = uvList.getShort(uvIndex++)
-
-                    buffer.putFloat(posX + shadowDist)
-                    buffer.putFloat(posY + shadowDist)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(1)
-                    buffer.skip(1)
-
-                    buffer.putFloat(posX)
-                    buffer.putFloat(posY)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(0)
-                    buffer.skip(1)
-
-                    posX = posList.getFloat(posIndex++)
-                    posY = posList.getFloat(posIndex++)
-                    u = uvList.getShort(uvIndex++)
-                    v = uvList.getShort(uvIndex++)
-
-                    buffer.putFloat(posX + shadowDist)
-                    buffer.putFloat(posY + shadowDist)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(1)
-                    buffer.skip(1)
-
-                    buffer.putFloat(posX)
-                    buffer.putFloat(posY)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(0)
-                    buffer.skip(1)
-
-                    posX = posList.getFloat(posIndex++)
-                    posY = posList.getFloat(posIndex++)
-                    u = uvList.getShort(uvIndex++)
-                    v = uvList.getShort(uvIndex++)
-
-                    buffer.putFloat(posX + shadowDist)
-                    buffer.putFloat(posY + shadowDist)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(1)
-                    buffer.skip(1)
-
-                    buffer.putFloat(posX)
-                    buffer.putFloat(posY)
-                    buffer.putShort(u)
-                    buffer.putShort(v)
-                    buffer.put(color)
-                    buffer.put(overrideColor)
-                    buffer.put(0)
-                    buffer.skip(1)
-                }
-
-                buffer.flip()
-                return buffer
-            }
-
-            private fun buildIboBuffer(buffer: ByteBuffer): ByteBuffer {
+            private fun buildIboBuffer(array: MemoryArray) {
                 val indexSize = size * 2 * 4
                 var index = 0
 
                 while (index < indexSize) {
-                    buffer.putShort(index.toShort())
-                    buffer.putShort((index + 4).toShort())
-                    buffer.putShort((index + 2).toShort())
-                    buffer.putShort((index + 6).toShort())
-                    buffer.putShort((index + 2).toShort())
-                    buffer.putShort((index + 4).toShort())
+                    array.pushShort(index.toShort())
+                    array.pushShort((index + 4).toShort())
+                    array.pushShort((index + 2).toShort())
+                    array.pushShort((index + 6).toShort())
+                    array.pushShort((index + 2).toShort())
+                    array.pushShort((index + 4).toShort())
                     index += 8
                 }
 
                 index = 0
 
                 while (index < indexSize) {
-                    buffer.putShort((index + 1).toShort())
-                    buffer.putShort((index + 5).toShort())
-                    buffer.putShort((index + 3).toShort())
-                    buffer.putShort((index + 7).toShort())
-                    buffer.putShort((index + 3).toShort())
-                    buffer.putShort((index + 5).toShort())
+                    array.pushShort((index + 1).toShort())
+                    array.pushShort((index + 5).toShort())
+                    array.pushShort((index + 3).toShort())
+                    array.pushShort((index + 7).toShort())
+                    array.pushShort((index + 3).toShort())
+                    array.pushShort((index + 5).toShort())
                     index += 8
                 }
-
-                buffer.flip()
-                return buffer
             }
 
             private companion object {

@@ -8,7 +8,7 @@ import me.luna.trollhack.util.accessor.renderPartialTicksPaused
 import me.luna.trollhack.util.accessor.renderPosX
 import me.luna.trollhack.util.accessor.renderPosY
 import me.luna.trollhack.util.accessor.renderPosZ
-import me.luna.trollhack.util.graphics.buffer.DynamicVAO
+import me.luna.trollhack.util.graphics.buffer.PersistenMappedVBO
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.graphics.mask.EnumFacingMask
 import me.luna.trollhack.util.graphics.shaders.Shader
@@ -17,6 +17,8 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL30
+import org.lwjgl.opengl.GL30.glBindVertexArray
 import org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP
 
 object RenderUtils3D : AlwaysListening {
@@ -82,7 +84,7 @@ object RenderUtils3D : AlwaysListening {
     }
 
     fun drawLineTo(position: Vec3d, color: ColorRGB) {
-        putVertex(RenderUtils3D.camPos.x, RenderUtils3D.camPos.y, RenderUtils3D.camPos.z, color)
+        putVertex(camPos.x, camPos.y, camPos.z, color)
         putVertex(position.x, position.y, position.z, color)
     }
 
@@ -116,24 +118,22 @@ object RenderUtils3D : AlwaysListening {
     }
 
     fun putVertex(posX: Double, posY: Double, posZ: Double, color: ColorRGB) {
-        DynamicVAO.buffer.apply {
-            putFloat((posX + translationX).toFloat())
-            putFloat((posY + translationY).toFloat())
-            putFloat((posZ + translationZ).toFloat())
-            putInt(color.rgba)
-        }
+        val array = PersistenMappedVBO.array
+        array.pushFloat((posX + translationX).toFloat())
+        array.pushFloat((posY + translationY).toFloat())
+        array.pushFloat((posZ + translationZ).toFloat())
+        array.pushInt(color.rgba)
         vertexSize++
     }
 
     fun draw(mode: Int) {
         if (vertexSize == 0) return
 
-        DynamicVAO.POS3_COLOR.upload(vertexSize)
-
         DrawShader.bind()
-        DynamicVAO.POS3_COLOR.useVao {
-            glDrawArrays(mode, 0, vertexSize)
-        }
+        glBindVertexArray(PersistenMappedVBO.POS3_COLOR)
+        glDrawArrays(mode, PersistenMappedVBO.drawOffset, vertexSize)
+        PersistenMappedVBO.end()
+        glBindVertexArray(0)
 
         vertexSize = 0
     }
@@ -166,7 +166,8 @@ object RenderUtils3D : AlwaysListening {
         GlStateManager.popMatrix()
     }
 
-    private object DrawShader : Shader("/assets/trollhack/shaders/general/Pos3Color.vsh", "/assets/trollhack/shaders/general/Pos3Color.fsh")
+    private object DrawShader :
+        Shader("/assets/trollhack/shaders/general/Pos3Color.vsh", "/assets/trollhack/shaders/general/Pos3Color.fsh")
 
     @JvmStatic
     var partialTicks = 0.0f; private set

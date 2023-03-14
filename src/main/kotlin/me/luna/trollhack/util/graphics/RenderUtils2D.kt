@@ -2,7 +2,7 @@ package me.luna.trollhack.util.graphics
 
 import me.luna.trollhack.util.Wrapper
 import me.luna.trollhack.util.extension.toRadian
-import me.luna.trollhack.util.graphics.buffer.DynamicVAO
+import me.luna.trollhack.util.graphics.buffer.PersistenMappedVBO
 import me.luna.trollhack.util.graphics.color.ColorRGB
 import me.luna.trollhack.util.graphics.shaders.Shader
 import me.luna.trollhack.util.math.MathUtils
@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.item.ItemStack
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL30.glBindVertexArray
 import kotlin.math.*
 
 /**
@@ -185,21 +186,22 @@ object RenderUtils2D {
     }
 
     fun putVertex(posX: Float, posY: Float, color: ColorRGB) {
-        DynamicVAO.buffer.apply {
-            putFloat(posX)
-            putFloat(posY)
-            putInt(color.rgba)
-        }
+        val array = PersistenMappedVBO.array
+        array.pushFloat(posX)
+        array.pushFloat(posY)
+        array.pushInt(color.rgba)
+        array.pointer += 4
         vertexSize++
     }
 
     fun draw(mode: Int) {
-        DynamicVAO.POS2_COLOR.upload(vertexSize)
+        if (vertexSize == 0) return
 
         DrawShader.bind()
-        DynamicVAO.POS2_COLOR.useVao {
-            glDrawArrays(mode, 0, vertexSize)
-        }
+        glBindVertexArray(PersistenMappedVBO.POS2_COLOR)
+        glDrawArrays(mode, PersistenMappedVBO.drawOffset, vertexSize)
+        PersistenMappedVBO.end()
+        glBindVertexArray(0)
 
         vertexSize = 0
     }
