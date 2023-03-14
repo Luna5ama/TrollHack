@@ -202,22 +202,20 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         val rightColor = ColorUtils.hsbToRGB(interpolatedHue, 1.0f, 1.0f, 1.0f)
         val leftColor = ColorRGB(255, 255, 255)
 
-        VertexHelper.begin(GL_TRIANGLE_STRIP)
-        VertexHelper.put(fieldPos.first.toVec2d(), leftColor) // Top left
-        VertexHelper.put(Vec2f(fieldPos.first.x, fieldPos.second.y).toVec2d(), leftColor) // Bottom left
-        VertexHelper.put(Vec2f(fieldPos.second.x, fieldPos.first.y).toVec2d(), rightColor) // Top right
-        VertexHelper.put(fieldPos.second.toVec2d(), rightColor) // Bottom right
-        VertexHelper.end()
+        RenderUtils2D.putVertex(fieldPos.first, leftColor) // Top left
+        RenderUtils2D.putVertex(Vec2f(fieldPos.first.x, fieldPos.second.y), leftColor) // Bottom left
+        RenderUtils2D.putVertex(Vec2f(fieldPos.second.x, fieldPos.first.y), rightColor) // Top right
+        RenderUtils2D.putVertex(fieldPos.second, rightColor) // Bottom right
+        RenderUtils2D.draw(GL_TRIANGLE_STRIP)
 
         // Brightness
         val topColor = ColorRGB(0, 0, 0, 0)
         val bottomColor = ColorRGB(0, 0, 0, 255)
-        VertexHelper.begin(GL_TRIANGLE_STRIP)
-        VertexHelper.put(fieldPos.first.toVec2d(), topColor) // Top left
-        VertexHelper.put(Vec2d(fieldPos.first.x, fieldPos.second.y), bottomColor) // Bottom left
-        VertexHelper.put(Vec2d(fieldPos.second.x, fieldPos.first.y), topColor) // Top right
-        VertexHelper.put(fieldPos.second.toVec2d(), bottomColor) // Bottom right
-        VertexHelper.end()
+        RenderUtils2D.putVertex(fieldPos.first, topColor) // Top left
+        RenderUtils2D.putVertex(Vec2f(fieldPos.first.x, fieldPos.second.y), bottomColor) // Bottom left
+        RenderUtils2D.putVertex(Vec2f(fieldPos.second.x, fieldPos.first.y), topColor) // Top right
+        RenderUtils2D.putVertex(fieldPos.second, bottomColor) // Bottom right
+        RenderUtils2D.draw(GL_TRIANGLE_STRIP)
 
         RenderUtils2D.releaseGl()
 
@@ -240,32 +238,31 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         val color4 = ColorRGB(0, 255, 255) // 0.5
         val color5 = ColorRGB(0, 0, 255) // 0.6666
         val color6 = ColorRGB(255, 0, 255) // 0.8333
-        val height = (hueLinePos.second.y - hueLinePos.first.y) / 6.0
+        val height = (hueLinePos.second.y - hueLinePos.first.y) / 6.0f
 
         // Hue slider
         RenderUtils2D.prepareGl()
-        VertexHelper.begin(GL_TRIANGLE_STRIP)
-        VertexHelper.put(hueLinePos.first.toVec2d(), color1)
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(8.0, 0.0), color1)
+        RenderUtils2D.putVertex(hueLinePos.first, color1)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, 0.0f), color1)
 
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(0.0, height), color2)
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(8.0, height), color2)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(0.0f, height), color2)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, height), color2)
 
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(0.0, height * 2.0), color3)
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(8.0, height * 2.0), color3)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(0.0f, height * 2.0f), color3)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, height * 2.0f), color3)
 
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(0.0, height * 3.0), color4)
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(8.0, height * 3.0), color4)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(0.0f, height * 3.0f), color4)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, height * 3.0f), color4)
 
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(0.0, height * 4.0), color5)
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(8.0, height * 4.0), color5)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(0.0f, height * 4.0f), color5)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, height * 4.0f), color5)
 
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(0.0, height * 5.0), color6)
-        VertexHelper.put(hueLinePos.first.toVec2d().plus(8.0, height * 5.0), color6)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(0.0f, height * 5.0f), color6)
+        RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, height * 5.0f), color6)
 
-        VertexHelper.put(hueLinePos.second.toVec2d(), color1)
-        VertexHelper.put(hueLinePos.second.toVec2d().plus(8.0, height * 0.0), color1)
-        VertexHelper.end()
+        RenderUtils2D.putVertex(hueLinePos.second, color1)
+        RenderUtils2D.putVertex(hueLinePos.second.plus(8.0f, height * 0.0f), color1)
+        RenderUtils2D.draw(GL_TRIANGLE_STRIP)
         RenderUtils2D.releaseGl()
 
         // Outline
