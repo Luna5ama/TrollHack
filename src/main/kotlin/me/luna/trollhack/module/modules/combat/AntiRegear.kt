@@ -55,11 +55,7 @@ internal object AntiRegear : Module(
         }
 
         safeParallelListener<TickEvent.Post> {
-            if (PacketMine.isDisabled) {
-                Notification.send("You must have PacketMine enabled for AntiRegear to work")
-                disable()
-                return@safeParallelListener
-            }
+            PacketMine.enable()
 
             synchronized(selfPlaced) {
                 selfPlaced.removeIf {
