@@ -10,13 +10,13 @@ import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.executedOrTrue
 import me.luna.trollhack.util.inventory.inventoryTask
 import me.luna.trollhack.util.inventory.operation.pickUp
+import me.luna.trollhack.util.inventory.slot.getCompatibleStack
 import me.luna.trollhack.util.inventory.slot.inventorySlots
 import me.luna.trollhack.util.text.NoSpamMessage
 import me.luna.trollhack.util.threads.runSafe
 import net.minecraft.init.Items
 import net.minecraft.inventory.Slot
 import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
 
 internal object InventorySorter : Module(
     name = "InventorySorter",
@@ -74,83 +74,47 @@ internal object InventorySorter : Module(
     }
 
     private fun SafeClientEvent.runSorting(itemArray: Array<Item>) {
-        val slots = player.inventorySlots
+        val slots = mutableListOf<Slot>()
+        player.inventorySlots.filterNotTo(slots) { checkSet.contains(it.slotNumber - 9) }
+
         for (index in 35 downTo 0) {
             lastIndex = index
             if (checkSet.contains(index)) continue
 
-            val item = itemArray[index]
-            if (item == Items.AIR) continue
+            val targetItem = itemArray[index]
+            if (targetItem == Items.AIR) continue
             val slotTo = slots[index]
-            val itemStack = slotTo.stack
+            val stackTo = slotTo.stack
 
-            if (itemStack.item != item || (itemStack.isStackable && itemStack.count < itemStack.maxStackSize)) {
-                val slot = slots.getCompatibleStack(slotTo, item, itemStack)
-                if (slot != null) {
-                    lastTask = moveItem(slot, slotTo, itemStack)
-                    return
-                } else if (itemStack.item == item) {
-                    checkSet.add(index)
+            val slot = if (stackTo.item != targetItem) {
+                slots.find {
+                    it.slotNumber != slotTo.slotNumber && it.stack.item == targetItem
                 }
             } else {
+                slots.getCompatibleStack(slotTo, targetItem)
+            }
+
+            if (slot == null) {
+                slots.remove(slotTo)
                 checkSet.add(index)
+                continue
+            } else {
+                lastTask = moveItem(slot, slotTo)
+                return
             }
         }
     }
 
-    private fun List<Slot>.getCompatibleStack(slotTo: Slot, itemTo: Item, stackTo: ItemStack): Slot? {
-        var maxSlot: Slot? = null
-        var maxSize = 0
-
-        val isEmpty = stackTo.isEmpty
-        val neededSize = if (isEmpty) 64 else stackTo.maxStackSize - stackTo.count
-
-        for ((index, slotFrom) in this.withIndex()) {
-            if (index + 9 == slotTo.slotNumber) continue
-            if (checkSet.contains(index)) continue
-
-            val stackFrom = slotFrom.stack
-            if (stackFrom.item != itemTo) continue
-
-            val size = stackFrom.count
-            if (!isEmpty && stackTo.item == itemTo) {
-                if (!stackTo.isItemEqual(stackFrom)) continue
-                if (!ItemStack.areItemStackTagsEqual(stackTo, stackFrom)) continue
-                if (size == neededSize) return slotFrom
+    private fun moveItem(slotFrom: Slot, slotTo: Slot): InventoryTask {
+        return inventoryTask {
+            pickUp(slotFrom)
+            pickUp(slotTo)
+            pickUp {
+                if (player.inventory.getCurrentItem().isEmpty) null else slotFrom
             }
-
-            if (size == stackFrom.maxStackSize) {
-                return slotFrom
-            } else if (size > maxSize) {
-                maxSlot = slotFrom
-                maxSize = size
-            }
-        }
-
-        return maxSlot
-    }
-
-    private fun moveItem(slotFrom: Slot, slotTo: Slot, itemStack: ItemStack): InventoryTask {
-        val sizeTo = itemStack.count
-        val sizeFrom = slotFrom.stack.count
-
-        return if (sizeTo == 0 || itemStack.maxStackSize - sizeTo >= sizeFrom) {
-            inventoryTask {
-                pickUp(slotFrom)
-                pickUp(slotTo)
-                runInGui()
-                delay(clickDelay)
-                postDelay(postDelay)
-            }
-        } else {
-            inventoryTask {
-                pickUp(slotFrom)
-                pickUp(slotTo)
-                pickUp(slotFrom)
-                runInGui()
-                delay(clickDelay)
-                postDelay(postDelay)
-            }
+            runInGui()
+            delay(clickDelay)
+            postDelay(postDelay)
         }
     }
 

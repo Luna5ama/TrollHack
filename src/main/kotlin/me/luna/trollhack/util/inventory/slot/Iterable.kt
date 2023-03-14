@@ -1,5 +1,6 @@
 package me.luna.trollhack.util.inventory.slot
 
+import me.luna.trollhack.module.modules.player.InventorySorter
 import me.luna.trollhack.util.items.id
 import net.minecraft.block.Block
 import net.minecraft.inventory.Slot
@@ -132,3 +133,36 @@ fun <T : Slot> Iterable<T>.filterByStack(predicate: Predicate<ItemStack>? = null
     filter {
         predicate == null || predicate.test(it.stack)
     }
+
+fun Iterable<Slot>.getCompatibleStack(slotTo: Slot, targetItem: Item): Slot? {
+    var maxSlot: Slot? = null
+    var maxSize = 0
+
+    val stackTo = slotTo.stack
+    val isEmpty = stackTo.isEmpty
+    val neededSize = if (isEmpty) 64 else stackTo.maxStackSize - stackTo.count
+    if (neededSize <= 0) return null
+
+    for (slotFrom in this) {
+        if (slotFrom.slotNumber == slotTo.slotNumber) continue
+
+        val stackFrom = slotFrom.stack
+        if (stackFrom.item != targetItem) continue
+
+        val size = stackFrom.count
+        if (!isEmpty && stackTo.item == targetItem) {
+            if (!stackTo.isItemEqual(stackFrom)) continue
+            if (!ItemStack.areItemStackTagsEqual(stackTo, stackFrom)) continue
+            if (size == neededSize) return slotFrom
+        }
+
+        if (size == stackFrom.maxStackSize) {
+            return slotFrom
+        } else if (size > maxSize) {
+            maxSlot = slotFrom
+            maxSize = size
+        }
+    }
+
+    return maxSlot
+}

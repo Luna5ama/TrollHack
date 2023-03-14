@@ -12,9 +12,7 @@ import me.luna.trollhack.util.inventory.inventoryTask
 import me.luna.trollhack.util.inventory.operation.moveTo
 import me.luna.trollhack.util.inventory.operation.quickMove
 import me.luna.trollhack.util.inventory.operation.throwAll
-import me.luna.trollhack.util.inventory.slot.firstByStack
-import me.luna.trollhack.util.inventory.slot.firstEmpty
-import me.luna.trollhack.util.inventory.slot.getSlots
+import me.luna.trollhack.util.inventory.slot.*
 import me.luna.trollhack.util.threads.runSafe
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
@@ -90,11 +88,12 @@ internal object ChestStealer : Module(
         if (slot == null) return false
 
         if (lastTask.executedOrTrue) {
-            val size = getContainerSlotSize()
+            val openContainer = player.openContainer
+            val size = openContainer.getContainerSlotSize()
             val rangeStart = if (containerMode == ContainerMode.STEAL) size else 0
-            val slotTo = player.openContainer.getSlots(rangeStart until size + containerMode.offset).firstEmpty()
+            val slotTo = openContainer.getSlots(rangeStart until size + containerMode.offset).firstEmpty()
                 ?: return false
-            val windowID = player.openContainer.windowId
+            val windowID = openContainer.windowId
 
             lastTask = inventoryTask {
                 when (movingMode) {
@@ -119,7 +118,7 @@ internal object ChestStealer : Module(
     private fun SafeClientEvent.getStealingSlot(): Slot? {
         val container = player.openContainer
 
-        return container.getSlots(0 until getContainerSlotSize()).firstByStack {
+        return container.getContainerSlots().firstByStack {
             !it.isEmpty
                 && (!shulkersOnly || it.item is ItemShulkerBox)
                 && (!ignoreEjectItem || !InventoryManager.ejectMap.value.containsKey(it.item.registryName.toString()))
@@ -128,17 +127,12 @@ internal object ChestStealer : Module(
 
     private fun SafeClientEvent.getStoringSlot(): Slot? {
         val container = player.openContainer
-        val size = getContainerSlotSize()
+        val size = container.getContainerSlotSize()
 
         return container.getSlots(size until size + 36).firstByStack {
             !it.isEmpty
                 && (!shulkersOnly || it.item is ItemShulkerBox)
         }
-    }
-
-    private fun SafeClientEvent.getContainerSlotSize(): Int {
-        if (mc.currentScreen !is GuiContainer) return 0
-        return player.openContainer.inventorySlots.size - 36
     }
 
     class StoreButton : GuiButton(420420, 0, 0, 50, 20, "Store") {

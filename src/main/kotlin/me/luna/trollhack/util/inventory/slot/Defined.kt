@@ -2,6 +2,9 @@
 
 package me.luna.trollhack.util.inventory.slot
 
+import me.luna.trollhack.event.SafeClientEvent
+import me.luna.trollhack.util.Wrapper
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.Slot
@@ -54,6 +57,19 @@ inline fun EntityPlayer.getHotbarSlot(slot: Int): HotbarSlot {
     return HotbarSlot(inventoryContainer.inventorySlots[slot + 36])
 }
 
+inline fun Container.getContainerSlots(): List<Slot> =
+    getSlots(0 until getContainerSlotSize())
+
+inline fun Container.getPlayerSlots(): List<Slot> {
+    val size = getContainerSlotSize()
+    return getSlots(size until size + 36)
+}
+
 inline fun Container.getSlots(range: IntRange): List<Slot> =
     inventorySlots.subList(range.first, range.last + 1)
+
+fun Container.getContainerSlotSize(): Int {
+    if (Wrapper.minecraft.currentScreen !is GuiContainer) return 0
+    return this.inventorySlots.size - 36
+}
 
