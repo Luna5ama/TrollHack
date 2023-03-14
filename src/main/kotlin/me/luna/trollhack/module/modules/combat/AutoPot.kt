@@ -22,7 +22,10 @@ import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.confirmedOrTrue
 import me.luna.trollhack.util.inventory.inventoryTask
 import me.luna.trollhack.util.inventory.operation.swapWith
-import me.luna.trollhack.util.inventory.slot.*
+import me.luna.trollhack.util.inventory.slot.HotbarSlot
+import me.luna.trollhack.util.inventory.slot.hasItem
+import me.luna.trollhack.util.inventory.slot.hotbarSlots
+import me.luna.trollhack.util.inventory.slot.inventorySlots
 import me.luna.trollhack.util.math.vector.Vec2f
 import me.luna.trollhack.util.world.getGroundLevel
 import net.minecraft.entity.Entity
@@ -30,6 +33,7 @@ import net.minecraft.entity.projectile.EntityPotion
 import net.minecraft.init.Items
 import net.minecraft.init.MobEffects
 import net.minecraft.inventory.Slot
+import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem
 import net.minecraft.network.play.server.SPacketDestroyEntities
 import net.minecraft.network.play.server.SPacketEntityStatus
@@ -167,9 +171,13 @@ internal object AutoPot : Module(
     }
 
     private fun <T : Slot> List<T>.findPotion(potionType: PotionType): T? {
-        return this.firstItem(Items.SPLASH_POTION) { itemStack ->
-            PotionUtils.getEffectsFromStack(itemStack).any { it.potion == potionType.potion }
-        }
+        return this.asSequence()
+            .filter {
+                val stack = it.stack
+                stack.item == Items.SPLASH_POTION && stack.hasPotion(potionType.potion)
+            }.minByOrNull {
+                it.stack.count
+            }
     }
 
     private enum class PotionType(override val displayName: CharSequence, val potion: Potion) : DisplayEnum {
@@ -225,8 +233,12 @@ internal object AutoPot : Module(
 
         open fun check(event: SafeClientEvent): Boolean {
             return event.player.inventorySlots.hasItem(Items.SPLASH_POTION) { itemStack ->
-                PotionUtils.getEffectsFromStack(itemStack).any { it.potion == potion }
+                itemStack.hasPotion(potion)
             }
         }
+    }
+
+    private fun ItemStack.hasPotion(potion: Potion): Boolean {
+        return PotionUtils.getEffectsFromStack(this).any { it.potion == potion }
     }
 }
