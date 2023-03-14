@@ -29,8 +29,8 @@ import me.luna.trollhack.util.extension.fastFloor
 import me.luna.trollhack.util.math.VectorUtils.setAndAdd
 import me.luna.trollhack.util.math.vector.distanceSqTo
 import me.luna.trollhack.util.math.vector.toVec3d
+import me.luna.trollhack.util.runIf
 import me.luna.trollhack.util.threads.*
-import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
@@ -103,18 +103,18 @@ object CombatManager : Manager() {
                     val list = crystalList.asSequence()
                         .map(Pair<EntityEnderCrystal, CrystalDamage>::first)
                         .filter { it.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) <= 144.0 }
-                        .onEach(Entity::setDead)
+                        .runIf(CombatSetting.crystalSetDead) { onEach(EntityEnderCrystal::setDead) }
                         .toList()
 
-                    if (list.isNotEmpty()) {
+                    if (list.isNotEmpty() && CombatSetting.crystalSetDead) {
                         onMainThreadSafe {
                             list.forEach {
                                 world.removeEntity(it)
                                 world.removeEntityDangerously(it)
                             }
                         }
-                        CrystalSetDeadEvent(event.packet.x, event.packet.y, event.packet.z, list).post()
                     }
+                    CrystalSetDeadEvent(event.packet.x, event.packet.y, event.packet.z, list).post()
                 }
                 is SPacketSpawnObject -> {
                     if (event.packet.type == 51) {
