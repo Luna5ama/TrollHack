@@ -168,7 +168,7 @@ internal object AutoOffhand : Module(
         checkGapple() -> Type.GAPPLE
         checkBed() -> Type.BED
         checkCrystal() -> Type.CRYSTAL
-        player.heldItemOffhand.isEmpty -> Type.TOTEM
+        (!mainHandTotem && player.heldItemOffhand.isEmpty) -> Type.TOTEM
         else -> null
     }
 
@@ -211,7 +211,7 @@ internal object AutoOffhand : Module(
         getItemSlot(typeOriginal, attempts)?.let { (slot, typeAlt) ->
             if (slot == player.offhandSlot) return
 
-            if (mainHandTotem && typeAlt == Type.TOTEM) {
+            if (mainHandTotem && (typeAlt == typeOriginal) && typeAlt == Type.TOTEM) {
                 if (player.heldItemMainhand.item != Items.TOTEM_OF_UNDYING) {
                     MainHandPause.withPause(AutoOffhand, damageTimeout) {
                         swapToItemOrMove(Items.TOTEM_OF_UNDYING)
