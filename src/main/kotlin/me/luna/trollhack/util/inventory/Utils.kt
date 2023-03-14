@@ -91,6 +91,7 @@ fun SafeClientEvent.clickSlot(windowID: Int, slot: Int, mouseButton: Int, type: 
     return transactionID
 }
 
-private fun SafeClientEvent.getContainerForID(windowID: Int): Container? =
-    if (windowID == 0) player.inventoryContainer
-    else player.openContainer
+private fun SafeClientEvent.getContainerForID(windowID: Int): Container? {
+    return if (windowID == 0) player.inventoryContainer
+    else player.openContainer.takeIf { it.windowId == windowID }
+}

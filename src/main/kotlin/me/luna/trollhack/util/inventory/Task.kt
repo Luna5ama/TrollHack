@@ -7,6 +7,7 @@ import me.luna.trollhack.util.TimeUnit
 import me.luna.trollhack.util.delegate.ComputeFlag
 import me.luna.trollhack.util.interfaces.Helper
 import me.luna.trollhack.util.threads.onMainThreadSafe
+import java.util.concurrent.atomic.AtomicInteger
 
 inline fun SafeClientEvent.inventoryTaskNow(block: InventoryTask.Builder.() -> Unit) =
     InventoryTask.Builder()
@@ -80,7 +81,7 @@ class InventoryTask private constructor(
     }
 
     override fun compareTo(other: InventoryTask): Int {
-        val result = this.priority.compareTo(other.priority)
+        val result = other.priority.compareTo(this.priority)
         return if (result != 0) result
         else this.id.compareTo(other.id)
     }
@@ -137,12 +138,15 @@ class InventoryTask private constructor(
         }
 
         fun build(): InventoryTask {
-            return InventoryTask(currentID++, priority, delay, postDelay, timeout, runInGui, clicks.toTypedArray())
+            return InventoryTask(idCounter.getAndIncrement(), priority, delay, postDelay, timeout, runInGui, clicks.toTypedArray())
         }
     }
 
-    private companion object {
-        @JvmField
-        var currentID = Int.MIN_VALUE
+    companion object {
+        private val idCounter = AtomicInteger(Int.MIN_VALUE)
+
+        fun resetIdCounter() {
+            idCounter.set(Int.MIN_VALUE)
+        }
     }
 }

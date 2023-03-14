@@ -18,6 +18,7 @@ import me.luna.trollhack.util.inventory.operation.swapWith
 import me.luna.trollhack.util.inventory.slot.*
 import me.luna.trollhack.util.items.durability
 import me.luna.trollhack.util.items.getEnchantmentLevel
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.init.Enchantments
 import net.minecraft.init.Items
 import net.minecraft.inventory.EntityEquipmentSlot
@@ -35,6 +36,7 @@ internal object AutoArmor : Module(
     description = "Automatically equips armour",
     modulePriority = 500
 ) {
+    private val runInGui by setting("Run In GUI", true)
     private val antiGlitchArmor by setting("Anti Glitch Armor", true)
     private val stackedArmor by setting("Stacked Armor", false)
     private val swapSlot by setting("Swap Slot", 9, 1..9, 1, { stackedArmor })
@@ -48,7 +50,7 @@ internal object AutoArmor : Module(
 
     init {
         safeParallelListener<TickEvent.Post> {
-            if (AutoMend.isActive() || player.openContainer != player.inventoryContainer || !lastTask.executedOrTrue) return@safeParallelListener
+            if (AutoMend.isActive() || (!runInGui && mc.currentScreen is GuiContainer) || !lastTask.executedOrTrue) return@safeParallelListener
 
             val armorSlots = player.armorSlots
             val isElytraOn = player.chestSlot.stack.item == Items.ELYTRA
@@ -75,6 +77,7 @@ internal object AutoArmor : Module(
                     }
                     delay(1, TimeUnit.TICKS)
                     postDelay(delay, TimeUnit.TICKS)
+                    runInGui()
                 }
                 moveTimer.reset()
             }
@@ -166,6 +169,8 @@ internal object AutoArmor : Module(
                         }
                     }
                     pickUp(slotFrom)
+                    postDelay(delay, TimeUnit.TICKS)
+                    runInGui()
                 }
             } else {
                 inventoryTask {
@@ -174,12 +179,15 @@ internal object AutoArmor : Module(
                             connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                         }
                     }
+                    postDelay(delay, TimeUnit.TICKS)
+                    runInGui()
                 }
             }
         } ?: run {
             inventoryTask {
                 swapWith(slotFrom, player.getHotbarSlot(swapSlot - 1))
                 postDelay(delay, TimeUnit.TICKS)
+                runInGui()
             }
         }
     }
@@ -190,6 +198,7 @@ internal object AutoArmor : Module(
                 pickUp(slotFrom) // Pick up the new one
                 pickUp(slotTo) // Put the new one into armor slot
                 postDelay(delay, TimeUnit.TICKS)
+                runInGui()
             }
         } else {
             inventoryTask {
@@ -197,6 +206,7 @@ internal object AutoArmor : Module(
                 pickUp(slotTo) // Put the new one into armor slot
                 pickUp(slotFrom) // Put the old one into the empty slot
                 postDelay(delay, TimeUnit.TICKS)
+                runInGui()
             }
         }
     }
@@ -207,6 +217,7 @@ internal object AutoArmor : Module(
                 inventoryTask {
                     quickMove(slotFrom) // Move the new one into armor slot)
                     postDelay(delay, TimeUnit.TICKS)
+                    runInGui()
                 }
             }
 
@@ -215,6 +226,7 @@ internal object AutoArmor : Module(
                     quickMove(slotTo) // Move out the old one
                     quickMove(slotFrom) // Put the old one into the empty slot
                     postDelay(delay, TimeUnit.TICKS)
+                    runInGui()
                 }
             }
 
@@ -223,6 +235,7 @@ internal object AutoArmor : Module(
                     pickUp(slotFrom) // Pick up the new one
                     pickUp(slotTo) // Put the new one into armor slot
                     postDelay(delay, TimeUnit.TICKS)
+                    runInGui()
                 }
             }
         }

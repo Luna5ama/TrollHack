@@ -33,7 +33,10 @@ object InventoryTaskManager : Manager() {
         }
 
         safeListener<RunGameLoopEvent.Render> {
-            if (lastTask == null && taskQueue.isEmpty()) return@safeListener
+            if (lastTask == null && taskQueue.isEmpty()) {
+                InventoryTask.resetIdCounter()
+                return@safeListener
+            }
             if (!timer.tick(0L)) return@safeListener
 
             lastTaskOrNext()?.let {
