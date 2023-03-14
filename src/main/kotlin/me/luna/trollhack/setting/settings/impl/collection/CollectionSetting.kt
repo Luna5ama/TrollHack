@@ -8,16 +8,17 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
-class CollectionSetting<E : Any, T : MutableCollection<E>>(
+class CollectionSetting<E, T : MutableCollection<E>>(
     name: CharSequence,
     override val value: T,
+    private val typeToken: TypeToken<*>,
     visibility: ((() -> Boolean))? = null,
     description: CharSequence = "",
 ) : ImmutableSetting<T>(name, value, visibility, { _, input -> input }, description), MutableCollection<E> by value {
 
     override val defaultValue: T = valueClass.newInstance()
     private val lockObject = Any()
-    private val type = TypeToken.getArray(value.first().javaClass).type
+
     val editListeners = ArrayList<(T) -> Unit>()
 
     init {
@@ -47,7 +48,7 @@ class CollectionSetting<E : Any, T : MutableCollection<E>>(
 
     override fun read(jsonElement: JsonElement) {
         jsonElement.asJsonArrayOrNull?.let {
-            val cacheArray = gson.fromJson<Array<E>>(it, type)
+            val cacheArray = gson.fromJson<Array<E>>(it, typeToken.type)
             synchronized(lockObject) {
                 editValue {
                     value.clear()
@@ -59,4 +60,13 @@ class CollectionSetting<E : Any, T : MutableCollection<E>>(
 
     override fun toString() = value.joinToString { it.toString() }
 
+
+    companion object {
+        inline operator fun <reified E : Any, reified T : MutableCollection<E>> invoke(
+            name: CharSequence,
+            value: T,
+            noinline visibility: ((() -> Boolean))? = null,
+            description: CharSequence = "",
+        ) = CollectionSetting(name, value, TypeToken.getArray(E::class.java), visibility, description)
+    }
 }
