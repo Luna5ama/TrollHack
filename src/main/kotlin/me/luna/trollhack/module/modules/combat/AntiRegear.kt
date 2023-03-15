@@ -34,7 +34,8 @@ internal object AntiRegear : Module(
     private val selfRange by setting("Self Range", 1.5f, 0.0f..10.0f, 0.1f)
     private val friendRange by setting("Friend Range", 1.5f, 0.0f..10.0f, 0.1f)
     private val otherPlayerRange by setting("Other Player Range", 4.0f, 0.0f..10.0f, 0.1f)
-    private val maxDetectRange by setting("Max Detect Range", 16, 1..64, 1)
+    private val maxDetectRange by setting("Max Detect Range", 32, 1..64, 1)
+    private val silentNotification by setting("Silent Notification", false)
 
     private val selfPlaced = ObjectLinkedOpenHashSet<BlockPos>()
     private val mineQueue = ObjectLinkedOpenHashSet<BlockPos>()
@@ -55,7 +56,10 @@ internal object AntiRegear : Module(
         }
 
         safeParallelListener<TickEvent.Post> {
-            PacketMine.enable()
+            if (PacketMine.isDisabled) {
+                if (!silentNotification) Notification.send("You must have PacketMine enabled for AntiRegear to work")
+                return@safeParallelListener
+            }
 
             synchronized(selfPlaced) {
                 selfPlaced.removeIf {
@@ -63,7 +67,6 @@ internal object AntiRegear : Module(
                 }
             }
 
-            var pos: BlockPos? = null
             val maxDetectRangeSq = maxDetectRange.sq
 
             if (!newBlockOnly) {
@@ -75,9 +78,11 @@ internal object AntiRegear : Module(
                     .mapTo(mineQueue) { it.pos }
             }
 
+            var pos: BlockPos? = null
+
             while (!mineQueue.isEmpty()) {
                 pos = mineQueue.first()
-                if (player.distanceSqTo(pos) > maxDetectRangeSq) {
+                if (player.distanceSqTo(pos) > maxDetectRangeSq || world.getBlock(pos) !is BlockShulkerBox) {
                     mineQueue.removeFirst()
                 } else {
                     break
@@ -95,16 +100,15 @@ internal object AntiRegear : Module(
             val playerDistance = player.distanceSqTo(event.pos)
             if (playerDistance > maxDetectRange.sq) return@safeListener
 
-            val currentMinePos = if (mineQueue.isEmpty()) null else mineQueue.first()
-
-            if (currentMinePos == event.pos && event.newState.block !is BlockShulkerBox) {
-                mineQueue.removeFirst()
-                return@safeListener
-            }
-
-            if (event.newState.block is BlockShulkerBox) {
+            if (event.newState.block !is BlockShulkerBox) {
+                synchronized(selfPlaced) {
+                    selfPlaced.remove(event.pos)
+                }
+                mineQueue.remove(event.pos)
+            } else {
                 if (ignoreSelfPlaced && selfPlaced.contains(event.pos)) return@safeListener
                 if (playerDistance <= selfRange.sq) return@safeListener
+                if (mineQueue.contains(event.pos)) return@safeListener
 
                 val friendRangeSq = friendRange.sq
                 if (friendRangeSq > 0.0f && EntityManager.players.asSequence()
