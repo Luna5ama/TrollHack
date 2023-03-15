@@ -21,11 +21,10 @@ import me.luna.trollhack.util.interfaces.DisplayEnum
 import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.confirmedOrTrue
 import me.luna.trollhack.util.inventory.inventoryTask
+import me.luna.trollhack.util.inventory.inventoryTaskNow
+import me.luna.trollhack.util.inventory.operation.action
 import me.luna.trollhack.util.inventory.operation.swapWith
-import me.luna.trollhack.util.inventory.slot.HotbarSlot
-import me.luna.trollhack.util.inventory.slot.hasItem
-import me.luna.trollhack.util.inventory.slot.hotbarSlots
-import me.luna.trollhack.util.inventory.slot.inventorySlots
+import me.luna.trollhack.util.inventory.slot.*
 import me.luna.trollhack.util.math.vector.Vec2f
 import me.luna.trollhack.util.world.getGroundLevel
 import net.minecraft.entity.Entity
@@ -49,6 +48,7 @@ internal object AutoPot : Module(
     category = Category.COMBAT,
     modulePriority = 100
 ) {
+    private val handMode by setting("Hand Mode", EnumHand.OFF_HAND)
     private val slot by setting("Slot", 7, 1..9, 1)
     private val heal by setting("Heal", true)
     private val healHealth by setting("Heal Health", 12.0f, 0.0f..20.0f, 0.5f, ::heal)
@@ -127,6 +127,8 @@ internal object AutoPot : Module(
                 }
             }
 
+            val potionType = potionType
+
             hotbarSlot = if (potionType != PotionType.NONE) {
                 getSlot(potionType)?.also {
                     sendPlayerPacket {
@@ -141,10 +143,25 @@ internal object AutoPot : Module(
         safeListener<OnUpdateWalkingPlayerEvent.Post> {
             hotbarSlot?.let {
                 if (PlayerPacketManager.prevRotation.y > 85.0f && PlayerPacketManager.rotation.y > 85.0f) {
-                    spoofHotbar(it) {
-                        connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
-                        potionType.timer.reset()
-                        potionType = PotionType.NONE
+                    if (handMode == EnumHand.OFF_HAND) {
+                        inventoryTaskNow {
+                            swapWith(player.offhandSlot, it)
+                            action {
+                                connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.OFF_HAND))
+                                potionType.timer.reset()
+                                potionType = PotionType.NONE
+                            }
+                            swapWith(player.offhandSlot, it)
+                            runInGui()
+                            delay(0)
+                            postDelay(0)
+                        }
+                    } else {
+                        spoofHotbar(it) {
+                            connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
+                            potionType.timer.reset()
+                            potionType = PotionType.NONE
+                        }
                     }
                 }
             }
