@@ -1,6 +1,7 @@
 package me.luna.trollhack.module.modules.render
 
 import dev.fastmc.common.ConcurrentObjectPool
+import dev.fastmc.common.DoubleBuffered
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.fastmc.common.isCompletedOrNull
 import dev.fastmc.common.sort.ObjectIntrosort
@@ -81,8 +82,8 @@ internal object Search : Module(
     private var lastUpdatePos: BlockPos? = null
     private var lastUpdateJob: Job? = null
     private val gcTimer = TickTimer()
-    private val cachedMainList = FastObjectArrayList<BlockRenderInfo>()
-    private var cachedSublistPool = ConcurrentObjectPool<FastObjectArrayList<BlockRenderInfo>>(::FastObjectArrayList)
+    private val cachedMainList = DoubleBuffered<FastObjectArrayList<BlockRenderInfo>>(FastObjectArrayList.Companion::typed)
+    private var cachedSublistPool = ConcurrentObjectPool<FastObjectArrayList<BlockRenderInfo>>(FastObjectArrayList.Companion::typed)
 
     override fun getHudInfo(): String {
         return boxRenderer.size.toString()
@@ -99,8 +100,9 @@ internal object Search : Module(
 
             boxRenderer.clear()
             tracerRenderer.clear()
-            cachedMainList.clearAndTrim()
-            cachedSublistPool = ConcurrentObjectPool(::FastObjectArrayList)
+            cachedMainList.front.clearAndTrim()
+            cachedMainList.back.clearAndTrim()
+            cachedSublistPool = ConcurrentObjectPool(FastObjectArrayList.Companion::typed)
         }
 
         safeListener<WorldEvent.ClientBlockUpdate> {
@@ -156,24 +158,25 @@ internal object Search : Module(
 
             val rangeSq = range.sq
             val maxChunkRange = rangeSq + 256
-            val mainList = cachedMainList
 
             @Suppress("RemoveExplicitTypeArguments")
             val actor = actor<FastObjectArrayList<BlockRenderInfo>>(Dispatchers.Default) {
-                loop@ for (list in channel) {
-                    mainList.addAll(list)
-                    clearList(cleanList, list)
-                    cachedSublistPool.put(list)
+                loop@ for (sublist in channel) {
+                    merge(cachedMainList.front, sublist, cachedMainList.back)
+                    cachedMainList.swap()
+                    clearList(cleanList, sublist)
+                    cachedSublistPool.put(sublist)
                 }
-
-                ObjectIntrosort.sort(mainList.elements(), 0, mainList.size)
 
                 val pos = BlockPos.MutableBlockPos()
 
                 tracerRenderer.update {
                     boxRenderer.update {
-                        for ((index, info) in mainList.withIndex()) {
+                        val mainList = cachedMainList.front
+                        val mainListArray = mainList.elements()
+                        for (index in 0 until mainList.size) {
                             if (index >= maximumBlocks) break
+                            val info = mainListArray[index]
                             pos.setPos(info.x, info.y, info.z)
                             val blockState = world.getBlockState(pos)
                             val box = blockState.getSelectedBoundingBox(world, pos)
@@ -184,7 +187,8 @@ internal object Search : Module(
                     }
                 }
 
-                clearList(cleanList, mainList)
+                clearList(cleanList, cachedMainList.front)
+                clearList(cleanList, cachedMainList.back)
             }
 
             coroutineScope {
@@ -207,6 +211,46 @@ internal object Search : Module(
 
             actor.close()
         }
+    }
+
+    private fun merge(
+        mainList: FastObjectArrayList<BlockRenderInfo>,
+        sublist: FastObjectArrayList<BlockRenderInfo>,
+        outputList: FastObjectArrayList<BlockRenderInfo>
+    ) {
+        outputList.clearFast()
+        outputList.ensureCapacity(mainList.size + sublist.size)
+
+        val mainListArray = mainList.elements()
+        val sublistArray = sublist.elements()
+        val outputListArray = outputList.elements()
+
+        var i = 0
+        var j = 0
+        var k = 0
+
+        while (i < mainList.size && j < sublist.size) {
+            val a = mainListArray[i]
+            val b = sublistArray[j]
+
+            if (a < b) {
+                outputListArray[k++] = a
+                i++
+            } else {
+                outputListArray[k++] = b
+                j++
+            }
+        }
+
+        while (i < mainList.size) {
+            outputListArray[k++] = mainListArray[i++]
+        }
+
+        while (j < sublist.size) {
+            outputListArray[k++] = sublistArray[j++]
+        }
+
+        outputList.setSize(k)
     }
 
     private fun clearList(
@@ -251,7 +295,10 @@ internal object Search : Module(
             }
         }
 
-        if (list.isNotEmpty()) {
+        if (list.isEmpty) {
+            cachedSublistPool.put(list)
+        } else {
+            ObjectIntrosort.sort(list.elements(), 0, list.size)
             actor.send(list)
         }
     }
