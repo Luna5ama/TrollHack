@@ -50,6 +50,7 @@ internal object PacketFly : Module(
         randomMin = -10.0
         randomMax = 10.0
     }
+    private val spoofGroundMode by setting("Spoof Ground Mode", GroundMode.OFF_GROUND, { page == Page.SPOOF })
 
     private val maxServerIgnore by setting("Max Server Ignores", 2, 0..10, 1, { page == Page.SERVER_PACKET })
     private val forceClientPosition by setting("Force Client Position", true, { page == Page.SERVER_PACKET })
@@ -62,6 +63,12 @@ internal object PacketFly : Module(
         CONSTANT,
         RANDOM,
         JITTER,
+    }
+
+    private enum class GroundMode {
+        PLAYER_STATE,
+        ON_GROUND,
+        OFF_GROUND,
     }
 
     private class SpoofSetting(axis: String) {
@@ -272,12 +279,18 @@ internal object PacketFly : Module(
                 )
             )
 
+            val spoofOnGround = when (spoofGroundMode) {
+                GroundMode.PLAYER_STATE -> player.onGround
+                GroundMode.ON_GROUND -> true
+                GroundMode.OFF_GROUND -> false
+            }
+
             sendPlayerPacket(
                 CPacketPlayer.Position(
                     player.posX + spoofX.offset(this),
                     player.posY + spoofY.offset(this),
                     player.posZ + spoofZ.offset(this),
-                    player.onGround
+                    spoofOnGround
                 )
             )
 
