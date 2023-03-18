@@ -33,7 +33,7 @@ internal object AutoEat : Module(
     category = Category.PLAYER
 ) {
     private val belowHunger by setting("Below Hunger", 15, 1..20, 1)
-    private val belowHealth by setting("Below Health", 10, 1..20, 1)
+    private val belowHealth by setting("Below Health", 10, 1..36, 1)
     private val eatBadFood by setting("Eat Bad Food", false)
     private val pauseBaritone by setting("Pause Baritone", true)
 
