@@ -1,5 +1,6 @@
 package me.luna.trollhack.mixins.core.render;
 
+import me.luna.trollhack.module.modules.movement.PacketFly;
 import me.luna.trollhack.module.modules.player.Freecam;
 import me.luna.trollhack.module.modules.render.Xray;
 import me.luna.trollhack.util.Wrapper;
@@ -23,7 +24,7 @@ import java.util.Set;
 public class MixinVisGraph {
     @Inject(method = "getVisibleFacings", at = @At("HEAD"), cancellable = true)
     public void getVisibleFacings(CallbackInfoReturnable<Set<EnumFacing>> ci) {
-        if (Freecam.INSTANCE.isDisabled()) return;
+        if (PacketFly.INSTANCE.isDisabled() && Freecam.INSTANCE.isDisabled()) return;
 
         WorldClient world = Wrapper.getWorld();
         if (world == null) return;

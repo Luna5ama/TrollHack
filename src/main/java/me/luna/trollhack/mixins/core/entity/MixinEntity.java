@@ -19,7 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Entity.class, priority = Integer.MAX_VALUE)
 public abstract class MixinEntity {
-    @Shadow private int entityId;
+    @Shadow
+    private int entityId;
 
     private boolean modifiedSneaking = false;
 
