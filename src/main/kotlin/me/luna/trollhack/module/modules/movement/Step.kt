@@ -64,6 +64,8 @@ internal object Step : Module(
         }
 
         safeListener<PlayerMoveEvent.Pre>(-100, true) { event ->
+            if (globalCheck()) return@safeListener
+
             val flag = shouldRunStep(event.x, event.y, event.z)
 
             if (isDisabled && (!HolePathFinder.enableStep || !HolePathFinder.isActive())) {
@@ -100,6 +102,8 @@ internal object Step : Module(
         }
 
         safeListener<PlayerMoveEvent.Post> {
+            if (globalCheck()) return@safeListener
+
             player.stepHeight = DEFAULT_HEIGHT
             if (shouldDisable) disable()
         }
@@ -320,5 +324,9 @@ internal object Step : Module(
 
     fun isValidHeight(height: Double): Boolean {
         return height >= minHeight && height <= maxHeight
+    }
+
+    private fun globalCheck(): Boolean {
+        return PacketFly.isActive()
     }
 }

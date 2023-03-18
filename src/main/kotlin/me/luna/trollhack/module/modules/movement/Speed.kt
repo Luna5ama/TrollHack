@@ -126,6 +126,8 @@ internal object Speed : Module(
         }
 
         safeListener<PacketEvent.Receive> {
+            if (globalCheck()) return@safeListener
+
             when (it.packet) {
                 is SPacketPlayerPosLook -> {
                     rubberBandTicks = 0
@@ -145,6 +147,8 @@ internal object Speed : Module(
         }
 
         safeListener<TickEvent.Post> {
+            if (globalCheck()) return@safeListener
+
             strafeTicks++
             burrowTicks++
             jumpTicks++
@@ -156,12 +160,16 @@ internal object Speed : Module(
         }
 
         safeListener<InputUpdateEvent> {
+            if (globalCheck()) return@safeListener
+
             if (it.movementInput is MovementInputFromOptions && autoJump && shouldStrafe()) {
                 it.movementInput.jump = false
             }
         }
 
         safeListener<PlayerTravelEvent> {
+            if (globalCheck()) return@safeListener
+
             if (Burrow.isBurrowed(player)) {
                 burrowTicks = 0
             }
@@ -177,6 +185,8 @@ internal object Speed : Module(
         }
 
         safeListener<PlayerMoveEvent.Pre> {
+            if (globalCheck()) return@safeListener
+
             if (shouldStrafe()) {
                 val yaw = calcMoveYaw()
                 val dirX = -sin(yaw)
@@ -208,6 +218,8 @@ internal object Speed : Module(
         }
 
         safeListener<PlayerMoveEvent.Post> {
+            if (globalCheck()) return@safeListener
+
             if (jumpTicks == 0) {
                 player.stepHeight = Step.DEFAULT_HEIGHT
             }
@@ -223,6 +235,8 @@ internal object Speed : Module(
         }
 
         listener<StepEvent> {
+            if (globalCheck()) return@listener
+
             stepPauseTicks = 0
             prevSpeed = 0.0
         }
@@ -518,6 +532,10 @@ internal object Speed : Module(
 
     fun resetReverseStep() {
         stepPauseTicks = 0
+    }
+
+    private fun globalCheck(): Boolean {
+        return PacketFly.isActive()
     }
 
     private class BoostInfo(

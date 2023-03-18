@@ -27,6 +27,7 @@ internal object PacketFly : Module(
 ) {
     private val page by setting("Page", Page.MOVEMENT)
 
+    private val sprintFastMode by setting("Sprint Fast Mode", true, { page == Page.MOVEMENT })
     private val upSpeed by setting("Up Speed", 0.04, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val downSpeed by setting("Down Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val speed by setting("Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
@@ -51,6 +52,7 @@ internal object PacketFly : Module(
     }
 
     private val maxServerIgnore by setting("Max Server Ignores", 2, 0..10, 1, { page == Page.SERVER_PACKET })
+    private val forceClientPosition by setting("Force Client Position", true, { page == Page.SERVER_PACKET })
 
     private enum class Page {
         MOVEMENT, SPOOF, SERVER_PACKET
@@ -131,9 +133,22 @@ internal object PacketFly : Module(
     private val packetSet = ConcurrentSet<CPacketPlayer>()
     private var teleportID = 0
     private var serverIgnores = 0
+    private var packetFlyingTicks = 0
+
+    override fun isActive(): Boolean {
+        return isEnabled && packetFlyingTicks > 0
+    }
 
     init {
+        onDisable {
+            packetSet.clear()
+            teleportID = 0
+            serverIgnores = 0
+            packetFlyingTicks = 0
+        }
+
         safeListener<PacketEvent.Send> {
+            if (packetFlyingTicks <= 0) return@safeListener
             if (player.ticksExisted < 10) return@safeListener
 
             when (it.packet) {
@@ -146,6 +161,7 @@ internal object PacketFly : Module(
         }
 
         safeListener<PacketEvent.Receive> {
+            if (packetFlyingTicks <= 0) return@safeListener
             if (player.ticksExisted < 10) return@safeListener
 
             when (it.packet) {
@@ -187,21 +203,37 @@ internal object PacketFly : Module(
 
                     teleportID = it.packet.teleportId
                     connection.sendPacket(CPacketConfirmTeleport(it.packet.teleportId))
-                    sendPlayerPacket(
-                        CPacketPlayer.PositionRotation(
-                            player.posX,
-                            player.entityBoundingBox.minY,
-                            player.posZ,
-                            player.rotationYaw,
-                            player.rotationPitch,
-                            false
+                    if (forceClientPosition) {
+                        sendPlayerPacket(
+                            CPacketPlayer.PositionRotation(
+                                player.posX,
+                                player.entityBoundingBox.minY,
+                                player.posZ,
+                                player.rotationYaw,
+                                player.rotationPitch,
+                                false
+                            )
                         )
-                    )
+                    } else {
+                        sendPlayerPacket(
+                            CPacketPlayer.PositionRotation(
+                                x,
+                                y,
+                                z,
+                                yaw,
+                                pitch,
+                                false
+                            )
+                        )
+                    }
                 }
             }
         }
 
         safeListener<PlayerMoveEvent.Pre> {
+            updateSmartToggle()
+
+            if (packetFlyingTicks-- <= 0) return@safeListener
             if (player.ticksExisted < 10) return@safeListener
 
             it.x = 0.0
@@ -215,11 +247,9 @@ internal object PacketFly : Module(
             var motionY = 0.0
             var motionZ = 0.0
 
-            if (player.movementInput.jump != player.movementInput.sneak) {
+            if (player.movementInput.jump xor player.movementInput.sneak) {
                 motionY = if (player.movementInput.jump) upSpeed else -downSpeed
-            }
-
-            if (MovementUtils.isInputting) {
+            } else if (MovementUtils.isInputting) {
                 val yaw = calcMoveYaw()
                 motionX -= sin(yaw) * speed
                 motionZ += cos(yaw) * speed
@@ -255,6 +285,32 @@ internal object PacketFly : Module(
                 connection.sendPacket(CPacketConfirmTeleport(++teleportID))
             }
         }
+    }
+
+    private fun SafeClientEvent.updateSmartToggle() {
+        if (!sprintFastMode || !mc.gameSettings.keyBindSprint.isKeyDown) {
+            packetFlyingTicks = 5
+        } else {
+            if ((player.movementInput.jump && !player.onGround) xor player.movementInput.sneak) {
+                packetFlyingTicks = 2
+                return
+            }
+
+            if (MovementUtils.isInputting && player.collidedHorizontally && isPhasing()) {
+                packetFlyingTicks = 5
+                return
+            }
+        }
+    }
+
+    private fun SafeClientEvent.isPhasing(): Boolean {
+        val yaw = calcMoveYaw()
+        val box = player.entityBoundingBox.grow(-0.001, -0.001, -0.001)
+        val nextBox = box.offset(-sin(yaw) * 0.05, 0.0, cos(yaw) * 0.05)
+
+        val colliedBoxList = world.getCollisionBoxes(null, nextBox)
+        colliedBoxList.removeAll(world.getCollisionBoxes(null, box))
+        return colliedBoxList.isNotEmpty()
     }
 
     private fun SafeClientEvent.sendPlayerPacket(packet: CPacketPlayer) {
