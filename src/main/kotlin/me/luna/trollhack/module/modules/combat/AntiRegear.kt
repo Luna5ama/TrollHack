@@ -27,14 +27,13 @@ internal object AntiRegear : Module(
     name = "AntiRegear",
     description = "Prevents enemy from regearing using shulkers",
     category = Category.COMBAT,
-    modulePriority = 500
+    modulePriority = 100
 ) {
-    private val newBlockOnly by setting("New Block Only", false)
     private val ignoreSelfPlaced by setting("Ignore Self Placed", true)
-    private val selfRange by setting("Self Range", 1.5f, 0.0f..10.0f, 0.1f)
-    private val friendRange by setting("Friend Range", 1.5f, 0.0f..10.0f, 0.1f)
+    private val selfRange by setting("Self Range", 1.0f, 0.0f..10.0f, 0.1f)
+    private val friendRange by setting("Friend Range", 1.0f, 0.0f..10.0f, 0.1f)
     private val otherPlayerRange by setting("Other Player Range", 4.0f, 0.0f..10.0f, 0.1f)
-    private val maxDetectRange by setting("Max Detect Range", 32, 1..64, 1)
+    private val mineRange by setting("Mine Range", 6.0f, 1.0f..10.0f, 0.1f)
     private val silentNotification by setting("Silent Notification", false)
 
     private val selfPlaced = ObjectLinkedOpenHashSet<BlockPos>()
@@ -67,27 +66,25 @@ internal object AntiRegear : Module(
                 }
             }
 
-            val maxDetectRangeSq = maxDetectRange.sq
-
-            if (!newBlockOnly) {
-                world.loadedTileEntityList.asSequence()
-                    .filterIsInstance<TileEntityShulkerBox>()
-                    .filter { player.distanceSqTo(it.pos) <= maxDetectRangeSq }
-                    .filter { otherPlayerNearBy(it.pos) }
-                    .filter { !ignoreSelfPlaced || !selfPlaced.contains(it.pos) }
-                    .mapTo(mineQueue) { it.pos }
-            }
+            val mineRangeSq = mineRange.sq
+            world.loadedTileEntityList.asSequence()
+                .filterIsInstance<TileEntityShulkerBox>()
+                .filter { player.distanceSqTo(it.pos) <= mineRangeSq }
+                .filter { otherPlayerNearBy(it.pos) }
+                .filter { !ignoreSelfPlaced || !selfPlaced.contains(it.pos) }
+                .mapTo(mineQueue) { it.pos }
 
             var pos: BlockPos? = null
 
             while (!mineQueue.isEmpty()) {
                 pos = mineQueue.first()
-                if (player.distanceSqTo(pos) > maxDetectRangeSq || world.getBlock(pos) !is BlockShulkerBox) {
+                if (player.distanceSqTo(pos) > mineRangeSq || world.getBlock(pos) !is BlockShulkerBox) {
                     mineQueue.removeFirst()
                 } else {
                     break
                 }
             }
+
 
             if (pos == null) {
                 PacketMine.reset(AntiRegear)
@@ -98,7 +95,7 @@ internal object AntiRegear : Module(
 
         safeListener<WorldEvent.ClientBlockUpdate> { event ->
             val playerDistance = player.distanceSqTo(event.pos)
-            if (playerDistance > maxDetectRange.sq) return@safeListener
+            if (playerDistance > mineRange.sq) return@safeListener
 
             if (event.newState.block !is BlockShulkerBox) {
                 synchronized(selfPlaced) {
