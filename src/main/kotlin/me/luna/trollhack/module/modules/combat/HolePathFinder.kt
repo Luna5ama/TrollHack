@@ -25,6 +25,8 @@ import me.luna.trollhack.module.modules.movement.Step
 import me.luna.trollhack.util.*
 import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.MovementUtils.applySpeedPotionEffects
+import me.luna.trollhack.util.MovementUtils.realMotionY
+import me.luna.trollhack.util.MovementUtils.realSpeed
 import me.luna.trollhack.util.MovementUtils.resetMove
 import me.luna.trollhack.util.combat.HoleInfo
 import me.luna.trollhack.util.combat.HoleType
@@ -97,6 +99,7 @@ internal object HolePathFinder : Module(
     private var path: ArrayDeque<PathFinder.PathNode>? = null
     private var targetPos: BlockPos? = null
     private val pistonTimer = TickTimer(TimeUnit.SECONDS)
+    private var pistonHolePos: BlockPos? = null
 
     enum class TargetHoleType {
         NORMAL, TARGET, NEAR_TARGET
@@ -151,25 +154,30 @@ internal object HolePathFinder : Module(
                 && block != Blocks.PISTON_EXTENSION
                 && block != Blocks.PISTON_HEAD) return@safeListener
 
-            if (!HoleManager.getHoleInfo(player).isHole) return@safeListener
+            val holeInfo = HoleManager.getHoleInfo(player)
+            if (!holeInfo.isHole) return@safeListener
 
             pistonTimer.reset()
+            pistonHolePos = holeInfo.origin
         }
 
         safeParallelListener<TickEvent.Post>(true) {
             if (antiPistonTimeout == 0) {
-                pistonTimer.time = Long.MAX_VALUE
+                pistonTimer.time = 0
                 return@safeParallelListener
             }
 
             if (pistonTimer.tick(antiPistonTimeout)) return@safeParallelListener
 
-            if (MovementUtils.isInputting && player.motionY > 0.1) {
-                pistonTimer.time = Long.MAX_VALUE
+            if (player.realMotionY > 0.1) {
+                pistonTimer.time = 0
                 return@safeParallelListener
             }
 
-            if (HoleManager.getHoleInfo(player).isHole
+            val holeInfo = HoleManager.getHoleInfo(player)
+
+            if (holeInfo.isHole
+                || holeInfo.origin == pistonHolePos
                 || world.collidesWithAnyBlock(player.entityBoundingBox)) return@safeParallelListener
 
             enable()

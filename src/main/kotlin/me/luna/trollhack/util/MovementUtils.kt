@@ -30,6 +30,10 @@ object MovementUtils {
     inline val Entity.speed get() = hypot(motionX, motionZ)
     inline val Entity.realSpeed get() = hypot(posX - prevPosX, posZ - prevPosZ)
 
+    inline val Entity.realMotionX get() = posX - prevPosX
+    inline val Entity.realMotionY get() = posY - prevPosY
+    inline val Entity.realMotionZ get() = posZ - prevPosZ
+
     /* totally not taken from elytrafly */
     fun SafeClientEvent.calcMoveYaw(yawIn: Float = mc.player.rotationYaw, moveForward: Float = roundedForward, moveString: Float = roundedStrafing): Double {
         var strafe = 90 * moveString
