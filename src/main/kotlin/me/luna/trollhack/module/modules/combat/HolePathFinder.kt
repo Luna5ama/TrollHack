@@ -8,11 +8,13 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.toList
 import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.events.player.InputUpdateEvent
 import me.luna.trollhack.event.events.player.PlayerMoveEvent
 import me.luna.trollhack.event.events.render.Render3DEvent
 import me.luna.trollhack.event.listener
 import me.luna.trollhack.event.safeListener
+import me.luna.trollhack.event.safeParallelListener
 import me.luna.trollhack.gui.hudgui.elements.client.Notification
 import me.luna.trollhack.manager.managers.CombatManager
 import me.luna.trollhack.manager.managers.HoleManager
@@ -20,11 +22,10 @@ import me.luna.trollhack.manager.managers.TimerManager.modifyTimer
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
 import me.luna.trollhack.module.modules.movement.Step
-import me.luna.trollhack.util.Bind
+import me.luna.trollhack.util.*
 import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.MovementUtils.applySpeedPotionEffects
 import me.luna.trollhack.util.MovementUtils.resetMove
-import me.luna.trollhack.util.PathFinder
 import me.luna.trollhack.util.combat.HoleInfo
 import me.luna.trollhack.util.extension.floorToInt
 import me.luna.trollhack.util.extension.sq
@@ -38,6 +39,7 @@ import me.luna.trollhack.util.threads.runSafe
 import me.luna.trollhack.util.world.getGroundPos
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.MoverType
+import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.MovementInputFromOptions
 import net.minecraft.util.math.BlockPos
@@ -73,6 +75,7 @@ internal object HolePathFinder : Module(
         }
     })
     val enableStep by setting("Enable Step", true)
+    private val antiPistonTimeout by setting("Anti Piston Timeout", 0, 0..10, 1)
     private val maxTargetHoles by setting("Max target Holes", 5, 1..10, 1)
     private val timeout by setting("Timeout", 5, 1..100, 1)
     private val range by setting("Range", 8, 1..16, 1)
@@ -88,6 +91,7 @@ internal object HolePathFinder : Module(
     private var job: Job? = null
     private var path: ArrayDeque<PathFinder.PathNode>? = null
     private var targetPos: BlockPos? = null
+    private val pistonTimer = TickTimer(TimeUnit.SECONDS)
 
     enum class TargetHoleType {
         NORMAL, TARGET, NEAR_TARGET
@@ -129,6 +133,41 @@ internal object HolePathFinder : Module(
             if (it.movementInput is MovementInputFromOptions && isActive()) {
                 it.movementInput.resetMove()
             }
+        }
+
+        safeListener<WorldEvent.ServerBlockUpdate>(true) {
+            if (antiPistonTimeout == 0) {
+                return@safeListener
+            }
+
+            val block = it.newState.block
+            if (block != Blocks.PISTON
+                && block != Blocks.STICKY_PISTON
+                && block != Blocks.PISTON_EXTENSION
+                && block != Blocks.PISTON_HEAD) return@safeListener
+
+            if (!HoleManager.getHoleInfo(player).isHole) return@safeListener
+
+            pistonTimer.reset()
+        }
+
+        safeParallelListener<TickEvent.Post>(true) {
+            if (antiPistonTimeout == 0) {
+                pistonTimer.time = Long.MAX_VALUE
+                return@safeParallelListener
+            }
+
+            if (pistonTimer.tick(antiPistonTimeout)) return@safeParallelListener
+
+            if (MovementUtils.isInputting && player.motionY > 0.1) {
+                pistonTimer.time = Long.MAX_VALUE
+                return@safeParallelListener
+            }
+
+            if (HoleManager.getHoleInfo(player).isHole
+                || world.collidesWithAnyBlock(player.entityBoundingBox)) return@safeParallelListener
+
+            enable()
         }
 
         safeListener<PlayerMoveEvent.Pre> { event ->
@@ -369,7 +408,7 @@ internal object HolePathFinder : Module(
                         holes.forEachIndexed { i, holeInfo ->
                             launch {
                                 runCatching {
-                                    pathFinder.calculatePath(start, holeInfo.origin.toNode(), timeout * 100)
+                                    pathFinder.calculatePath(start, holeInfo.origin.toNode(), timeout)
                                 }.getOrNull()?.let {
                                     actor.send(IndexedValue(i, holeInfo to it))
                                 }
