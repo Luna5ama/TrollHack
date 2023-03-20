@@ -52,7 +52,7 @@ internal object Radar : HudElement(
     private val chunkGrid by chunkGrid0
     private val gridColor by setting("Grid Color", ColorRGB(127, 127, 127, 63), true, page.atValue(Page.CHUNK) and chunk0.atTrue() and chunkGrid0.atTrue())
 
-    private val radarRange by setting("Radar Range", 64, 8..256, 1)
+    private val radarRange by setting("Radar Range", 64, 8..512, 1)
 
     private enum class Page {
         ENTITY, CHUNK

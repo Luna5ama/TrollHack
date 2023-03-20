@@ -23,7 +23,7 @@ internal object TextRadar : LabelHud(
     private val distance by setting("Distance", true)
     private val friend by setting("Friend", true)
     private val maxEntries by setting("Max Entries", 8, 4..32, 1)
-    private val range by setting("Range", 64, 16..256, 2)
+    private val range by setting("Range", 64, 16..512, 2)
 
     private val healthColorGradient = ColorGradient(
         ColorGradient.Stop(0.0f, ColorRGB(180, 20, 20)),

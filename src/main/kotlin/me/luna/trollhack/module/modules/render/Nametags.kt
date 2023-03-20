@@ -60,7 +60,7 @@ internal object Nametags : Module(
     private val neutral = setting("Neutral Mobs", true, page.atValue(Page.ENTITY_TYPE) and mobs.atTrue())
     private val hostile = setting("Hostile Mobs", true, page.atValue(Page.ENTITY_TYPE) and mobs.atTrue())
     private val invisible = setting("Invisible", true, page.atValue(Page.ENTITY_TYPE))
-    private val range = setting("Range", 64, 0..128, 4, page.atValue(Page.ENTITY_TYPE))
+    private val range = setting("Range", 64, 0..512, 4, page.atValue(Page.ENTITY_TYPE))
 
     /* Content */
     private val line1left = setting("Line 1 Left", ContentType.NONE, page.atValue(Page.CONTENT))
