@@ -26,7 +26,6 @@ import me.luna.trollhack.util.*
 import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.MovementUtils.applySpeedPotionEffects
 import me.luna.trollhack.util.MovementUtils.realMotionY
-import me.luna.trollhack.util.MovementUtils.realSpeed
 import me.luna.trollhack.util.MovementUtils.resetMove
 import me.luna.trollhack.util.combat.HoleInfo
 import me.luna.trollhack.util.combat.HoleType
@@ -121,7 +120,7 @@ internal object HolePathFinder : Module(
 
         onEnable {
             runSafe {
-                if (type == TargetHoleType.NORMAL && HoleManager.getHoleInfo(player).isHole) {
+                if (type == TargetHoleType.NORMAL && validateHole(HoleManager.getHoleInfo(player))) {
                     Notification.send(HolePathFinder, "Already in hole")
                     disable()
                     return@onEnable
@@ -155,7 +154,7 @@ internal object HolePathFinder : Module(
                 && block != Blocks.PISTON_HEAD) return@safeListener
 
             val holeInfo = HoleManager.getHoleInfo(player)
-            if (!holeInfo.isHole) return@safeListener
+            if (!validateHole(holeInfo)) return@safeListener
 
             pistonTimer.reset()
             pistonHolePos = holeInfo.origin
@@ -176,7 +175,7 @@ internal object HolePathFinder : Module(
 
             val holeInfo = HoleManager.getHoleInfo(player)
 
-            if (holeInfo.isHole
+            if (validateHole(holeInfo)
                 || holeInfo.origin == pistonHolePos
                 || world.collidesWithAnyBlock(player.entityBoundingBox)) return@safeParallelListener
 
@@ -243,7 +242,7 @@ internal object HolePathFinder : Module(
         }
 
         val newHole = hole?.let { oldHole ->
-            HoleManager.getHoleInfo(oldHole.origin).takeIf { it.isHole }
+            HoleManager.getHoleInfo(oldHole.origin).takeIf(::validateHole)
         }
 
         if (newHole == null) {
@@ -386,15 +385,7 @@ internal object HolePathFinder : Module(
 
                 val holes = HoleManager.holeInfos.asSequence()
                     .filterNot { it.isFullyTrapped }
-                    .filter {
-                        when (it.type) {
-                            HoleType.NONE -> false
-                            HoleType.OBBY -> obsidianHole
-                            HoleType.BEDROCK -> bedrockHole
-                            HoleType.TWO -> twoBlocksHole
-                            HoleType.FOUR -> fourBlocksHole
-                        }
-                    }
+                    .filter(::validateHole)
                     .run {
                         when (type) {
                             TargetHoleType.NORMAL -> {
@@ -442,6 +433,14 @@ internal object HolePathFinder : Module(
                 }
             }
         }
+    }
+
+    private fun validateHole(it: HoleInfo) = when (it.type) {
+        HoleType.NONE -> false
+        HoleType.OBBY -> obsidianHole
+        HoleType.BEDROCK -> bedrockHole
+        HoleType.TWO -> twoBlocksHole
+        HoleType.FOUR -> fourBlocksHole
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
