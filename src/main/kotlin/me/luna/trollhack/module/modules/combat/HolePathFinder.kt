@@ -27,6 +27,7 @@ import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.MovementUtils.applySpeedPotionEffects
 import me.luna.trollhack.util.MovementUtils.resetMove
 import me.luna.trollhack.util.combat.HoleInfo
+import me.luna.trollhack.util.combat.HoleType
 import me.luna.trollhack.util.extension.floorToInt
 import me.luna.trollhack.util.extension.sq
 import me.luna.trollhack.util.graphics.RenderUtils3D
@@ -52,6 +53,10 @@ internal object HolePathFinder : Module(
     description = "I love hole"
 ) {
     private val moveMode by setting("Move Mode", MoveMode.NORMAL)
+    private val bedrockHole by setting("Bedrock Hole", true)
+    private val obsidianHole by setting("Obsidian Hole", true)
+    private val twoBlocksHole by setting("2 Blocks Hole", true)
+    private val fourBlocksHole by setting("4 Blocks Hole", true)
     private val maxMoveTicks by setting("Max Move Ticks", 20, 1..50, 1, { moveMode == MoveMode.TELEPORT })
     private val enableHoleSnap by setting("Enable Hole Snap", true, { moveMode == MoveMode.NORMAL })
     private val bindtargetHole by setting("Bind Target Hole", Bind(), {
@@ -373,6 +378,15 @@ internal object HolePathFinder : Module(
 
                 val holes = HoleManager.holeInfos.asSequence()
                     .filterNot { it.isFullyTrapped }
+                    .filter {
+                        when (it.type) {
+                            HoleType.NONE -> false
+                            HoleType.OBBY -> obsidianHole
+                            HoleType.BEDROCK -> bedrockHole
+                            HoleType.TWO -> twoBlocksHole
+                            HoleType.FOUR -> fourBlocksHole
+                        }
+                    }
                     .run {
                         when (type) {
                             TargetHoleType.NORMAL -> {
