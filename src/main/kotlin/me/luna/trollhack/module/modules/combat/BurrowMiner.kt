@@ -10,6 +10,7 @@ import me.luna.trollhack.module.Module
 import me.luna.trollhack.module.modules.player.PacketMine
 import me.luna.trollhack.util.EntityUtils.betterPosition
 import me.luna.trollhack.util.TickTimer
+import me.luna.trollhack.util.extension.fastFloor
 import me.luna.trollhack.util.math.vector.distanceSq
 import me.luna.trollhack.util.math.vector.toBlockPos
 import me.luna.trollhack.util.math.xCenter
@@ -83,11 +84,25 @@ internal object BurrowMiner : Module(
     }
 
     private fun SafeClientEvent.getClipPos(target: EntityLivingBase): BlockPos? {
+        val pos = BlockPos.MutableBlockPos()
         val detectBB = target.entityBoundingBox.setMaxY(target.posY + 1.0)
-        val colliedBoxList = world.getCollisionBoxes(null, detectBB)
-        return colliedBoxList.minByOrNull {
-            distanceSq(target.posX, target.posZ, it.xCenter, it.zCenter)
-        }?.center?.toBlockPos()
+
+        var minDist = Double.MAX_VALUE
+        var minDistPos: BlockPos? = null
+
+        val y = target.posY.fastFloor()
+        for (x in detectBB.minX.fastFloor()..detectBB.maxX.fastFloor()) {
+            for (z in detectBB.minZ.fastFloor()..detectBB.maxZ.fastFloor()) {
+                val dist = distanceSq(x + 0.5, z + 0.5, target.posX, target.posZ)
+
+                if (dist < minDist && !world.isAirBlock(pos.setPos(x, y, z))) {
+                    minDist = dist
+                    minDistPos = pos
+                }
+            }
+        }
+
+        return minDistPos
     }
 
     private fun reset() {
