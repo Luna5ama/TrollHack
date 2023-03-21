@@ -4,6 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import me.luna.trollhack.event.events.PacketEvent;
 import me.luna.trollhack.module.modules.combat.ZealotCrystalPlus;
 import me.luna.trollhack.module.modules.player.NoPacketKick;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketSoundEffect;
@@ -17,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinNetworkManager {
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void sendPacketPre(Packet<?> packet, CallbackInfo callbackInfo) {
+        if (!isClient()) return;
+
         if (packet != null) {
             PacketEvent.Send event = new PacketEvent.Send(packet);
             event.post();
@@ -29,6 +33,8 @@ public class MixinNetworkManager {
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("RETURN"))
     private void sendPacketPost(Packet<?> packet, CallbackInfo callbackInfo) {
+        if (!isClient()) return;
+
         if (packet != null) {
             PacketEvent.PostSend event = new PacketEvent.PostSend(packet);
             event.post();
@@ -37,6 +43,8 @@ public class MixinNetworkManager {
 
     @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
     private void channelReadPre(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callbackInfo) {
+        if (!isClient()) return;
+
         if (packet != null) {
             if (packet instanceof SPacketSpawnObject) {
                 ZealotCrystalPlus.handleSpawnPacket((SPacketSpawnObject) packet);
@@ -55,6 +63,8 @@ public class MixinNetworkManager {
 
     @Inject(method = "channelRead0", at = @At("RETURN"))
     private void channelReadPost(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callbackInfo) {
+        if (!isClient()) return;
+
         if (packet != null) {
             PacketEvent.PostReceive event = new PacketEvent.PostReceive(packet);
             event.post();
@@ -63,9 +73,17 @@ public class MixinNetworkManager {
 
     @Inject(method = "exceptionCaught", at = @At("HEAD"), cancellable = true)
     private void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
+        if (!isClient()) return;
+
         if (NoPacketKick.INSTANCE.isEnabled()) {
             NoPacketKick.sendWarning(throwable);
             ci.cancel();
         }
+    }
+
+    private boolean isClient() {
+        NetworkManager casted = (NetworkManager) (Object) this;
+        NetHandlerPlayClient connection = Minecraft.getMinecraft().getConnection();
+        return connection != null && casted == connection.getNetworkManager();
     }
 }
