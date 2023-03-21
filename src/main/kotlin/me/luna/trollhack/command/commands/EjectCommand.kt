@@ -1,7 +1,7 @@
 package me.luna.trollhack.command.commands
 
 import me.luna.trollhack.command.ClientCommand
-import me.luna.trollhack.module.modules.player.InventoryManager
+import me.luna.trollhack.module.modules.player.AutoEject
 import me.luna.trollhack.util.text.MessageSendUtils
 
 // TODO: Remove once GUI has List
@@ -22,14 +22,14 @@ object EjectCommand : ClientCommand(
                             return@execute
                         }
 
-                        InventoryManager.ejectMap.value.put(itemName, stackSize)
+                        AutoEject.ejectMap.value.put(itemName, stackSize)
                         MessageSendUtils.sendNoSpamChatMessage("$itemName has been set to eject at $stackSize stack.")
                     }
                 }
                 execute("Set an item to be ejected at 0 stack") {
                     val itemName = itemArg.value.registryName!!.toString()
 
-                    InventoryManager.ejectMap.value.put(itemName, 0)
+                    AutoEject.ejectMap.value.put(itemName, 0)
                     MessageSendUtils.sendNoSpamChatMessage("$itemName has been set to eject at 0 stack.")
                 }
             }
@@ -40,10 +40,10 @@ object EjectCommand : ClientCommand(
                 execute("Remove an item from the eject list") {
                     val itemName = itemArg.value.registryName!!.toString()
 
-                    if (!InventoryManager.ejectMap.value.containsKey(itemName)) {
+                    if (!AutoEject.ejectMap.value.containsKey(itemName)) {
                         MessageSendUtils.sendNoSpamErrorMessage("§c$itemName is not in the eject list")
                     } else {
-                        InventoryManager.ejectMap.value.remove(itemName)
+                        AutoEject.ejectMap.value.remove(itemName)
                         MessageSendUtils.sendNoSpamChatMessage("$itemName has been removed from the eject list")
                     }
                 }
@@ -52,7 +52,7 @@ object EjectCommand : ClientCommand(
 
         literal("list") {
             execute("List items in the eject list") {
-                var list = InventoryManager.ejectMap.value.entries.joinToString()
+                var list = AutoEject.ejectMap.value.entries.joinToString()
                 if (list.isEmpty()) list = "§cNo items!"
                 MessageSendUtils.sendNoSpamChatMessage("AutoEject item list:\n$list")
             }
@@ -60,14 +60,14 @@ object EjectCommand : ClientCommand(
 
         literal("reset", "default") {
             execute("Reset the eject list to defaults") {
-                InventoryManager.ejectMap.resetValue()
+                AutoEject.ejectMap.resetValue()
                 MessageSendUtils.sendNoSpamChatMessage("Reset eject list to defaults")
             }
         }
 
         literal("clear") {
             execute("Set the eject list to nothing") {
-                InventoryManager.ejectMap.value.clear()
+                AutoEject.ejectMap.value.clear()
                 MessageSendUtils.sendNoSpamChatMessage("Reset eject list was cleared")
             }
         }

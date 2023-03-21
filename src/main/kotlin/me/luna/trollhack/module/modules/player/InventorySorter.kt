@@ -10,7 +10,7 @@ import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.executedOrTrue
 import me.luna.trollhack.util.inventory.inventoryTask
 import me.luna.trollhack.util.inventory.operation.pickUp
-import me.luna.trollhack.util.inventory.slot.getCompatibleStack
+import me.luna.trollhack.util.inventory.slot.getMaxCompatibleStack
 import me.luna.trollhack.util.inventory.slot.inventorySlots
 import me.luna.trollhack.util.text.NoSpamMessage
 import me.luna.trollhack.util.threads.runSafe
@@ -91,7 +91,7 @@ internal object InventorySorter : Module(
                     it.slotNumber != slotTo.slotNumber && it.stack.item == targetItem
                 }
             } else {
-                slots.getCompatibleStack(slotTo, targetItem)
+                slots.getMaxCompatibleStack(slotTo, targetItem)
             }
 
             if (slot == null) {

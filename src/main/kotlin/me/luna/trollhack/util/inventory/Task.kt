@@ -96,7 +96,7 @@ class InventoryTask private constructor(
     class Builder {
         private val clicks = ArrayList<Step>()
         private var priority = 0
-        private var delay = 25L
+        private var delay = 0L
         private var postDelay = 50L
         private var timeout = 3000L
         private var runInGui = false

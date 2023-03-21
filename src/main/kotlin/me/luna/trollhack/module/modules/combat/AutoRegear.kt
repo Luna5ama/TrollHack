@@ -152,7 +152,7 @@ internal object AutoRegear : Module(
                 && slotTo.stack.item is ItemArmor
             ) continue
 
-            val slotFrom = containerSlots.getCompatibleStack(slotTo, targetItem) ?: continue
+            val slotFrom = containerSlots.getMaxCompatibleStack(slotTo, targetItem) ?: continue
 
             lastTask = inventoryTask {
                 pickUp(windowID, slotFrom)
