@@ -83,7 +83,7 @@ internal object HolePathFinder : Module(
     val enableStep by setting("Enable Step", true)
     private val antiPistonTimeout by setting("Anti Piston Timeout", 0, 0..10, 1)
     private val maxTargetHoles by setting("Max target Holes", 5, 1..10, 1)
-    private val timeout by setting("Timeout", 5, 1..100, 1)
+    private val calcTimeout by setting("Calculation Timeout", 200, 10..1000, 10)
     private val range by setting("Range", 8, 1..16, 1)
     private val scanVRange by setting("Scan V Range", 16, 4..32, 1)
     private val scanHRange by setting("Scan H Range", 16, 4..30, 1)
@@ -421,7 +421,7 @@ internal object HolePathFinder : Module(
                         holes.forEachIndexed { i, holeInfo ->
                             launch {
                                 runCatching {
-                                    pathFinder.calculatePath(start, holeInfo.origin.toNode(), timeout)
+                                    pathFinder.calculatePath(start, holeInfo.origin.toNode(), calcTimeout)
                                 }.getOrNull()?.let {
                                     actor.send(IndexedValue(i, holeInfo to it))
                                 }

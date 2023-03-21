@@ -1,10 +1,11 @@
 package me.luna.trollhack.util
 
 import it.unimi.dsi.fastutil.longs.LongSet
+import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import me.luna.trollhack.util.extension.sq
 import me.luna.trollhack.util.math.vector.distanceSq
 import me.luna.trollhack.util.math.vector.toLong
-import java.util.*
 import kotlin.collections.ArrayDeque
 
 class PathFinder(
@@ -13,23 +14,21 @@ class PathFinder(
     private var fallHeight: Int = 5
 ) {
     fun calculatePath(start: Node, end: Node, timeout: Int): ArrayDeque<PathNode> {
-        val openNodes = TreeSet(comparator)
-        val closedNodes = ArrayList<PathNode>()
+        val openNodes = ObjectArrayPriorityQueue<PathNode>()
 
         val pathNodeStart = PathNode(start.x, start.y, start.z)
         pathNodeStart.initCalc(start, end)
-        openNodes.add(pathNodeStart)
+
+        openNodes.enqueue(pathNodeStart)
 
         var countDown = timeout
 
         while (countDown-- > 0) {
-            val current = openNodes.pollFirst() ?: error("Unreachable")
-
-            closedNodes.add(current)
+            val current = openNodes.dequeue() ?: error("Unreachable")
 
             if (current == end) {
                 val path = ArrayDeque<PathNode>()
-                var node = closedNodes.lastOrNull()
+                var node: PathNode? = current
 
                 while (node != null) {
                     path.addFirst(node)
@@ -42,12 +41,11 @@ class PathFinder(
             for (neighbour in availableNeighbours) {
                 if (!neighbour.isPassable(this, blocks, current)) continue
 
-                val nextNode = current.add(neighbour)
+                val nextNode = current.nextNode(neighbour)
                 if (nextNode == current.parent) continue
 
                 nextNode.calculate(end)
-
-                openNodes.add(nextNode)
+                openNodes.enqueue(nextNode)
             }
         }
 
@@ -55,12 +53,6 @@ class PathFinder(
     }
 
     companion object {
-        private val comparator = compareBy<PathNode> {
-            it.f
-        }.thenBy {
-            it.h
-        }
-
         private val availableNeighbours = arrayOf(
             NeighbourNode(1, 0, 0,
                 NeighbourNode.Type.HORIZONTAL,
@@ -82,11 +74,15 @@ class PathFinder(
             NeighbourNode(0, 1, 0,
                 NeighbourNode.Type.VERTICAL,
                 arrayOf(Node(0, 0, 0), Node(0, 1, 0), Node(0, 2, 0))
-            ),
+            ).apply {
+                cost = 8
+            },
             NeighbourNode(0, -1, 0,
                 NeighbourNode.Type.VERTICAL,
                 arrayOf(Node(0, -1, 0), Node(0, 0, 0), Node(0, 1, 0))
-            ),
+            ).apply {
+                cost = 1
+            },
 
             // Diagonal
             NeighbourNode(1, 0, 1,
@@ -115,7 +111,7 @@ class PathFinder(
         private val type: Type,
         private val collisions: Array<Node>
     ) : Node(x, y, z) {
-        val cost = distanceSq(0, 0, 0, x, y, z)
+        var cost = distanceSq(0, 0, 0, x, y, z) * 2
 
         fun isPassable(pathFinder: PathFinder, blockSet: LongSet, current: PathNode): Boolean {
             return checkStepHeight(pathFinder, current)
@@ -205,7 +201,7 @@ class PathFinder(
         x: Int,
         y: Int,
         z: Int,
-    ) : Node(x, y, z) {
+    ) : Node(x, y, z), Comparable<PathNode> {
         var g = Int.MAX_VALUE
         var h = Int.MAX_VALUE
         val f: Int
@@ -213,7 +209,7 @@ class PathFinder(
 
         constructor(x: Int, y: Int, z: Int) : this(null, NeighbourNode.ZERO, x, y, z)
 
-        fun add(neighbourNode: NeighbourNode): PathNode {
+        fun nextNode(neighbourNode: NeighbourNode): PathNode {
             return PathNode(this, neighbourNode, this.x + neighbourNode.x, this.y + neighbourNode.y, this.z + neighbourNode.z)
         }
 
@@ -229,6 +225,12 @@ class PathFinder(
 
         override fun toString(): String {
             return "($x, $y, $z)"
+        }
+
+
+
+        override fun compareTo(other: PathNode): Int {
+            return this.f.compareTo(other.f)
         }
     }
 
