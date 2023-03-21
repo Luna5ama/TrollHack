@@ -488,6 +488,12 @@ internal object PacketMine : Module(
         }
     }
 
+    fun isInstantMining(pos: BlockPos): Boolean {
+        return isEnabled
+            && miningMode == MiningMode.CONTINUOUS_INSTANT
+            && miningInfo0?.let { it.mined && it.pos == pos } ?: false
+    }
+
     private class SwapInfo(val swapMode: SwapMode, val prevSlot: Int, val swapSlot: Int, var swapTick: Int)
 
     private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int, val once: Boolean)

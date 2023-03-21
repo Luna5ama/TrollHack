@@ -15,6 +15,7 @@ import me.luna.trollhack.manager.managers.HotbarManager.spoofHotbar
 import me.luna.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.module.modules.player.PacketMine
 import me.luna.trollhack.util.Bind
 import me.luna.trollhack.util.EntityUtils.eyePosition
 import me.luna.trollhack.util.EntityUtils.spoofUnSneak
@@ -86,6 +87,7 @@ internal object BedAura : Module(
         1..9,
         1,
         page.atValue(Page.GENERAL) and { handMode == EnumHand.MAIN_HAND })
+    private val assumeInstantMine by setting("Assume Instant Mine", true, page.atValue(Page.GENERAL))
     private val strictRotation by setting("Strict Rotation", false, page.atValue(Page.GENERAL))
     private val strictDirection by setting("Strict Direction", false, page.atValue(Page.GENERAL))
     private val newPlacement by setting("1.13 Placement", false, page.atValue(Page.GENERAL))
@@ -262,9 +264,15 @@ internal object BedAura : Module(
     var needOffhandBed = false; private set
 
     private val bedAABB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 0.5625, 1.0)
-    private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { _, blockState ->
+
+    @Suppress("NullableBooleanElvis")
+    private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { pos, blockState ->
         val block = blockState.block
-        if (block == Blocks.AIR || block == Blocks.BED || !CrystalUtils.isResistant(blockState)) {
+        if (block == Blocks.AIR
+            || block == Blocks.BED
+            || checkInstantMining(pos)
+            || !CrystalUtils.isResistant(blockState)
+        ) {
             FastRayTraceAction.SKIP
         } else {
             FastRayTraceAction.CALC
@@ -663,13 +671,13 @@ internal object BedAura : Module(
     }
 
     private fun SafeClientEvent.isValidBedPos(calcInfo: CalcInfo): Boolean {
-        val blockState2 = world.getBlockState(calcInfo.bedPosHead)
-        val block1 = world.getBlockState(calcInfo.bedPosFoot).block
-        val block2 = blockState2.block
+        val headBlockState = world.getBlockState(calcInfo.bedPosHead)
+        val footBlock = world.getBlockState(calcInfo.bedPosFoot).block
+        val headBlock = headBlockState.block
 
-        return (block1 == Blocks.AIR || block1 == Blocks.BED)
-            && (block2 == Blocks.AIR || block2 == Blocks.BED
-            && blockState2.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD && blockState2.getValue(BlockBed.FACING) == calcInfo.side)
+        return (footBlock == Blocks.AIR || checkInstantMining(calcInfo.bedPosFoot) || footBlock == Blocks.BED)
+            && (headBlock == Blocks.AIR || checkInstantMining(calcInfo.bedPosHead) || headBlock == Blocks.BED
+            && headBlockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD && headBlockState.getValue(BlockBed.FACING) == calcInfo.side)
     }
 
     private fun checkDamage(
@@ -722,6 +730,10 @@ internal object BedAura : Module(
 
     private fun checkForcePlaceDamage(targetDamage: Float, diff: Float): Boolean {
         return (toggleForcePlace || shouldForcePlace) && targetDamage >= forcePlaceMinDamage && diff >= forcePlaceDamageBalance
+    }
+
+    private fun checkInstantMining(pos: BlockPos): Boolean {
+        return assumeInstantMine && PacketMine.isInstantMining(pos)
     }
 
     private fun DamageInfo.toPlaceInfo(): PlaceInfo {
