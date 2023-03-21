@@ -1,10 +1,11 @@
 {
-    "required" : true,
-    "minVersion" : "0.7",
-    "compatibilityLevel" : "JAVA_8",
-    "package" : "me.luna.trollhack.mixins.core",
-    "refmap" : "mixins.troll.refmap.json",
-    "client" : [
+    "required": true,
+    "minVersion": "0.7",
+    "compatibilityLevel": "JAVA_8",
+    "package": "me.luna.trollhack.mixins.core",
+    "refmap": "mixins.troll.refmap.json",
+    "client": [
+        "MixinContainer",
         "MixinDisplay",
         "MixinElytraSound",
         "MixinGameSettings",

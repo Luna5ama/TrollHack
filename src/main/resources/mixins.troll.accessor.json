@@ -1,10 +1,10 @@
 {
-    "required" : true,
-    "minVersion" : "0.7",
-    "compatibilityLevel" : "JAVA_8",
-    "package" : "me.luna.trollhack.mixins.accessor",
-    "refmap" : "mixins.troll.refmap.json",
-    "client" : [
+    "required": true,
+    "minVersion": "0.7",
+    "compatibilityLevel": "JAVA_8",
+    "package": "me.luna.trollhack.mixins.accessor",
+    "refmap": "mixins.troll.refmap.json",
+    "client": [
         "AccessorBlockStateContainer",
         "AccessorItemTool",
         "AccessorKeyBinding",
@@ -27,6 +27,7 @@
         "network.AccessorSPacketEntityVelocity",
         "network.AccessorSPacketExplosion",
         "network.AccessorSPacketPosLook",
+        "network.AccessorSPacketSetSlot",
         "player.AccessorEntityPlayerSP",
         "player.AccessorPlayerControllerMP",
         "render.AccessorDestroyBlockProgress",

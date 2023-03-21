@@ -23,10 +23,7 @@ import me.luna.trollhack.util.inventory.InventoryTask
 import me.luna.trollhack.util.inventory.confirmedOrTrue
 import me.luna.trollhack.util.inventory.inventoryTask
 import me.luna.trollhack.util.inventory.operation.swapWith
-import me.luna.trollhack.util.inventory.slot.HotbarSlot
-import me.luna.trollhack.util.inventory.slot.hasItem
-import me.luna.trollhack.util.inventory.slot.hotbarSlots
-import me.luna.trollhack.util.inventory.slot.inventorySlots
+import me.luna.trollhack.util.inventory.slot.*
 import me.luna.trollhack.util.math.vector.Vec2f
 import me.luna.trollhack.util.world.getGroundLevel
 import net.minecraft.entity.Entity
@@ -171,7 +168,7 @@ internal object AutoPot : Module(
     private fun SafeClientEvent.getSlot(potionType: PotionType): HotbarSlot? {
         return player.hotbarSlots.findPotion(potionType)
             ?: run {
-                player.inventorySlots.findPotion(potionType)?.let {
+                (player.storageSlots + player.craftingSlots).findPotion(potionType)?.let {
                     inventoryTask {
                         swapWith(it, player.hotbarSlots[slot - 1])
                         delay(0L)
@@ -244,7 +241,7 @@ internal object AutoPot : Module(
         val timer = TickTimer()
 
         open fun check(event: SafeClientEvent): Boolean {
-            return event.player.inventorySlots.hasItem(Items.SPLASH_POTION) { itemStack ->
+            return (event.player.inventorySlots + event.player.craftingSlots).hasItem(Items.SPLASH_POTION) { itemStack ->
                 itemStack.hasPotion(potion)
             }
         }
