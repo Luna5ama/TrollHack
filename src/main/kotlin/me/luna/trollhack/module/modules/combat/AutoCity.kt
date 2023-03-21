@@ -47,13 +47,15 @@ internal object AutoCity : Module(
     description = "Trolling",
     modulePriority = 300
 ) {
-    private val useAnvil by setting("Use Anvil", false)
+    private val placeAnvil by setting("Place Anvil", false)
+    private val placeCrystal by setting("Place Crystal", true)
+    private val breakCrystal by setting("Break Crystal", true)
     private val placeDelay by setting("Place Delay", 100, 0..1000, 5)
     private val breakDelay by setting("Break Delay", 100, 0..1000, 5)
+    private val packetBreakDelay by setting("Packet Break Delay", 100, 0..1000, 5)
     private val minDamage by setting("Min Damage", 4.0f, 1.0f..10.0f, 0.1f)
     private val minUpdateDamage by setting("Min Update Damage", 8.0f, 1.0f..10.0f, 0.1f)
     private val updateDelay by setting("Update Delay", 200, 0..1000, 5)
-    private val packetBreakDelay by setting("Packet Break Delay", 100, 0..1000, 5)
     private val range by setting("Range", 4.5f, 1.0f..6.0f, 0.1f)
 
     private val placeTimer = TickTimer()
@@ -301,6 +303,8 @@ internal object AutoCity : Module(
     }
 
     private fun SafeClientEvent.placeCrystal(targetPos: BlockPos) {
+        if (!placeCrystal) return
+
         player.hotbarSlots.firstItem(Items.END_CRYSTAL)?.let {
             spoofHotbar(it) {
                 connection.sendPacket(CPacketPlayerTryUseItemOnBlock(targetPos, EnumFacing.UP, EnumHand.MAIN_HAND, 0.5f, 1.0f, 0.5f))
@@ -311,7 +315,7 @@ internal object AutoCity : Module(
     }
 
     private fun SafeClientEvent.placeAnvil(targetPos: BlockPos) {
-        if (!useAnvil) return
+        if (!placeAnvil) return
         player.hotbarSlots.firstBlock(Blocks.ANVIL)?.let {
             player.spoofSneak {
                 spoofHotbar(it) {
@@ -324,6 +328,8 @@ internal object AutoCity : Module(
     }
 
     private fun SafeClientEvent.breakCrystal(entityID: Int) {
+        if (!breakCrystal) return
+
         connection.sendPacket(
             CPacketUseEntity().apply {
                 packetAction = CPacketUseEntity.Action.ATTACK
