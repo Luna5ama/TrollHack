@@ -5,6 +5,7 @@ import me.luna.trollhack.event.SafeClientEvent
 import me.luna.trollhack.event.events.ConnectionEvent
 import me.luna.trollhack.event.events.PacketEvent
 import me.luna.trollhack.event.events.RunGameLoopEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.listener
 import me.luna.trollhack.event.safeListener
 import me.luna.trollhack.manager.Manager
@@ -44,7 +45,7 @@ object InventoryTaskManager : Manager() {
             }
         }
 
-        listener<ConnectionEvent.Disconnect> {
+        listener<WorldEvent.Unload> {
             reset()
         }
     }
@@ -121,6 +122,9 @@ object InventoryTaskManager : Manager() {
             confirmMap.clear()
             lastTask?.cancel()
             lastTask = null
+            taskQueue.forEach {
+                it.cancel()
+            }
             taskQueue.clear()
         }
     }
