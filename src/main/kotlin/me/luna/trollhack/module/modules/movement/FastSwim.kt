@@ -20,7 +20,6 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook
 import net.minecraft.util.math.BlockPos
 import kotlin.math.*
 
-@Suppress("NOTHING_TO_INLINE")
 internal object FastSwim : Module(
     name = "FastSwim",
     category = Category.MOVEMENT,
@@ -90,18 +89,15 @@ internal object FastSwim : Module(
             for (y in (box.minY + 0.5).fastFloor()..(box.maxY - 0.25).fastFloor()) {
                 for (z in (box.minZ + 0.1).fastFloor()..(box.maxZ - 0.1).fastFloor()) {
                     val blockState = world.getBlockState(pos.setPos(x, y, z))
-                    if (blockState.block is BlockLiquid
-                        && blockState.material == material
-                        && BlockLiquid.getLiquidHeight(blockState, world, pos) - player.posY > 0.2) {
-                        pos.release()
-                        return true
-                    }
+                    if (blockState.block !is BlockLiquid) return false
+                    if (blockState.material != material) return false
+                    if (BlockLiquid.getLiquidHeight(blockState, world, pos) - player.posY < 0.2) return false
                 }
             }
         }
 
         pos.release()
-        return false
+        return true
     }
 
     private fun SafeClientEvent.lavaSwim() {
