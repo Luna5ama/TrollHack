@@ -22,6 +22,7 @@ import me.luna.trollhack.util.threads.runSafe
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Predicate
 
 object HoleManager : Manager() {
@@ -34,7 +35,7 @@ object HoleManager : Manager() {
     private val updateTimer = TickTimer()
     private val removeTimer = TickTimer()
 
-    private var dirty = false
+    private val dirty = AtomicBoolean(false)
 
     private const val RANGE = 16
     private const val RANGE_SQ = 256
@@ -44,7 +45,7 @@ object HoleManager : Manager() {
         listener<WorldEvent.Unload> {
             holeMap0.clear()
             holeInfos = emptyList()
-            dirty = false
+            dirty.set(false)
         }
 
         safeListener<WorldEvent.RenderUpdate> {
@@ -98,14 +99,7 @@ object HoleManager : Manager() {
                 }
             }
 
-            val flag: Boolean
-
-            synchronized(HoleManager) {
-                flag = dirty
-                dirty = false
-            }
-
-            if (flag) {
+            if (dirty.getAndSet(false)) {
                 updateHoleInfoList()
             }
         }
@@ -148,9 +142,7 @@ object HoleManager : Manager() {
         }
 
         if (modified) {
-            synchronized(HoleManager) {
-                dirty = true
-            }
+            dirty.set(true)
         }
     }
 
@@ -173,9 +165,7 @@ object HoleManager : Manager() {
         }
 
         if (modified) {
-            synchronized(HoleManager) {
-                dirty = true
-            }
+            dirty.set(true)
         }
     }
 
@@ -190,9 +180,7 @@ object HoleManager : Manager() {
         }
 
         if (modified) {
-            synchronized(HoleManager) {
-                dirty = true
-            }
+            dirty.set(true)
         }
     }
 
