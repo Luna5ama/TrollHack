@@ -69,7 +69,7 @@ internal object AutoRegear : Module(
                 moveTimeMap.clear()
                 timeoutTimer.time = Long.MAX_VALUE
                 lastContainer = openContainer
-            } else if (timeoutTimer.tick(2000)) {
+            } else if (timeoutTimer.tick(500)) {
                 return@safeListener
             }
 
