@@ -13,10 +13,7 @@ import net.minecraft.network.play.client.CPacketConfirmTeleport
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketCloseWindow
 import net.minecraft.network.play.server.SPacketPlayerPosLook
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
+import kotlin.math.*
 import kotlin.random.Random
 
 internal object PacketFly : Module(
@@ -28,28 +25,33 @@ internal object PacketFly : Module(
     private val page by setting("Page", Page.MOVEMENT)
 
     private val sprintFastMode by setting("Sprint Fast Mode", true, { page == Page.MOVEMENT })
-    private val upSpeed by setting("Up Speed", 0.04, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
+    private val upSpeed by setting("Up Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val downSpeed by setting("Down Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val speed by setting("Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val confirmTeleportMove by setting("Confirm Teleport Move", true, { page == Page.MOVEMENT })
 
-    private val spoofX = SpoofSetting("X").apply {
-        mode = SpoofMode.RANDOM
-        randomMin = -10.0
-        randomMax = 10.0
-    }
-    private val spoofY = SpoofSetting("Y").apply {
-        mode = SpoofMode.JITTER
-        randomMin = -100.0
-        randomMax = -80.0
-        jitterMin = 80.0
-        jitterMax = 100.0
-    }
-    private val spoofZ = SpoofSetting("Z").apply {
-        mode = SpoofMode.RANDOM
-        randomMin = -10.0
-        randomMax = 10.0
-    }
+    private val spoofX = SpoofSetting(
+        axis = "X",
+        mode = SpoofMode.RANDOM,
+        randomMin = -10.0,
+        randomMax = 10.0,
+    )
+    private val spoofY = SpoofSetting(
+        axis = "Y",
+        mode = SpoofMode.JITTER,
+        constant = 1337.69,
+        randomMin = -100.0,
+        randomMax = -80.0,
+        jitterMin = 80.0,
+        jitterMax = 100.0,
+    )
+    private val spoofZ = SpoofSetting(
+        axis = "Z",
+        mode = SpoofMode.RANDOM,
+        randomMin = -10.0,
+        randomMax = 10.0,
+    )
+
     private val spoofGroundMode by setting("Spoof Ground Mode", GroundMode.OFF_GROUND, { page == Page.SPOOF })
 
     private val maxServerIgnore by setting("Max Server Ignores", 2, 0..10, 1, { page == Page.SERVER_PACKET })
@@ -71,12 +73,20 @@ internal object PacketFly : Module(
         OFF_GROUND,
     }
 
-    private class SpoofSetting(axis: String) {
-        var mode by setting("$axis Mode", SpoofMode.CONSTANT, { page == Page.SPOOF })
+    private class SpoofSetting(
+        axis: String,
+        mode: SpoofMode = SpoofMode.CONSTANT,
+        constant: Double = 0.0,
+        randomMin: Double = 0.0,
+        randomMax: Double = 0.0,
+        jitterMin: Double = 0.0,
+        jitterMax: Double = 0.0,
+    ) {
+        var mode by setting("$axis Mode", mode, { page == Page.SPOOF })
 
         var constant by setting(
             "$axis Constant",
-            0.0,
+            constant,
             -100000.0..100000.0,
             1.0,
             { page == Page.SPOOF && mode == SpoofMode.CONSTANT }
@@ -84,7 +94,7 @@ internal object PacketFly : Module(
 
         var randomMin: Double by setting(
             "$axis Random Min",
-            0.0,
+            randomMin,
             -100000.0..100000.0,
             1.0,
             { page == Page.SPOOF && (mode == SpoofMode.RANDOM || mode == SpoofMode.JITTER) },
@@ -93,7 +103,7 @@ internal object PacketFly : Module(
 
         var randomMax: Double by setting(
             "$axis Random Max",
-            0.0,
+            randomMax,
             -100000.0..100000.0,
             1.0,
             { page == Page.SPOOF && (mode == SpoofMode.RANDOM || mode == SpoofMode.JITTER) },
@@ -101,7 +111,7 @@ internal object PacketFly : Module(
         )
         var jitterMin: Double by setting(
             "$axis Jitter Min",
-            0.0,
+            jitterMin,
             -100000.0..100000.0,
             1.0,
             { page == Page.SPOOF && mode == SpoofMode.JITTER },
@@ -109,7 +119,7 @@ internal object PacketFly : Module(
 
         var jitterMax: Double by setting(
             "$axis Jitter Max",
-            0.0,
+            jitterMax,
             -100000.0..100000.0,
             1.0,
             { page == Page.SPOOF && mode == SpoofMode.JITTER },
@@ -123,17 +133,21 @@ internal object PacketFly : Module(
                         return constant
                     }
                     SpoofMode.RANDOM -> {
-                        return Random.nextDouble(randomMin, randomMax)
+                        return safeRandom(randomMin, randomMax)
                     }
                     SpoofMode.JITTER -> {
                         return if (Random.nextBoolean()) {
-                            Random.nextDouble(randomMin, randomMax)
+                            safeRandom(randomMin, randomMax)
                         } else {
-                            Random.nextDouble(jitterMin, jitterMax)
+                            safeRandom(jitterMin, jitterMax)
                         }
                     }
                 }
             }
+        }
+
+        private fun safeRandom(min: Double, max: Double): Double {
+            return if (abs(min - max) < 0.0001) 0.0 else Random.nextDouble(min, max)
         }
     }
 
