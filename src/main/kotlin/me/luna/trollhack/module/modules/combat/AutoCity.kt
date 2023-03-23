@@ -71,7 +71,7 @@ internal object AutoCity : Module(
     private var crystalID = -1
 
     override fun isActive(): Boolean {
-        return isEnabled && anvilPos != null
+        return isEnabled && (anvilPos != null && (placeAnvil || placeCrystal || breakCrystal))
     }
 
     init {
