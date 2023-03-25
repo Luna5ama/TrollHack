@@ -82,9 +82,9 @@ internal object PacketFly : Module(
         jitterMin: Double = 0.0,
         jitterMax: Double = 0.0,
     ) {
-        var mode by setting("$axis Mode", mode, { page == Page.SPOOF })
+        val mode by setting("$axis Mode", mode, { page == Page.SPOOF })
 
-        var constant by setting(
+        val constant by setting(
             "$axis Constant",
             constant,
             -100000.0..100000.0,
@@ -92,7 +92,7 @@ internal object PacketFly : Module(
             { page == Page.SPOOF && mode == SpoofMode.CONSTANT }
         )
 
-        var randomMin: Double by setting(
+        val randomMin: Double by setting(
             "$axis Random Min",
             randomMin,
             -100000.0..100000.0,
@@ -101,7 +101,7 @@ internal object PacketFly : Module(
             consumer = { _, input -> min(input, randomMax) }
         )
 
-        var randomMax: Double by setting(
+        val randomMax: Double by setting(
             "$axis Random Max",
             randomMax,
             -100000.0..100000.0,
@@ -109,7 +109,7 @@ internal object PacketFly : Module(
             { page == Page.SPOOF && (mode == SpoofMode.RANDOM || mode == SpoofMode.JITTER) },
             consumer = { _, input -> max(input, randomMin) }
         )
-        var jitterMin: Double by setting(
+        val jitterMin: Double by setting(
             "$axis Jitter Min",
             jitterMin,
             -100000.0..100000.0,
@@ -117,7 +117,7 @@ internal object PacketFly : Module(
             { page == Page.SPOOF && mode == SpoofMode.JITTER },
             consumer = { _, input -> min(input, jitterMax) })
 
-        var jitterMax: Double by setting(
+        val jitterMax: Double by setting(
             "$axis Jitter Max",
             jitterMax,
             -100000.0..100000.0,
@@ -147,7 +147,7 @@ internal object PacketFly : Module(
         }
 
         private fun safeRandom(min: Double, max: Double): Double {
-            return if (abs(min - max) < 0.0001) 0.0 else Random.nextDouble(min, max)
+            return if (min >= max) 0.0 else Random.nextDouble(min, max)
         }
     }
 
