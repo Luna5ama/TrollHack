@@ -3,11 +3,13 @@ package me.luna.trollhack.module.modules.misc
 import com.mojang.authlib.GameProfile
 import me.luna.trollhack.event.events.ConnectionEvent
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
 import me.luna.trollhack.event.listener
 import me.luna.trollhack.event.safeParallelListener
 import me.luna.trollhack.manager.managers.WaypointManager
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.module.modules.combat.VisualRange
 import me.luna.trollhack.util.EntityUtils.flooredPosition
 import me.luna.trollhack.util.EntityUtils.isFakeOrSelf
 import me.luna.trollhack.util.TickTimer
@@ -16,7 +18,9 @@ import me.luna.trollhack.util.math.CoordinateConverter.asString
 import me.luna.trollhack.util.text.MessageSendUtils
 import me.luna.trollhack.util.threads.onMainThread
 import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.BlockPos
+import kotlin.math.log
 
 internal object LogoutLogger : Module(
     name = "LogoutLogger",
@@ -26,14 +30,22 @@ internal object LogoutLogger : Module(
     private val saveWaypoint by setting("Save Waypoint", true)
     private val print by setting("Print To Chat", true)
 
+    private val removed = LinkedHashSet<GameProfile>()
     private val loggedPlayers = LinkedHashMap<GameProfile, BlockPos>()
     private val timer = TickTimer(TimeUnit.SECONDS)
 
     init {
-        listener<ConnectionEvent.Disconnect> {
-            onMainThread {
-                loggedPlayers.clear()
-            }
+        onDisable {
+            loggedPlayers.clear()
+        }
+
+        listener<WorldEvent.Unload> {
+            loggedPlayers.clear()
+        }
+
+        listener<WorldEvent.Entity.Remove> {
+            if (it.entity !is EntityOtherPlayerMP) return@listener
+            removed.add(it.entity.gameProfile)
         }
 
         safeParallelListener<TickEvent.Post> {
@@ -56,6 +68,8 @@ internal object LogoutLogger : Module(
                         false
                     }
                 }
+                loggedPlayers.keys.removeAll(removed)
+                removed.clear()
             }
         }
     }

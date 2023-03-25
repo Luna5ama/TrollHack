@@ -1,11 +1,15 @@
 package me.luna.trollhack.module.modules.combat
 
 import me.luna.trollhack.event.events.TickEvent
+import me.luna.trollhack.event.events.WorldEvent
+import me.luna.trollhack.event.listener
 import me.luna.trollhack.event.safeListener
+import me.luna.trollhack.event.safeParallelListener
 import me.luna.trollhack.manager.managers.FriendManager
 import me.luna.trollhack.manager.managers.WaypointManager
 import me.luna.trollhack.module.Category
 import me.luna.trollhack.module.Module
+import me.luna.trollhack.module.modules.misc.LogoutLogger
 import me.luna.trollhack.util.EntityUtils.flooredPosition
 import me.luna.trollhack.util.EntityUtils.isFakeOrSelf
 import me.luna.trollhack.util.TickTimer
@@ -14,6 +18,7 @@ import me.luna.trollhack.util.atTrue
 import me.luna.trollhack.util.text.MessageSendUtils
 import me.luna.trollhack.util.text.MessageSendUtils.sendServerMessage
 import me.luna.trollhack.util.text.format
+import me.luna.trollhack.util.threads.onMainThread
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.SoundEvents
@@ -40,27 +45,32 @@ internal object VisualRange : Module(
     private val timer = TickTimer(TimeUnit.SECONDS)
 
     init {
-        safeListener<TickEvent.Post> {
-            if (!timer.tickAndReset(1L)) return@safeListener
+        onDisable {
+            playerSet.clear()
+        }
 
-            val loadedPlayerSet = LinkedHashSet(world.playerEntities)
-            for (entityPlayer in loadedPlayerSet) {
+        listener<WorldEvent.Unload> {
+            playerSet.clear()
+        }
+
+        listener<WorldEvent.Entity.Remove> {
+            if (it.entity !is EntityPlayer) return@listener
+            if (playerSet.remove(it.entity)) {
+                onLeave(it.entity)
+            }
+        }
+
+        safeParallelListener<TickEvent.Post> {
+            if (!timer.tickAndReset(1L)) return@safeParallelListener
+
+            for (entityPlayer in world.playerEntities) {
                 if (entityPlayer.isFakeOrSelf) continue // Self / Freecam / FakePlayer check
                 if (!friends && FriendManager.isFriend(entityPlayer.name)) continue // Friend check
 
-                if (playerSet.add(entityPlayer) && isEnabled) {
+                if (playerSet.add(entityPlayer)) {
                     onEnter(entityPlayer)
                 }
             }
-
-            val toRemove = ArrayList<EntityPlayer>()
-            for (player in playerSet) {
-                if (!loadedPlayerSet.contains(player)) {
-                    toRemove.add(player)
-                    if (isEnabled) onLeave(player)
-                }
-            }
-            playerSet.removeAll(toRemove)
         }
     }
 
