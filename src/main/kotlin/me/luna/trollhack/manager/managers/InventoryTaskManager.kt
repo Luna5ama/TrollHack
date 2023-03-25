@@ -119,6 +119,7 @@ object InventoryTaskManager : Manager() {
 
     private fun reset() {
         synchronized(InventoryTaskManager) {
+            timer.time = 0L
             confirmMap.clear()
             lastTask?.cancel()
             lastTask = null
