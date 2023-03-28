@@ -14,11 +14,11 @@ Discord server link: https://discord.gg/RFd2ugHC2S
 
 OS: Windows or Linux (Mac OS is unsupported)
 
-CPU: 3rd gen Intel Core i3 or AMD equivalent
+CPU: 6th gen Intel Core i3 or AMD equivalent
 
 RAM: 4 GB
 
-GPU: Intel HD Graphics 2500/4000 (2012), NVIDIA GeForce 9000 Series (2009), AMD Radeon HD 4000 Series (2008) or newer
+GPU: Intel HD Graphics 510 (2015), NVIDIA GeForce 400 Series (2010), AMD Radeon HD 7000 Series (2012) or newer. Required OpenGL 4.6.
 
 Software: Java 8, Minecraft 1.12.2 with Forge
 
