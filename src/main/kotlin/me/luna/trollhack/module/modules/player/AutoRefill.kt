@@ -28,9 +28,9 @@ internal object AutoRefill : Module(
             if (!lastTask.confirmedOrTrue) return@safeParallelListener
 
             val sourceSlots = if (prioritizeCraftingSlot) {
-                player.craftingSlots + player.inventorySlots
+                player.craftingSlots + player.storageSlots
             } else {
-                player.inventorySlots + player.craftingSlots
+                player.storageSlots + player.craftingSlots
             }
 
             val targetSlots = player.hotbarSlots + player.offhandSlot
