@@ -30,7 +30,7 @@ internal object ChestStealer : Module(
 ) {
     val mode by setting("Mode", Mode.TOGGLE)
     private val movingMode by setting("Moving Mode", MovingMode.QUICK_MOVE)
-    private val ignoreEjectItem by setting("Ignores Eject Item", false, description = "Ignore AutoEject items in AutoRefill")
+    private val ignoreEjectItem by setting("Ignores Eject Item", false, description = "Ignore AutoEject items in AutoEject")
     private val delay by setting("Delay", 250, 0..1000, 25, description = "Move stack delay in ms")
     private val shulkersOnly by setting("Shulkers Only", false, description = "Only move shulker boxes")
 
