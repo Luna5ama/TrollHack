@@ -45,7 +45,7 @@ internal object AutoCity : Module(
     name = "AutoCity",
     category = Category.COMBAT,
     description = "Trolling",
-    modulePriority = 300
+    modulePriority = 100
 ) {
     private val placeAnvil by setting("Place Anvil", false)
     private val placeCrystal by setting("Place Crystal", true)
