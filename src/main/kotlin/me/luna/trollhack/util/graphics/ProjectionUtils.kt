@@ -11,7 +11,6 @@ import org.joml.Vector4f
 object ProjectionUtils {
     private val mc = Wrapper.minecraft
 
-    private val floatBuffer = GLAllocation.createDirectFloatBuffer(16)
     private val modelMatrix = Matrix4f()
     private val projectionMatrix = Matrix4f()
 
