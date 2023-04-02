@@ -46,8 +46,8 @@ open class ListWindow(
 
     private val scrollTimer = TickTimer()
     private var lastScrollSpeedUpdate = System.currentTimeMillis()
-    private var scrollSpeed = 0.0f
-    private var scrollProgress = 0.0f
+    protected var scrollSpeed = 0.0f
+    protected var scrollProgress = 0.0f
 
     private var doubleClickTime = -1L
 
@@ -73,6 +73,7 @@ open class ListWindow(
         updateChild()
         onTick()
         lastScrollSpeedUpdate = System.currentTimeMillis()
+        for (child in children) child.onDisplayed()
     }
 
     override fun onClosed() {
@@ -236,17 +237,25 @@ open class ListWindow(
         doubleClickTime = if (currentTime - doubleClickTime > 500L) {
             currentTime
         } else {
-            val sum = children.filter(Component::visible).sumOfFloat { it.height + lineSpace }
-            val targetHeight = max(height, sum + draggableHeight + lineSpace)
-            val maxHeight = scaledDisplayHeight - 2.0f
-
-            height = min(targetHeight, scaledDisplayHeight - 2.0f)
-            posY = min(posY, maxHeight - targetHeight)
+            updateHeightToFit(false)
 
             -1L
         }
     }
 
-    private fun getRelativeMousePos(mousePos: Vec2f, component: InteractiveComponent) =
-        mousePos.minus(posX, posY - scrollProgress).minus(component.posX, component.posY)
+    protected fun updateHeightToFit(forceHeight: Boolean) {
+        val sum = children.asSequence().filter(Component::visible).sumOfFloat { it.height + lineSpace }
+        val targetHeight =sum + draggableHeight + lineSpace
+        if (!forceHeight && targetHeight < height) {
+            return
+        }
+        val maxHeight = scaledDisplayHeight - 2.0f
+
+        height = min(targetHeight, scaledDisplayHeight - 2.0f)
+        posY = min(posY, maxHeight - targetHeight)
+    }
+
+    private fun getRelativeMousePos(mousePos: Vec2f, component: InteractiveComponent): Vec2f {
+        return mousePos.minus(posX, posY - scrollProgress).minus(component.posX, component.posY)
+    }
 }

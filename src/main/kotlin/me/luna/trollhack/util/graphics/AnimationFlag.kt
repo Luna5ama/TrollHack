@@ -37,4 +37,13 @@ class AnimationFlag(private val interpolation: InterpolateFunction) {
 
         return render
     }
+
+    fun get(): Float {
+        return interpolation.invoke(time, prev, current)
+    }
+
+    fun forceCurrent() {
+        prev = current
+        time = System.currentTimeMillis()
+    }
 }

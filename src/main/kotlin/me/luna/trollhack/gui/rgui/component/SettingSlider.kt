@@ -26,10 +26,13 @@ class SettingSlider(val setting: NumberSetting<*>) : Slider(setting.name, settin
     }
 
     private var preDragMousePos = Vec2f(0.0f, 0.0f)
-    private val animationTimer = TickTimer()
 
     override val progress: Float
         get() {
+            if (!setting.isVisible) {
+                return 0.0f
+            }
+
             if (mouseState != MouseState.DRAG && !listening) {
                 val min = setting.range.start.toDouble()
                 var flooredValue =

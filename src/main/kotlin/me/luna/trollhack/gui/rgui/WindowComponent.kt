@@ -3,6 +3,7 @@ package me.luna.trollhack.gui.rgui
 import me.luna.trollhack.setting.GuiConfig.setting
 import me.luna.trollhack.setting.configs.AbstractConfig
 import me.luna.trollhack.util.delegate.FrameValue
+import me.luna.trollhack.util.graphics.AnimationFlag
 import me.luna.trollhack.util.graphics.Easing
 import me.luna.trollhack.util.graphics.HAlign
 import me.luna.trollhack.util.graphics.VAlign
@@ -23,7 +24,7 @@ open class WindowComponent(
 
     // Basic info
     private val minimizedSetting = setting("Minimized", false,
-        { false }, { _, input -> System.currentTimeMillis() - minimizedTime > 300L && input }
+        { false }, { _, input -> System.currentTimeMillis() - renderMinimizeProgressFlag.time > 300L && input }
     )
     var minimized by minimizedSetting
 
@@ -35,11 +36,9 @@ open class WindowComponent(
     var preDragSize = Vec2f.ZERO; private set
 
     // Render info
-    private var minimizedTime = 0L
-    val renderMinimizeProgress by FrameValue {
-        val deltaTime = Easing.toDelta(minimizedTime, 300.0f)
-        if (minimized) Easing.OUT_QUART.dec(deltaTime) else Easing.OUT_QUART.inc(deltaTime)
-    }
+    private val renderMinimizeProgressFlag = AnimationFlag(Easing.OUT_QUART, 300.0f)
+    val renderMinimizeProgress by FrameValue(renderMinimizeProgressFlag::get)
+
     override val renderHeight: Float
         get() = (super.renderHeight - draggableHeight) * renderMinimizeProgress + draggableHeight
 
@@ -47,8 +46,8 @@ open class WindowComponent(
     open val minimizable get() = false
 
     init {
-        minimizedSetting.valueListeners.add { prev, it ->
-            if (it != prev) minimizedTime = System.currentTimeMillis()
+        minimizedSetting.valueListeners.add { _, it ->
+            renderMinimizeProgressFlag.update(if (it) 0.0f else 1.0f)
         }
     }
 
@@ -101,7 +100,8 @@ open class WindowComponent(
             else -> null
         }
 
-        val centerSplitterVCenter = if (draggableHeight != height && horizontalSide == HAlign.CENTER) 2.5 else min(15.0, preDragSize.x / 3.0)
+        val centerSplitterVCenter =
+            if (draggableHeight != height && horizontalSide == HAlign.CENTER) 2.5 else min(15.0, preDragSize.x / 3.0)
         val verticalSide = when (relativeClickPos.y) {
             in -2.0..centerSplitterVCenter -> VAlign.TOP
             in centerSplitterVCenter..preDragSize.y - centerSplitterV -> VAlign.CENTER
@@ -188,7 +188,10 @@ open class WindowComponent(
 
     fun isInWindow(mousePos: Vec2f): Boolean {
         return visible && mousePos.x in preDragPos.x - 2.0f..preDragPos.x + preDragSize.x + 2.0f
-            && mousePos.y in preDragPos.y - 2.0f..preDragPos.y + max(preDragSize.y * renderMinimizeProgress, draggableHeight) + 2.0f
+            && mousePos.y in preDragPos.y - 2.0f..preDragPos.y + max(
+            preDragSize.y * renderMinimizeProgress,
+            draggableHeight
+        ) + 2.0f
     }
 
     init {

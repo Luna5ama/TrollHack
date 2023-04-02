@@ -8,6 +8,8 @@ import me.luna.trollhack.setting.settings.impl.other.ColorSetting
 import me.luna.trollhack.setting.settings.impl.primitive.BooleanSetting
 import me.luna.trollhack.setting.settings.impl.primitive.EnumSetting
 import me.luna.trollhack.setting.settings.impl.primitive.StringSetting
+import me.luna.trollhack.util.graphics.AnimationFlag
+import me.luna.trollhack.util.graphics.Easing
 import me.luna.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
 
@@ -17,7 +19,7 @@ abstract class SettingWindow<T : Any>(
     posX: Float,
     posY: Float,
     settingGroup: SettingGroup
-) : ListWindow(name, posX, posY, 150.0f, 200.0f, settingGroup) {
+) : ListWindow(name, posX, posY, 150.0f, 25.0f, settingGroup) {
 
     override val minWidth: Float get() = 100.0f
     override val minHeight: Float get() = draggableHeight
@@ -59,6 +61,7 @@ abstract class SettingWindow<T : Any>(
 
     override fun onDisplayed() {
         super.onDisplayed()
+        updateHeightToFit(true)
         lastActiveTime = System.currentTimeMillis() + 1000L
     }
 
@@ -88,4 +91,12 @@ abstract class SettingWindow<T : Any>(
         listeningChild?.onKeyInput(keyCode, keyState)
     }
 
+    override fun onRender(absolutePos: Vec2f) {
+        scrollSpeed = 0.0f
+        scrollProgress = 0.0f
+
+        updateHeightToFit(true)
+
+        super.onRender(absolutePos)
+    }
 }

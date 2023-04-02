@@ -19,6 +19,14 @@ inline fun <T> Iterable<T>.sumOfFloat(selector: (T) -> Float): Float {
     return sum
 }
 
+inline fun <T> Sequence<T>.sumOfFloat(selector: (T) -> Float): Float {
+    var sum = 0.0f
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
 inline fun CharSequence.sumOfFloat(selector: (Char) -> Float): Float {
     var sum = 0.0f
 

@@ -19,12 +19,24 @@ open class Slider(
     private val visibility: (() -> Boolean)?
 ) : InteractiveComponent(name, 0.0f, 0.0f, 40.0f, 10.0f, SettingGroup.NONE) {
 
+    override var posY: Float
+        get() = if (!visible) super.posY + 100.0f else super.posY
+        set(value) {
+            super.posY = value
+        }
+
+    override var height: Float
+        get() = super.height
+        set(value) {
+            super.height = value
+        }
+
     protected var inputField = ""
 
     protected open val progress: Float
         get() = 0.0f
 
-    protected val renderProgress = AnimationFlag(Easing.OUT_QUART, 200.0f)
+    protected val renderProgress = AnimationFlag(Easing.OUT_QUART, 300.0f)
 
     override val maxHeight
         get() = MainFontRenderer.getHeight() + 3.0f
@@ -95,11 +107,13 @@ open class Slider(
         }
 
         // Slider hover overlay
-        val overlayColor = getStateColor(prevState).mix(getStateColor(mouseState), Easing.OUT_CUBIC.inc(Easing.toDelta(lastStateUpdateTime, 200.0f)))
+        val overlayColor = getStateColor(prevState).mix(getStateColor(mouseState), Easing.OUT_CUBIC.inc(Easing.toDelta(lastStateUpdateTime, 300.0f)))
         RenderUtils2D.drawRectFilled(0.0f, 0.0f, renderWidth, renderHeight, overlayColor)
 
         // Slider frame
-        RenderUtils2D.drawRectOutline(0.0f, 0.0f, renderWidth, renderHeight, 1.25f, GuiSetting.outline)
+        if (GuiSetting.outline.a > 0) {
+            RenderUtils2D.drawRectOutline(0.0f, 0.0f, renderWidth, renderHeight, 1.25f, GuiSetting.outline)
+        }
 
         // Slider name
         val displayText = inputField.takeIf { listening } ?: name
