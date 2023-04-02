@@ -97,6 +97,8 @@ open class ListWindow(
 
         updateChild()
         for (child in children) child.onTick()
+
+        updateHovered(AbstractTrollGui.getRealMousePos().minus(posX, posY))
     }
 
     override fun onRender(absolutePos: Vec2f) {
