@@ -7,12 +7,14 @@ import dev.luna5ama.trollhack.event.events.combat.CombatEvent
 import dev.luna5ama.trollhack.event.events.combat.CrystalSetDeadEvent
 import dev.luna5ama.trollhack.event.events.combat.CrystalSpawnEvent
 import dev.luna5ama.trollhack.manager.Manager
+import dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityLivingBase
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
+import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.accessor.entityID
 import dev.luna5ama.trollhack.util.combat.CalcContext
@@ -22,6 +24,7 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystal
 import dev.luna5ama.trollhack.util.combat.DamageReduction
 import dev.luna5ama.trollhack.util.combat.MotionTracker
 import dev.luna5ama.trollhack.util.extension.fastFloor
+import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
@@ -38,13 +41,16 @@ import net.minecraft.network.play.server.*
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.sqrt
 
 object CombatManager : Manager() {
     private val combatModules: List<AbstractModule>
 
+    private val playerAttackTimeMap = WeakHashMap<EntityPlayer, Long>().synchronized()
     private val damageReductionTimer = TickTimer()
     private val damageReductions = MapMaker().weakKeys().makeMap<EntityLivingBase, DamageReduction>()
     private val hurtTimeMap = Int2LongMaps.synchronize(Int2LongOpenHashMap()).apply { defaultReturnValue(-1L) }
@@ -115,6 +121,7 @@ object CombatManager : Manager() {
                     }
                     CrystalSetDeadEvent(event.packet.x, event.packet.y, event.packet.z, list).post()
                 }
+
                 is SPacketSpawnObject -> {
                     if (event.packet.type == 51) {
                         val distSq = player.eyePosition.squareDistanceTo(event.packet.x, event.packet.y, event.packet.z)
@@ -130,6 +137,7 @@ object CombatManager : Manager() {
                         }
                     }
                 }
+
                 is SPacketAnimation -> {
                     if (event.packet.animationType == 1) {
                         val entityID = event.packet.entityID
@@ -137,11 +145,13 @@ object CombatManager : Manager() {
                         hurtTimeMap[entityID] = time
                     }
                 }
+
                 is SPacketCombatEvent -> {
                     if (event.packet.eventType == SPacketCombatEvent.Event.ENTITY_DIED && event.packet.playerId == player.entityId) {
                         EntityEvent.Death(player).post()
                     }
                 }
+
                 is SPacketEntityStatus -> {
                     when (event.packet.opCode.toInt()) {
                         3 -> {
@@ -152,16 +162,18 @@ object CombatManager : Manager() {
                                 target = null
                             }
                         }
+
                         2, 33, 36, 37 -> {
                             hurtTimeMap[event.packet.entityID] = System.currentTimeMillis()
                         }
                     }
                 }
+
                 is SPacketEntityMetadata -> {
                     val dataManagerEntries = event.packet.dataManagerEntries ?: return@safeListener
                     val entity = world.getEntityByID(event.packet.entityId) as? EntityLivingBase? ?: return@safeListener
                     val entry = dataManagerEntries.find {
-                        it.isDirty && it.key == runCatching { dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
+                        it.isDirty && it.key == runCatching { AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
                     } ?: return@safeListener
 
                     (entry.value as? Float)?.let {
@@ -179,6 +191,7 @@ object CombatManager : Manager() {
                         }
                     }
                 }
+
                 is SPacketDestroyEntities -> {
                     event.packet.entityIDs.forEach {
                         if (it == target?.entityId) target = null
@@ -215,6 +228,7 @@ object CombatManager : Manager() {
                 is EntityPlayer -> {
                     damageReductions[event.entity] = DamageReduction(event.entity)
                 }
+
                 is EntityEnderCrystal -> {
                     val distSq = event.entity.distanceSqTo(player.eyePosition)
                     if (distSq > CRYSTAL_RANGE_SQ) return@safeListener
@@ -247,6 +261,7 @@ object CombatManager : Manager() {
                 is EntityLivingBase -> {
                     damageReductions.remove(it.entity)
                 }
+
                 is EntityEnderCrystal -> {
                     crystalMap0.remove(it.entity)
                 }
@@ -265,6 +280,12 @@ object CombatManager : Manager() {
             CombatManager.trackerSelf = trackerSelf
 
             trackerTarget?.tick()
+
+            val attacked = player.lastAttackedEntity
+            if (attacked is EntityPlayer && attacked.isEntityAlive && !attacked.isFakeOrSelf) {
+                playerAttackTimeMap[attacked] =
+                    System.currentTimeMillis() - (player.ticksExisted - player.lastAttackedEntityTime) * 50L
+            }
         }
 
         safeListener<RunGameLoopEvent.Tick>(Int.MAX_VALUE) {
@@ -288,6 +309,10 @@ object CombatManager : Manager() {
                 }
             }
         }
+    }
+
+    fun getPlayerAttackTime(player: EntityPlayer): Long {
+        return playerAttackTimeMap[player] ?: -1L
     }
 
     fun getCrystalDamage(crystal: EntityEnderCrystal) =
