@@ -61,7 +61,7 @@ class TrollHackMod {
     companion object {
         const val NAME = "Troll Hack"
         const val ID = "trollhack"
-        const val VERSION = "0.0.8"
+        const val VERSION = "1.0.0"
         const val DIRECTORY = "trollhack"
 
         @JvmField
