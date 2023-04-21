@@ -3,7 +3,7 @@ import dev.fastmc.remapper.mapping.MappingName
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import kotlin.math.max
 
-group = "me.luna"
+group = "dev.luna5ama"
 version = "1.0.0"
 
 buildscript {
@@ -141,9 +141,9 @@ fastRemapper {
 }
 
 modLoader {
-    modPackage.set("me.luna.loader")
+    modPackage.set("dev.luna5ama.loader")
     defaultPlatform.set(ModPlatform.FORGE)
-    forgeModClass.set("me.luna.trollhack.TrollHackMod")
+    forgeModClass.set("dev.luna5ama.trollhack.TrollHackMod")
 }
 
 tasks {
@@ -215,7 +215,7 @@ tasks {
                 "-Dforge.logging.console.level=debug",
                 "-Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP",
                 "-Dmixin.env.disableRefMap=true",
-                "-Dfml.coreMods.load=me.luna.trollhack.TrollHackDevFixCoreMod"
+                "-Dfml.coreMods.load=dev.luna5ama.trollhack.TrollHackDevFixCoreMod"
             ).joinToString(" ")
 
             val dir = File(rootDir, ".idea/runConfigurations")
@@ -274,7 +274,7 @@ val fatjar = tasks.register<Jar>("fatjar") {
         attributes(
             "Manifest-Version" to 1.0,
             "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-            "FMLCorePlugin" to "me.luna.trollhack.TrollHackCoreMod",
+            "FMLCorePlugin" to "dev.luna5ama.trollhack.TrollHackCoreMod",
             "FMLCorePluginContainsFMLMod" to true,
             "ForceLoadAsMod" to true
         )
@@ -300,7 +300,7 @@ val fatjar = tasks.register<Jar>("fatjar") {
     )
 }
 
-val optimizeFatJar = jarOptimizer.register(fatjar, "me.luna", "org.spongepowered", "baritone")
+val optimizeFatJar = jarOptimizer.register(fatjar, "dev.luna5ama", "org.spongepowered", "baritone")
 
 afterEvaluate {
     tasks.register<Copy>("updateMods") {

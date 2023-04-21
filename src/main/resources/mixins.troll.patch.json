@@ -2,7 +2,7 @@
     "required" : false,
     "minVersion" : "0.7",
     "compatibilityLevel" : "JAVA_8",
-    "package" : "me.luna.trollhack.mixins.patch",
+    "package" : "dev.luna5ama.trollhack.mixins.patch",
     "refmap" : "mixins.troll.refmap.json",
     "client" : [
         "MixinDisplay",
