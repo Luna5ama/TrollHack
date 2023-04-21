@@ -43,7 +43,7 @@ object EjectCommand : ClientCommand(
                     if (!AutoEject.ejectMap.value.containsKey(itemName)) {
                         MessageSendUtils.sendNoSpamErrorMessage("§c$itemName is not in the eject list")
                     } else {
-                        AutoEject.ejectMap.value.remove(itemName)
+                        AutoEject.ejectMap.value.removeInt(itemName)
                         MessageSendUtils.sendNoSpamChatMessage("$itemName has been removed from the eject list")
                     }
                 }
