@@ -82,7 +82,7 @@ abstract class AbstractHudElement(
 
     open fun renderFrame() {
         RenderUtils2D.drawRectFilled(renderWidth, renderHeight, GuiSetting.backGround)
-        RenderUtils2D.drawRectOutline(renderWidth, renderHeight, 1.0f, GuiSetting.outline)
+        RenderUtils2D.drawRectOutline(renderWidth, renderHeight, 1.0f, GuiSetting.primary)
     }
 
     init {

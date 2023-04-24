@@ -87,7 +87,7 @@ internal object MapPreview : Module(
 
         // Draw the background
         drawRectFilled(x1, y1, x2, y2, GuiSetting.backGround)
-        drawRectOutline(x1, y1, x2, y2, 1.5f, GuiSetting.outline)
+        drawRectOutline(x1, y1, x2, y2, 1.5f, GuiSetting.primary)
 
         // Draw the name
         mc.fontRenderer.drawStringWithShadow(stack.displayName, 2f, -15f, Color.WHITE.rgb)

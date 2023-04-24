@@ -26,18 +26,16 @@ internal object GuiSetting : Module(
     val darkness by setting("Darkness", 0.25f, 0.0f..1.0f, 0.05f)
     val fadeInTime by setting("Fade In Time", 0.4f, 0.0f..1.0f, 0.05f)
     val fadeOutTime by setting("Fade Out Time", 0.4f, 0.0f..1.0f, 0.05f)
-    private val primarySetting by setting("Primary Color", ColorRGB(255, 160, 240, 220))
-    private val outlineSetting by setting("Outline Color", ColorRGB(240, 250, 255, 48))
-    private val backgroundSetting by setting("Background Color", ColorRGB(36, 40, 48, 160))
+    private val primarySetting by setting("Primary Color", ColorRGB(255, 140, 180, 220))
+    private val backgroundSetting by setting("Background Color", ColorRGB(40, 32, 36, 160))
     private val textSetting by setting("Text Color", ColorRGB(255, 250, 253, 255))
-    private val aHover by setting("Hover Alpha", 32, 0..255, 1)
+    private val aHover by setting("Hover Alpha", 24, 0..255, 1)
 
     val primary get() = primarySetting
     val idle get() = if (primary.lightness < 0.9f) ColorRGB(255, 255, 255, 0) else ColorRGB(0, 0, 0, 0)
     val hover get() = idle.alpha(aHover)
     val click get() = idle.alpha(aHover * 2)
     val backGround get() = backgroundSetting
-    val outline get() = outlineSetting
     val text get() = textSetting
 
     private var prevScale = scaleSetting.value / 100.0f

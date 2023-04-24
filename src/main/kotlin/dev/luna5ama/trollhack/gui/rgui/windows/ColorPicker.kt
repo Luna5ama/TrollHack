@@ -218,16 +218,6 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
 
         RenderUtils2D.releaseGl()
 
-        // Outline
-        RenderUtils2D.drawRectOutline(
-            fieldPos.first.x,
-            fieldPos.first.y,
-            fieldPos.second.x,
-            fieldPos.second.y,
-            1.5f,
-            GuiSetting.outline
-        )
-
         // Circle pointer
         val interpolatedSaturation = MathUtils.lerp(prevSaturation, saturation, RenderUtils3D.partialTicks)
         val interpolatedBrightness = MathUtils.lerp(prevBrightness, brightness, RenderUtils3D.partialTicks)
@@ -274,16 +264,6 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         RenderUtils2D.draw(GL_TRIANGLE_STRIP)
         RenderUtils2D.releaseGl()
 
-        // Outline
-        RenderUtils2D.drawRectOutline(
-            huePos.first.x,
-            huePos.first.y,
-            huePos.second.x,
-            huePos.second.y,
-            1.5f,
-            GuiSetting.outline
-        )
-
         // Arrow pointer
         val interpolatedHue = prevHue + (hue - prevHue) * mc.renderPartialTicks
         val pointerPosY = huePos.first.y + fieldHeight * interpolatedHue
@@ -315,14 +295,6 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
             prevColorPos.second.y,
             prevColor
         )
-        RenderUtils2D.drawRectOutline(
-            prevColorPos.first.x,
-            prevColorPos.first.y,
-            prevColorPos.second.x,
-            prevColorPos.second.y,
-            1.5f,
-            GuiSetting.outline
-        )
 
         // Current color
         val currentColor = ColorRGB(r.value, g.value, b.value)
@@ -332,14 +304,6 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
             currentColorPos.second.x,
             currentColorPos.second.y,
             currentColor
-        )
-        RenderUtils2D.drawRectOutline(
-            currentColorPos.first.x,
-            currentColorPos.first.y,
-            currentColorPos.second.x,
-            currentColorPos.second.y,
-            1.5f,
-            GuiSetting.outline
         )
 
         // Previous hex

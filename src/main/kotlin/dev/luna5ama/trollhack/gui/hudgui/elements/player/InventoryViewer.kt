@@ -31,7 +31,7 @@ internal object InventoryViewer : HudElement(
             RenderUtils2D.drawRectFilled(0.0f, 0.0f, 162.0f, 54.0f, color = GuiSetting.backGround)
         }
         if (border) {
-            RenderUtils2D.drawRectOutline(0.0f, 0.0f, 162.0f, 54.0f, lineWidth = 2.0f, color = GuiSetting.text)
+            RenderUtils2D.drawRectOutline(0.0f, 0.0f, 162.0f, 54.0f, lineWidth = 2.0f, color = GuiSetting.primary)
         }
     }
 

@@ -113,11 +113,6 @@ open class Slider(
         )
         RenderUtils2D.drawRectFilled(0.0f, 0.0f, renderWidth, renderHeight, overlayColor)
 
-        // Slider frame
-        if (GuiSetting.outline.a > 0) {
-            RenderUtils2D.drawRectOutline(0.0f, 0.0f, renderWidth, renderHeight, 1.25f, GuiSetting.outline)
-        }
-
         // Slider name
         val displayText = inputField.takeIf { listening } ?: name
         val prev = if (prevState == MouseState.NONE) 0.0f else 1.0f
