@@ -1,7 +1,7 @@
 [//]: <> (Thanks for the advice KiLAB, now I'm going to ice out the README even more)
 [//]: <> (Don't worry, these are comments, they won't actually show on the readme :)
 
-[![Download button](https://img.shields.io/badge/client-download-success.svg)](https://github.com/Luna5ama/TrollHack/releases/download/Release-1.0.0/TrollHack-1.0.0.jar)
+[![Download button](https://img.shields.io/badge/client-download-success.svg)](https://github.com/Luna5ama/TrollHack/releases/download/1.0.0/TrollHack-1.0.0.jar)
 ![Current version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Download count](https://img.shields.io/github/downloads/Luna5ama/TrollHack/latest/total)
 
