@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.world
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.manager.managers.FriendManager
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.combat.AntiBot
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.graphics.color.ColorGradient
@@ -79,7 +80,7 @@ internal object TextRadar : LabelHud(
     }
 
     private fun addName(player: EntityPlayer) {
-        val color = if (FriendManager.isFriend(player.name)) ColorRGB(32, 255, 32) else primaryColor
+        val color = if (FriendManager.isFriend(player.name)) ColorRGB(32, 255, 32) else GuiSetting.text
         displayText.add(player.name, color)
     }
 
@@ -93,15 +94,15 @@ internal object TextRadar : LabelHud(
 
     private fun addPotion(player: EntityPlayer) {
         if (combatPotion) {
-            if (player.isPotionActive(MobEffects.WEAKNESS)) displayText.add("W", secondaryColor)
-            if (player.isPotionActive(MobEffects.STRENGTH)) displayText.add("S", secondaryColor)
+            if (player.isPotionActive(MobEffects.WEAKNESS)) displayText.add("W", GuiSetting.primary)
+            if (player.isPotionActive(MobEffects.STRENGTH)) displayText.add("S", GuiSetting.primary)
         }
     }
 
     private fun addDist(distIn: Float) {
         if (distance) {
             val dist = MathUtils.round(distIn, 1)
-            displayText.add(dist.toString(), secondaryColor)
+            displayText.add(dist.toString(), GuiSetting.primary)
         }
     }
 }

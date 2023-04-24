@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.player
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.math.MathUtils
 import net.minecraft.util.EnumHand
 
@@ -17,19 +18,19 @@ internal object Durability : LabelHud(
 
     override fun SafeClientEvent.updateText() {
         if (mc.player.heldItemMainhand.isItemStackDamageable) {
-            if (showOffhand.value) displayText.add("MainHand:", secondaryColor)
+            if (showOffhand.value) displayText.add("MainHand:", GuiSetting.primary)
             addDurabilityText(EnumHand.MAIN_HAND)
         }
 
         if (showOffhand.value && mc.player.heldItemOffhand.isItemStackDamageable) {
-            displayText.add("OffHand:", secondaryColor)
+            displayText.add("OffHand:", GuiSetting.primary)
             addDurabilityText(EnumHand.OFF_HAND)
         }
     }
 
     private fun addDurabilityText(hand: EnumHand) {
         val itemStack = mc.player.getHeldItem(hand)
-        if (showItemName.value) displayText.add(itemStack.displayName, primaryColor)
+        if (showItemName.value) displayText.add(itemStack.displayName, GuiSetting.text)
 
         val durability = itemStack.maxDamage - itemStack.itemDamage
         val text = if (showPercentage.value) {
@@ -38,7 +39,7 @@ internal object Durability : LabelHud(
             "$durability/${itemStack.maxDamage}"
         }
 
-        displayText.addLine(text, primaryColor)
+        displayText.addLine(text, GuiSetting.text)
     }
 
 }

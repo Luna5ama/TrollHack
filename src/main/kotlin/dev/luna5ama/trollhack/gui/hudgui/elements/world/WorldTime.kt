@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.world
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import org.apache.commons.lang3.time.DurationFormatUtils
 
@@ -25,7 +26,7 @@ internal object WorldTime : LabelHud(
     }
 
     override fun SafeClientEvent.updateText() {
-        displayText.add("World Time ", secondaryColor)
+        displayText.add("World Time ", GuiSetting.primary)
 
         val ticks = getWorldTimeTicks()
 
@@ -39,24 +40,24 @@ internal object WorldTime : LabelHud(
 
                 val period = if (ticks < 12000L) "AM" else "PM"
 
-                displayText.add(timeString, primaryColor)
-                displayText.add(period, secondaryColor)
+                displayText.add(timeString, GuiSetting.text)
+                displayText.add(period, GuiSetting.primary)
             }
             DisplayMode.H24 -> {
                 val millis = ticks * 3600L
                 val timeString = DurationFormatUtils.formatDuration(millis, "HH:mm")
 
-                displayText.add(timeString, primaryColor)
+                displayText.add(timeString, GuiSetting.text)
             }
             DisplayMode.REAL_TIME -> {
                 val realTimeMillis = ticks * 50L
                 val timeString = DurationFormatUtils.formatDuration(realTimeMillis, "mm:ss")
 
-                displayText.add(timeString, primaryColor)
+                displayText.add(timeString, GuiSetting.text)
             }
             DisplayMode.TICKS -> {
-                displayText.add("$ticks", primaryColor)
-                displayText.add("ticks", secondaryColor)
+                displayText.add("$ticks", GuiSetting.text)
+                displayText.add("ticks", GuiSetting.primary)
             }
         }
     }

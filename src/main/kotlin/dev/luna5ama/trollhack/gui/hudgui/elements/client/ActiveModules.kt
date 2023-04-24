@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.ModuleManager
-import dev.luna5ama.trollhack.module.modules.client.Hud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.collections.ArrayMap
@@ -43,7 +43,6 @@ internal object ActiveModules : HudElement(
     private val indexedHue by setting("Indexed Hue", 0.5f, 0.0f..1.0f, 0.05f, rainbow0.atTrue())
     private val saturation by setting("Saturation", 0.5f, 0.0f..1.0f, 0.01f, rainbow0.atTrue())
     private val brightness by setting("Brightness", 1.0f, 0.0f..1.0f, 0.01f, rainbow0.atTrue())
-    private val frameColor by setting("Frame Color", ColorRGB(12, 16, 20, 127), true)
 
     private enum class Mode {
         LEFT_TAG,
@@ -173,15 +172,15 @@ internal object ActiveModules : HudElement(
 
                 when (mode) {
                     Mode.LEFT_TAG -> {
-                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, frameColor)
+                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, GuiSetting.backGround)
                         RenderUtils2D.drawRectFilled(-4.0f, 0.0f, -2.0f, yOffset, color)
                     }
                     Mode.RIGHT_TAG -> {
-                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, frameColor)
+                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, GuiSetting.backGround)
                         RenderUtils2D.drawRectFilled(textWidth + 2.0f, 0.0f, textWidth + 4.0f, yOffset, color)
                     }
                     Mode.FRAME -> {
-                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, frameColor)
+                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, GuiSetting.backGround)
                     }
                 }
 
@@ -193,7 +192,7 @@ internal object ActiveModules : HudElement(
                 index++
             }
         } else {
-            val color = secondaryColor
+            val color = GuiSetting.primary
             for (module in sortedModuleList) {
                 val timedFlag = toggleMap[module.id] ?: continue
                 val progress = timedFlag.progress
@@ -214,15 +213,15 @@ internal object ActiveModules : HudElement(
 
                 when (mode) {
                     Mode.LEFT_TAG -> {
-                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, frameColor)
+                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, GuiSetting.backGround)
                         RenderUtils2D.drawRectFilled(-4.0f, 0.0f, -2.0f, yOffset, color)
                     }
                     Mode.RIGHT_TAG -> {
-                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, frameColor)
+                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, GuiSetting.backGround)
                         RenderUtils2D.drawRectFilled(textWidth + 2.0f, 0.0f, textWidth + 4.0f, yOffset, color)
                     }
                     Mode.FRAME -> {
-                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, frameColor)
+                        RenderUtils2D.drawRectFilled(-2.0f, 0.0f, textWidth + 2.0f, yOffset, GuiSetting.backGround)
                     }
                 }
 
@@ -240,7 +239,7 @@ internal object ActiveModules : HudElement(
             this.newTextLine()
         }
 
-    private fun AbstractModule.newTextLine(color: ColorRGB = Hud.secondaryColor) =
+    private fun AbstractModule.newTextLine(color: ColorRGB = GuiSetting.primary) =
         TextComponent.TextLine(" ").apply {
             add(TextComponent.TextElement(nameAsString, color))
             getHudInfo().let {

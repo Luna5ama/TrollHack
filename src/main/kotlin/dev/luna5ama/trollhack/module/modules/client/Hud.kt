@@ -10,7 +10,4 @@ internal object Hud : Module(
     category = Category.CLIENT,
     visible = false,
     enabledByDefault = true
-) {
-    val primaryColor by setting("Primary Color", ColorRGB(255, 250, 253), false)
-    val secondaryColor by setting("Secondary Color", ColorRGB(255, 135, 230), false)
-}
+)

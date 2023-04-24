@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.player
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.manager.managers.TimerManager
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.MathUtils
@@ -33,8 +34,8 @@ internal object PlayerSpeed : LabelHud(
         averageSpeed *= speedUnit.multiplier
         averageSpeed = MathUtils.round(averageSpeed, 2)
 
-        displayText.add("%.2f".format(averageSpeed), primaryColor)
-        displayText.add(speedUnit.displayString, secondaryColor)
+        displayText.add("%.2f".format(averageSpeed), GuiSetting.text)
+        displayText.add(speedUnit.displayString, GuiSetting.primary)
     }
 
     private fun SafeClientEvent.updateSpeedList() {

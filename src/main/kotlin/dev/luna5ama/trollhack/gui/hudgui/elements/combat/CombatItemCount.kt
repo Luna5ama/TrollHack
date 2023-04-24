@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.combat
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.countItem
@@ -74,8 +75,8 @@ internal object CombatItemCount : LabelHud(
             if (showIcon) {
                 itemStacks[index].count = count + 1 // Weird way to get around Minecraft item count check
             } else if (count > -1) {
-                displayText.add(entry.key.nameAsString, primaryColor)
-                displayText.addLine("x$count", secondaryColor)
+                displayText.add(entry.key.nameAsString, GuiSetting.text)
+                displayText.addLine("x$count", GuiSetting.primary)
             }
         }
     }

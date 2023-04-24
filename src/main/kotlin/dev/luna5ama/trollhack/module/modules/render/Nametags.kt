@@ -10,6 +10,7 @@ import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.manager.managers.TotemPopManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.fastFloor
@@ -89,12 +90,8 @@ internal object Nametags : Module(
     )
     private val itemScale = setting("Item Scale", 0.8f, 0.1f..2.0f, 0.1f, page.atValue(Page.ITEM))
 
-    /* Frame */
-    private val frameColor by setting("Frame Color", ColorRGB(36, 44, 64, 150), true, page.atValue(Page.FRAME))
-    private val lineColor by setting("Line Color", ColorRGB(150, 200, 250), false, page.atValue(Page.FRAME))
-    private val margins = setting("Margins", 1.0f, 0.0f..4.0f, 0.1f, page.atValue(Page.FRAME))
-
     /* Rendering settings */
+    private val margins = setting("Margins", 1.0f, 0.0f..4.0f, 0.1f, page.atValue(Page.RENDERING))
     private val rText = setting("Text Red", 232, 0..255, 1, page.atValue(Page.RENDERING))
     private val gText = setting("Text Green", 229, 0..255, 1, page.atValue(Page.RENDERING))
     private val bText = setting("Text Blue", 255, 0..255, 1, page.atValue(Page.RENDERING))
@@ -105,7 +102,7 @@ internal object Nametags : Module(
     private val minDistScale = setting("Min Distance Scale", 0.35f, 0.0f..1.0f, 0.05f, page.atValue(Page.RENDERING))
 
     private enum class Page {
-        ENTITY_TYPE, CONTENT, ITEM, FRAME, RENDERING
+        ENTITY_TYPE, CONTENT, ITEM, RENDERING
     }
 
     private enum class ContentType {
@@ -551,10 +548,10 @@ internal object Nametags : Module(
         if (absorption > 0.0) {
             val absorptionColor = ColorRGB(234, 204, 32)
 
-            RenderUtils2D.putVertex(-halfWidth, -halfHeight, frameColor)
-            RenderUtils2D.putVertex(-halfWidth, halfHeight + 3.0f, frameColor)
-            RenderUtils2D.putVertex(halfWidth, halfHeight + 3.0f, frameColor)
-            RenderUtils2D.putVertex(halfWidth, -halfHeight, frameColor)
+            RenderUtils2D.putVertex(-halfWidth, -halfHeight, GuiSetting.backGround)
+            RenderUtils2D.putVertex(-halfWidth, halfHeight + 3.0f, GuiSetting.backGround)
+            RenderUtils2D.putVertex(halfWidth, halfHeight + 3.0f, GuiSetting.backGround)
+            RenderUtils2D.putVertex(halfWidth, -halfHeight, GuiSetting.backGround)
 
             RenderUtils2D.putVertex(-halfWidth, halfHeight - 1.0f, absorptionColor)
             RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, absorptionColor)
@@ -566,10 +563,10 @@ internal object Nametags : Module(
             RenderUtils2D.putVertex(-halfWidth + width * lineProgress, halfHeight + 3.0f, lineColor)
             RenderUtils2D.putVertex(-halfWidth + width * lineProgress, halfHeight + 1.0f, lineColor)
         } else {
-            RenderUtils2D.putVertex(-halfWidth, -halfHeight, frameColor)
-            RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, frameColor)
-            RenderUtils2D.putVertex(halfWidth, halfHeight + 1.0f, frameColor)
-            RenderUtils2D.putVertex(halfWidth, -halfHeight, frameColor)
+            RenderUtils2D.putVertex(-halfWidth, -halfHeight, GuiSetting.backGround)
+            RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, GuiSetting.backGround)
+            RenderUtils2D.putVertex(halfWidth, halfHeight + 1.0f, GuiSetting.backGround)
+            RenderUtils2D.putVertex(halfWidth, -halfHeight, GuiSetting.backGround)
 
             RenderUtils2D.putVertex(-halfWidth, halfHeight - 1.0f, lineColor)
             RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, lineColor)
@@ -602,15 +599,15 @@ internal object Nametags : Module(
 
         RenderUtils2D.prepareGl()
 
-        RenderUtils2D.putVertex(-halfWidth, -halfHeight, frameColor)
-        RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, frameColor)
-        RenderUtils2D.putVertex(halfWidth, halfHeight + 1.0f, frameColor)
-        RenderUtils2D.putVertex(halfWidth, -halfHeight, frameColor)
+        RenderUtils2D.putVertex(-halfWidth, -halfHeight, GuiSetting.backGround)
+        RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, GuiSetting.backGround)
+        RenderUtils2D.putVertex(halfWidth, halfHeight + 1.0f, GuiSetting.backGround)
+        RenderUtils2D.putVertex(halfWidth, -halfHeight, GuiSetting.backGround)
 
-        RenderUtils2D.putVertex(-halfWidth, halfHeight - 1.0f, lineColor)
-        RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, lineColor)
-        RenderUtils2D.putVertex(-halfWidth + width * 1.0f, halfHeight + 1.0f, lineColor)
-        RenderUtils2D.putVertex(-halfWidth + width * 1.0f, halfHeight - 1.0f, lineColor)
+        RenderUtils2D.putVertex(-halfWidth, halfHeight - 1.0f, GuiSetting.primary)
+        RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, GuiSetting.primary)
+        RenderUtils2D.putVertex(-halfWidth + width * 1.0f, halfHeight + 1.0f, GuiSetting.primary)
+        RenderUtils2D.putVertex(-halfWidth + width * 1.0f, halfHeight - 1.0f, GuiSetting.primary)
         RenderUtils2D.draw(GL_QUADS)
 
         RenderUtils2D.releaseGl()

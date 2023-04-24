@@ -113,10 +113,4 @@ abstract class AbstractHudElement(
         WORLD("World"),
         MISC("Misc")
     }
-
-    protected companion object {
-        val primaryColor get() = Hud.primaryColor
-        val secondaryColor get() = Hud.secondaryColor
-    }
-
 }

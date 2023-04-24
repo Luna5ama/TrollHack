@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.world
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.manager.managers.EntityManager
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.EntityUtils.isHostile
 import dev.luna5ama.trollhack.util.EntityUtils.isNeutral
 import dev.luna5ama.trollhack.util.EntityUtils.isPassive
@@ -60,8 +61,8 @@ internal object EntityList : LabelHud(
 
     override fun SafeClientEvent.updateText() {
         for ((name, count) in cacheMap) {
-            displayText.add(name, primaryColor)
-            displayText.addLine("x$count", secondaryColor)
+            displayText.add(name, GuiSetting.text)
+            displayText.addLine("x$count", GuiSetting.primary)
         }
         if (remainingEntries > 0) {
             displayText.addLine("...and $remainingEntries more")

@@ -102,7 +102,7 @@ internal object Radar : HudElement(
         glTranslated(halfSize, halfSize, 0.0)
 
         drawCircleFilled(radius = radius, color = GuiSetting.backGround)
-        drawCircleOutline(radius = radius, lineWidth = 1.5f, color = primaryColor)
+        drawCircleOutline(radius = radius, lineWidth = 1.5f, color = GuiSetting.text)
 
         glRotatef(-player.rotationYaw + 180.0f, 0.0f, 0.0f, 1.0f)
     }
@@ -119,7 +119,7 @@ internal object Radar : HudElement(
         buffer.begin(GL_POINTS, DefaultVertexFormats.POSITION_COLOR)
 
         // Player marker
-        buffer.pos(0.0, 0.0, 0.0).color(primaryColor.r, primaryColor.g, primaryColor.b, primaryColor.a).endVertex()
+        buffer.pos(0.0, 0.0, 0.0).color(GuiSetting.text.r, GuiSetting.text.g, GuiSetting.text.b, GuiSetting.text.a).endVertex()
 
         for (entity in getEntityList()) {
             val diff = EntityUtils.getInterpolatedPos(entity, partialTicks).subtract(playerPos)
@@ -277,7 +277,7 @@ internal object Radar : HudElement(
             name,
             MainFontRenderer.getWidth(name, 0.8f) * -0.5f,
             -radius.toFloat(),
-            secondaryColor,
+            GuiSetting.primary,
             0.8f
         )
         glRotatef(90.0f, 0.0f, 0.0f, 1.0f)

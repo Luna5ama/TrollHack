@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.TickTimer
 import org.lwjgl.opengl.Display
 import java.lang.reflect.Field
@@ -58,7 +59,7 @@ internal object Watermark : LabelHud(
     }
 
     override fun SafeClientEvent.updateText() {
-        displayText.add(TrollHackMod.NAME, secondaryColor)
-        displayText.add(TrollHackMod.VERSION, primaryColor)
+        displayText.add(TrollHackMod.NAME, GuiSetting.primary)
+        displayText.add(TrollHackMod.VERSION, GuiSetting.text)
     }
 }

@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.misc
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
@@ -44,7 +45,7 @@ internal object MemoryUsage : LabelHud(
     }
 
     override fun SafeClientEvent.updateText() {
-        displayText.add(getUsedMB().toString(), primaryColor)
+        displayText.add(getUsedMB().toString(), GuiSetting.text)
 
         if (showAllocations) {
             val current = System.nanoTime()
@@ -56,18 +57,18 @@ internal object MemoryUsage : LabelHud(
                     it.second / 3.0 / BYTE_TO_MB_D
                 }
             }
-            displayText.add("(${allocation.roundToInt()} MB/s)", primaryColor)
+            displayText.add("(${allocation.roundToInt()} MB/s)", GuiSetting.text)
         }
         if (showAllocated) {
             val allocatedMemory = Runtime.getRuntime().totalMemory() / BYTE_TO_MB
-            displayText.add(allocatedMemory.toString(), primaryColor)
+            displayText.add(allocatedMemory.toString(), GuiSetting.text)
         }
         if (showMax) {
             val maxMemory = Runtime.getRuntime().maxMemory() / BYTE_TO_MB
-            displayText.add(maxMemory.toString(), primaryColor)
+            displayText.add(maxMemory.toString(), GuiSetting.text)
         }
 
-        displayText.add("MB", secondaryColor)
+        displayText.add("MB", GuiSetting.primary)
     }
 
     private fun getUsedMB(): Int {

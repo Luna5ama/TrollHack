@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import kotlin.math.max
 import kotlin.math.min
 
@@ -63,26 +64,26 @@ internal object FPS : LabelHud(
 
         avg /= longFps.size
 
-        displayText.add("FPS", secondaryColor)
-        displayText.add(fps.toString(), primaryColor)
+        displayText.add("FPS", GuiSetting.primary)
+        displayText.add(fps.toString(), GuiSetting.text)
 
         if (showRenderTime) {
-            displayText.add("(%.2f ms)".format(renderTime), primaryColor)
+            displayText.add("(%.2f ms)".format(renderTime), GuiSetting.text)
         }
 
         if (showAverage.value) {
-            displayText.add("AVG", secondaryColor)
-            displayText.add(avg.toString(), primaryColor)
+            displayText.add("AVG", GuiSetting.primary)
+            displayText.add(avg.toString(), GuiSetting.text)
         }
 
         if (showMin.value) {
-            displayText.add("MIN", secondaryColor)
-            displayText.add(min.toString(), primaryColor)
+            displayText.add("MIN", GuiSetting.primary)
+            displayText.add(min.toString(), GuiSetting.text)
         }
 
         if (showMax.value) {
-            displayText.add("MAX", secondaryColor)
-            displayText.add(max.toString(), primaryColor)
+            displayText.add("MAX", GuiSetting.primary)
+            displayText.add(max.toString(), GuiSetting.text)
         }
     }
 

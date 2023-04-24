@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.world
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.math.VectorUtils.times
 import net.minecraft.util.math.Vec3d
@@ -25,17 +26,17 @@ internal object Coordinate : LabelHud(
     override fun SafeClientEvent.updateText() {
         val entity = mc.renderViewEntity ?: player
 
-        displayText.add("XYZ", secondaryColor)
+        displayText.add("XYZ", GuiSetting.primary)
         displayText.addLine(getFormattedCoords(entity.positionVector))
 
         if (showNetherOverworld) {
             when (entity.dimension) {
                 -1 -> { // Nether
-                    displayText.add("Overworld", secondaryColor)
+                    displayText.add("Overworld", GuiSetting.primary)
                     displayText.addLine(getFormattedCoords(entity.positionVector * netherToOverworld))
                 }
                 0 -> { // Overworld
-                    displayText.add("Nether", secondaryColor)
+                    displayText.add("Nether", GuiSetting.primary)
                     displayText.addLine(getFormattedCoords(entity.positionVector * overworldToNether))
                 }
             }
@@ -50,7 +51,7 @@ internal object Coordinate : LabelHud(
             if (showX) append(x)
             if (showY) appendWithComma(y)
             if (showZ) appendWithComma(z)
-            TextComponent.TextElement(toString(), primaryColor)
+            TextComponent.TextElement(toString(), GuiSetting.text)
         }
     }
 
