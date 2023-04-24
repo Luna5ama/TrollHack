@@ -24,7 +24,6 @@ open class Component(
     val settingGroup: SettingGroup,
     val config: AbstractConfig<out Nameable> = GuiConfig
 ) : Nameable {
-
     // Basic info
     protected val visibleSetting = setting("Visible", true, { false }, { _, it -> it || !closeable })
     var visible by visibleSetting
@@ -57,8 +56,8 @@ open class Component(
 
     protected var relativePosX by setting("Pos X", posXIn, -69420.911f..69420.911f, 0.1f, { false },
         { _, it ->
-            if (this is WindowComponent && TrollHackMod.ready) absToRelativeX(
-                relativeToAbsX(it).coerceIn(
+            if (this is WindowComponent && TrollHackMod.ready) a2rX(
+                r2aX(it).coerceIn(
                     0.0f,
                     max(scaledDisplayWidth - widthSetting, 0.0f)
                 )
@@ -70,8 +69,8 @@ open class Component(
     }
     protected var relativePosY by setting("Pos Y", posYIn, -69420.911f..69420.911f, 0.1f, { false },
         { _, it ->
-            if (this is WindowComponent && TrollHackMod.ready) absToRelativeY(
-                relativeToAbsY(it).coerceIn(
+            if (this is WindowComponent && TrollHackMod.ready) a2rY(
+                r2aY(it).coerceIn(
                     0.0f,
                     max(scaledDisplayHeight - heightSetting, 0.0f)
                 )
@@ -87,20 +86,20 @@ open class Component(
 
     open var posX: Float
         get() {
-            return relativeToAbsX(relativePosX)
+            return r2aX(relativePosX)
         }
         set(value) {
             if (!TrollHackMod.ready) return
-            relativePosX = absToRelativeX(value)
+            relativePosX = a2rX(value)
         }
 
     open var posY: Float
         get() {
-            return relativeToAbsY(relativePosY)
+            return r2aY(relativePosY)
         }
         set(value) {
             if (!TrollHackMod.ready) return
-            relativePosY = absToRelativeY(value)
+            relativePosY = a2rY(value)
         }
 
     open var width: Float
@@ -116,8 +115,14 @@ open class Component(
         }
 
     init {
-        dockingHSetting.listeners.add { posX = renderPosXFlag.prev }
-        dockingVSetting.listeners.add { posY = renderPosYFlag.prev }
+        dockingHSetting.valueListeners.add { prev, current ->
+            relativePosX = a2rX(r2aX(relativePosX, prev), current)
+            renderPosXFlag.forceUpdate(relativePosX, relativePosX)
+        }
+        dockingVSetting.valueListeners.add { prev, current ->
+            relativePosY = a2rY(r2aY(relativePosY, prev), current)
+            renderPosYFlag.forceUpdate(relativePosY, relativePosY)
+        }
     }
 
     // Extra info
@@ -129,8 +134,12 @@ open class Component(
     open val closeable: Boolean get() = true
 
     // Rendering info
-    val renderPosXFlag = AnimationFlag(Easing.OUT_CUBIC, 200.0f)
-    val renderPosYFlag = AnimationFlag(Easing.OUT_CUBIC, 200.0f)
+    val renderPosXFlag = AnimationFlag { time, prev, current ->
+        r2aX(Easing.OUT_CUBIC.incOrDec(Easing.toDelta(time, 200.0f), prev, current))
+    }
+    val renderPosYFlag = AnimationFlag { time, prev, current ->
+        r2aY(Easing.OUT_CUBIC.incOrDec(Easing.toDelta(time, 200.0f), prev, current))
+    }
     val renderWidthFlag = AnimationFlag(Easing.OUT_CUBIC, 200.0f)
     val renderHeightFlag = AnimationFlag(Easing.OUT_CUBIC, 200.0f)
 
@@ -139,20 +148,26 @@ open class Component(
     open val renderWidth by FrameValue(renderWidthFlag::get)
     open val renderHeight by FrameValue(renderHeightFlag::get)
 
-    private fun relativeToAbsX(xIn: Float) = xIn + scaledDisplayWidth * dockingH.multiplier - dockWidth
-    private fun relativeToAbsY(yIn: Float) = yIn + scaledDisplayHeight * dockingV.multiplier - dockHeight
-    private fun absToRelativeX(xIn: Float) = xIn - scaledDisplayWidth * dockingH.multiplier + dockWidth
-    private fun absToRelativeY(yIn: Float) = yIn - scaledDisplayHeight * dockingV.multiplier + dockHeight
+    private fun r2aX(x: Float, docking: HAlign) = x + scaledDisplayWidth * docking.multiplier - dockWidth(docking)
+    private fun r2aY(y: Float, docking: VAlign) = y + scaledDisplayHeight * docking.multiplier - dockHeight(docking)
+    private fun a2rX(x: Float, docking: HAlign) = x - scaledDisplayWidth * docking.multiplier + dockWidth(docking)
+    private fun a2rY(y: Float, docking: VAlign) = y - scaledDisplayHeight * docking.multiplier + dockHeight(docking)
+
+    private fun r2aX(x: Float) = r2aX(x, dockingH)
+    private fun r2aY(y: Float) = r2aY(y, dockingV)
+    private fun a2rX(x: Float) = a2rX(x, dockingH)
+    private fun a2rY(y: Float) = a2rY(y, dockingV)
+
+    private fun dockWidth(docking: HAlign)= width * docking.multiplier
+    private fun dockHeight(docking: VAlign) = height * docking.multiplier
 
     protected val scaledDisplayWidth get() = mc.displayWidth / GuiSetting.scaleFactorFloat
     protected val scaledDisplayHeight get() = mc.displayHeight / GuiSetting.scaleFactorFloat
-    private val dockWidth get() = width * dockingH.multiplier
-    private val dockHeight get() = height * dockingV.multiplier
 
     // Update methods
     open fun onDisplayed() {
-        renderPosXFlag.forceUpdate(posX, posX)
-        renderPosYFlag.forceUpdate(posY, posY)
+        renderPosXFlag.forceUpdate(relativePosX, relativePosX)
+        renderPosYFlag.forceUpdate(relativePosY, relativePosY)
         renderWidthFlag.forceUpdate(width, width)
         renderHeightFlag.forceUpdate(height, height)
     }
@@ -162,8 +177,8 @@ open class Component(
     open fun onGuiInit() {}
 
     open fun onTick() {
-        renderPosXFlag.update(posX)
-        renderPosYFlag.update(posY)
+        renderPosXFlag.update(relativePosX)
+        renderPosYFlag.update(relativePosY)
         renderWidthFlag.update(width)
         renderHeightFlag.update(height)
     }
@@ -177,5 +192,4 @@ open class Component(
         CLICK_GUI("click_gui"),
         HUD_GUI("hud_gui")
     }
-
 }
