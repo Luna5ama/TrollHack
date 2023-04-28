@@ -68,7 +68,7 @@ object MainThreadExecutor : AlwaysListening {
                 try {
                     packet.processPacket(processor)
                 } catch (exception: RuntimeException) {
-                    TrollHackMod.logger.fatal("Error processing packet", exception);
+                    TrollHackMod.logger.fatal("Error processing packet", exception)
                 }
             }
         }

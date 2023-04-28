@@ -10,5 +10,4 @@ public interface AccessorEntityTippedArrow {
     @Accessor("potion")
     PotionType getPotion();
 
-    ;
 }

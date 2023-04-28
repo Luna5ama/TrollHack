@@ -14,7 +14,17 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(value = RenderManager.class, priority = 114514)
 public class MixinRenderManager {
     @Inject(method = "renderEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/Render;setRenderOutlines(Z)V", shift = At.Shift.BEFORE), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void renderEntityPre(Entity entity, double x, double y, double z, float yaw, float partialTicks, boolean debug, CallbackInfo ci, Render<Entity> render) {
+    public void renderEntityPre(
+        Entity entity,
+        double x,
+        double y,
+        double z,
+        float yaw,
+        float partialTicks,
+        boolean debug,
+        CallbackInfo ci,
+        Render<Entity> render
+    ) {
         if (entity == null || render == null || !RenderEntityEvent.getRenderingEntities()) return;
 
         RenderEntityEvent eventAll = new RenderEntityEvent.All.Pre(entity, x, y, z, yaw, partialTicks, render);
@@ -29,17 +39,45 @@ public class MixinRenderManager {
     }
 
     @Inject(method = "renderEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/Render;doRender(Lnet/minecraft/entity/Entity;DDDFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void renderEntityPeri(Entity entity, double x, double y, double z, float yaw, float partialTicks, boolean debug, CallbackInfo ci, Render<Entity> render) {
+    public void renderEntityPeri(
+        Entity entity,
+        double x,
+        double y,
+        double z,
+        float yaw,
+        float partialTicks,
+        boolean debug,
+        CallbackInfo ci,
+        Render<Entity> render
+    ) {
         if (entity == null || render == null || !RenderEntityEvent.getRenderingEntities()) return;
 
         if (!(entity instanceof EntityLivingBase)) {
-            RenderEntityEvent.Model.Post eventModel = RenderEntityEvent.Model.Post.of(entity, x, y, z, yaw, partialTicks, render);
+            RenderEntityEvent.Model.Post eventModel = RenderEntityEvent.Model.Post.of(
+                entity,
+                x,
+                y,
+                z,
+                yaw,
+                partialTicks,
+                render
+            );
             eventModel.post();
         }
     }
 
     @Inject(method = "renderEntity", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void renderEntityPost(Entity entity, double x, double y, double z, float yaw, float partialTicks, boolean debug, CallbackInfo ci, Render<Entity> render) {
+    public void renderEntityPost(
+        Entity entity,
+        double x,
+        double y,
+        double z,
+        float yaw,
+        float partialTicks,
+        boolean debug,
+        CallbackInfo ci,
+        Render<Entity> render
+    ) {
         if (entity == null || render == null || !RenderEntityEvent.getRenderingEntities()) return;
 
         RenderEntityEvent event = new RenderEntityEvent.All.Post(entity, x, y, z, yaw, partialTicks, render);

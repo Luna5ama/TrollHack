@@ -18,7 +18,11 @@ public class MixinPacketThreadUtil {
      * @reason Fuck
      */
     @Overwrite
-    public static <T extends INetHandler> void checkThreadAndEnqueue(final Packet<T> packetIn, final T processor, IThreadListener scheduler) throws ThreadQuickExitException {
+    public static <T extends INetHandler> void checkThreadAndEnqueue(
+        final Packet<T> packetIn,
+        final T processor,
+        IThreadListener scheduler
+    ) throws ThreadQuickExitException {
         if (!scheduler.isCallingFromMinecraftThread()) {
             if (scheduler == Minecraft.getMinecraft()) {
                 MainThreadExecutor.INSTANCE.addProcessingPacket(packetIn, processor);

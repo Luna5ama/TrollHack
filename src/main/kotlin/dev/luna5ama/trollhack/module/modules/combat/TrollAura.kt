@@ -1150,9 +1150,7 @@ internal object TrollAura : Module(
 
         if (!contextSelf.checkColliding(crystalDamage.crystalPos)) return false
         if (!contextTarget.checkColliding(crystalDamage.crystalPos)) return false
-        if (checkColliding && !placeSyncCheck(crystalDamage.blockPos)) return false
-
-        return true
+        return !(checkColliding && !placeSyncCheck(crystalDamage.blockPos))
     }
 
     private fun SafeClientEvent.placeDistCheck(

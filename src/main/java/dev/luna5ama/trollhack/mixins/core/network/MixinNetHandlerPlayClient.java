@@ -27,13 +27,29 @@ public class MixinNetHandlerPlayClient {
     private boolean doneLoadingTerrain;
 
     @Inject(method = "handlePlayerPosLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setPositionAndRotation(DDDFF)V", shift = At.Shift.BEFORE), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
-    public void writePacketData(SPacketPlayerPosLook packetIn, CallbackInfo ci, EntityPlayer entityplayer, double d0, double d1, double d2, float f, float f1) {
+    public void writePacketData(
+        SPacketPlayerPosLook packetIn,
+        CallbackInfo ci,
+        EntityPlayer entityplayer,
+        double d0,
+        double d1,
+        double d2,
+        float f,
+        float f1
+    ) {
         if (NoRotate.INSTANCE.isEnabled()) {
             ci.cancel();
 
             entityplayer.setPosition(d0, d1, d2);
             this.netManager.sendPacket(new CPacketConfirmTeleport(packetIn.getTeleportId()));
-            this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, f, f1, false));
+            this.netManager.sendPacket(new CPacketPlayer.PositionRotation(
+                entityplayer.posX,
+                entityplayer.getEntityBoundingBox().minY,
+                entityplayer.posZ,
+                f,
+                f1,
+                false
+            ));
 
             if (!this.doneLoadingTerrain) {
                 this.client.player.prevPosX = this.client.player.posX;

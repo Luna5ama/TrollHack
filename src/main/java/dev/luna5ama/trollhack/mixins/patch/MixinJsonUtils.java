@@ -25,6 +25,6 @@ public abstract class MixinJsonUtils {
     @Overwrite
     @Nullable
     public static <T> T gsonDeserialize(Gson gsonIn, String json, Class<T> adapter) {
-        return (T) gsonDeserialize(gsonIn, json, adapter, true);
+        return gsonDeserialize(gsonIn, json, adapter, true);
     }
 }

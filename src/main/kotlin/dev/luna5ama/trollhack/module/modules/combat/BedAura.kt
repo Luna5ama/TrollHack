@@ -489,7 +489,7 @@ internal object BedAura : Module(
                 CPacketPlayerTryUseItemOnBlock(
                     placeInfo.bedPosFoot,
                     side,
-                    dev.luna5ama.trollhack.module.modules.combat.BedAura.handMode,
+                    handMode,
                     hitVecOffset.x,
                     hitVecOffset.y,
                     hitVecOffset.z

@@ -27,7 +27,11 @@ public abstract class MixinGuiChat extends GuiScreen {
         GuiScreen currentScreen = Wrapper.getMinecraft().currentScreen;
         if (currentScreen instanceof GuiChat && !(currentScreen instanceof TrollGuiChat)
             && inputField.getText().startsWith(CommandManager.INSTANCE.getPrefix())) {
-            Wrapper.getMinecraft().displayGuiScreen(new TrollGuiChat(inputField.getText(), historyBuffer, sentHistoryCursor));
+            Wrapper.getMinecraft().displayGuiScreen(new TrollGuiChat(
+                inputField.getText(),
+                historyBuffer,
+                sentHistoryCursor
+            ));
         }
     }
 

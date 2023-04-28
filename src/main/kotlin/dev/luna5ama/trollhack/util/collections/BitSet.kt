@@ -118,9 +118,7 @@ abstract class AbstractBitSet<E> : MutableSet<E> {
 
         other as AbstractBitSet<*>
 
-        if (bit != other.bit) return false
-
-        return true
+        return bit == other.bit
     }
 
     override fun hashCode(): Int {

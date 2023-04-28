@@ -195,7 +195,7 @@ enum class Easing {
             get() = OUT_BACK
 
         override fun inc0(x: Float): Float {
-            return 2.70158f * x.cubic - 1.70158f * x.sq;
+            return 2.70158f * x.cubic - 1.70158f * x.sq
         }
     },
     OUT_BACK {

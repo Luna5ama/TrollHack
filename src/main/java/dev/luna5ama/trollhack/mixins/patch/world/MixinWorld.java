@@ -33,7 +33,20 @@ public abstract class MixinWorld {
      */
     @Overwrite
     @Nullable
-    public RayTraceResult rayTraceBlocks(Vec3d vec31, Vec3d vec32, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock) {
-        return RaytraceKt.rayTrace((World) (Object) this, vec31, vec32, stopOnLiquid, ignoreBlockWithoutBoundingBox, returnLastUncollidableBlock);
+    public RayTraceResult rayTraceBlocks(
+        Vec3d vec31,
+        Vec3d vec32,
+        boolean stopOnLiquid,
+        boolean ignoreBlockWithoutBoundingBox,
+        boolean returnLastUncollidableBlock
+    ) {
+        return RaytraceKt.rayTrace(
+            (World) (Object) this,
+            vec31,
+            vec32,
+            stopOnLiquid,
+            ignoreBlockWithoutBoundingBox,
+            returnLastUncollidableBlock
+        );
     }
 }

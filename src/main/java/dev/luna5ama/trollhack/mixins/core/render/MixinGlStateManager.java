@@ -26,7 +26,12 @@ abstract class MixinGlStateManager<T extends Entity> {
             if (x == 0 && y == 0) {
                 GL11.glViewport(x, y, framebuffer.framebufferWidth, framebuffer.framebufferHeight);
             } else {
-                GL11.glViewport((int) (x * sampleLevel), (int) (y * sampleLevel), (int) (width * sampleLevel), (int) (height * sampleLevel));
+                GL11.glViewport(
+                    (int) (x * sampleLevel),
+                    (int) (y * sampleLevel),
+                    (int) (width * sampleLevel),
+                    (int) (height * sampleLevel)
+                );
             }
         }
     }

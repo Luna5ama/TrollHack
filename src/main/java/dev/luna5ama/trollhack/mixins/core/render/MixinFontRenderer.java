@@ -38,16 +38,37 @@ public abstract class MixinFontRenderer {
     protected abstract void renderStringAtPos(String text, boolean shadow);
 
     @Inject(method = "drawString(Ljava/lang/String;FFIZ)I", at = @At("HEAD"), cancellable = true)
-    private void drawString$Inject$HEAD(String text, float x, float y, int color, boolean dropShadow, CallbackInfoReturnable<Integer> cir) {
+    private void drawString$Inject$HEAD(
+        String text,
+        float x,
+        float y,
+        int color,
+        boolean dropShadow,
+        CallbackInfoReturnable<Integer> cir
+    ) {
         handleDrawString(text, x, y, color, dropShadow, cir);
     }
 
     @Inject(method = "renderString", at = @At("HEAD"), cancellable = true)
-    private void renderString$Inject$HEAD(String text, float x, float y, int color, boolean shadow, CallbackInfoReturnable<Integer> cir) {
+    private void renderString$Inject$HEAD(
+        String text,
+        float x,
+        float y,
+        int color,
+        boolean shadow,
+        CallbackInfoReturnable<Integer> cir
+    ) {
         handleDrawString(text, x, y, color, false, cir);
     }
 
-    private void handleDrawString(String text, float x, float y, int color, boolean drawShadow, CallbackInfoReturnable<Integer> cir) {
+    private void handleDrawString(
+        String text,
+        float x,
+        float y,
+        int color,
+        boolean drawShadow,
+        CallbackInfoReturnable<Integer> cir
+    ) {
         if (TrollHackMod.isReady() && CustomFont.INSTANCE.getOverrideMinecraft()) {
             posX = x;
             posY = y;
@@ -57,15 +78,28 @@ public abstract class MixinFontRenderer {
                 GlStateManager.color(red, blue, green, alpha); // Big Mojang meme :monkey:
             }
 
-            GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.tryBlendFuncSeparate(
+                GL_SRC_ALPHA,
+                GL_ONE_MINUS_SRC_ALPHA,
+                GL_SRC_ALPHA,
+                GL_ONE_MINUS_SRC_ALPHA
+            );
             MainFontRenderer.INSTANCE.drawStringJava(text, x, y, color, 1.0f, drawShadow);
             cir.setReturnValue(MathKt.fastCeil(x + MainFontRenderer.INSTANCE.getWidth(text)));
         }
     }
 
     @Inject(method = "renderString", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;renderStringAtPos(Ljava/lang/String;Z)V", shift = At.Shift.BEFORE), cancellable = true)
-    private void renderString$Inject$INVOKE$renderStringAtPos(String text, float x, float y, int color, boolean shadow, CallbackInfoReturnable<Integer> cir) {
-        if (TrollHackMod.isReady() && !CustomFont.INSTANCE.getOverrideMinecraft() && Emoji.INSTANCE.isEnabled() && text.contains(":")) {
+    private void renderString$Inject$INVOKE$renderStringAtPos(
+        String text,
+        float x,
+        float y,
+        int color,
+        boolean shadow,
+        CallbackInfoReturnable<Integer> cir
+    ) {
+        if (TrollHackMod.isReady() && !CustomFont.INSTANCE.getOverrideMinecraft() && Emoji.INSTANCE.isEnabled() && text.contains(
+            ":")) {
             text = Emoji.renderText(text, FONT_HEIGHT, shadow, posX, posY, alpha);
             GlStateManager.color(red, blue, green, alpha); // Big Mojang meme :monkey:
             renderStringAtPos(text, shadow);
@@ -86,7 +120,8 @@ public abstract class MixinFontRenderer {
 
     @Inject(method = "getStringWidth", at = @At("TAIL"), cancellable = true)
     public void getStringWidth$Inject$TAIL(String text, CallbackInfoReturnable<Integer> cir) {
-        if (TrollHackMod.isReady() && cir.getReturnValue() != 0 && !CustomFont.INSTANCE.getOverrideMinecraft() && Emoji.INSTANCE.isEnabled() && text.contains(":")) {
+        if (TrollHackMod.isReady() && cir.getReturnValue() != 0 && !CustomFont.INSTANCE.getOverrideMinecraft() && Emoji.INSTANCE.isEnabled() && text.contains(
+            ":")) {
             cir.setReturnValue(Emoji.getStringWidth(cir.getReturnValue(), text, FONT_HEIGHT));
         }
     }

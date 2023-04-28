@@ -42,7 +42,16 @@ public abstract class MixinModelBiped extends ModelBase {
     protected abstract ModelRenderer getArmForSide(EnumHandSide side);
 
     @Inject(method = "setRotationAngles", at = @At("HEAD"), cancellable = true)
-    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn, CallbackInfo ci) {
+    public void setRotationAngles(
+        float limbSwing,
+        float limbSwingAmount,
+        float ageInTicks,
+        float netHeadYaw,
+        float headPitch,
+        float scaleFactor,
+        Entity entityIn,
+        CallbackInfo ci
+    ) {
         if (entityIn == Wrapper.getMinecraft().player && ElytraFlight.INSTANCE.shouldSwing()) {
             ci.cancel();
 

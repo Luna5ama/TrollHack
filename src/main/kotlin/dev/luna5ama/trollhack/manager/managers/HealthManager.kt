@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.event.events.combat.TotemPopEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
+import dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityLivingBase
 import dev.luna5ama.trollhack.util.accessor.entityID
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
@@ -50,7 +51,7 @@ object HealthManager : Manager() {
                     }
 
                     val entry = dataManagerEntries.find {
-                        it.isDirty && it.key == runCatching { dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
+                        it.isDirty && it.key == runCatching { AccessorEntityLivingBase.trollGetHealthDataKey() }.getOrNull()
                     } ?: return@safeListener
 
                     (entry.value as? Float)?.let { health ->

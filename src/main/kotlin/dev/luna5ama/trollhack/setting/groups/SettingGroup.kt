@@ -86,9 +86,7 @@ open class SettingGroup(
         other as SettingGroup
 
         if (name != other.name) return false
-        if (subSetting != other.subSetting) return false
-
-        return true
+        return subSetting == other.subSetting
     }
 
     override fun hashCode(): Int {

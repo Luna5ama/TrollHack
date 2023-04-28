@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module
 
+import dev.luna5ama.trollhack.AsyncLoader
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.util.ClassUtils.instance
 import dev.luna5ama.trollhack.util.TimeUnit
@@ -11,7 +12,7 @@ import kotlinx.coroutines.Deferred
 import java.lang.reflect.Modifier
 import kotlin.system.measureTimeMillis
 
-object ModuleManager : dev.luna5ama.trollhack.AsyncLoader<List<Class<out AbstractModule>>>, Helper {
+object ModuleManager : AsyncLoader<List<Class<out AbstractModule>>>, Helper {
     override var deferred: Deferred<List<Class<out AbstractModule>>>? = null
 
     private val moduleSet = AliasSet<AbstractModule>()
@@ -21,7 +22,7 @@ object ModuleManager : dev.luna5ama.trollhack.AsyncLoader<List<Class<out Abstrac
     val modules by modulesDelegate
 
     override suspend fun preLoad0(): List<Class<out AbstractModule>> {
-        val classes = dev.luna5ama.trollhack.AsyncLoader.classes.await()
+        val classes = AsyncLoader.classes.await()
         val list: List<Class<*>>
 
         val time = measureTimeMillis {

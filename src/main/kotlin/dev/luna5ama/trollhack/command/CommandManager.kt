@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.command
 
+import dev.luna5ama.trollhack.AsyncLoader
+import dev.luna5ama.trollhack.AsyncLoader.Companion
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.ClientExecuteEvent
 import dev.luna5ama.trollhack.event.IListenerOwner
@@ -15,13 +17,12 @@ import kotlinx.coroutines.runBlocking
 import java.lang.reflect.Modifier
 import kotlin.system.measureTimeMillis
 
-object CommandManager : AbstractCommandManager<ClientExecuteEvent>(),
-    dev.luna5ama.trollhack.AsyncLoader<List<Class<out ClientCommand>>> {
+object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoader<List<Class<out ClientCommand>>> {
     override var deferred: Deferred<List<Class<out ClientCommand>>>? = null
     val prefix: String get() = CommandSetting.prefix
 
     override suspend fun preLoad0(): List<Class<out ClientCommand>> {
-        val classes = dev.luna5ama.trollhack.AsyncLoader.classes.await()
+        val classes = AsyncLoader.classes.await()
         val list: List<Class<*>>
 
         val time = measureTimeMillis {

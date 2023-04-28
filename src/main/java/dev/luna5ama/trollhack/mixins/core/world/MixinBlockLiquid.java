@@ -16,7 +16,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockLiquid.class)
 public class MixinBlockLiquid {
     @Inject(method = "modifyAcceleration", at = @At("HEAD"), cancellable = true)
-    public void modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion, CallbackInfoReturnable<Vec3d> cir) {
+    public void modifyAcceleration(
+        World worldIn,
+        BlockPos pos,
+        Entity entityIn,
+        Vec3d motion,
+        CallbackInfoReturnable<Vec3d> cir
+    ) {
         if (Velocity.shouldCancelLiquidVelocity()) {
             cir.setReturnValue(motion);
         }

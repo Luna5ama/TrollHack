@@ -148,9 +148,7 @@ object WaypointManager : Manager() {
             if (date != other.date) return false
             if (id != other.id) return false
             if (server != other.server) return false
-            if (dimension != other.dimension) return false
-
-            return true
+            return dimension == other.dimension
         }
 
         override fun hashCode(): Int {

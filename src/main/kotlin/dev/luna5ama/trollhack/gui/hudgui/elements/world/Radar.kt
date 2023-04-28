@@ -119,7 +119,8 @@ internal object Radar : HudElement(
         buffer.begin(GL_POINTS, DefaultVertexFormats.POSITION_COLOR)
 
         // Player marker
-        buffer.pos(0.0, 0.0, 0.0).color(GuiSetting.text.r, GuiSetting.text.g, GuiSetting.text.b, GuiSetting.text.a).endVertex()
+        buffer.pos(0.0, 0.0, 0.0).color(GuiSetting.text.r, GuiSetting.text.g, GuiSetting.text.b, GuiSetting.text.a)
+            .endVertex()
 
         for (entity in getEntityList()) {
             val diff = EntityUtils.getInterpolatedPos(entity, partialTicks).subtract(playerPos)

@@ -31,8 +31,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-;
-
 @Mixin(value = EntityPlayerSP.class, priority = Integer.MAX_VALUE)
 public abstract class MixinEntityPlayerSP extends EntityPlayer {
     @Shadow
@@ -162,7 +160,12 @@ public abstract class MixinEntityPlayerSP extends EntityPlayer {
         float rotationY = this.rotationPitch;
         boolean onGround = this.onGround;
 
-        OnUpdateWalkingPlayerEvent.Pre eventPre = new OnUpdateWalkingPlayerEvent.Pre(position, rotationX, rotationY, onGround);
+        OnUpdateWalkingPlayerEvent.Pre eventPre = new OnUpdateWalkingPlayerEvent.Pre(
+            position,
+            rotationX,
+            rotationY,
+            onGround
+        );
         eventPre.post();
         PlayerPacketManager.INSTANCE.applyPacket(eventPre);
 
@@ -190,7 +193,12 @@ public abstract class MixinEntityPlayerSP extends EntityPlayer {
             this.autoJumpEnabled = this.mc.gameSettings.autoJump;
         }
 
-        OnUpdateWalkingPlayerEvent.Post eventPos = new OnUpdateWalkingPlayerEvent.Post(position, rotationX, rotationY, onGround);
+        OnUpdateWalkingPlayerEvent.Post eventPos = new OnUpdateWalkingPlayerEvent.Post(
+            position,
+            rotationX,
+            rotationY,
+            onGround
+        );
         eventPos.post();
     }
 
@@ -220,14 +228,35 @@ public abstract class MixinEntityPlayerSP extends EntityPlayer {
         }
     }
 
-    private void sendPlayerPacket(boolean moving, boolean rotating, Vec3d position, float rotationX, float rotationY, boolean onGround) {
+    private void sendPlayerPacket(
+        boolean moving,
+        boolean rotating,
+        Vec3d position,
+        float rotationX,
+        float rotationY,
+        boolean onGround
+    ) {
         if (!this.isCurrentViewEntity()) return;
 
         if (this.isRiding()) {
-            this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, rotationX, rotationY, onGround));
+            this.connection.sendPacket(new CPacketPlayer.PositionRotation(
+                this.motionX,
+                -999.0D,
+                this.motionZ,
+                rotationX,
+                rotationY,
+                onGround
+            ));
             moving = false;
         } else if (moving && rotating) {
-            this.connection.sendPacket(new CPacketPlayer.PositionRotation(position.x, position.y, position.z, rotationX, rotationY, onGround));
+            this.connection.sendPacket(new CPacketPlayer.PositionRotation(
+                position.x,
+                position.y,
+                position.z,
+                rotationX,
+                rotationY,
+                onGround
+            ));
         } else if (moving) {
             this.connection.sendPacket(new CPacketPlayer.Position(position.x, position.y, position.z, onGround));
         } else if (rotating) {

@@ -76,9 +76,7 @@ object FriendManager : Manager() {
             if (other !is FriendFile) return false
 
             if (enabled != other.enabled) return false
-            if (friends != other.friends) return false
-
-            return true
+            return friends == other.friends
         }
 
         override fun hashCode(): Int {

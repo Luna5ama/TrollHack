@@ -35,7 +35,15 @@ public abstract class MixinRenderEnderCrystal extends Render<EntityEnderCrystal>
     }
 
     @Inject(method = "doRender", at = @At("HEAD"), cancellable = true)
-    public void doRender$Inject$HEAD(EntityEnderCrystal entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
+    public void doRender$Inject$HEAD(
+        EntityEnderCrystal entity,
+        double x,
+        double y,
+        double z,
+        float entityYaw,
+        float partialTicks,
+        CallbackInfo ci
+    ) {
         if (CrystalChams.INSTANCE.isEnabled() && !RenderEntityEvent.getRenderingEntities()) {
             float spinTicks = (float) entity.innerRotation + partialTicks;
             float floatTicks = MathHelper.sin(spinTicks * 0.2f * CrystalChams.INSTANCE.getFloatSpeed()) / 2.0f + 0.5f;
@@ -51,14 +59,30 @@ public abstract class MixinRenderEnderCrystal extends Render<EntityEnderCrystal>
             if (CrystalChams.INSTANCE.getFilled()) {
                 CrystalChams.setFilledColor();
                 GlStateUtils.INSTANCE.depth(CrystalChams.INSTANCE.getFilledDepth());
-                model.render(entity, 0.0f, spinTicks * 3.0f * spinSpeed, floatTicks * 0.2f, 0.0f, 0.0f, 0.0625f * scale);
+                model.render(
+                    entity,
+                    0.0f,
+                    spinTicks * 3.0f * spinSpeed,
+                    floatTicks * 0.2f,
+                    0.0f,
+                    0.0f,
+                    0.0625f * scale
+                );
             }
 
             if (CrystalChams.INSTANCE.getOutline()) {
                 CrystalChams.setOutlineColor();
                 GlStateUtils.INSTANCE.depth(CrystalChams.INSTANCE.getOutlineDepth());
                 GlStateManager.glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                model.render(entity, 0.0f, spinTicks * 3.0f * spinSpeed, floatTicks * 0.2f, 0.0f, 0.0f, 0.0625f * scale);
+                model.render(
+                    entity,
+                    0.0f,
+                    spinTicks * 3.0f * spinSpeed,
+                    floatTicks * 0.2f,
+                    0.0f,
+                    0.0f,
+                    0.0625f * scale
+                );
                 GlStateManager.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
@@ -71,7 +95,19 @@ public abstract class MixinRenderEnderCrystal extends Render<EntityEnderCrystal>
                 double posX = blockpos.getX() + 0.5f - entity.posX;
                 double posY = blockpos.getY() + 0.5f - entity.posY;
                 double posZ = blockpos.getZ() + 0.5f - entity.posZ;
-                RenderDragon.renderCrystalBeams(x + posX, y - 0.3D + (double) (floatTicks * 0.4f) + posY, z + posZ, partialTicks, (float) blockpos.getX() + 0.5f, (float) blockpos.getY() + 0.5f, (float) blockpos.getZ() + 0.5f, entity.innerRotation, entity.posX, entity.posY, entity.posZ);
+                RenderDragon.renderCrystalBeams(
+                    x + posX,
+                    y - 0.3D + (double) (floatTicks * 0.4f) + posY,
+                    z + posZ,
+                    partialTicks,
+                    (float) blockpos.getX() + 0.5f,
+                    (float) blockpos.getY() + 0.5f,
+                    (float) blockpos.getZ() + 0.5f,
+                    entity.innerRotation,
+                    entity.posX,
+                    entity.posY,
+                    entity.posZ
+                );
             }
 
             GlStateManager.disableTexture2D();

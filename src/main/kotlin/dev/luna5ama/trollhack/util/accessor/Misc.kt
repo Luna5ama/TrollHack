@@ -1,5 +1,8 @@
 package dev.luna5ama.trollhack.util.accessor
 
+import dev.luna5ama.trollhack.mixins.accessor.*
+import dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntity
+import dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityTippedArrow
 import net.minecraft.client.Minecraft
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.Entity
@@ -9,44 +12,44 @@ import net.minecraft.potion.PotionType
 import net.minecraft.util.Timer
 import net.minecraft.world.chunk.BlockStateContainer
 
-val Entity.isInWeb: Boolean get() = (this as dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntity).`troll$getIsInWeb`()
+val Entity.isInWeb: Boolean get() = (this as AccessorEntity).`troll$getIsInWeb`()
 
 fun Entity.getFlag(flag: Int) {
-    (this as dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntity).`troll$getFlag`(flag)
+    (this as AccessorEntity).`troll$getFlag`(flag)
 }
 
 fun Entity.setFlag(flag: Int, value: Boolean) {
-    (this as dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntity).`troll$setFlag`(flag, value)
+    (this as AccessorEntity).`troll$setFlag`(flag, value)
 }
 
 val EntityTippedArrow.potion: PotionType
-    get() = (this as dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityTippedArrow).potion
+    get() = (this as AccessorEntityTippedArrow).potion
 
-val ItemTool.attackDamage get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorItemTool).attackDamage
+val ItemTool.attackDamage get() = (this as AccessorItemTool).attackDamage
 
-val Minecraft.timer: Timer get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorMinecraft).trollGetTimer()
-val Minecraft.renderPartialTicksPaused: Float get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorMinecraft).renderPartialTicksPaused
+val Minecraft.timer: Timer get() = (this as AccessorMinecraft).trollGetTimer()
+val Minecraft.renderPartialTicksPaused: Float get() = (this as AccessorMinecraft).renderPartialTicksPaused
 var Minecraft.rightClickDelayTimer: Int
-    get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorMinecraft).rightClickDelayTimer
+    get() = (this as AccessorMinecraft).rightClickDelayTimer
     set(value) {
-        (this as dev.luna5ama.trollhack.mixins.accessor.AccessorMinecraft).rightClickDelayTimer = value
+        (this as AccessorMinecraft).rightClickDelayTimer = value
     }
 
 fun Minecraft.rightClickMouse() =
-    (this as dev.luna5ama.trollhack.mixins.accessor.AccessorMinecraft).invokeRightClickMouse()
+    (this as AccessorMinecraft).invokeRightClickMouse()
 
 fun Minecraft.sendClickBlockToController(leftClick: Boolean) =
-    (this as dev.luna5ama.trollhack.mixins.accessor.AccessorMinecraft).invokeSendClickBlockToController(leftClick)
+    (this as AccessorMinecraft).invokeSendClickBlockToController(leftClick)
 
 var Timer.tickLength: Float
-    get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorTimer).trollGetTickLength()
+    get() = (this as AccessorTimer).trollGetTickLength()
     set(value) {
-        (this as dev.luna5ama.trollhack.mixins.accessor.AccessorTimer).trollSetTickLength(value)
+        (this as AccessorTimer).trollSetTickLength(value)
     }
 
 fun KeyBinding.unpressKey() =
-    (this as dev.luna5ama.trollhack.mixins.accessor.AccessorKeyBinding).`troll$invoke$unpressKey`()
+    (this as AccessorKeyBinding).`troll$invoke$unpressKey`()
 
-val BlockStateContainer.storage get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorBlockStateContainer).trollGetStorage()
+val BlockStateContainer.storage get() = (this as AccessorBlockStateContainer).trollGetStorage()
 
-val BlockStateContainer.palette get() = (this as dev.luna5ama.trollhack.mixins.accessor.AccessorBlockStateContainer).trollGetPalette()
+val BlockStateContainer.palette get() = (this as AccessorBlockStateContainer).trollGetPalette()

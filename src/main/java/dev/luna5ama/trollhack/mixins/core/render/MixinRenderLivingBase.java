@@ -24,18 +24,54 @@ public class MixinRenderLivingBase<T extends EntityLivingBase> {
     }
 
     @Inject(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V", shift = At.Shift.BEFORE))
-    public void renderModelHead(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, CallbackInfo ci) {
+    public void renderModelHead(
+        T entity,
+        float limbSwing,
+        float limbSwingAmount,
+        float ageInTicks,
+        float netHeadYaw,
+        float headPitch,
+        float scaleFactor,
+        CallbackInfo ci
+    ) {
         if (entity == null || !RenderEntityEvent.getRenderingEntities()) return;
 
-        RenderEntityEvent.Model.Pre eventModel = RenderEntityEvent.Model.Pre.of(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, mainModel);
+        RenderEntityEvent.Model.Pre eventModel = RenderEntityEvent.Model.Pre.of(
+            entity,
+            limbSwing,
+            limbSwingAmount,
+            ageInTicks,
+            netHeadYaw,
+            headPitch,
+            scaleFactor,
+            mainModel
+        );
         eventModel.post();
     }
 
     @Inject(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V", shift = At.Shift.AFTER))
-    public void renderEntityReturn(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, CallbackInfo ci) {
+    public void renderEntityReturn(
+        T entity,
+        float limbSwing,
+        float limbSwingAmount,
+        float ageInTicks,
+        float netHeadYaw,
+        float headPitch,
+        float scaleFactor,
+        CallbackInfo ci
+    ) {
         if (entity == null || !RenderEntityEvent.getRenderingEntities()) return;
 
-        RenderEntityEvent.Model.Post eventModel = RenderEntityEvent.Model.Post.of(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, mainModel);
+        RenderEntityEvent.Model.Post eventModel = RenderEntityEvent.Model.Post.of(
+            entity,
+            limbSwing,
+            limbSwingAmount,
+            ageInTicks,
+            netHeadYaw,
+            headPitch,
+            scaleFactor,
+            mainModel
+        );
         eventModel.post();
     }
 }

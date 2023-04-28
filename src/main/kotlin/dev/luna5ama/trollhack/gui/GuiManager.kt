@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.gui
 
+import dev.luna5ama.trollhack.AsyncLoader
+import dev.luna5ama.trollhack.AsyncLoader.Companion
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.gui.clickgui.TrollClickGui
 import dev.luna5ama.trollhack.gui.hudgui.AbstractHudElement
@@ -12,7 +14,7 @@ import kotlinx.coroutines.Deferred
 import java.lang.reflect.Modifier
 import kotlin.system.measureTimeMillis
 
-internal object GuiManager : dev.luna5ama.trollhack.AsyncLoader<List<Class<out AbstractHudElement>>> {
+internal object GuiManager : AsyncLoader<List<Class<out AbstractHudElement>>> {
     override var deferred: Deferred<List<Class<out AbstractHudElement>>>? = null
     private val hudElementSet = AliasSet<AbstractHudElement>()
 
@@ -21,7 +23,7 @@ internal object GuiManager : dev.luna5ama.trollhack.AsyncLoader<List<Class<out A
     }
 
     override suspend fun preLoad0(): List<Class<out AbstractHudElement>> {
-        val classes = dev.luna5ama.trollhack.AsyncLoader.classes.await()
+        val classes = AsyncLoader.classes.await()
         val list: List<Class<*>>
 
         val time = measureTimeMillis {

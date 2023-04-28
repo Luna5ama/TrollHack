@@ -120,7 +120,11 @@ public class MixinEntityRenderer {
     }
 
     @Inject(method = "getFOVModifier", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
-    public void getFOVModifier$Inject$RETURN(float partialTicks, boolean useFOVSetting, CallbackInfoReturnable<Float> cir) {
+    public void getFOVModifier$Inject$RETURN(
+        float partialTicks,
+        boolean useFOVSetting,
+        CallbackInfoReturnable<Float> cir
+    ) {
         if (useFOVSetting) {
             Fov.getFOVModifierNoDynamicFov(cir);
         }

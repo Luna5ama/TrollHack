@@ -28,7 +28,7 @@ class TrollHackMod {
         val directory = File("${DIRECTORY}/")
         if (!directory.exists()) directory.mkdir()
 
-        dev.luna5ama.trollhack.LoaderWrapper.preLoadAll()
+        LoaderWrapper.preLoadAll()
         TranslationManager.checkUpdate()
 
         Thread.currentThread().priority = Thread.MAX_PRIORITY
@@ -39,7 +39,7 @@ class TrollHackMod {
     fun init(event: FMLInitializationEvent) {
         logger.info("Initializing $NAME $VERSION")
 
-        dev.luna5ama.trollhack.LoaderWrapper.loadAll()
+        LoaderWrapper.loadAll()
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
         ConfigUtils.loadAll()
         BackgroundScope.start()

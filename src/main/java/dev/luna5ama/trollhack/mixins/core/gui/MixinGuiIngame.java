@@ -58,13 +58,24 @@ public abstract class MixinGuiIngame extends Gui {
                 this.zLevel = f;
                 GlStateManager.enableRescaleNormal();
                 GlStateManager.enableBlend();
-                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                GlStateManager.tryBlendFuncSeparate(
+                    GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                    GlStateManager.SourceFactor.ONE,
+                    GlStateManager.DestFactor.ZERO
+                );
                 RenderHelper.enableGUIStandardItemLighting();
 
                 for (int l = 0; l < 9; ++l) {
                     int i1 = i - 90 + l * 20 + 2;
                     int j1 = sr.getScaledHeight() - 16 - 3;
-                    this.renderHotbarItem(i1, j1, partialTicks, entityplayer, entityplayer.inventory.mainInventory.get(l));
+                    this.renderHotbarItem(
+                        i1,
+                        j1,
+                        partialTicks,
+                        entityplayer,
+                        entityplayer.inventory.mainInventory.get(l)
+                    );
                 }
 
                 if (!itemstack.isEmpty()) {

@@ -158,7 +158,7 @@ open class Component(
     private fun a2rX(x: Float) = a2rX(x, dockingH)
     private fun a2rY(y: Float) = a2rY(y, dockingV)
 
-    private fun dockWidth(docking: HAlign)= width * docking.multiplier
+    private fun dockWidth(docking: HAlign) = width * docking.multiplier
     private fun dockHeight(docking: VAlign) = height * docking.multiplier
 
     protected val scaledDisplayWidth get() = mc.displayWidth / GuiSetting.scaleFactorFloat

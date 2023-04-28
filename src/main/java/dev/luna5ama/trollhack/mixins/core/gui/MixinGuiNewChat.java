@@ -23,7 +23,21 @@ public abstract class MixinGuiNewChat {
     private List<ChatLine> drawnChatLines;
 
     @Inject(method = "setChatLine", at = @At(value = "INVOKE", target = "Ljava/util/List;size()I", ordinal = 0, remap = false), cancellable = true)
-    public void setChatLineInvokeSize(ITextComponent chatComponent, int chatLineId, int updateCounter, boolean displayOnly, CallbackInfo ci) {
-        ExtraChatHistory.handleSetChatLine(drawnChatLines, chatLines, chatComponent, chatLineId, updateCounter, displayOnly, ci);
+    public void setChatLineInvokeSize(
+        ITextComponent chatComponent,
+        int chatLineId,
+        int updateCounter,
+        boolean displayOnly,
+        CallbackInfo ci
+    ) {
+        ExtraChatHistory.handleSetChatLine(
+            drawnChatLines,
+            chatLines,
+            chatComponent,
+            chatLineId,
+            updateCounter,
+            displayOnly,
+            ci
+        );
     }
 }

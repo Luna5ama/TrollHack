@@ -27,23 +27,43 @@ public abstract class MixinRenderPlayer extends RenderLivingBase<AbstractClientP
     protected abstract void setModelVisibilities(AbstractClientPlayer clientPlayer);
 
     @Inject(method = "applyRotations", at = @At("RETURN"))
-    protected void applyRotations(AbstractClientPlayer entityLiving, float ageInTicks, float rotationYaw, float partialTicks, CallbackInfo ci) {
+    protected void applyRotations(
+        AbstractClientPlayer entityLiving,
+        float ageInTicks,
+        float rotationYaw,
+        float partialTicks,
+        CallbackInfo ci
+    ) {
         if (entityLiving == Wrapper.getMinecraft().player && ElytraFlight.INSTANCE.shouldSwing()) {
             Vec3d vec3d = entityLiving.getLook(partialTicks);
             double d0 = entityLiving.motionX * entityLiving.motionX + entityLiving.motionZ * entityLiving.motionZ;
             double d1 = vec3d.x * vec3d.x + vec3d.z * vec3d.z;
 
             if (d0 > 0.0D && d1 > 0.0D) {
-                double d2 = (entityLiving.motionX * vec3d.x + entityLiving.motionZ * vec3d.z) / (Math.sqrt(d0) * Math.sqrt(d1));
+                double d2 = (entityLiving.motionX * vec3d.x + entityLiving.motionZ * vec3d.z) / (Math.sqrt(d0) * Math.sqrt(
+                    d1));
                 double d3 = entityLiving.motionX * vec3d.z - entityLiving.motionZ * vec3d.x;
-                GlStateManager.rotate(-((float) (Math.signum(d3) * Math.acos(d2)) * 180.0F / (float) Math.PI), 0.0F, 1.0F, 0.0F);
+                GlStateManager.rotate(
+                    -((float) (Math.signum(d3) * Math.acos(d2)) * 180.0F / (float) Math.PI),
+                    0.0F,
+                    1.0F,
+                    0.0F
+                );
             }
         }
     }
 
     // Force it to render the original player in Freecam
     @Inject(method = "doRender", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/RenderManager;renderViewEntity:Lnet/minecraft/entity/Entity;"))
-    public void doRenderGetRenderViewEntity(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
+    public void doRenderGetRenderViewEntity(
+        AbstractClientPlayer entity,
+        double x,
+        double y,
+        double z,
+        float entityYaw,
+        float partialTicks,
+        CallbackInfo ci
+    ) {
         if (Freecam.INSTANCE.isEnabled() && Wrapper.getMinecraft().getRenderViewEntity() != entity) {
             double renderY = y;
 

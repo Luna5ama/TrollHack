@@ -13,7 +13,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Container.class)
 public class MixinContainer {
     @Inject(method = "slotClick", at = @At("HEAD"))
-    public void Inject$slotClick$HEAD(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player, CallbackInfoReturnable<ItemStack> cir) {
+    public void Inject$slotClick$HEAD(
+        int slotId,
+        int dragType,
+        ClickType clickTypeIn,
+        EntityPlayer player,
+        CallbackInfoReturnable<ItemStack> cir
+    ) {
         InventorySync.handleSlotClick((Container) (Object) this, dragType, slotId, clickTypeIn);
     }
 }

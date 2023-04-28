@@ -56,7 +56,11 @@ public abstract class MixinEntity {
 
     @SuppressWarnings("ConstantConditions")
     @Inject(method = "rayTrace", at = @At("HEAD"), cancellable = true)
-    public void rayTrace$Inject$INVOKE$rayTraceBlocks(double blockReachDistance, float partialTicks, CallbackInfoReturnable<RayTraceResult> cir) {
+    public void rayTrace$Inject$INVOKE$rayTraceBlocks(
+        double blockReachDistance,
+        float partialTicks,
+        CallbackInfoReturnable<RayTraceResult> cir
+    ) {
         if ((Object) this == Wrapper.getPlayer()) {
             GhostHand.handleRayTrace(blockReachDistance, partialTicks, cir);
         }

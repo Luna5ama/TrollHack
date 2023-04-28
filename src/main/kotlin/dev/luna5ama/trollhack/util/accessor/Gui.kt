@@ -1,5 +1,9 @@
 package dev.luna5ama.trollhack.util.accessor
 
+import dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiBossOverlay
+import dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiChat
+import dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiDisconnected
+import dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiEditSign
 import net.minecraft.client.gui.*
 import net.minecraft.client.gui.inventory.GuiEditSign
 import net.minecraft.tileentity.TileEntitySign
@@ -7,24 +11,24 @@ import net.minecraft.util.text.ITextComponent
 import net.minecraft.world.BossInfo
 import java.util.*
 
-val GuiBossOverlay.mapBossInfos: Map<UUID, BossInfoClient>? get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiBossOverlay).mapBossInfos
+val GuiBossOverlay.mapBossInfos: Map<UUID, BossInfoClient>? get() = (this as AccessorGuiBossOverlay).mapBossInfos
 fun GuiBossOverlay.render(x: Int, y: Int, info: BossInfo) =
-    (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiBossOverlay).invokeRender(x, y, info)
+    (this as AccessorGuiBossOverlay).invokeRender(x, y, info)
 
 var GuiChat.historyBuffer: String
-    get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiChat).historyBuffer
+    get() = (this as AccessorGuiChat).historyBuffer
     set(value) {
-        (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiChat).historyBuffer = value
+        (this as AccessorGuiChat).historyBuffer = value
     }
 var GuiChat.sentHistoryCursor: Int
-    get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiChat).sentHistoryCursor
+    get() = (this as AccessorGuiChat).sentHistoryCursor
     set(value) {
-        (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiChat).sentHistoryCursor = value
+        (this as AccessorGuiChat).sentHistoryCursor = value
     }
 
-val GuiDisconnected.parentScreen: GuiScreen get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiDisconnected).parentScreen
-val GuiDisconnected.reason: String get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiDisconnected).reason
-val GuiDisconnected.message: ITextComponent get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiDisconnected).message
+val GuiDisconnected.parentScreen: GuiScreen get() = (this as AccessorGuiDisconnected).parentScreen
+val GuiDisconnected.reason: String get() = (this as AccessorGuiDisconnected).reason
+val GuiDisconnected.message: ITextComponent get() = (this as AccessorGuiDisconnected).message
 
-val GuiEditSign.tileSign: TileEntitySign get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiEditSign).tileSign
-val GuiEditSign.editLine: Int get() = (this as dev.luna5ama.trollhack.mixins.accessor.gui.AccessorGuiEditSign).editLine
+val GuiEditSign.tileSign: TileEntitySign get() = (this as AccessorGuiEditSign).tileSign
+val GuiEditSign.editLine: Int get() = (this as AccessorGuiEditSign).editLine

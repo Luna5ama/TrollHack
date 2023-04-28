@@ -60,7 +60,12 @@ public abstract class MixinPlayerControllerMP {
     }
 
     @Inject(method = "clickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/state/IBlockState;", ordinal = 2), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void clickBlock$Inject$INVOKE$getBlockState(BlockPos pos, EnumFacing side, CallbackInfoReturnable<Boolean> cir, PlayerInteractEvent.LeftClickBlock forgeEvent) {
+    public void clickBlock$Inject$INVOKE$getBlockState(
+        BlockPos pos,
+        EnumFacing side,
+        CallbackInfoReturnable<Boolean> cir,
+        PlayerInteractEvent.LeftClickBlock forgeEvent
+    ) {
         InteractEvent.Block.LeftClick event = new InteractEvent.Block.LeftClick(pos, side);
         event.post();
 
@@ -70,7 +75,11 @@ public abstract class MixinPlayerControllerMP {
     }
 
     @Inject(method = "clickBlock", at = @At(value = "FIELD", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;blockHitDelay:I", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
-    public void clickBlock$Inject$FIELD$blockHitDelay$PUTFIELD(BlockPos pos, EnumFacing side, CallbackInfoReturnable<Boolean> cir) {
+    public void clickBlock$Inject$FIELD$blockHitDelay$PUTFIELD(
+        BlockPos pos,
+        EnumFacing side,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
         FastBreak.updateBreakDelay();
     }
 
@@ -85,18 +94,34 @@ public abstract class MixinPlayerControllerMP {
     }
 
     @Inject(method = "onPlayerDamageBlock", at = @At(value = "FIELD", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;blockHitDelay:I", opcode = Opcodes.PUTFIELD, ordinal = 1, shift = At.Shift.AFTER))
-    public void onPlayerDamageBlock$Inject$FIELD$blockHitDelay$PUTFIELD$1(BlockPos pos, EnumFacing side, CallbackInfoReturnable<Boolean> cir) {
+    public void onPlayerDamageBlock$Inject$FIELD$blockHitDelay$PUTFIELD$1(
+        BlockPos pos,
+        EnumFacing side,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
         FastBreak.updateBreakDelay();
     }
 
     @Inject(method = "onPlayerDamageBlock", at = @At(value = "FIELD", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;blockHitDelay:I", opcode = Opcodes.PUTFIELD, ordinal = 2, shift = At.Shift.AFTER))
-    public void onPlayerDamageBlock$Inject$FIELD$blockHitDelay$PUTFIELD$2(BlockPos pos, EnumFacing side, CallbackInfoReturnable<Boolean> cir) {
+    public void onPlayerDamageBlock$Inject$FIELD$blockHitDelay$PUTFIELD$2(
+        BlockPos pos,
+        EnumFacing side,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
         FastBreak.updateBreakDelay();
     }
 
 
     @Inject(method = "processRightClickBlock", at = @At("HEAD"), cancellable = true)
-    public void processRightClickBlock$Inject$HEAD(EntityPlayerSP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
+    public void processRightClickBlock$Inject$HEAD(
+        EntityPlayerSP player,
+        WorldClient worldIn,
+        BlockPos pos,
+        EnumFacing direction,
+        Vec3d vec,
+        EnumHand hand,
+        CallbackInfoReturnable<EnumActionResult> cir
+    ) {
         InteractEvent.Block.RightClick event = new InteractEvent.Block.RightClick(pos, direction);
         event.post();
 
@@ -106,7 +131,12 @@ public abstract class MixinPlayerControllerMP {
     }
 
     @Inject(method = "processRightClick", at = @At("HEAD"), cancellable = true)
-    public void processRightClick$Inject$HEAD(EntityPlayer player, World worldIn, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
+    public void processRightClick$Inject$HEAD(
+        EntityPlayer player,
+        World worldIn,
+        EnumHand hand,
+        CallbackInfoReturnable<EnumActionResult> cir
+    ) {
         int count;
         if (FastUse.INSTANCE.isDisabled() || (count = FastUse.INSTANCE.getMultiUse()) == 1) return;
 

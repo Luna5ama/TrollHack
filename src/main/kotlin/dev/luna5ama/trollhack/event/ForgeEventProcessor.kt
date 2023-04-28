@@ -2,7 +2,9 @@ package dev.luna5ama.trollhack.event
 
 import dev.luna5ama.trollhack.command.CommandManager
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
+import dev.luna5ama.trollhack.event.events.InputEvent.*
 import dev.luna5ama.trollhack.event.events.TickEvent
+import dev.luna5ama.trollhack.event.events.WorldEvent.*
 import dev.luna5ama.trollhack.event.events.baritone.BaritoneCommandEvent
 import dev.luna5ama.trollhack.event.events.player.InteractEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerPushOutOfBlockEvent
@@ -72,7 +74,7 @@ internal object ForgeEventProcessor : ListenerOwner() {
     fun onKeyInput(event: InputEvent.KeyInputEvent) {
         val key = Keyboard.getEventKey()
         val state = Keyboard.getEventKeyState()
-        dev.luna5ama.trollhack.event.events.InputEvent.Keyboard(key, state).post()
+        Keyboard(key, state).post()
 
         if (!state) return
 
@@ -99,7 +101,7 @@ internal object ForgeEventProcessor : ListenerOwner() {
 
     @SubscribeEvent
     fun onEventMouse(event: InputEvent.MouseInputEvent) {
-        dev.luna5ama.trollhack.event.events.InputEvent.Mouse(Mouse.getEventButton(), Mouse.getEventButtonState()).post()
+        Mouse(Mouse.getEventButton(), Mouse.getEventButtonState()).post()
     }
 
     @SubscribeEvent
@@ -136,7 +138,7 @@ internal object ForgeEventProcessor : ListenerOwner() {
     fun onLoadWorld(event: WorldEvent.Load) {
         if (event.world.isRemote) {
             event.world.addEventListener(WorldManager)
-            dev.luna5ama.trollhack.event.events.WorldEvent.Load.post()
+            Load.post()
         }
     }
 
@@ -144,7 +146,7 @@ internal object ForgeEventProcessor : ListenerOwner() {
     fun onUnloadWorld(event: WorldEvent.Unload) {
         if (event.world.isRemote) {
             event.world.removeEventListener(WorldManager)
-            dev.luna5ama.trollhack.event.events.WorldEvent.Unload.post()
+            Unload.post()
         }
     }
 

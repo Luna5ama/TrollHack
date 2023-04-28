@@ -390,9 +390,7 @@ class ArrayMap<V : Any> : MutableMap<Int, V> {
             if (this === other) return true
             if (other !is Map.Entry<*, *>) return false
 
-            if (key != other.key) return false
-
-            return true
+            return key == other.key
         }
 
         override fun hashCode(): Int {

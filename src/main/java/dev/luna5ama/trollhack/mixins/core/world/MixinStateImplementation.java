@@ -27,12 +27,25 @@ public class MixinStateImplementation {
     private Block block;
 
     @Inject(method = "addCollisionBoxToList", at = @At("HEAD"))
-    public void addCollisionBoxToList(World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean isActualState, CallbackInfo ci) {
+    public void addCollisionBoxToList(
+        World worldIn,
+        BlockPos pos,
+        AxisAlignedBB entityBox,
+        List<AxisAlignedBB> collidingBoxes,
+        Entity entityIn,
+        boolean isActualState,
+        CallbackInfo ci
+    ) {
         new AddCollisionBoxEvent(entityIn, entityBox, pos, block, collidingBoxes).post();
     }
 
     @Inject(method = "shouldSideBeRendered", at = @At("HEAD"), cancellable = true)
-    public void shouldSideBeRendered(IBlockAccess blockAccess, BlockPos pos, EnumFacing facing, CallbackInfoReturnable<Boolean> ci) {
+    public void shouldSideBeRendered(
+        IBlockAccess blockAccess,
+        BlockPos pos,
+        EnumFacing facing,
+        CallbackInfoReturnable<Boolean> ci
+    ) {
         if (Xray.shouldReplace(blockAccess.getBlockState(pos.offset(facing)))) {
             ci.setReturnValue(true);
         }

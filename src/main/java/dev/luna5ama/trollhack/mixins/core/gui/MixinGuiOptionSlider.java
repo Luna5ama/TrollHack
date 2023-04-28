@@ -29,7 +29,15 @@ public class MixinGuiOptionSlider extends GuiButton {
     }
 
     @Inject(method = "<init>(IIILnet/minecraft/client/settings/GameSettings$Options;FF)V", at = @At("RETURN"))
-    public void init$INJECT$RETURN(int buttonId, int x, int y, GameSettings.Options optionIn, float minValueIn, float maxValue, CallbackInfo ci) {
+    public void init$INJECT$RETURN(
+        int buttonId,
+        int x,
+        int y,
+        GameSettings.Options optionIn,
+        float minValueIn,
+        float maxValue,
+        CallbackInfo ci
+    ) {
         animation.forceUpdate(0.0f, 0.0f);
     }
 
@@ -46,14 +54,32 @@ public class MixinGuiOptionSlider extends GuiButton {
             bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
             bufferbuilder.pos(this.x + renderSliderValue, this.y + 20.0, this.zLevel).tex(0.0, 0.3359375).endVertex();
-            bufferbuilder.pos(this.x + renderSliderValue + 4.0, this.y + 20.0, this.zLevel).tex(0.015625, 0.3359375).endVertex();
-            bufferbuilder.pos(this.x + renderSliderValue + 4.0, this.y + 0.0, this.zLevel).tex(0.015625, 0.2578125).endVertex();
+            bufferbuilder.pos(this.x + renderSliderValue + 4.0, this.y + 20.0, this.zLevel).tex(
+                0.015625,
+                0.3359375
+            ).endVertex();
+            bufferbuilder.pos(this.x + renderSliderValue + 4.0, this.y + 0.0, this.zLevel).tex(
+                0.015625,
+                0.2578125
+            ).endVertex();
             bufferbuilder.pos(this.x + renderSliderValue, this.y + 0.0, this.zLevel).tex(0.0, 0.2578125).endVertex();
 
-            bufferbuilder.pos(this.x + renderSliderValue + 4, this.y + 20.0, this.zLevel).tex(0.765625, 0.3359375).endVertex();
-            bufferbuilder.pos(this.x + renderSliderValue + 8, this.y + 20.0, this.zLevel).tex(0.78125, 0.3359375).endVertex();
-            bufferbuilder.pos(this.x + renderSliderValue + 8, this.y + 0.0, this.zLevel).tex(0.78125, 0.2578125).endVertex();
-            bufferbuilder.pos(this.x + renderSliderValue + 4, this.y + 0.0, this.zLevel).tex(0.765625, 0.2578125).endVertex();
+            bufferbuilder.pos(this.x + renderSliderValue + 4, this.y + 20.0, this.zLevel).tex(
+                0.765625,
+                0.3359375
+            ).endVertex();
+            bufferbuilder.pos(this.x + renderSliderValue + 8, this.y + 20.0, this.zLevel).tex(
+                0.78125,
+                0.3359375
+            ).endVertex();
+            bufferbuilder.pos(this.x + renderSliderValue + 8, this.y + 0.0, this.zLevel).tex(
+                0.78125,
+                0.2578125
+            ).endVertex();
+            bufferbuilder.pos(this.x + renderSliderValue + 4, this.y + 0.0, this.zLevel).tex(
+                0.765625,
+                0.2578125
+            ).endVertex();
 
             tessellator.draw();
         }

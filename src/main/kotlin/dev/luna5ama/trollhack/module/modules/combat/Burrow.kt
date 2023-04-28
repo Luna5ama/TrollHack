@@ -370,9 +370,6 @@ internal object Burrow : Module(
         val box = entity.world?.let {
             it.getBlockState(pos).getCollisionBoundingBox(it, pos)
         }
-        if (box != null && box.maxY + pos.y > entity.posY) {
-            return true
-        }
-        return false
+        return box != null && box.maxY + pos.y > entity.posY
     }
 }

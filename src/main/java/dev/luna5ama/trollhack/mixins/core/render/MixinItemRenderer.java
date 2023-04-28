@@ -21,12 +21,30 @@ public class MixinItemRenderer {
     }
 
     @Inject(method = "renderItemInFirstPerson(Lnet/minecraft/client/entity/AbstractClientPlayer;FFLnet/minecraft/util/EnumHand;FLnet/minecraft/item/ItemStack;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;pushMatrix()V", shift = At.Shift.AFTER))
-    private void transformSideFirstPersonInvokePushMatrix(AbstractClientPlayer player, float partialTicks, float pitch, EnumHand hand, float swingProgress, ItemStack stack, float equippedProgress, CallbackInfo ci) {
+    private void transformSideFirstPersonInvokePushMatrix(
+        AbstractClientPlayer player,
+        float partialTicks,
+        float pitch,
+        EnumHand hand,
+        float swingProgress,
+        ItemStack stack,
+        float equippedProgress,
+        CallbackInfo ci
+    ) {
         ViewModel.translate(stack, hand, player);
     }
 
     @Inject(method = "renderItemInFirstPerson(Lnet/minecraft/client/entity/AbstractClientPlayer;FFLnet/minecraft/util/EnumHand;FLnet/minecraft/item/ItemStack;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemRenderer;renderItemSide(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;Z)V"))
-    private void transformSideFirstPersonInvokeRenderItemSide(AbstractClientPlayer player, float partialTicks, float pitch, EnumHand hand, float swingProgress, ItemStack stack, float equippedProgress, CallbackInfo ci) {
+    private void transformSideFirstPersonInvokeRenderItemSide(
+        AbstractClientPlayer player,
+        float partialTicks,
+        float pitch,
+        EnumHand hand,
+        float swingProgress,
+        ItemStack stack,
+        float equippedProgress,
+        CallbackInfo ci
+    ) {
         ViewModel.rotateAndScale(stack, hand, player);
     }
 }

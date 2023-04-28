@@ -130,9 +130,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
 
         other as RenderString
 
-        if (string != other.string) return false
-
-        return true
+        return string == other.string
     }
 
     override fun hashCode(): Int {

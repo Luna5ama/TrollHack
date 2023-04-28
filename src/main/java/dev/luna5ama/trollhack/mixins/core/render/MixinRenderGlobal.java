@@ -47,7 +47,13 @@ public abstract class MixinRenderGlobal {
     protected abstract void postRenderDamagedBlocks();
 
     @Inject(method = "drawSelectionBox", at = @At("HEAD"), cancellable = true)
-    public void drawSelectionBox(EntityPlayer player, RayTraceResult movingObjectPositionIn, int execute, float partialTicks, CallbackInfo ci) {
+    public void drawSelectionBox(
+        EntityPlayer player,
+        RayTraceResult movingObjectPositionIn,
+        int execute,
+        float partialTicks,
+        CallbackInfo ci
+    ) {
         if (SelectionHighlight.INSTANCE.isEnabled()) {
             ci.cancel();
         }
@@ -73,7 +79,12 @@ public abstract class MixinRenderGlobal {
     }
 
     @Inject(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", ordinal = 3, shift = At.Shift.AFTER), cancellable = true)
-    public void renderEntities$INVOKE$endStartSection$3$AFTER(Entity renderViewEntity, ICamera camera, float partialTicks, CallbackInfo ci) {
+    public void renderEntities$INVOKE$endStartSection$3$AFTER(
+        Entity renderViewEntity,
+        ICamera camera,
+        float partialTicks,
+        CallbackInfo ci
+    ) {
         if (FastRender.INSTANCE.isEnabled()) {
             ci.cancel();
 
@@ -104,7 +115,11 @@ public abstract class MixinRenderGlobal {
                     }
 
                     if (tileentity != null && blockState.hasCustomBreakingProgress()) {
-                        TileEntityRendererDispatcher.instance.render(tileentity, partialTicks, destroyblockprogress.getPartialBlockDamage());
+                        TileEntityRendererDispatcher.instance.render(
+                            tileentity,
+                            partialTicks,
+                            destroyblockprogress.getPartialBlockDamage()
+                        );
                     }
                 }
             }

@@ -13,9 +13,7 @@ class HotbarSlot(slot: Slot) : Slot(slot.inventory, slot.slotIndex, slot.xPos, s
         if (this === other) return true
         if (other !is HotbarSlot) return false
 
-        if (hotbarSlot != other.hotbarSlot) return false
-
-        return true
+        return hotbarSlot == other.hotbarSlot
     }
 
     override fun hashCode(): Int {
