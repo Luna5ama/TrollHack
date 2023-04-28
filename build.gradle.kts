@@ -38,7 +38,12 @@ repositories {
     maven("https://impactdevelopment.github.io/maven/")
 }
 
-val library by configurations.creating
+val jarLibImplementation by configurations.creating {
+    configurations["implementation"].extendsFrom(this)
+}
+val jarLib by configurations.creating {
+    extendsFrom(jarLibImplementation)
+}
 
 val kotlinxCoroutineVersion: String by project
 val minecraftVersion: String by project
@@ -47,36 +52,16 @@ val mappingsChannel: String by project
 val mappingsVersion: String by project
 
 dependencies {
-    // Jar packaging
-    fun ModuleDependency.exclude(moduleName: String): ModuleDependency {
-        return exclude(mapOf("module" to moduleName))
-    }
-
-    fun jarOnly(dependencyNotation: String) {
-        library(dependencyNotation)
-    }
-
-    fun implementationAndLibrary(dependencyNotation: String) {
-        implementation(dependencyNotation)
-        library(dependencyNotation)
-    }
-
-    fun implementationAndLibrary(dependencyNotation: String, dependencyConfiguration: ExternalModuleDependency.() -> Unit) {
-        implementation(dependencyNotation, dependencyConfiguration)
-        library(dependencyNotation, dependencyConfiguration)
-    }
-
     // Forge
-    val minecraft = "minecraft"
-    minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
+    "minecraft"("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
 
     // Dependencies
-    implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib")
-    implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
-    implementationAndLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementationAndLibrary("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
+    jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib")
+    jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
+    jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    jarLibImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    implementationAndLibrary("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    jarLibImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         exclude("commons-io")
         exclude("gson")
         exclude("guava")
@@ -84,12 +69,12 @@ dependencies {
         exclude(group = "org.apache.logging.log4j")
     }
 
-    implementationAndLibrary("org.joml:joml:1.10.4")
-    implementationAndLibrary("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
-    implementationAndLibrary("dev.fastmc:mem-util:1.0-SNAPSHOT")
+    jarLibImplementation("org.joml:joml:1.10.4")
+    jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
+    jarLibImplementation("dev.fastmc:mem-util:1.0-SNAPSHOT")
 
     implementation("com.github.cabaletta:baritone:1.2.14")
-    jarOnly("cabaletta:baritone-api:1.2")
+    jarLib("cabaletta:baritone-api:1.2")
 }
 
 idea {
@@ -294,8 +279,12 @@ val fatjar = tasks.register<Jar>("fatjar") {
     }
 
     from(
-        library.map {
-            if (it.isDirectory) it else zipTree(it)
+        jarLib.elements.map { set ->
+            set.map { fileSystemLocation ->
+                fileSystemLocation.asFile.let {
+                    if (it.isDirectory) it else zipTree(it)
+                }
+            }
         }
     )
 }
