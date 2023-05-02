@@ -27,10 +27,7 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.notAtValue
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.threads.runSafe
-import dev.luna5ama.trollhack.util.world.getGroundPos
-import dev.luna5ama.trollhack.util.world.getNeighborSequence
-import dev.luna5ama.trollhack.util.world.isReplaceable
-import dev.luna5ama.trollhack.util.world.placeBlock
+import dev.luna5ama.trollhack.util.world.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
@@ -302,7 +299,12 @@ internal object Burrow : Module(
         if (world.getBlockState(feetPos).getCollisionBoundingBox(world, feetPos) != null) return
         val anvilPos = feetPos.up(2)
 
-        getNeighborSequence(anvilPos, 5)?.let {
+        getPlacementSequence(
+            anvilPos,
+            5,
+            PlacementSearchOption.range(5.0),
+            PlacementSearchOption.ENTITY_COLLISION
+        )?.let {
             val last = it.last()
 
             if (it.size > 1) {

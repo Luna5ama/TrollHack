@@ -269,10 +269,10 @@ internal object AntiCamp : Module(
             return
         }
 
-        getNeighbor(
+        getPlacement(
             obbyPos,
-            3,
-            6.0f
+            PlacementSearchOption.range(6.0),
+            PlacementSearchOption.ENTITY_COLLISION
         )?.let {
             if (!swapToBlock(Blocks.OBSIDIAN)) {
                 disable()

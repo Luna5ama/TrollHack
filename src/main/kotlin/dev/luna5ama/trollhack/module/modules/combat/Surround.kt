@@ -317,7 +317,12 @@ internal object Surround : Module(
             val offsetPos = playerPos.add(surroundOffset.offset)
             if (!world.getBlockState(offsetPos).isReplaceable) continue
 
-            getNeighborSequence(offsetPos, 2, 5.0f, strictDirection, false)?.let { list ->
+            getPlacementSequence(
+                offsetPos,
+                2,
+                PlacementSearchOption.range(5.0),
+                PlacementSearchOption.VISIBLE_SIDE.takeIf { strictDirection }
+            )?.let { list ->
                 placing[surroundOffset] = list
                 list.forEach {
                     placingSet.add(it.placedPos.toLong())

@@ -151,7 +151,13 @@ internal object AutoTrap : Module(
             if (!world.getBlockState(pos).isReplaceable) continue
             if (!EntityManager.checkEntityCollision(AxisAlignedBB(pos))) continue
 
-            return getNeighbor(pos, attempts, range, visibleSideCheck) ?: continue
+            return getPlacement(
+                pos,
+                attempts,
+                PlacementSearchOption.range(range),
+                PlacementSearchOption.ENTITY_COLLISION,
+                PlacementSearchOption.VISIBLE_SIDE.takeIf { visibleSideCheck }
+            ) ?: continue
         }
 
         if (attempts > 1) return getStructurePlaceInfo(

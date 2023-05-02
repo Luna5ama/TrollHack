@@ -616,11 +616,15 @@ internal object AutoObsidian : Module(
     }
 
     private fun SafeClientEvent.placeBlock(pos: BlockPos) {
-        val placeInfo = getNeighbor(pos, 1, 6.5f)
-            ?: run {
-                MessageSendUtils.sendNoSpamChatMessage("$chatName Can't find neighbor block")
-                return
-            }
+        val placeInfo = getPlacement(
+            pos,
+            1,
+            PlacementSearchOption.range(5.0),
+            PlacementSearchOption.ENTITY_COLLISION
+        ) ?: run {
+            MessageSendUtils.sendNoSpamChatMessage("$chatName Can't find neighbor block")
+            return
+        }
 
         lastHitVec = placeInfo.hitVec
         rotateTimer.reset()

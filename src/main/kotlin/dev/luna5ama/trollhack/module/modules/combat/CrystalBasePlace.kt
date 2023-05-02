@@ -193,7 +193,12 @@ internal object CrystalBasePlace : Module(
 
         var current = cacheList.poll()
         while (current != null) {
-            val neighbor = getNeighbor(current.blockPos, 1)
+            val neighbor = getPlacement(
+                current.blockPos,
+                1,
+                PlacementSearchOption.ENTITY_COLLISION,
+                PlacementSearchOption.range(5.0)
+            )
             if (neighbor != null) {
                 return neighbor
             }

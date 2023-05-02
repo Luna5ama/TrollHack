@@ -209,8 +209,12 @@ internal object CevBreaker : Module(
     private fun SafeClientEvent.place(info: Info) {
         if (player.hotbarSlots.firstBlock(Blocks.OBSIDIAN) == null) return
         if (player.hotbarSlots.firstItem(Items.END_CRYSTAL) == null) return
-        val placeInfo = getNeighbor(info.pos, 3, 6.0f, sides = arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN))
-            ?: return
+        val placeInfo = getPlacement(
+            info.pos,
+            arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN),
+            PlacementSearchOption.ENTITY_COLLISION,
+            PlacementSearchOption.range(6.0f)
+        ) ?: return
 
         inventoryTask {
             swapWith(
