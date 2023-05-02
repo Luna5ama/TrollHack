@@ -5,13 +5,14 @@ import dev.luna5ama.trollhack.util.math.vector.distanceSq
 import dev.luna5ama.trollhack.util.math.vector.toLong
 import it.unimi.dsi.fastutil.longs.LongSet
 import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue
+import java.util.*
 
 class PathFinder(
     private val blocks: LongSet,
     private var stepHeight: Int = 2,
     private var fallHeight: Int = 5
 ) {
-    fun calculatePath(start: Node, end: Node, timeout: Int): ArrayDeque<PathNode> {
+    fun calculatePath(start: Node, end: Node, timeout: Int): Deque<PathNode> {
         val openNodes = ObjectArrayPriorityQueue<PathNode>()
 
         val pathNodeStart = PathNode(start.x, start.y, start.z)

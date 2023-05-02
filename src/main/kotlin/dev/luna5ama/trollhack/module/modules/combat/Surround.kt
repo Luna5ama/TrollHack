@@ -449,15 +449,7 @@ internal object Surround : Module(
     }
 
     private fun SafeClientEvent.checkRotation(placeInfo: PlaceInfo): Boolean {
-        var eyeHeight = player.getEyeHeight()
-        if (!player.isSneaking) eyeHeight -= 0.08f
-        return !rotation || AxisAlignedBB(placeInfo.pos).isInSight(
-            PlayerPacketManager.position.add(
-                0.0,
-                eyeHeight.toDouble(),
-                0.0
-            ), rotation = PlayerPacketManager.rotation
-        ) != null
+        return !rotation || checkPlaceRotation(placeInfo)
     }
 
     private enum class SurroundOffset(val offset: BlockPos) {

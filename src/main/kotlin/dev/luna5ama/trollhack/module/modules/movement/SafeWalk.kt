@@ -31,9 +31,13 @@ internal object SafeWalk : Module(
     @JvmStatic
     fun shouldSafewalk(entityID: Int, motionX: Double, motionZ: Double): Boolean {
         return runSafeOrFalse {
-            !player.isSneaking && player.entityId == entityID
-                && (isEnabled || isEnabled && Scaffold.safeWalk || isEnabled)
-                && (!checkFallDist && !BaritoneUtils.isPathing || !isEdgeSafe(motionX, motionZ))
+            if (entityID != player.entityId) return false
+            if (player.isSneaking) return false
+
+            if (Scaffold.shouldSafeWalk) return true
+            if (isEnabled && (!checkFallDist && !BaritoneUtils.isPathing || !isEdgeSafe(motionX, motionZ))) return true
+
+            false
         }
     }
 

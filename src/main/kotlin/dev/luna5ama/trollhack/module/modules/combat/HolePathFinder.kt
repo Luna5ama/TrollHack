@@ -49,6 +49,13 @@ import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.MovementInputFromOptions
 import net.minecraft.util.math.BlockPos
 import org.lwjgl.opengl.GL11.*
+import java.util.*
+import kotlin.collections.IndexedValue
+import kotlin.collections.asSequence
+import kotlin.collections.forEachIndexed
+import kotlin.collections.isNotEmpty
+import kotlin.collections.lastOrNull
+import kotlin.collections.minByOrNull
 import kotlin.math.hypot
 
 internal object HolePathFinder : Module(
@@ -98,7 +105,7 @@ internal object HolePathFinder : Module(
     private var type = TargetHoleType.NORMAL
     var hole: HoleInfo? = null; private set
     private var job: Job? = null
-    private var path: ArrayDeque<PathFinder.PathNode>? = null
+    private var path: Deque<PathFinder.PathNode>? = null
     private var targetPos: BlockPos? = null
     private val pistonTimer = TickTimer(TimeUnit.SECONDS)
     private var pistonHolePos: BlockPos? = null
@@ -220,7 +227,7 @@ internal object HolePathFinder : Module(
         }
     }
 
-    private fun SafeClientEvent.check(): ArrayDeque<PathFinder.PathNode>? {
+    private fun SafeClientEvent.check(): Deque<PathFinder.PathNode>? {
         if (!job.isActiveOrFalse && hole == null) {
             Notification.send(HolePathFinder, "Calculation timeout")
             disable()
@@ -279,7 +286,7 @@ internal object HolePathFinder : Module(
         return path
     }
 
-    private fun SafeClientEvent.moveTeleport(path: ArrayDeque<PathFinder.PathNode>) {
+    private fun SafeClientEvent.moveTeleport(path: Deque<PathFinder.PathNode>) {
         val baseSpeed = player.applySpeedPotionEffects(0.2873)
         var countDown = maxMoveTicks
 
@@ -295,7 +302,7 @@ internal object HolePathFinder : Module(
                 motionX *= multiplier
                 motionZ *= multiplier
             } else if (player.posY.toInt() <= node.y) {
-                path.removeFirstOrNull()
+                path.pollFirst()
             }
 
             player.motionX = motionX
@@ -308,7 +315,7 @@ internal object HolePathFinder : Module(
         player.motionZ = 0.0
     }
 
-    private fun SafeClientEvent.moveLegit(event: PlayerMoveEvent.Pre, path: ArrayDeque<PathFinder.PathNode>) {
+    private fun SafeClientEvent.moveLegit(event: PlayerMoveEvent.Pre, path: Deque<PathFinder.PathNode>) {
         val baseSpeed = player.applySpeedPotionEffects(0.2873)
         var countDown = 20
         var motionX = 0.0
@@ -326,7 +333,7 @@ internal object HolePathFinder : Module(
                 motionZ *= multiplier
                 break
             } else if (player.posY.toInt() <= node.y) {
-                path.removeFirstOrNull()
+                path.pollFirst()
             } else {
                 break
             }
@@ -341,7 +348,7 @@ internal object HolePathFinder : Module(
         modifyTimer(45.87156f)
     }
 
-    private fun SafeClientEvent.clearPreviousNode(path: ArrayDeque<PathFinder.PathNode>): Boolean {
+    private fun SafeClientEvent.clearPreviousNode(path: Deque<PathFinder.PathNode>): Boolean {
         do {
             val nextNode = path.firstOrNull() ?: break
             val lastNode = nextNode.parent
@@ -376,7 +383,7 @@ internal object HolePathFinder : Module(
                 }
             }
 
-            path.removeFirstOrNull() ?: break
+            path.pollFirst() ?: break
         } while (path.isNotEmpty())
 
         return false
@@ -450,7 +457,7 @@ internal object HolePathFinder : Module(
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private fun CoroutineScope.parallelPathFindingActor(targetPos: BlockPos?): SendChannel<IndexedValue<Pair<HoleInfo, ArrayDeque<PathFinder.PathNode>>>> {
+    private fun CoroutineScope.parallelPathFindingActor(targetPos: BlockPos?): SendChannel<IndexedValue<Pair<HoleInfo, Deque<PathFinder.PathNode>>>> {
         return actor {
             val results = channel.toList()
 

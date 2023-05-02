@@ -1,155 +1,137 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.fastFloor
+import dev.fastmc.common.sort.ObjectInsertionSort
 import dev.luna5ama.trollhack.event.SafeClientEvent
-import dev.luna5ama.trollhack.event.events.PacketEvent
+import dev.luna5ama.trollhack.event.events.AddCollisionBoxEvent
+import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
+import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
-import dev.luna5ama.trollhack.event.events.player.PlayerTravelEvent
-import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
+import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
-import dev.luna5ama.trollhack.mixins.core.entity.MixinEntity
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.EntityUtils.lastTickPos
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
+import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
+import dev.luna5ama.trollhack.util.graphics.ESPRenderer
+import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
-import dev.luna5ama.trollhack.util.math.vector.toBlockPos
-import dev.luna5ama.trollhack.util.threads.defaultScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
-import dev.luna5ama.trollhack.util.world.PlaceInfo
-import dev.luna5ama.trollhack.util.world.getNeighbor
-import dev.luna5ama.trollhack.util.world.placeBlock
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import dev.luna5ama.trollhack.util.math.vector.Vec2d
+import dev.luna5ama.trollhack.util.world.*
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.item.ItemBlock
-import net.minecraft.network.play.server.SPacketPlayerPosLook
-import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
-import kotlin.math.floor
-import kotlin.math.roundToInt
 
-/**
- * @see MixinEntity.moveInvokeIsSneakingPre
- * @see MixinEntity.moveInvokeIsSneakingPost
- */
 internal object Scaffold : Module(
     name = "Scaffold",
     category = Category.PLAYER,
     description = "Places blocks under you",
     modulePriority = 500
 ) {
-    private val tower by setting("Tower", true)
-    val safeWalk by setting("Safe Walk", true)
-    private val strictDirection by setting("Strict Direction", false)
-    private val delay by setting("Delay", 2, 1..10, 1)
-    private val maxRange by setting("Max Range", 1, 0..3, 1)
+    private val safeWalk by setting("Safe Walk", true)
+    private val assumePlaced by setting("Assume Placed", false)
+    private val maxPendingPlace by setting("Max Pending Place", 2, 1..5, 1)
+    private val placeTimeout by setting("Place Timeout", 200, 0..10000, 50)
+    private val placeDelay by setting("Place Delay", 100, 0..1000, 1)
+    private val rotation by setting("Rotation", true)
+    private val extendAxis by setting("Extend Axis", 0.02f, 0.0f..0.1f, 0.001f)
+    private val extendDiagonal by setting("Extend Diagonal", 0.02f, 0.0f..0.1f, 0.001f)
 
-    private var lastHitVec: Vec3d? = null
-    private var placeInfo: PlaceInfo? = null
-    private var inactiveTicks = 69
+    private var lastPos: Vec3d? = null
+    private var lastSequence: List<PlaceInfo>? = null
+    private val placingPos = LongOpenHashSet()
+    private val pendingPlace = Long2LongOpenHashMap()
 
-    private val placeTimer = TickTimer(TimeUnit.TICKS)
-    private val rubberBandTimer = TickTimer(TimeUnit.TICKS)
+    private val placeTimer = TickTimer()
+    private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
 
-    override fun isActive(): Boolean {
-        return isEnabled && inactiveTicks <= 5
-    }
+    val shouldSafeWalk: Boolean
+        get() = isEnabled && safeWalk
 
     init {
         onDisable {
-            placeInfo = null
-            inactiveTicks = 69
+            lastPos = null
+            lastSequence = null
+            placingPos.clear()
+            pendingPlace.clear()
+            placeTimer.reset(-69420L)
         }
 
-        listener<PacketEvent.Receive> {
-            if (it.packet !is SPacketPlayerPosLook) return@listener
-            rubberBandTimer.reset()
+        safeListener<AddCollisionBoxEvent> {
+            if (!assumePlaced) return@safeListener
+            if (it.entity != player) return@safeListener
+            if (!pendingPlace.containsKey(it.pos.toLong())) return@safeListener
+
+            it.collidingBoxes.add(AxisAlignedBB(it.pos))
         }
 
-        safeListener<PlayerTravelEvent> {
-            if (!tower || !mc.gameSettings.keyBindJump.isKeyDown || inactiveTicks > 5) return@safeListener
-            if (rubberBandTimer.tick(10)) {
-                if (shouldTower) player.motionY = 0.4
-            } else if (player.fallDistance <= 2.0f) {
-                player.motionY = -0.169
+        safeListener<WorldEvent.ClientBlockUpdate> {
+            pendingPlace.remove(it.pos.toLong())
+
+            if (!placingPos.contains(it.pos.toLong())) return@safeListener
+            updateSequence()
+        }
+
+        safeListener<PlayerMoveEvent.Post> {
+            val currentTime = System.currentTimeMillis()
+            pendingPlace.values.removeIf {
+                it < currentTime
             }
+
+            if (lastSequence != null && lastPos == player.positionVector) return@safeListener
+            updateSequence()
         }
-    }
 
-    private val SafeClientEvent.shouldTower: Boolean
-        get() = !player.onGround
-            && player.posY - floor(player.posY) <= 0.1
+        safeListener<Render3DEvent> {
+            renderer.render(false)
+        }
 
-    init {
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
-            inactiveTicks++
-            placeInfo = calcNextPos()?.let {
-                getNeighbor(it, 1, visibleSideCheck = strictDirection, sides = arrayOf(EnumFacing.DOWN))
-                    ?: getNeighbor(it, 3, visibleSideCheck = strictDirection, sides = EnumFacing.HORIZONTALS)
-            }
-
-            placeInfo?.let {
-                lastHitVec = it.hitVec
-                swapAndPlace(it)
-            }
-
-            if (inactiveTicks <= 5) {
-                lastHitVec?.let {
+            if (!rotation) return@safeListener
+            lastSequence?.let {
+                for (placeInfo in it) {
+                    if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
                     sendPlayerPacket {
-                        rotate(getRotationTo(it))
+                        rotate(getRotationTo(placeInfo.hitVec))
                     }
+                    break
                 }
             }
         }
+
+        safeListener<OnUpdateWalkingPlayerEvent.Post> {
+            runPlacing()
+        }
+
+        safeListener<RunGameLoopEvent.Tick> {
+            runPlacing()
+        }
     }
 
-    private fun SafeClientEvent.calcNextPos(): BlockPos? {
-        val posVec = player.positionVector
-        val blockPos = posVec.toBlockPos()
-        return checkPos(blockPos)
-            ?: run {
-                val realMotion = posVec.subtract(player.lastTickPos)
-                val nextPos = blockPos.add(roundToRange(realMotion.x), 0, roundToRange(realMotion.z))
-                checkPos(nextPos)
-            }
-    }
-
-    private fun SafeClientEvent.checkPos(blockPos: BlockPos): BlockPos? {
-        val center = Vec3d(blockPos.x + 0.5, blockPos.y.toDouble(), blockPos.z + 0.5)
-        val rayTraceResult = world.rayTraceBlocks(
-            center,
-            center.subtract(0.0, 0.5, 0.0),
-            false,
-            true,
-            false
-        )
-        return blockPos.down().takeIf { rayTraceResult?.typeOfHit != RayTraceResult.Type.BLOCK }
-    }
-
-    private fun roundToRange(value: Double) =
-        (value * 2.5 * maxRange).roundToInt().coerceAtMost(maxRange)
-
-    private fun SafeClientEvent.swapAndPlace(placeInfo: PlaceInfo) {
-        getBlockSlot()?.let { slot ->
-            inactiveTicks = 0
-
-            if (placeTimer.tickAndReset(delay.toLong())) {
-                defaultScope.launch {
-                    delay(5)
-                    onMainThreadSafeSuspend {
-                        spoofHotbar(slot) {
-                            placeBlock(placeInfo)
-                        }
-                    }
+    private fun SafeClientEvent.runPlacing() {
+        if (pendingPlace.size >= maxPendingPlace) return
+        if (!placeTimer.tick(placeDelay)) return
+        lastSequence?.let {
+            val slot = getBlockSlot() ?: return
+            for (placeInfo in it) {
+                if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
+                if (rotation && !checkPlaceRotation(placeInfo)) return
+                spoofHotbar(slot) {
+                    placeBlock(placeInfo)
                 }
+                pendingPlace.put(placeInfo.placedPos.toLong(), System.currentTimeMillis() + placeTimeout)
+                placeTimer.reset()
+                break
             }
         }
     }
@@ -157,5 +139,76 @@ internal object Scaffold : Module(
     private fun SafeClientEvent.getBlockSlot(): HotbarSlot? {
         playerController.syncCurrentPlayItem()
         return player.hotbarSlots.firstItem<ItemBlock, HotbarSlot>()
+    }
+
+    private fun SafeClientEvent.updateSequence() {
+        lastPos = player.positionVector
+        lastSequence = null
+        renderer.clear()
+
+        val feetY = player.posY.fastFloor() - 1
+
+        val feetPos = BlockPos.MutableBlockPos()
+        val sequence = calcSortedOffsets().asSequence()
+            .mapNotNull { getSequence(feetPos.setPos(it.x.fastFloor(), feetY, it.y.fastFloor())) }
+            .firstOrNull()
+
+        lastSequence = sequence
+
+        if (sequence != null) {
+            for (info in sequence) {
+                val posLong = info.pos.toLong()
+                val placedLong = info.placedPos.toLong()
+                placingPos.add(posLong)
+                placingPos.add(placedLong)
+
+                val box = AxisAlignedBB(info.placedPos)
+                if (pendingPlace.containsKey(placedLong)) {
+                    renderer.add(box, ColorRGB(64, 255, 64))
+                } else {
+                    renderer.add(box, ColorRGB(255, 255, 255))
+                }
+            }
+        }
+    }
+
+    private fun SafeClientEvent.calcSortedOffsets(): Array<Vec2d> {
+        val center = Vec2d(player.posX, player.posZ)
+        if (player.realSpeed < 0.05) return arrayOf(center)
+
+
+        val w = player.width / 2.0
+        val axis = w + extendAxis
+        val diag = w + extendDiagonal
+        val results = arrayOf(
+            center,
+            center.plus(axis, 0.0),
+            center.plus(-axis, 0.0),
+            center.plus(0.0, axis),
+            center.plus(0.0, -axis),
+            center.plus(diag, diag),
+            center.plus(diag, -diag),
+            center.plus(-diag, diag),
+            center.plus(-diag, -diag)
+        )
+        val bX = player.posX.fastFloor() + 0.5
+        val bZ = player.posZ.fastFloor() + 0.5
+        val oX = player.posX - bX
+        val oZ = player.posZ - bZ
+        ObjectInsertionSort.sort(results, 1, results.size, compareByDescending {
+            oX * (it.x - bX) + oZ * (it.y - bZ)
+        })
+        return results
+    }
+
+    private fun SafeClientEvent.getSequence(feetPos: BlockPos): List<PlaceInfo>? {
+        if (!world.getBlockState(feetPos).isReplaceable) {
+            return null
+        }
+        return getPlacementSequence(
+            feetPos,
+            5,
+            PlacementSearchOption.ENTITY_COLLISION
+        )
     }
 }
