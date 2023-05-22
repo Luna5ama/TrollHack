@@ -18,7 +18,8 @@ import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.vector.toBlockPos
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
 import dev.luna5ama.trollhack.util.threads.runSafeSuspend
 import dev.luna5ama.trollhack.util.world.*
@@ -95,7 +96,7 @@ internal object AutoTrap : Module(
         return slots
     }
 
-    private fun SafeClientEvent.runAutoTrap() = defaultScope.launch {
+    private fun SafeClientEvent.runAutoTrap() = ConcurrentScope.launch {
         val entity = if (selfTrap) player else CombatManager.target ?: return@launch
 
         val emptySet = emptySet<BlockPos>()

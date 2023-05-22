@@ -30,7 +30,8 @@ import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
@@ -138,7 +139,7 @@ internal object CrystalBasePlace : Module(
             .filter { world.isPlaceable(it) }
             .toList()
 
-        defaultScope.launch {
+        ConcurrentScope.launch {
             val placeInfo = getPlaceInfo(eyePos, posList, minDamageInc)
 
             if (placeInfo != null) {

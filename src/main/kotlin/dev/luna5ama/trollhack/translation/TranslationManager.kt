@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.translation
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.module.modules.client.Language
 import dev.luna5ama.trollhack.util.readText
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,7 +23,7 @@ object TranslationManager {
     }
 
     fun checkUpdate() {
-        defaultScope.launch(Dispatchers.IO) {
+        DefaultScope.launch(Dispatchers.IO) {
             try {
                 var localHash: String? = null
 
@@ -61,7 +61,7 @@ object TranslationManager {
             it[this]
         } ?: run {
             if (!lastJob.isActiveOrFalse) {
-                lastJob = defaultScope.launch(Dispatchers.IO) {
+                lastJob = DefaultScope.launch(Dispatchers.IO) {
                     reload()
                 }
             }

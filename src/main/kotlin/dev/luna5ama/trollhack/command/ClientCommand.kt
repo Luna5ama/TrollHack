@@ -9,7 +9,8 @@ import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.modules.client.CommandSetting
 import dev.luna5ama.trollhack.util.PlayerProfile
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.toSafe
 import kotlinx.coroutines.launch
 import net.minecraft.block.Block
@@ -95,7 +96,7 @@ abstract class ClientCommand(
         block: ExecuteBlock<ClientExecuteEvent>
     ) {
         val asyncExecuteBlock: ExecuteBlock<ClientExecuteEvent> = {
-            defaultScope.launch { block() }
+            ConcurrentScope.launch { block() }
         }
         this.execute(description, block = asyncExecuteBlock)
     }

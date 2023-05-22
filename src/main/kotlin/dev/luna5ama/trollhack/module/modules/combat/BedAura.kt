@@ -46,8 +46,9 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.TimerScope
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
@@ -551,7 +552,7 @@ internal object BedAura : Module(
         if (player.dimension == 0 || !player.allSlots.hasItem(Items.BED)) {
             reset()
         } else if (updateTimer.tickAndReset(updateDelay)) {
-            defaultScope.launch {
+            ConcurrentScope.launch {
                 val info = calcDamage()
                 val list = ArrayList<ESPRenderer.Info>()
 

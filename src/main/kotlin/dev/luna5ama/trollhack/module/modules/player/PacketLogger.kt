@@ -14,7 +14,7 @@ import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.accessor.*
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.network.Packet
@@ -447,7 +447,7 @@ internal object PacketLogger : Module(
             cache
         }
 
-        defaultScope.launch(Dispatchers.IO) {
+        DefaultScope.launch(Dispatchers.IO) {
             try {
                 with(File(directory)) {
                     if (!exists()) mkdir()

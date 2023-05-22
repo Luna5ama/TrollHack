@@ -25,7 +25,8 @@ import dev.luna5ama.trollhack.util.graphics.ShaderHelper
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.esp.DynamicBoxRenderer
 import dev.luna5ama.trollhack.util.math.MathUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import kotlinx.coroutines.launch
 import net.minecraft.client.renderer.GlStateManager
@@ -199,7 +200,7 @@ internal object ESP : Module(
             when (mode) {
                 Mode.BOX -> {
                     if (dirty) {
-                        defaultScope.launch {
+                        ConcurrentScope.launch {
                             updateBoxESP()
                         }
                     }

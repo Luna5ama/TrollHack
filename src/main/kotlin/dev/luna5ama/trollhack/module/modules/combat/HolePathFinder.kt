@@ -32,7 +32,8 @@ import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.getGroundPos
@@ -391,7 +392,7 @@ internal object HolePathFinder : Module(
 
     private fun SafeClientEvent.calculatePath() {
         if (!job.isActiveOrFalse) {
-            job = defaultScope.launch {
+            job = ConcurrentScope.launch {
                 val playerPos = player.betterPosition
                 val rangeSq = range.sq
                 val targetPos = getTargetPos()

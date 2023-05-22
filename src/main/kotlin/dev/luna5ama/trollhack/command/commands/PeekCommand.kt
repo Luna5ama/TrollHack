@@ -2,7 +2,8 @@ package dev.luna5ama.trollhack.command.commands
 
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ object PeekCommand : ClientCommand(
                 val gui = GuiShulkerBox(player.inventory, entityBox)
                 gui.setWorldAndResolution(mc, scaledResolution.scaledWidth, scaledResolution.scaledHeight)
 
-                defaultScope.launch {
+                ConcurrentScope.launch {
                     delay(50L)
                     onMainThreadSafeSuspend {
                         mc.displayGuiScreen(gui)

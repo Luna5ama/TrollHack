@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.esp.StaticBoxRenderer
 import dev.luna5ama.trollhack.util.graphics.mask.SideMask
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import dev.luna5ama.trollhack.util.world.isAir
 import kotlinx.coroutines.launch
 import net.minecraft.client.renderer.GlStateManager
@@ -74,7 +74,7 @@ internal object VoidESP : Module(
         val rangeSq = range.sq
         val pos = BlockPos.MutableBlockPos()
 
-        defaultScope.launch {
+        BackgroundScope.launch {
             renderer.update {
                 for (x in playerPos.x - range..playerPos.x + range) {
                     for (z in playerPos.z - range..playerPos.z + range) {

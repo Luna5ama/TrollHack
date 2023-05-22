@@ -9,7 +9,8 @@ import dev.luna5ama.trollhack.module.modules.client.CommandSetting
 import dev.luna5ama.trollhack.util.ClassUtils.instance
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.formatValue
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
@@ -67,7 +68,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoade
     }
 
     fun runCommand(string: String) {
-        defaultScope.launch {
+        ConcurrentScope.launch {
             val args = tryParseArgument(string) ?: return@launch
             TrollHackMod.logger.debug("Running command with args: [${args.joinToString()}]")
 

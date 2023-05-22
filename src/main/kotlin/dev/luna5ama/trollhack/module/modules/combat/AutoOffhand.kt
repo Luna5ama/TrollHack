@@ -31,7 +31,7 @@ import dev.luna5ama.trollhack.util.items.isWeapon
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.runSafe
 import kotlinx.coroutines.launch
@@ -184,7 +184,7 @@ internal object AutoOffhand : Module(
         safeListener<RunGameLoopEvent.Tick>(1100) {
             if (player.isDead || player.health <= 0.0f || !lastTask.confirmedOrTrue || !timer.tickAndReset(10L)) return@safeListener
 
-            defaultScope.launch {
+            DefaultScope.launch {
                 updateDamage()
                 switchToType(getType(), true)
             }

@@ -388,7 +388,7 @@ internal object ZealotCrystalPlus : Module(
                 }
 
                 if (!updateTask.isActiveOrFalse) {
-                    updateTask = defaultScope.launch {
+                    updateTask = ConcurrentScope.launch {
                         try {
                             targets.get()
                             if (rotation) rotationInfo.get(mc.timer.tickLength.toInt())
@@ -406,7 +406,7 @@ internal object ZealotCrystalPlus : Module(
                 }
 
                 if (!loopTask.isActiveOrFalse) {
-                    loopTask = defaultScope.launch {
+                    loopTask = ConcurrentScope.launch {
                         try {
                             runLoop()
                         } catch (e: Exception) {

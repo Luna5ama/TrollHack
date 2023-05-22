@@ -11,7 +11,7 @@ import dev.luna5ama.trollhack.util.MovementUtils.isMoving
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -38,7 +38,7 @@ internal object LoginMessage : Module(
     init {
         onEnable {
             if (file.exists()) {
-                defaultScope.launch(Dispatchers.IO) {
+                DefaultScope.launch(Dispatchers.IO) {
                     try {
                         file.forEachLine {
                             if (it.isNotBlank()) loginMessages.add(it.trim())

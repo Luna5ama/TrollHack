@@ -19,7 +19,7 @@ import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
@@ -281,7 +281,7 @@ internal object AntiCamp : Module(
 
             timer.reset(placeDelay * 50L)
             lastHitVec = it.hitVec
-            defaultScope.launch {
+            DefaultScope.launch {
                 delay(50L)
                 onMainThreadSafe {
                     placeBlock(it)
@@ -306,7 +306,7 @@ internal object AntiCamp : Module(
         val placeInfo = newPlaceInfo(obbyPos, side)
         timer.reset(placeDelay * 50L)
         lastHitVec = placeInfo.hitVec
-        defaultScope.launch {
+        DefaultScope.launch {
             delay(50L)
             onMainThreadSafe {
                 placeBlock(placeInfo)
@@ -320,7 +320,7 @@ internal object AntiCamp : Module(
 
         timer.reset(openDelay * 50L)
         lastHitVec = pos.toVec3d(offset)
-        defaultScope.launch {
+        DefaultScope.launch {
             delay(50L)
             onMainThreadSafe {
                 connection.sendPacket(

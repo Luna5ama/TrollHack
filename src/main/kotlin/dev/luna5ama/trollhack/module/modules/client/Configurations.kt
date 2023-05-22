@@ -24,7 +24,7 @@ import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.TimerScope
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -177,7 +177,7 @@ internal object Configurations : AbstractModule(
         val allPresets: Set<String>
 
         fun reload() {
-            defaultScope.launch(Dispatchers.IO) {
+            DefaultScope.launch(Dispatchers.IO) {
                 var loaded = ConfigManager.load(GenericConfig)
                 loaded = ConfigManager.load(config) || loaded
 
@@ -187,7 +187,7 @@ internal object Configurations : AbstractModule(
         }
 
         fun save() {
-            defaultScope.launch(Dispatchers.IO) {
+            DefaultScope.launch(Dispatchers.IO) {
                 var saved = ConfigManager.save(GenericConfig)
                 saved = ConfigManager.save(config) || saved
 
@@ -197,13 +197,13 @@ internal object Configurations : AbstractModule(
         }
 
         fun setPreset(name: String) {
-            defaultScope.launch(Dispatchers.IO) {
+            DefaultScope.launch(Dispatchers.IO) {
                 updatePreset(setting, name, config)
             }
         }
 
         fun copyPreset(name: String) {
-            defaultScope.launch(Dispatchers.IO) {
+            DefaultScope.launch(Dispatchers.IO) {
                 if (name == setting.value) {
                     MessageSendUtils.sendNoSpamErrorMessage("Destination preset name ${formatValue(name)} is same as current preset")
                 }
@@ -223,7 +223,7 @@ internal object Configurations : AbstractModule(
         }
 
         fun deletePreset(name: String) {
-            defaultScope.launch(Dispatchers.IO) {
+            DefaultScope.launch(Dispatchers.IO) {
                 if (!allPresets.contains(name)) {
                     MessageSendUtils.sendNoSpamChatMessage(
                         "${formatValue(name)} is not a valid preset for ${

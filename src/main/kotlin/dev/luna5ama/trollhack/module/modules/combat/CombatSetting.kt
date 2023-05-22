@@ -38,7 +38,7 @@ import dev.luna5ama.trollhack.util.graphics.color.setGLColor
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRelativeRotation
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
 import dev.luna5ama.trollhack.util.threads.runSafeOrFalse
 import kotlinx.coroutines.Job
@@ -237,7 +237,7 @@ internal object CombatSetting : Module(
 
         safeListener<RunGameLoopEvent.Tick>(5000) {
             if (timer.tickAndReset(25) && !job.isActiveOrFalse) {
-                job = defaultScope.launch { updateTarget() }
+                job = DefaultScope.launch { updateTarget() }
             }
         }
 

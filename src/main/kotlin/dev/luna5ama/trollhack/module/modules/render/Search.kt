@@ -28,7 +28,7 @@ import dev.luna5ama.trollhack.util.graphics.esp.StaticTracerRenderer
 import dev.luna5ama.trollhack.util.math.vector.distanceSq
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.or
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
@@ -148,7 +148,7 @@ internal object Search : Module(
 
     @OptIn(ObsoleteCoroutinesApi::class)
     private fun SafeClientEvent.updateRenderer() {
-        lastUpdateJob = defaultScope.launch {
+        lastUpdateJob = BackgroundScope.launch {
             val cleanList = gcTimer.tickAndReset(1000L)
 
             val eyeX = player.posX.fastFloor()
@@ -163,7 +163,7 @@ internal object Search : Module(
             val maxChunkRange = rangeSq + 256
 
             @Suppress("RemoveExplicitTypeArguments")
-            val actor = actor<FastObjectArrayList<BlockRenderInfo>>(Dispatchers.Default) {
+            val actor = actor<FastObjectArrayList<BlockRenderInfo>> {
                 loop@ for (sublist in channel) {
                     merge(cachedMainList.front, sublist, cachedMainList.back)
                     cachedMainList.swap()
@@ -205,7 +205,7 @@ internal object Search : Module(
 
                         if (distanceSq(eyeX, eyeZ, chunkX, chunkZ) > maxChunkRange) continue
 
-                        launch(Dispatchers.Default) {
+                        launch {
                             findBlocksInChunk(actor, chunk, eyeX, eyeY, eyeZ, rangeSq)
                         }
                     }

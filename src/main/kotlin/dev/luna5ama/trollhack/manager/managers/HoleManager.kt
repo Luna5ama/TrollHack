@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.combat.HoleInfo
 import dev.luna5ama.trollhack.util.combat.HoleUtils.checkHoleM
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSet
@@ -49,7 +49,7 @@ object HoleManager : Manager() {
         }
 
         safeListener<WorldEvent.RenderUpdate> {
-            defaultScope.launch {
+            BackgroundScope.launch {
                 val playerPos = player.flooredPosition
                 val mutablePos = BlockPos.MutableBlockPos()
 
@@ -69,7 +69,7 @@ object HoleManager : Manager() {
         }
 
         safeListener<WorldEvent.ClientBlockUpdate> {
-            defaultScope.launch {
+            BackgroundScope.launch {
                 val playerPos = player.flooredPosition
                 val mutablePos = BlockPos.MutableBlockPos()
 
@@ -90,7 +90,7 @@ object HoleManager : Manager() {
 
         safeConcurrentListener<RunGameLoopEvent.Render> {
             if (mainTimer.tickAndReset(100L)) {
-                defaultScope.launch {
+                BackgroundScope.launch {
                     if (removeTimer.tickAndReset(500L)) {
                         removeInvalidPos()
                     }

@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.BOOLEAN_SUPPLIER_FALSE
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.getMiningSide
 import dev.luna5ama.trollhack.util.world.isAir
@@ -115,7 +115,7 @@ internal object NoteBot : Module(
     }
 
     private fun loadSong() {
-        defaultScope.launch(Dispatchers.IO) {
+        DefaultScope.launch(Dispatchers.IO) {
             val path = "${TrollHackMod.DIRECTORY}/songs/$songName"
 
             try {

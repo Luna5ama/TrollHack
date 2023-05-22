@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.formatValue
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -25,7 +25,7 @@ object ConfigCommand : ClientCommand(
         literal("all") {
             literal("reload") {
                 execute("Reload all configs") {
-                    defaultScope.launch(Dispatchers.IO) {
+                    DefaultScope.launch(Dispatchers.IO) {
                         val loaded = ConfigUtils.loadAll()
                         if (loaded) MessageSendUtils.sendNoSpamChatMessage("All configurations reloaded!")
                         else MessageSendUtils.sendNoSpamErrorMessage("Failed to load config!")
@@ -35,7 +35,7 @@ object ConfigCommand : ClientCommand(
 
             literal("save") {
                 execute("Save all configs") {
-                    defaultScope.launch(Dispatchers.IO) {
+                    DefaultScope.launch(Dispatchers.IO) {
                         val saved = ConfigUtils.saveAll()
                         if (saved) MessageSendUtils.sendNoSpamChatMessage("All configurations saved!")
                         else MessageSendUtils.sendNoSpamErrorMessage("Failed to load config!")

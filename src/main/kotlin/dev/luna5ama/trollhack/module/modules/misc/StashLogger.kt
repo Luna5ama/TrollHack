@@ -13,9 +13,9 @@ import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
-import kotlinx.coroutines.coroutineScope
+import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
 import kotlinx.coroutines.launch
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.init.SoundEvents
@@ -66,13 +66,9 @@ internal object StashLogger : Module(
         safeListener<TickEvent.Post> {
             if (!timer.tickAndReset(3L)) return@safeListener
 
-            defaultScope.launch {
-                coroutineScope {
-                    launch {
-                        world.loadedTileEntityList.toList().forEach(::logTileEntity)
-                        notification()
-                    }
-                }
+            DefaultScope.launch {
+                world.loadedTileEntityList.toList().forEach(::logTileEntity)
+                notification()
             }
         }
     }
@@ -92,7 +88,7 @@ internal object StashLogger : Module(
             }
 
             if (playSound) {
-                onMainThread {
+                onMainThreadSuspend {
                     mc.soundHandler.playSound(
                         PositionedSoundRecord.getRecord(
                             SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
@@ -108,7 +104,7 @@ internal object StashLogger : Module(
                 MessageSendUtils.sendNoSpamChatMessage("$chatName $positionString $string")
             }
 
-            found = found || true
+            found = true
         }
 
         if (found) {

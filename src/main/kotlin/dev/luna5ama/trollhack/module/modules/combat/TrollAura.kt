@@ -51,8 +51,9 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.pause.HandPause
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.TimerScope
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
@@ -842,7 +843,7 @@ internal object TrollAura : Module(
     ) {
         if (!canPlace()) return
 
-        defaultScope.launch {
+        ConcurrentScope.launch {
             val mutableBlockPos = BlockPos.MutableBlockPos()
             var pos = getAntiSurroundPos(surroundPos, mutableBlockPos)
 

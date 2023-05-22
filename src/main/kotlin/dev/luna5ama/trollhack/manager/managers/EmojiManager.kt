@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.graphics.texture.MipmapTexture
 import dev.luna5ama.trollhack.util.readText
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.lwjgl.opengl.GL11.*
@@ -28,7 +28,7 @@ object EmojiManager : Manager() {
     private val emojiMap = HashMap<String, MipmapTexture>()
     private var zipCache: ZipCache? = null
 
-    private val job = defaultScope.launch(Dispatchers.IO) {
+    private val job = DefaultScope.launch(Dispatchers.IO) {
         try {
             checkEmojiUpdate()
         } catch (e: Exception) {

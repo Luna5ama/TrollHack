@@ -235,7 +235,7 @@ object CombatManager : Manager() {
                     val contextSelf = contextSelf ?: return@safeListener
                     val contextTarget = CombatManager.contextTarget
 
-                    defaultScope.launch {
+                    DefaultScope.launch {
                         val blockPos = event.entity.blockPos
                         val mutableBlockPos = BlockPos.MutableBlockPos()
                         val crystalDamage = placeMap0.computeIfAbsent(blockPos) {
@@ -365,13 +365,13 @@ object CombatManager : Manager() {
             CombatManager.contextTarget = contextTarget
 
             if (flag1) {
-                placeJob = defaultScope.launch {
+                placeJob = BackgroundScope.launch {
                     updatePlaceMap(contextSelf, contextTarget, remove)
                     updatePlaceList()
                 }
             }
             if (flag2) {
-                crystalJob = defaultScope.launch {
+                crystalJob = BackgroundScope.launch {
                     updateCrystalMap(contextSelf, contextTarget, remove)
                     updateCrystalList()
                 }

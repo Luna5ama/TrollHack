@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -55,7 +55,7 @@ internal object Spammer : Module(
             if (loadRemote.value) {
                 val url = urlValue ?: return@onEnable
 
-                defaultScope.launch(Dispatchers.IO) {
+                DefaultScope.launch(Dispatchers.IO) {
                     try {
                         val text = URL(url).readText()
                         spammer.addAll(text.split("\n"))
@@ -68,7 +68,7 @@ internal object Spammer : Module(
                 }
 
             } else {
-                defaultScope.launch(Dispatchers.IO) {
+                DefaultScope.launch(Dispatchers.IO) {
                     if (file.exists()) {
                         try {
                             file.forEachLine { if (it.isNotBlank()) spammer.add(it.trim()) }

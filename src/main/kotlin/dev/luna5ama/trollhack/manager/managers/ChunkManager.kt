@@ -8,7 +8,8 @@ import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import io.netty.util.internal.ConcurrentSet
 import kotlinx.coroutines.launch
 import net.minecraft.network.play.server.SPacketChunkData
@@ -27,7 +28,7 @@ object ChunkManager : Manager() {
         }
 
         safeListener<PacketEvent.PostReceive> { event ->
-            defaultScope.launch {
+            BackgroundScope.launch {
                 if (event.packet !is SPacketChunkData || event.packet.isFullChunk) return@launch
                 val chunk = world.getChunk(event.packet.chunkX, event.packet.chunkZ)
                 if (chunk.isEmpty) return@launch

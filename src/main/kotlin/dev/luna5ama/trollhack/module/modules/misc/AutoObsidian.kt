@@ -32,7 +32,7 @@ import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
 import dev.luna5ama.trollhack.util.world.*
@@ -595,7 +595,7 @@ internal object AutoObsidian : Module(
             rotateTimer.reset()
 
             if (shulkerOpenTimer.tickAndReset(50L)) {
-                defaultScope.launch {
+                DefaultScope.launch {
                     delay(20L)
                     onMainThreadSafeSuspend {
                         connection.sendPacket(
@@ -631,7 +631,7 @@ internal object AutoObsidian : Module(
 
 
 
-        defaultScope.launch {
+        DefaultScope.launch {
             delay(20L)
             onMainThreadSafeSuspend {
                 player.spoofSneak {
@@ -666,7 +666,7 @@ internal object AutoObsidian : Module(
             }
         }
 
-        defaultScope.launch {
+        DefaultScope.launch {
             delay(20L)
             onMainThreadSafeSuspend {
                 if (pre || miningTimeoutTimer.tickAndReset(8L)) {

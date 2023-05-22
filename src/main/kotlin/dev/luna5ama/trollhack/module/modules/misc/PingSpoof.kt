@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,7 +45,7 @@ internal object PingSpoof : Module(
                 is SPacketKeepAlive -> {
                     packetTimer.reset()
                     it.cancel()
-                    defaultScope.launch {
+                    DefaultScope.launch {
                         delay((delay * multiplier).toLong())
                         onMainThreadSafeSuspend {
                             connection.sendPacket(CPacketKeepAlive(it.packet.id))
@@ -59,7 +59,7 @@ internal object PingSpoof : Module(
                     ) {
                         packetTimer.reset(-114514L)
                         it.cancel()
-                        defaultScope.launch {
+                        DefaultScope.launch {
                             delay((delay * multiplier).toLong())
                             onMainThreadSafeSuspend {
                                 connection.sendPacket(

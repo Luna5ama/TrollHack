@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util.delegate
 
 import dev.luna5ama.trollhack.util.TimeUnit
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -22,7 +22,7 @@ class AsyncCachedValue<T>(
                 block().also { value = it }
             }
             timer.tickAndReset(updateTime) -> {
-                defaultScope.launch(context) {
+                ConcurrentScope.launch(context) {
                     value = block()
                 }
                 cached
@@ -35,7 +35,7 @@ class AsyncCachedValue<T>(
 
     override fun update() {
         timer.reset()
-        defaultScope.launch(context) {
+        ConcurrentScope.launch(context) {
             value = block()
         }
     }

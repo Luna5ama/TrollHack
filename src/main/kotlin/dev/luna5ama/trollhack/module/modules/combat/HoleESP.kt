@@ -17,7 +17,7 @@ import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11.*
@@ -154,7 +154,7 @@ internal object HoleESP : Module(
     }
 
     private fun SafeClientEvent.updateRenderer() {
-        defaultScope.launch {
+        BackgroundScope.launch {
             renderer.aFilled = if (filled) aFilled else 0
             renderer.aOutline = if (outline) aOutline else 0
             renderer.thickness = width
