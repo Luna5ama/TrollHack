@@ -2,12 +2,13 @@ package dev.luna5ama.trollhack.util.graphics.texture
 
 import dev.fastmc.common.ParallelUtils
 import dev.fastmc.common.fastCeil
-import dev.fastmc.memutil.MemoryArray
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 object BC4Compression {
-    private fun IntArray.encode(output: MemoryArray) {
+    private fun IntArray.encode(output: ByteBuffer) {
         var min = 255
         var max = 0
 
@@ -22,7 +23,7 @@ object BC4Compression {
         }
 
         if (min == max) {
-            output.pushLong(((min shl 8) or max).toLong())
+            output.putLong(((min shl 8) or max).toLong())
             return
         }
 
@@ -43,7 +44,7 @@ object BC4Compression {
             table = table or (index.toLong() shl (i * 3))
         }
 
-        output.pushLong((table shl 16) or (min.toLong() shl 8) or max.toLong())
+        output.putLong((table shl 16) or (min.toLong() shl 8) or max.toLong())
     }
 
     private fun RawImage.extractBlock(output: IntArray, x: Int, y: Int) {
@@ -78,20 +79,22 @@ object BC4Compression {
         output[15] = data[r3 + c3].toInt() and 0xFF
     }
 
-    fun getEncodedSize(rawSize: Long): Long {
-        return rawSize / 2L
+    fun getEncodedSize(rawSize: Int): Int {
+        return rawSize / 2
     }
 
-    suspend fun encode(input: RawImage, output: MemoryArray) {
+    suspend fun encode(input: RawImage, output: ByteBuffer) {
         val xBlocks = (input.width / 4.0).fastCeil()
         val yBlocks = (input.height / 4.0).fastCeil()
         val totalBlocks = xBlocks * yBlocks
 
         coroutineScope {
-            var offset = 0L
+            var offset = output.position()
             ParallelUtils.splitListIndex(totalBlocks) { start, end ->
-                val size = (end - start) * 8L
-                val view = MemoryArray.wrap(output, offset, size)
+                val size = (end - start) * 8
+                output.clear().position(offset).limit(offset + size)
+                val view = output.slice()
+                view.order(ByteOrder.nativeOrder())
                 offset += size
                 launch {
                     val temp = IntArray(16)

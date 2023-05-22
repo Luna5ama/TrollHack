@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.util.graphics.font.renderer
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.module.modules.client.CustomFont
 import dev.luna5ama.trollhack.util.TickTimer
+import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.MatrixUtils
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -41,7 +42,7 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
     private var prevLineSpace = Float.NaN
     private var prevShadowDist = Float.NaN
 
-    private val renderStringMap = Object2ObjectOpenHashMap<CharSequence, RenderString>()
+    private val renderStringMap = Object2ObjectOpenHashMap<CharSequence, RenderString>().synchronized()
 
     private val checkTimer = TickTimer()
     private val cleanTimer = TickTimer()
@@ -70,8 +71,10 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
     ) {
         if (checkTimer.tickAndReset(25L) && glyphs.any { it.checkUpdate() } || cleanTimer.tick(3000L)) {
             val current = System.currentTimeMillis()
-            renderStringMap.values.removeIf {
-                it.tryClean(current)
+            synchronized(renderStringMap) {
+                renderStringMap.values.removeIf {
+                    it.tryClean(current)
+                }
             }
             cleanTimer.reset()
         }

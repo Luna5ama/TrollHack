@@ -18,7 +18,6 @@ object ClassUtils {
             val thisFileName = this.javaClass.name.replace('.', '/') + ".class"
             val thisURL = classLoader.getResource(thisFileName)!!
             val file = thisURL.file.substringBeforeLast(thisFileName.substringAfter("dev/luna5ama/trollhack"))
-            println(file)
             URL(thisURL.protocol, thisURL.host, file)
         } else {
             classLoader.getResource(packagePath)!!

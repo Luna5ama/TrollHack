@@ -65,14 +65,12 @@ object Mipmaps {
         return RawImage(outputData, w, h, inputChannels)
     }
 
-    fun getTotalSize(input: RawImage, levels: Int): Long {
-        var c = input.data.size.toLong()
-        var result = c
-        repeat(levels) {
-            c /= 2L
-            result += c
+    fun getTotalSize(size: Int, levels: Int): Int {
+        var total = size
+        for (i in 1..levels) {
+            total += size shr (i * 2)
         }
-        return result
+        return total
     }
 
     fun generate(image: RawImage, levels: Int): Flow<RawImage> {
