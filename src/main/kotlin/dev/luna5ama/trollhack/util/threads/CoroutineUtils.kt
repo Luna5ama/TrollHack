@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.util.threads
 
+import dev.fastmc.common.ParallelUtils
 import kotlinx.coroutines.*
+import java.util.concurrent.ScheduledThreadPoolExecutor
 
 /**
  * Single thread scope to use in Troll Hack
@@ -20,4 +22,19 @@ inline val Job?.isActiveOrFalse get() = this?.isActive ?: false
 
 suspend inline fun delay(timeMillis: Int) {
     delay(timeMillis.toLong())
+}
+
+private val backgroundPool = ScheduledThreadPoolExecutor(
+    ParallelUtils.CPU_THREADS,
+    CountingThreadFactory("Troll Hack Background") {
+        isDaemon = true
+        priority = 3
+    }
+)
+
+private val backgroundContext = backgroundPool.asCoroutineDispatcher()
+
+object BackgroundScope : CoroutineScope by CoroutineScope(backgroundContext) {
+    val pool = backgroundPool
+    val context = backgroundContext
 }

@@ -194,3 +194,73 @@ fun glGetSynciv(sync: Long, pname: Int): Int {
     GL32.glGetSync(glSyncInstance, pname, lengthBuffer, valueBuffer)
     return valueBuffer.get(0)
 }
+
+private val nglCompressedTextureSubImage2D = trustedLookUp.findStatic(
+    GL45::class.java,
+    "nglCompressedTextureSubImage2D",
+    MethodType.methodType(
+        Void.TYPE,
+        Int::class.java,
+        Int::class.java,
+        Int::class.java,
+        Int::class.java,
+        Int::class.java,
+        Int::class.java,
+        Int::class.java,
+        Int::class.java,
+        Long::class.java,
+        Long::class.java
+    )
+)
+
+private val glCompressedTextureSubImage2DFunctionPointer = getFunctionAddress("glCompressedTextureSubImage2D")
+
+fun glCompressedTextureSubImage2D(
+    texture: Int,
+    level: Int,
+    xOffset: Int,
+    yOffset: Int,
+    width: Int,
+    height: Int,
+    format: Int,
+    imageSize: Int,
+    data: Long
+) {
+    nglCompressedTextureSubImage2D.invokeExact(
+        texture,
+        level,
+        xOffset,
+        yOffset,
+        width,
+        height,
+        format,
+        imageSize,
+        data,
+        glCompressedTextureSubImage2DFunctionPointer
+    )
+}
+
+fun glCompressedTextureSubImage2D(
+    texture: Int,
+    level: Int,
+    xOffset: Int,
+    yOffset: Int,
+    width: Int,
+    height: Int,
+    format: Int,
+    imageSize: Int,
+    data: MemoryPointer
+) {
+    nglCompressedTextureSubImage2D.invokeExact(
+        texture,
+        level,
+        xOffset,
+        yOffset,
+        width,
+        height,
+        format,
+        imageSize,
+        data.address,
+        glCompressedTextureSubImage2DFunctionPointer
+    )
+}

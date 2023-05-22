@@ -34,6 +34,7 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
     protected open val shadowDist
         get() = 2.0f
 
+    private val glyphs = ArrayList<FontGlyphs>()
     val regularGlyph = loadFont(font, size, Style.REGULAR)
 
     private var prevCharGap = Float.NaN
@@ -42,6 +43,7 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
 
     private val renderStringMap = Object2ObjectOpenHashMap<CharSequence, RenderString>()
 
+    private val checkTimer = TickTimer()
     private val cleanTimer = TickTimer()
 
     protected fun loadFont(font: Font, size: Float, style: Style): FontGlyphs {
@@ -53,7 +55,9 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
             getSansSerifFont().deriveFont(style.styleConst, size)
         }
 
-        return FontGlyphs(style.ordinal, font.deriveFont(style.styleConst, size), fallbackFont, textureSize)
+        return FontGlyphs(style.ordinal, font.deriveFont(style.styleConst, size), fallbackFont, textureSize).also {
+            glyphs.add(it)
+        }
     }
 
     override fun drawString(
@@ -64,11 +68,12 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
         scale: Float,
         drawShadow: Boolean
     ) {
-        if (cleanTimer.tickAndReset(1000L)) {
+        if (checkTimer.tickAndReset(25L) && glyphs.any { it.checkUpdate() } || cleanTimer.tick(3000L)) {
             val current = System.currentTimeMillis()
             renderStringMap.values.removeIf {
                 it.tryClean(current)
             }
+            cleanTimer.reset()
         }
 
         if (prevCharGap != charGap || prevLineSpace != lineSpace || prevShadowDist != shadowDist) {

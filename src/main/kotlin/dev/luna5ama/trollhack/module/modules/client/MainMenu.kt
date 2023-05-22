@@ -301,7 +301,7 @@ internal object MainMenu : AbstractModule(
         Font.createFont(
             Font.TRUETYPE_FONT,
             this::class.java.getResourceAsStream("/assets/trollhack/fonts/Orbitron-Regular.ttf")
-        ), 80.0f, 5120
+        ), 80.0f, 2048
     ) {
         override val shadowDist: Float
             get() = 4.0f
@@ -311,6 +311,6 @@ internal object MainMenu : AbstractModule(
         Font.createFont(
             Font.TRUETYPE_FONT,
             this::class.java.getResourceAsStream("/assets/trollhack/fonts/GOTHIC.TTF")
-        ), 36.0f, 2048
+        ), 36.0f, 1024
     )
 }

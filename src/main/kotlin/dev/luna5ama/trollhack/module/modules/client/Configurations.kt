@@ -23,7 +23,7 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
-import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.TimerScope
 import dev.luna5ama.trollhack.util.threads.defaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,7 +63,7 @@ internal object Configurations : AbstractModule(
     private var connected = false
 
     init {
-        BackgroundScope.launchLooping("Config Auto Saving", 60000L) {
+        TimerScope.launchLooping("Config Auto Saving", 60000L) {
             if (autoSaving && mc.currentScreen !is AbstractTrollGui<*, *> && timer.tickAndReset(savingInterval.toLong())) {
                 if (savingFeedBack) NoSpamMessage.sendMessage(this@Configurations, "Auto saving settings...")
                 else TrollHackMod.logger.info("Auto saving settings...")

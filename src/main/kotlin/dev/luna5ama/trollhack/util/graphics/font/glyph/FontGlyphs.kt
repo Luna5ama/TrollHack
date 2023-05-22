@@ -1,31 +1,38 @@
 package dev.luna5ama.trollhack.util.graphics.font.glyph
 
-import dev.luna5ama.trollhack.util.extension.ceilToInt
+import dev.fastmc.common.ParallelUtils
+import dev.fastmc.common.UpdateCounter
+import dev.fastmc.memutil.MemoryArray
 import dev.luna5ama.trollhack.util.graphics.font.GlyphCache
 import dev.luna5ama.trollhack.util.graphics.font.GlyphTexture
 import dev.luna5ama.trollhack.util.graphics.font.Style
-import dev.luna5ama.trollhack.util.threads.defaultScope
+import dev.luna5ama.trollhack.util.graphics.glCompressedTextureSubImage2D
+import dev.luna5ama.trollhack.util.graphics.texture.BC4Compression
+import dev.luna5ama.trollhack.util.graphics.texture.Mipmaps
+import dev.luna5ama.trollhack.util.graphics.texture.RawImage
+import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
+import org.lwjgl.opengl.GL30.GL_COMPRESSED_RED_RGTC1
 import java.awt.Color
 import java.awt.Font
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.DataBuffer
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicIntegerArray
 
-@Suppress("NOTHING_TO_INLINE")
 class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: Font, private val textureSize: Int) {
     private val chunkArray = arrayOfNulls<GlyphChunk>(128)
-    private val loadingArray = Array(127) { AtomicBoolean(false) }
+    private val loadingFlags = AtomicIntegerArray(127)
     private val mainChunk: GlyphChunk
-    private val mutex = Mutex()
+    private val loadingLimiter = Semaphore(4)
+    private val uploadMutex = Mutex()
+    private val updateCounter = UpdateCounter()
 
     init {
         val textureImage: BufferedImage
@@ -41,8 +48,45 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             GlyphCache.put(font, 0, textureImage, charInfoArray)
         }
 
-        val data = runBlocking { getAlphaParallel(textureImage) }
-        val texture = GlyphTexture(data, textureImage.width, textureImage.height, 4)
+        val texture = GlyphTexture(textureSize, textureSize, 4)
+
+        runBlocking {
+            val rawImage = withContext(Dispatchers.Default) {
+                dumpAlphaParallel(textureImage)
+            }
+            val output = MemoryArray.malloc(BC4Compression.getEncodedSize(Mipmaps.getTotalSize(rawImage, 4)))
+
+            coroutineScope {
+                val mainThread = this
+                withContext(Dispatchers.Default) {
+                    var offset = 0L
+                    Mipmaps.generate(rawImage, 4).withIndex().collect { (level, it) ->
+                        val size = BC4Compression.getEncodedSize(it.data.size.toLong())
+                        val i = offset
+                        offset += size
+                        launch {
+                            val view = MemoryArray.wrap(output, i, size)
+                            BC4Compression.encode(it, view)
+                            mainThread.launch {
+                                glCompressedTextureSubImage2D(
+                                    texture.textureID,
+                                    level,
+                                    0,
+                                    0,
+                                    it.width,
+                                    it.height,
+                                    GL_COMPRESSED_RED_RGTC1,
+                                    size.toInt(),
+                                    view
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            output.free()
+        }
 
         mainChunk = GlyphChunk(0, texture, charInfoArray)
         chunkArray[0] = mainChunk
@@ -74,11 +118,12 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 chunk = mainChunk
                 val loadingID = chunkID - 1
 
-                val boolean = loadingArray[loadingID]
-
-                if (!boolean.getAndSet(true)) {
-                    defaultScope.launch {
-                        chunkArray[chunkID] = loadGlyphChunkAsync(chunkID)
+                if (loadingFlags.getAndSet(loadingID, 1) == 0) {
+                    BackgroundScope.launch {
+                        loadingLimiter.withPermit {
+                            chunkArray[chunkID] = loadGlyphChunkAsync(chunkID)
+                            updateCounter.update()
+                        }
                     }
                 }
             }
@@ -96,8 +141,13 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
         }
     }
 
+    fun checkUpdate(): Boolean {
+        return updateCounter.check()
+    }
+
     private suspend fun loadGlyphChunkAsync(chunkID: Int): GlyphChunk {
-        return mutex.withLock {
+        return coroutineScope {
+
             val textureImage: BufferedImage
             val charInfoArray: Array<CharInfo>
 
@@ -111,16 +161,54 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 GlyphCache.put(font, chunkID, textureImage, charInfoArray)
             }
 
-            val data = getAlphaParallel(textureImage)
-            val texture = onMainThreadSuspend {
-                GlyphTexture(data, textureImage.width, textureImage.height, 4)
-            }.await()
+            val rawImage = dumpAlphaParallel(textureImage)
+            val output = MemoryArray.malloc(BC4Compression.getEncodedSize(Mipmaps.getTotalSize(rawImage, 4)))
 
-            GlyphChunk(chunkID, texture, charInfoArray)
+            val deferredTexture = onMainThreadSuspend {
+                GlyphTexture(textureSize, textureSize, 4)
+            }
+
+            coroutineScope {
+                var offset = 0L
+
+                Mipmaps.generate(rawImage, 4).withIndex().collect { (level, it) ->
+                    val size = BC4Compression.getEncodedSize(it.data.size.toLong())
+                    val i = offset
+                    offset += size
+                    launch {
+                        val view = MemoryArray.wrap(output, i, size)
+                        BC4Compression.encode(it, view)
+                        val texture = deferredTexture.await()
+                        uploadSmoothed {
+                            glCompressedTextureSubImage2D(
+                                texture.textureID,
+                                level,
+                                0,
+                                0,
+                                it.width,
+                                it.height,
+                                GL_COMPRESSED_RED_RGTC1,
+                                size.toInt(),
+                                view
+                            )
+                        }
+                    }
+                }
+            }
+
+            output.free()
+
+            GlyphChunk(chunkID, deferredTexture.await(), charInfoArray)
         }
     }
 
-    private inline fun drawGlyphs(bufferedImage: BufferedImage, chunkStart: Int): Array<CharInfo> {
+    private suspend fun uploadSmoothed(block: () -> Unit) {
+        uploadMutex.withLock {
+            onMainThreadSuspend(block).join()
+        }
+    }
+
+    private fun drawGlyphs(bufferedImage: BufferedImage, chunkStart: Int): Array<CharInfo> {
         val graphics2D = bufferedImage.createGraphics()
 
         graphics2D.background = Color(0, 0, 0, 0)
@@ -165,63 +253,36 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
         return charInfoArray
     }
 
-    private suspend inline fun getAlphaParallel(image: BufferedImage): ByteBuffer {
+    private suspend inline fun dumpAlphaParallel(image: BufferedImage): RawImage {
         val size = image.width * image.height
-        val buffer = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder())
+        val outputData = ByteArray(size)
         val isInt = image.raster.transferType == DataBuffer.TYPE_INT
 
         coroutineScope {
-            val cpus = Runtime.getRuntime().availableProcessors()
-            val regionSize = (size.toDouble() / cpus.toDouble()).ceilToInt()
-            var start = 0
-
             if (isInt) {
-                while (start + regionSize < size) {
-                    val regionStart = start
-
+                ParallelUtils.splitListIndex(size) { start, end ->
                     launch {
-                        val end = regionStart + regionSize
                         val data = IntArray(1)
-                        for (i in regionStart until end) {
+                        for (i in start until end) {
                             image.raster.getDataElements(i % image.width, i / image.width, data)
-                            buffer.put(i, (data[0] shr 24).toByte())
+                            outputData[i] = (data[0] shr 24).toByte()
                         }
                     }
-
-                    start += regionSize
-                }
-
-                val data = IntArray(1)
-                for (i in start until size) {
-                    image.raster.getDataElements(i % image.width, i / image.width, data)
-                    buffer.put(i, (data[0] shr 24).toByte())
                 }
             } else {
-                while (start + regionSize < size) {
-                    val regionStart = start
-
+                ParallelUtils.splitListIndex(size) { start, end ->
                     launch {
-                        val end = regionStart + regionSize
                         val data = ByteArray(4)
-                        for (i in regionStart until end) {
+                        for (i in start until end) {
                             image.raster.getDataElements(i % image.width, i / image.width, data)
-                            buffer.put(i, data[3])
+                            outputData[i] = data[3]
                         }
                     }
-
-                    start += regionSize
-                }
-
-                val data = ByteArray(4)
-                for (i in start until size) {
-                    image.raster.getDataElements(i % image.width, i / image.width, data)
-                    buffer.put(i, data[3])
                 }
             }
         }
 
-        buffer.flip()
-        return buffer
+        return RawImage(outputData, image.width, image.height, 1)
     }
 
 }

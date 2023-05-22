@@ -4,8 +4,8 @@ import dev.luna5ama.trollhack.TrollHackMod
 import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)
-internal object BackgroundScope :
-    CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Troll Hack Background")) {
+internal object TimerScope :
+    CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Troll Hack Timer")) {
 
     private val jobs = LinkedHashMap<BackgroundJob, Job?>()
     private var started = false

@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.extension.synchronized
-import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.TimerScope
 import dev.luna5ama.trollhack.util.threads.runSynchronized
 import kotlin.math.roundToInt
 
@@ -25,7 +25,7 @@ internal object MemoryUsage : LabelHud(
     private var lastUpdate = System.nanoTime()
 
     init {
-        BackgroundScope.launchLooping(rootName, 5L) {
+        TimerScope.launchLooping(rootName, 5L) {
             if (visible && showAllocations) {
                 val last = lastUsed
                 val lastTime = lastUpdate

@@ -51,7 +51,7 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.pause.HandPause
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
-import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.TimerScope
 import dev.luna5ama.trollhack.util.threads.defaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
@@ -569,7 +569,7 @@ internal object TrollAura : Module(
             }
         }
 
-        BackgroundScope.launchLooping(rootName, 5L) {
+        TimerScope.launchLooping(rootName, 5L) {
             if (isEnabled) {
                 runSafe {
                     runLoop()

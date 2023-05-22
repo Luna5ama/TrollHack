@@ -46,7 +46,7 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.TimerScope
 import dev.luna5ama.trollhack.util.threads.defaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
@@ -375,7 +375,7 @@ internal object BedAura : Module(
             runLoop()
         }
 
-        BackgroundScope.launchLooping(rootName, 5L) {
+        TimerScope.launchLooping(rootName, 5L) {
             if (isEnabled) {
                 runSafe {
                     runLoop()

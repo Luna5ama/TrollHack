@@ -74,7 +74,8 @@ internal object CustomFont : Module(
     }
 
     init {
-        fontName.valueListeners.add { prev, _ ->
+        fontName.valueListeners.add { prev, it ->
+            if (prev == it) return@add
             GlyphCache.delete(Font(prev, Font.PLAIN, 64))
             onMainThread {
                 MainFontRenderer.reloadFonts()

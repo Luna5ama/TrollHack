@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.events.ShutdownEvent
 import dev.luna5ama.trollhack.translation.TranslationManager
 import dev.luna5ama.trollhack.util.ConfigUtils
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.TimerScope
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -42,7 +42,7 @@ class TrollHackMod {
         LoaderWrapper.loadAll()
         MinecraftForge.EVENT_BUS.register(ForgeEventProcessor)
         ConfigUtils.loadAll()
-        BackgroundScope.start()
+        TimerScope.start()
         MainFontRenderer.reloadFonts()
 
         logger.info("$NAME initialized!")

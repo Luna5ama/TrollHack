@@ -109,7 +109,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
     }
 
     fun tryClean(current: Long): Boolean {
-        return if (current - initTime >= 15000L || invalid && current - initTime >= 1000L || current - lastAccess >= 15000L) {
+        return if (invalid || current - initTime >= 15000L || current - lastAccess >= 5000L) {
             destroy()
             true
         } else {
