@@ -2,11 +2,10 @@ package dev.luna5ama.trollhack.util.graphics.font.glyph
 
 import dev.fastmc.common.ParallelUtils
 import dev.fastmc.common.UpdateCounter
-import dev.fastmc.memutil.MemoryArray
 import dev.luna5ama.trollhack.util.graphics.font.GlyphCache
 import dev.luna5ama.trollhack.util.graphics.font.GlyphTexture
 import dev.luna5ama.trollhack.util.graphics.font.Style
-import dev.luna5ama.trollhack.util.graphics.glCompressedTextureSubImage2D
+import dev.luna5ama.trollhack.util.graphics.glMapNamedBufferRange
 import dev.luna5ama.trollhack.util.graphics.texture.BC4Compression
 import dev.luna5ama.trollhack.util.graphics.texture.Mipmaps
 import dev.luna5ama.trollhack.util.graphics.texture.RawImage
@@ -17,7 +16,12 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
+import net.minecraft.client.renderer.OpenGlHelper.glBindBuffer
+import org.lwjgl.opengl.GL15.glDeleteBuffers
+import org.lwjgl.opengl.GL21.GL_PIXEL_UNPACK_BUFFER
 import org.lwjgl.opengl.GL30.GL_COMPRESSED_RED_RGTC1
+import org.lwjgl.opengl.GL30.GL_MAP_WRITE_BIT
+import org.lwjgl.opengl.GL45.*
 import java.awt.Color
 import java.awt.Font
 import java.awt.RenderingHints
@@ -44,16 +48,21 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             }
         }
 
-        val buffer = MemoryArray.malloc(cache.data.size.toLong())
+        val bufferID = glCreateBuffers()
+        glNamedBufferStorage(bufferID, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
+        val buffer = glMapNamedBufferRange(bufferID, 0, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
         buffer.setBytesUnsafe(cache.data)
+        glUnmapNamedBuffer(bufferID)
 
-        var address = buffer.address
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferID)
+
+        var offset = 0L
         var size = cache.baseSize
         for (i in 0..cache.levels) {
-            val a = address
+            val a = offset
             val s = size
 
-            address += size
+            offset += size
             size = size shr 2
 
             glCompressedTextureSubImage2D(
@@ -69,7 +78,9 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             )
         }
 
-        buffer.free()
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0)
+        glDeleteBuffers(bufferID)
+
         glyphChunk = GlyphChunk(0, texture, cache.charInfoArray)
 
         mainChunk = glyphChunk
@@ -136,40 +147,57 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             }
 
             val cache = GlyphCache.get(font, chunkID) ?: createNewGlyph(chunkID)
-            val buffer = MemoryArray.malloc(cache.data.size.toLong())
+
+            val deferredBuffer = onMainThreadSuspend {
+                val bufferID = glCreateBuffers()
+                glNamedBufferStorage(bufferID, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
+                bufferID to glMapNamedBufferRange(bufferID, 0, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
+            }
+
+            val (bufferID, buffer) = deferredBuffer.await()
             buffer.setBytesUnsafe(cache.data)
+            onMainThreadSuspend {
+                glUnmapNamedBuffer(bufferID)
+            }.await()
 
-            coroutineScope {
-                var address = buffer.address
-                var size = cache.baseSize
-                for (i in 0..cache.levels) {
-                    val a = address
-                    val s = size
+            val texture = deferredTexture.await()
 
-                    address += size
-                    size = size shr 2
+            var offset = 0L
+            var size = cache.baseSize
+            for (i in 0..cache.levels) {
+                val a = offset
+                val s = size
 
-                    val texture = deferredTexture.await()
-
-                    uploadSmoothed {
-                        glCompressedTextureSubImage2D(
-                            texture.textureID,
-                            i,
-                            0,
-                            0,
-                            cache.width shr i,
-                            cache.height shr i,
-                            GL_COMPRESSED_RED_RGTC1,
-                            s,
-                            a
-                        )
-                    }
+                offset += size
+                size = size shr 2
+                uploadSmoothed {
+                    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferID)
+                    glCompressedTextureSubImage2D(
+                        texture.textureID,
+                        i,
+                        0,
+                        0,
+                        cache.width shr i,
+                        cache.height shr i,
+                        GL_COMPRESSED_RED_RGTC1,
+                        s,
+                        a
+                    )
+                    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0)
                 }
             }
 
-            buffer.free()
+            onMainThreadSuspend {
+                glDeleteBuffers(bufferID)
+            }
 
-            GlyphChunk(chunkID, deferredTexture.await(), cache.charInfoArray)
+            GlyphChunk(chunkID, texture, cache.charInfoArray)
+        }
+    }
+
+    private suspend fun uploadSmoothed(block: () -> Unit) {
+        uploadMutex.withLock {
+            onMainThreadSuspend(block).join()
         }
     }
 
@@ -206,12 +234,6 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             BackgroundScope.launch {
                 GlyphCache.put(font, chunkID, it)
             }
-        }
-    }
-
-    private suspend fun uploadSmoothed(block: () -> Unit) {
-        uploadMutex.withLock {
-            onMainThreadSuspend(block).join()
         }
     }
 
