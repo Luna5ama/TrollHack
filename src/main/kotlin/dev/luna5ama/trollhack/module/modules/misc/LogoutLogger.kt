@@ -3,8 +3,11 @@ package dev.luna5ama.trollhack.module.modules.misc
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
+import dev.luna5ama.trollhack.manager.managers.EntityManager
+import dev.luna5ama.trollhack.manager.managers.UUIDManager
 import dev.luna5ama.trollhack.manager.managers.WaypointManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -12,9 +15,11 @@ import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
+import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
+import dev.luna5ama.trollhack.util.threads.runSynchronized
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.BlockPos
@@ -30,7 +35,7 @@ internal object LogoutLogger : Module(
     private val saveWaypoint by setting("Save Waypoint", true)
     private val print by setting("Print To Chat", true)
 
-    private val removed = LinkedHashSet<EntityPlayer>()
+    private val removed = LinkedHashSet<EntityPlayer>().synchronized()
     private val loggedPlayers = LinkedHashMap<EntityPlayer, BlockPos>()
     private val timer = TickTimer(TimeUnit.SECONDS)
 
@@ -48,12 +53,13 @@ internal object LogoutLogger : Module(
             removed.add(it.entity)
         }
 
-        safeParallelListener<TickEvent.Post> {
-            for (loadedPlayer in world.playerEntities) {
+        safeConcurrentListener<TickEvent.Post> {
+            for (loadedPlayer in EntityManager.players) {
                 if (loadedPlayer !is EntityOtherPlayerMP) continue
                 if (loadedPlayer.isFakeOrSelf) continue
                 @Suppress("SENSELESS_COMPARISON")
                 if (connection.getPlayerInfo(loadedPlayer.gameProfile.id) == null) continue
+                if (UUIDManager.getByUUID(loadedPlayer.uniqueID)?.name != loadedPlayer.name) continue
 
                 loggedPlayers[loadedPlayer] = loadedPlayer.flooredPosition
             }
@@ -62,13 +68,15 @@ internal object LogoutLogger : Module(
                 loggedPlayers.entries.removeIf { (player, pos) ->
                     @Suppress("SENSELESS_COMPARISON")
                     if (connection.getPlayerInfo(player.gameProfile.id) == null) {
-                        handleLogout(player, pos)
+                         handleLogout(player, pos)
                         true
                     } else {
                         false
                     }
                 }
-                loggedPlayers.keys.removeAll(removed)
+                removed.runSynchronized {
+                    loggedPlayers.keys.removeAll(this)
+                }
                 removed.clear()
             }
         }

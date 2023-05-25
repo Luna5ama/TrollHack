@@ -6,7 +6,6 @@ import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.ConfigUtils
 import dev.luna5ama.trollhack.util.ConnectionUtils
 import dev.luna5ama.trollhack.util.PlayerProfile
-import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.extension.synchronized
 import java.io.File
 import java.util.*
@@ -18,28 +17,13 @@ object UUIDManager : Manager() {
     private val nameProfileMap = LinkedHashMap<String, PlayerProfile>().synchronized()
     private val uuidNameMap = LinkedHashMap<UUID, PlayerProfile>().synchronized()
 
-    fun getOrRequest(nameOrUUID: String): PlayerProfile? {
-        return Wrapper.minecraft.connection?.playerInfoMap?.let { playerInfoMap ->
-            val infoMap = ArrayList(playerInfoMap)
-            val isUUID = isUUID(nameOrUUID)
-            val withOutDashes = removeDashes(nameOrUUID)
-
-            infoMap.find {
-                isUUID && removeDashes(it.gameProfile.id.toString()).equals(withOutDashes, ignoreCase = true)
-                    || !isUUID && it.gameProfile.name.equals(nameOrUUID, ignoreCase = true)
-            }?.gameProfile?.let {
-                PlayerProfile(it.id, it.name)
-            }
-        } ?: requestProfile(nameOrUUID)
-    }
-
     fun getByString(stringIn: String?) = stringIn?.let { string ->
         fixUUID(string)?.let { getByUUID(it) } ?: getByName(string)
     }
 
     fun getByUUID(uuid: UUID?) = uuid?.let {
         uuidNameMap.getOrPut(uuid) {
-            getOrRequest(uuid.toString())?.also { profile ->
+            requestProfile(uuid.toString())?.also { profile ->
                 // If UUID already present in nameUuidMap but not in uuidNameMap (user changed name)
                 nameProfileMap[profile.name]?.let { uuidNameMap.remove(it.uuid) }
                 nameProfileMap[profile.name] = profile
@@ -51,7 +35,7 @@ object UUIDManager : Manager() {
 
     fun getByName(name: String?) = name?.let {
         nameProfileMap.getOrPut(name.lowercase()) {
-            getOrRequest(name)?.also { profile ->
+            requestProfile(name)?.also { profile ->
                 // If UUID already present in uuidNameMap but not in nameUuidMap (user changed name)
                 uuidNameMap[profile.uuid]?.let { nameProfileMap.remove(it.name) }
                 uuidNameMap[profile.uuid] = profile
@@ -78,7 +62,7 @@ object UUIDManager : Manager() {
             null
         } else {
             try {
-                @Suppress("DEPRECATION") val jsonElement = parser.parse(response)
+                val jsonElement = parser.parse(response)
                 if (isUUID) {
                     val name = jsonElement.asJsonArray.last().asJsonObject["name"].asString
                     PlayerProfile(UUID.fromString(nameOrUUID), name)
@@ -95,11 +79,11 @@ object UUIDManager : Manager() {
     }
 
     private fun requestProfileFromUUID(uuid: String): String? {
-        return request("https://api.mojang.com/user/profiles/${removeDashes(uuid)}/names")
+        return this.request("https://api.mojang.com/user/profiles/${removeDashes(uuid)}/names")
     }
 
     private fun requestProfileFromName(name: String): String? {
-        return request("https://api.mojang.com/users/profiles/minecraft/$name")
+        return this.request("https://api.mojang.com/users/profiles/minecraft/$name")
     }
 
     private fun request(url: String): String? {
