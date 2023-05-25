@@ -13,8 +13,8 @@ import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.format
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.entity.player.EntityPlayer
@@ -74,7 +74,7 @@ internal object VisualRange : Module(
     private fun onEnter(player: EntityPlayer) {
         val message = enterMessage.replaceName(player)
 
-        sendNotification(message)
+        sendNotification(player, message)
         if (logToFile) WaypointManager.add(player.flooredPosition, message)
         if (uwuAura) sendServerMessage("/w ${player.name} hi uwu")
     }
@@ -83,7 +83,7 @@ internal object VisualRange : Module(
         if (!leaving) return
         val message = leaveMessage.replaceName(player)
 
-        sendNotification(message)
+        sendNotification(player, message)
         if (logToFile) WaypointManager.add(player.flooredPosition, message)
         if (uwuAura) sendServerMessage("/w ${player.name} bye uwu")
     }
@@ -94,7 +94,7 @@ internal object VisualRange : Module(
         if (FriendManager.isFriend(player.name)) TextFormatting.GREEN
         else TextFormatting.RED
 
-    private fun sendNotification(message: String) {
+    private fun sendNotification(player: EntityPlayer, message: String) {
         if (playSound) mc.soundHandler.playSound(
             PositionedSoundRecord.getRecord(
                 SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
@@ -102,6 +102,6 @@ internal object VisualRange : Module(
                 1.0f
             )
         )
-        MessageSendUtils.sendNoSpamChatMessage(message)
+        NoSpamMessage.sendMessage(VisualRange.hashCode() xor player.name.hashCode(), message)
     }
 }

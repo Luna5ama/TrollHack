@@ -25,7 +25,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.notAtValue
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import net.minecraft.entity.Entity
@@ -326,7 +326,7 @@ internal object Burrow : Module(
         val slot = player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
 
         return if (slot == null) {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName No obsidian in hotbar!")
+            NoSpamMessage.sendMessage("$chatName No obsidian in hotbar!")
             null
         } else {
             slot

@@ -16,7 +16,7 @@ import dev.luna5ama.trollhack.util.IDRegistry
 import dev.luna5ama.trollhack.util.interfaces.Alias
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.interfaces.Nameable
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.client.Minecraft
 
 @Suppress("UNCHECKED_CAST")
@@ -159,7 +159,7 @@ open class AbstractModule(
             if (it) {
                 settingList.forEach { it.resetValue() }
                 default.value = false
-                MessageSendUtils.sendNoSpamChatMessage("$chatName $defaultMessage!")
+                NoSpamMessage.sendMessage(Companion, "$chatName $defaultMessage!")
             }
         }
     }

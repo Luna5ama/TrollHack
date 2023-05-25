@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.command.commands
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.event.SafeExecuteEvent
 import dev.luna5ama.trollhack.util.items.itemPayload
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.item.ItemWritableBook
 import net.minecraft.nbt.NBTTagList
 import net.minecraft.nbt.NBTTagString
@@ -72,9 +72,9 @@ object DupeBookCommand : ClientCommand(
                 itemPayload(heldItem, "MC|BSign")
             }
 
-            MessageSendUtils.sendNoSpamChatMessage("Dupe book generated.")
+            NoSpamMessage.sendMessage("Dupe book generated.")
         } else {
-            MessageSendUtils.sendNoSpamErrorMessage("You must be holding a writable book.")
+            NoSpamMessage.sendError("You must be holding a writable book.")
         }
     }
 

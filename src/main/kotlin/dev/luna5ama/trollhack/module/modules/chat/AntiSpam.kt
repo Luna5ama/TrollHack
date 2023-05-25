@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.text.MessageDetection
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.SpamFilters
 import net.minecraft.network.play.server.SPacketChat
 import net.minecraft.util.text.TextComponentString
@@ -212,7 +212,7 @@ internal object AntiSpam : Module(
     }
 
     private fun sendResult(name: String, message: String) {
-        if (showBlocked == ShowBlocked.CHAT || showBlocked == ShowBlocked.BOTH) MessageSendUtils.sendNoSpamChatMessage("$chatName $name: $message")
+        if (showBlocked == ShowBlocked.CHAT || showBlocked == ShowBlocked.BOTH) NoSpamMessage.sendMessage(AntiSpam, "$chatName $name: $message")
         if (showBlocked == ShowBlocked.LOG_FILE || showBlocked == ShowBlocked.BOTH) TrollHackMod.logger.info("$chatName $name: $message")
     }
 }

@@ -2,7 +2,7 @@ package dev.luna5ama.trollhack.command.commands
 
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.module.modules.render.Search
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 
 // TODO: Remove once GUI has List
@@ -35,7 +35,7 @@ object SearchCommand : ClientCommand(
                     val blockName = blockArg.value.registryName.toString()
 
                     if (warningBlocks.contains(blockName)) {
-                        MessageSendUtils.sendNoSpamWarningMessage(
+                        NoSpamMessage.sendWarning(
                             "Your world contains lots of ${formatValue(blockName)}, " +
                                 "it might cause extreme lag to add it. " +
                                 "If you are sure you want to add it run ${formatValue("$prefixName add force $blockName")}"
@@ -54,9 +54,9 @@ object SearchCommand : ClientCommand(
 
                     Search.searchList.editValue {
                         if (!it.remove(blockName)) {
-                            MessageSendUtils.sendNoSpamErrorMessage("You do not have ${formatValue(blockName)} added to search block list")
+                            NoSpamMessage.sendError("You do not have ${formatValue(blockName)} added to search block list")
                         } else {
-                            MessageSendUtils.sendNoSpamChatMessage("Removed ${formatValue(blockName)} from search block list")
+                            NoSpamMessage.sendMessage("Removed ${formatValue(blockName)} from search block list")
                         }
                     }
                 }
@@ -72,7 +72,7 @@ object SearchCommand : ClientCommand(
                         it.clear()
                         it.add(blockName)
                     }
-                    MessageSendUtils.sendNoSpamChatMessage("Set the search block list to ${formatValue(blockName)}")
+                    NoSpamMessage.sendMessage("Set the search block list to ${formatValue(blockName)}")
                 }
             }
         }
@@ -80,13 +80,13 @@ object SearchCommand : ClientCommand(
         literal("reset", "default") {
             execute("Reset the search list to defaults") {
                 Search.searchList.resetValue()
-                MessageSendUtils.sendNoSpamChatMessage("Reset the search block list to defaults")
+                NoSpamMessage.sendMessage("Reset the search block list to defaults")
             }
         }
 
         literal("list") {
             execute("Print search list") {
-                MessageSendUtils.sendNoSpamChatMessage(Search.searchList.joinToString())
+                NoSpamMessage.sendMessage(Search.searchList.joinToString())
             }
         }
 
@@ -95,22 +95,22 @@ object SearchCommand : ClientCommand(
                 Search.searchList.editValue {
                     it.clear()
                 }
-                MessageSendUtils.sendNoSpamChatMessage("Cleared the search block list")
+                NoSpamMessage.sendMessage("Cleared the search block list")
             }
         }
     }
 
     private fun addBlock(blockName: String) {
         if (blockName == "minecraft:air") {
-            MessageSendUtils.sendNoSpamChatMessage("You can't add ${formatValue(blockName)} to the search block list")
+            NoSpamMessage.sendMessage("You can't add ${formatValue(blockName)} to the search block list")
             return
         }
 
         Search.searchList.editValue {
             if (!it.add(blockName)) {
-                MessageSendUtils.sendNoSpamErrorMessage("${formatValue(blockName)} is already added to the search block list")
+                NoSpamMessage.sendError("${formatValue(blockName)} is already added to the search block list")
             } else {
-                MessageSendUtils.sendNoSpamChatMessage("${formatValue(blockName)} has been added to the search block list")
+                NoSpamMessage.sendMessage("${formatValue(blockName)} has been added to the search block list")
             }
         }
     }

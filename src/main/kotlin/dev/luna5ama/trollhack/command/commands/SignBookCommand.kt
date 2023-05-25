@@ -4,8 +4,7 @@ import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.util.extension.max
 import dev.luna5ama.trollhack.util.extension.remove
 import dev.luna5ama.trollhack.util.items.itemPayload
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
-import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendNoSpamChatMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import net.minecraft.item.ItemWritableBook
 import net.minecraft.nbt.NBTTagList
@@ -43,9 +42,9 @@ object SignBookCommand : ClientCommand(
                     }
 
                     itemPayload(item, "MC|BSign")
-                    sendNoSpamChatMessage("Signed book with title: ${formatValue(title)}")
+                    NoSpamMessage.sendMessage("Signed book with title: ${formatValue(title)}")
                 } else {
-                    MessageSendUtils.sendNoSpamErrorMessage("You're not holding a writable book!")
+                    NoSpamMessage.sendError("You're not holding a writable book!")
                 }
             }
         }

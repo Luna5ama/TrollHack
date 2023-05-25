@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.event.events.GuiEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.runSafe
@@ -45,7 +45,7 @@ internal object FakePlayer : Module(
         onEnable {
             runSafe {
                 if (playerName == "Player") {
-                    MessageSendUtils.sendNoSpamChatMessage("You can use ${formatValue("${CommandManager.prefix}set FakePlayer PlayerName <name>")} to set a custom name")
+                    NoSpamMessage.sendMessage("You can use ${formatValue("${CommandManager.prefix}set FakePlayer PlayerName <name>")} to set a custom name")
                 }
                 spawnFakePlayer()
             } ?: disable()

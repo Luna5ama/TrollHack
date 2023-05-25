@@ -12,9 +12,8 @@ import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
-import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
 import kotlinx.coroutines.launch
 import net.minecraft.client.audio.PositionedSoundRecord
@@ -101,7 +100,7 @@ internal object StashLogger : Module(
 
             if (logToChat) {
                 val positionString = center.asString()
-                MessageSendUtils.sendNoSpamChatMessage("$chatName $positionString $string")
+                NoSpamMessage.sendMessage("$chatName $positionString $string")
             }
 
             found = true

@@ -28,16 +28,8 @@ object MessageSendUtils {
         sendRawMessage(coloredName(TextFormatting.DARK_RED) + message)
     }
 
-    fun sendNoSpamChatMessage(message: String) {
-        sendNoSpamMessage(coloredName(TextFormatting.LIGHT_PURPLE) + message)
-    }
-
-    fun sendNoSpamWarningMessage(message: String) {
-        sendNoSpamMessage(coloredName(TextFormatting.GOLD) + message)
-    }
-
-    fun sendNoSpamErrorMessage(message: String) {
-        sendNoSpamMessage(coloredName(TextFormatting.DARK_RED) + message)
+    fun sendWarning(message: String) {
+        sendRawMessage(coloredName(TextFormatting.GOLD) + message)
     }
 
     fun sendTrollCommand(command: String) {
@@ -60,12 +52,6 @@ object MessageSendUtils {
         }
 
         chatControl?.value = prevValue
-    }
-
-    private fun sendNoSpamMessage(message: String) {
-        onMainThread {
-            mc.ingameGUI?.chatGUI?.printChatMessageWithOptionalDeletion(TextComponentString(message), MESSAGE_ID)
-        }
     }
 
     fun AbstractModule.sendServerMessage(message: String) {

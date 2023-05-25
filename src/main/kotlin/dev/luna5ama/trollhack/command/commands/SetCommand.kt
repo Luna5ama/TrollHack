@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.setting.settings.impl.primitive.EnumSetting
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.remove
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.format
 import dev.luna5ama.trollhack.util.text.formatValue
 import net.minecraft.util.text.TextFormatting
@@ -149,11 +149,11 @@ object SetCommand : ClientCommand(
             }
 
             else -> {
-                MessageSendUtils.sendNoSpamChatMessage("Unable to toggle value for ${formatValue(setting.name)}")
+                NoSpamMessage.sendMessage("Unable to toggle value for ${formatValue(setting.name)}")
             }
         }
 
-        MessageSendUtils.sendNoSpamChatMessage("Set ${formatValue(setting.name)} to ${formatValue(setting.value)}.")
+        NoSpamMessage.sendMessage("Set ${formatValue(setting.name)} to ${formatValue(setting.value)}.")
     }
 
     private fun setSetting(name: String, settingName: String, setting: AbstractSetting<*>?, value: String) {
@@ -164,9 +164,9 @@ object SetCommand : ClientCommand(
 
         try {
             setting.setValue(value)
-            MessageSendUtils.sendNoSpamChatMessage("Set ${formatValue(setting.name)} to ${formatValue(value)}.")
+            NoSpamMessage.sendMessage("Set ${formatValue(setting.name)} to ${formatValue(value)}.")
         } catch (e: Exception) {
-            MessageSendUtils.sendNoSpamChatMessage("Unable to set value! ${TextFormatting.RED format e.message.toString()}")
+            NoSpamMessage.sendMessage("Unable to set value! ${TextFormatting.RED format e.message.toString()}")
             TrollHackMod.logger.info("Unable to set value!", e)
         }
     }
@@ -177,7 +177,7 @@ object SetCommand : ClientCommand(
             return
         }
 
-        MessageSendUtils.sendNoSpamChatMessage(
+        NoSpamMessage.sendMessage(
             "${formatValue(settingName)} is a " +
                 "${formatValue(setting.valueClass.simpleName)}. " +
                 "Its current value is ${formatValue(setting)}"
@@ -192,10 +192,10 @@ object SetCommand : ClientCommand(
             "    ${it.nameAsString.formatSetting(false)} ${TextFormatting.GRAY format it.value}"
         }
 
-        MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+        NoSpamMessage.sendMessage(stringBuilder.toString())
     }
 
     private fun sendUnknownSettingMessage(settingName: String, name: String) {
-        MessageSendUtils.sendNoSpamChatMessage("Unknown setting ${formatValue(settingName)} in ${formatValue(name)}!")
+        NoSpamMessage.sendMessage("Unknown setting ${formatValue(settingName)} in ${formatValue(name)}!")
     }
 }

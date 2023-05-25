@@ -30,7 +30,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
 import dev.luna5ama.trollhack.util.items.isWeapon
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.runSafe
@@ -257,7 +257,7 @@ internal object AutoOffhand : Module(
             }
 
             lastType = typeAlt
-            if (switchMessage) MessageSendUtils.sendNoSpamChatMessage(
+            if (switchMessage) NoSpamMessage.sendMessage(
                 "$chatName Offhand now has a ${
                     typeAlt.toString().lowercase()
                 }"

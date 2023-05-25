@@ -17,7 +17,7 @@ import dev.luna5ama.trollhack.util.interfaces.Alias
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import org.lwjgl.opengl.GL11.glScalef
 
 abstract class AbstractHudElement(
@@ -98,7 +98,7 @@ abstract class AbstractHudElement(
             if (it) {
                 settingList.filter { it != visibleSetting && it != default }.forEach { it.resetValue() }
                 default.value = false
-                MessageSendUtils.sendNoSpamChatMessage("$name Set to defaults!")
+                NoSpamMessage.sendMessage(Companion, "$name Set to defaults!")
             }
         }
 
@@ -112,4 +112,6 @@ abstract class AbstractHudElement(
         WORLD("World"),
         MISC("Misc")
     }
+
+    private companion object
 }

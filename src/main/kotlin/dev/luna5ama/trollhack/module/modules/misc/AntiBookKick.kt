@@ -4,7 +4,7 @@ import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.item.ItemWrittenBook
 import net.minecraft.network.play.client.CPacketClickWindow
 
@@ -26,7 +26,8 @@ internal object AntiBookKick : Module(
             if (it.packet !is CPacketClickWindow) return@listener
             if (it.packet.clickedItem.item !is ItemWrittenBook) return@listener
 
-            MessageSendUtils.sendNoSpamWarningMessage(
+            NoSpamMessage.sendWarning(
+                AntiBookKick,
                 chatName
                     + " Don't click the book \""
                     + it.packet.clickedItem.displayName

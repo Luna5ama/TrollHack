@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.command.commands
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.manager.managers.MacroManager
 import dev.luna5ama.trollhack.util.KeyboardUtils
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 
 object MacroCommand : ClientCommand(
@@ -27,7 +27,7 @@ object MacroCommand : ClientCommand(
                     val formattedName = formatValue(KeyboardUtils.getDisplayName(key) ?: "Unknown")
 
                     if (macros.isNullOrEmpty()) {
-                        MessageSendUtils.sendNoSpamChatMessage("§cYou have no macros for the key $formattedName")
+                        NoSpamMessage.sendMessage("§cYou have no macros for the key $formattedName")
                     } else {
                         val stringBuilder = StringBuffer()
                         stringBuilder.appendLine("You have has the following macros for $formattedName:")
@@ -36,14 +36,14 @@ object MacroCommand : ClientCommand(
                             stringBuilder.appendLine("$formattedName $macro")
                         }
 
-                        MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+                        NoSpamMessage.sendMessage(stringBuilder.toString())
                     }
                 }
             }
 
             execute("List all macros") {
                 if (MacroManager.isEmpty) {
-                    MessageSendUtils.sendNoSpamChatMessage("§cYou have no macros")
+                    NoSpamMessage.sendMessage("§cYou have no macros")
                 } else {
                     val stringBuilder = StringBuffer()
                     stringBuilder.appendLine("You have the following macros:")
@@ -53,7 +53,7 @@ object MacroCommand : ClientCommand(
                         stringBuilder.appendLine("$formattedName $value")
                     }
 
-                    MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+                    NoSpamMessage.sendMessage(stringBuilder.toString())
                 }
             }
         }
@@ -74,7 +74,7 @@ object MacroCommand : ClientCommand(
                     MacroManager.removeMacro(key)
                     MacroManager.saveMacros()
                     MacroManager.loadMacros()
-                    MessageSendUtils.sendNoSpamChatMessage("Cleared macros for $formattedName")
+                    NoSpamMessage.sendMessage("Cleared macros for $formattedName")
                 }
             }
         }
@@ -96,7 +96,7 @@ object MacroCommand : ClientCommand(
 
                         MacroManager.addMacro(key, macro)
                         MacroManager.saveMacros()
-                        MessageSendUtils.sendNoSpamChatMessage("Added macro ${formatValue(macro)} for key $formattedName")
+                        NoSpamMessage.sendMessage("Added macro ${formatValue(macro)} for key $formattedName")
                     }
                 }
             }
@@ -119,7 +119,7 @@ object MacroCommand : ClientCommand(
 
                         MacroManager.setMacro(key, macro)
                         MacroManager.saveMacros()
-                        MessageSendUtils.sendNoSpamChatMessage("Added macro ${formatValue(macro)} for key $formattedName")
+                        NoSpamMessage.sendMessage("Added macro ${formatValue(macro)} for key $formattedName")
                     }
                 }
             }

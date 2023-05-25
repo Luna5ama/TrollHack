@@ -1,9 +1,8 @@
 package dev.luna5ama.trollhack.command.commands
 
 import dev.luna5ama.trollhack.command.ClientCommand
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -41,7 +40,7 @@ object PeekCommand : ClientCommand(
                     }
                 }
             } else {
-                MessageSendUtils.sendNoSpamErrorMessage("You aren't holding a shulker box.")
+                NoSpamMessage.sendError("You aren't holding a shulker box.")
             }
         }
     }

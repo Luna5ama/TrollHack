@@ -31,7 +31,7 @@ import dev.luna5ama.trollhack.util.items.id
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
@@ -261,10 +261,10 @@ internal object AutoObsidian : Module(
             }
             State.DONE -> {
                 if (!autoRefill) {
-                    MessageSendUtils.sendNoSpamChatMessage("$chatName ${fillMode.message}, disabling.")
+                    NoSpamMessage.sendMessage("$chatName ${fillMode.message}, disabling.")
                     disable()
                 } else {
-                    if (active) MessageSendUtils.sendNoSpamChatMessage("$chatName ${fillMode.message}, stopping.")
+                    if (active) NoSpamMessage.sendMessage("$chatName ${fillMode.message}, stopping.")
                     reset()
                 }
             }
@@ -315,7 +315,7 @@ internal object AutoObsidian : Module(
                 renderer.add(pair.first, ColorRGB(64, 255, 64))
             }
         } else {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName No valid position for placing shulker box / ender chest nearby, disabling.")
+            NoSpamMessage.sendMessage("$chatName No valid position for placing shulker box / ender chest nearby, disabling.")
             mc.soundHandler.playSound(
                 PositionedSoundRecord.getRecord(
                     SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
@@ -504,7 +504,7 @@ internal object AutoObsidian : Module(
             )
 
             if (!moved) {
-                MessageSendUtils.sendNoSpamChatMessage("$chatName No shulker box was found in inventory, disabling.")
+                NoSpamMessage.sendMessage("$chatName No shulker box was found in inventory, disabling.")
                 mc.soundHandler.playSound(
                     PositionedSoundRecord.getRecord(
                         SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
@@ -535,7 +535,7 @@ internal object AutoObsidian : Module(
                 }
             )
             if (!moved) {
-                MessageSendUtils.sendNoSpamChatMessage("$chatName No ender chest was found in inventory, disabling.")
+                NoSpamMessage.sendMessage("$chatName No ender chest was found in inventory, disabling.")
                 mc.soundHandler.playSound(
                     PositionedSoundRecord.getRecord(
                         SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
@@ -568,7 +568,7 @@ internal object AutoObsidian : Module(
                     searchingState = SearchingState.PRE_MINING
                     player.closeScreen()
                 } else {
-                    MessageSendUtils.sendNoSpamChatMessage("$chatName No ender chest was found in shulker, disabling.")
+                    NoSpamMessage.sendMessage("$chatName No ender chest was found in shulker, disabling.")
                     mc.soundHandler.playSound(
                         PositionedSoundRecord.getRecord(
                             SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,
@@ -622,7 +622,7 @@ internal object AutoObsidian : Module(
             PlacementSearchOption.range(5.0),
             PlacementSearchOption.ENTITY_COLLISION
         ) ?: run {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName Can't find neighbor block")
+            NoSpamMessage.sendMessage("$chatName Can't find neighbor block")
             return
         }
 
@@ -716,7 +716,7 @@ internal object AutoObsidian : Module(
             )
 
             if (!moved) {
-                MessageSendUtils.sendNoSpamChatMessage("No valid pickaxe was found in inventory.")
+                NoSpamMessage.sendMessage("No valid pickaxe was found in inventory.")
                 mc.soundHandler.playSound(
                     PositionedSoundRecord.getRecord(
                         SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,

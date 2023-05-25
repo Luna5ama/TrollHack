@@ -17,8 +17,8 @@ import dev.luna5ama.trollhack.util.accessor.textComponent
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSets
@@ -135,7 +135,7 @@ internal object AutoEZ : Module(
 
     private fun sendHelpMessage() {
         if (messageMode == MessageMode.CUSTOM && customText == UNCHANGED && timer.tickAndReset(5L)) { // 5 seconds delay
-            MessageSendUtils.sendNoSpamChatMessage(
+            NoSpamMessage.sendMessage(
                 "$chatName In order to use the custom $name, " +
                     "please change the CustomText setting in ClickGUI, " +
                     "with ${formatValue(NAME)} being the username of the killed player"

@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.BOOLEAN_SUPPLIER_FALSE
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.getMiningSide
@@ -103,7 +103,7 @@ internal object NoteBot : Module(
         onEnable {
             runSafe {
                 if (player.isCreative) {
-                    MessageSendUtils.sendNoSpamChatMessage("You are in creative mode and cannot play music.")
+                    NoSpamMessage.sendMessage("You are in creative mode and cannot play music.")
                     disable()
                     return@runSafe
                 }
@@ -123,15 +123,15 @@ internal object NoteBot : Module(
                     noteSequence = it
                     duration = it.lastKey()
                 }
-                MessageSendUtils.sendNoSpamChatMessage("Loaded song $path")
+                NoSpamMessage.sendMessage("Loaded song $path")
             } catch (e: IOException) {
-                MessageSendUtils.sendNoSpamChatMessage("Sound not found $path, ${e.message}")
+                NoSpamMessage.sendMessage("Sound not found $path, ${e.message}")
                 disable()
             } catch (e: InvalidMidiDataException) {
-                MessageSendUtils.sendNoSpamChatMessage("Invalid MIDI Data: $path, ${e.message}")
+                NoSpamMessage.sendMessage("Invalid MIDI Data: $path, ${e.message}")
                 disable()
             } catch (e: Exception) {
-                MessageSendUtils.sendNoSpamChatMessage("Unknown error: $path, ${e.message}")
+                NoSpamMessage.sendMessage("Unknown error: $path, ${e.message}")
                 disable()
             }
 
@@ -350,7 +350,7 @@ internal object NoteBot : Module(
                         }
 
                         if (noteSequence.isEmpty()) {
-                            MessageSendUtils.sendNoSpamChatMessage("Finished playing song.")
+                            NoSpamMessage.sendMessage("Finished playing song.")
                             playingSong = false
                         }
 
@@ -358,7 +358,7 @@ internal object NoteBot : Module(
                     } else {
                         // Pause song
                         playingSong = false
-                        MessageSendUtils.sendNoSpamChatMessage("You are in creative mode and cannot play music.")
+                        NoSpamMessage.sendMessage("You are in creative mode and cannot play music.")
                     }
                 }
             }
@@ -418,8 +418,8 @@ internal object NoteBot : Module(
             if (togglePlay.value) {
                 if (isEnabled) {
                     playingSong = !playingSong
-                    if (playingSong) MessageSendUtils.sendNoSpamChatMessage("Start playing!")
-                    else MessageSendUtils.sendNoSpamChatMessage("Pause playing!")
+                    if (playingSong) NoSpamMessage.sendMessage("Start playing!")
+                    else NoSpamMessage.sendMessage("Pause playing!")
                 }
                 togglePlay.value = false
             }

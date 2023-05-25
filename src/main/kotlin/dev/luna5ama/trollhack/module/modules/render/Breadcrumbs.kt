@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.getInterpolatedPos
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
-import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendNoSpamChatMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.realms.RealmsMth.sin
 import net.minecraft.util.math.Vec3d
@@ -161,7 +161,7 @@ internal object Breadcrumbs : Module(
         clear.listeners.add {
             if (clear.value) {
                 mainList.clear()
-                sendNoSpamChatMessage("$chatName Cleared!")
+                NoSpamMessage.sendMessage("$chatName Cleared!")
                 clear.value = false
             }
         }

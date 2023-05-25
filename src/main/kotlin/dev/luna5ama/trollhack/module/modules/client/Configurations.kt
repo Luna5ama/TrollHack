@@ -20,11 +20,10 @@ import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
-import dev.luna5ama.trollhack.util.threads.TimerScope
 import dev.luna5ama.trollhack.util.threads.DefaultScope
+import dev.luna5ama.trollhack.util.threads.TimerScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -92,7 +91,7 @@ internal object Configurations : AbstractModule(
         val nameWithExtension = "$nameWithoutExtension.json"
 
         return if (!ConfigUtils.isPathValid(nameWithExtension)) {
-            MessageSendUtils.sendNoSpamChatMessage("${formatValue(nameWithoutExtension)} is not a valid preset name")
+            NoSpamMessage.sendMessage("${formatValue(nameWithoutExtension)} is not a valid preset name")
             false
         } else {
             true
@@ -111,9 +110,9 @@ internal object Configurations : AbstractModule(
             ConfigManager.save(GenericConfig)
             ConfigManager.load(config)
 
-            MessageSendUtils.sendNoSpamChatMessage("Preset set to ${formatValue(nameWithoutExtension)}!")
+            NoSpamMessage.sendMessage("Preset set to ${formatValue(nameWithoutExtension)}!")
         } catch (e: IOException) {
-            MessageSendUtils.sendNoSpamChatMessage("Couldn't set preset: ${e.message}")
+            NoSpamMessage.sendMessage("Couldn't set preset: ${e.message}")
             TrollHackMod.logger.warn("Couldn't set path!", e)
 
             setting.value = prev
@@ -181,8 +180,8 @@ internal object Configurations : AbstractModule(
                 var loaded = ConfigManager.load(GenericConfig)
                 loaded = ConfigManager.load(config) || loaded
 
-                if (loaded) MessageSendUtils.sendNoSpamChatMessage("${formatValue(config.name)} config reloaded!")
-                else MessageSendUtils.sendNoSpamErrorMessage("Failed to load ${formatValue(config.name)} config!")
+                if (loaded) NoSpamMessage.sendMessage("${formatValue(config.name)} config reloaded!")
+                else NoSpamMessage.sendError("Failed to load ${formatValue(config.name)} config!")
             }
         }
 
@@ -191,8 +190,8 @@ internal object Configurations : AbstractModule(
                 var saved = ConfigManager.save(GenericConfig)
                 saved = ConfigManager.save(config) || saved
 
-                if (saved) MessageSendUtils.sendNoSpamChatMessage("${formatValue(config.name)} config saved!")
-                else MessageSendUtils.sendNoSpamErrorMessage("Failed to load ${formatValue(config.name)} config!")
+                if (saved) NoSpamMessage.sendMessage("${formatValue(config.name)} config saved!")
+                else NoSpamMessage.sendError("Failed to load ${formatValue(config.name)} config!")
             }
         }
 
@@ -205,7 +204,7 @@ internal object Configurations : AbstractModule(
         fun copyPreset(name: String) {
             DefaultScope.launch(Dispatchers.IO) {
                 if (name == setting.value) {
-                    MessageSendUtils.sendNoSpamErrorMessage("Destination preset name ${formatValue(name)} is same as current preset")
+                    NoSpamMessage.sendError("Destination preset name ${formatValue(name)} is same as current preset")
                 }
 
                 ConfigManager.save(config)
@@ -216,7 +215,7 @@ internal object Configurations : AbstractModule(
 
                     fileFrom.copyTo(fileTo, true)
                 } catch (e: Exception) {
-                    MessageSendUtils.sendNoSpamErrorMessage("Failed to copy preset, ${e.message}")
+                    NoSpamMessage.sendError("Failed to copy preset, ${e.message}")
                     TrollHackMod.logger.error("Failed to copy preset", e)
                 }
             }
@@ -225,7 +224,7 @@ internal object Configurations : AbstractModule(
         fun deletePreset(name: String) {
             DefaultScope.launch(Dispatchers.IO) {
                 if (!allPresets.contains(name)) {
-                    MessageSendUtils.sendNoSpamChatMessage(
+                    NoSpamMessage.sendMessage(
                         "${formatValue(name)} is not a valid preset for ${
                             formatValue(
                                 displayName
@@ -242,9 +241,9 @@ internal object Configurations : AbstractModule(
                     file.delete()
                     fileBak.delete()
 
-                    MessageSendUtils.sendNoSpamChatMessage("Deleted preset $name for ${formatValue(displayName)} config")
+                    NoSpamMessage.sendMessage("Deleted preset $name for ${formatValue(displayName)} config")
                 } catch (e: Exception) {
-                    MessageSendUtils.sendNoSpamErrorMessage("Failed to delete preset, ${e.message}")
+                    NoSpamMessage.sendError("Failed to delete preset, ${e.message}")
                     TrollHackMod.logger.error("Failed to delete preset", e)
                 }
             }
@@ -252,12 +251,12 @@ internal object Configurations : AbstractModule(
 
         fun printCurrentPreset() {
             val path = Paths.get("${config.filePath}/${setting.value}.json").toAbsolutePath()
-            MessageSendUtils.sendNoSpamChatMessage("Path to config: ${formatValue(path)}")
+            NoSpamMessage.sendMessage("Path to config: ${formatValue(path)}")
         }
 
         fun printAllPresets() {
             if (allPresets.isEmpty()) {
-                MessageSendUtils.sendNoSpamChatMessage("No preset for ${formatValue(displayName)} config!")
+                NoSpamMessage.sendMessage("No preset for ${formatValue(displayName)} config!")
             } else {
                 val stringBuilder = StringBuilder()
                 stringBuilder.appendLine("List of presets: ${formatValue(allPresets.size)}")
@@ -267,7 +266,7 @@ internal object Configurations : AbstractModule(
                     stringBuilder.appendLine(formatValue(path))
                 }
 
-                MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+                NoSpamMessage.sendMessage(stringBuilder.toString())
             }
         }
 
@@ -283,7 +282,7 @@ internal object Configurations : AbstractModule(
             val presetName = convertIpToPresetName(ip)
 
             if (serverPresets.contains(presetName)) {
-                MessageSendUtils.sendNoSpamChatMessage(
+                NoSpamMessage.sendMessage(
                     "Changing preset to ${formatValue(presetName)} for ${
                         formatValue(
                             displayName
@@ -292,7 +291,7 @@ internal object Configurations : AbstractModule(
                 )
                 setPreset(presetName)
             } else {
-                MessageSendUtils.sendNoSpamChatMessage(
+                NoSpamMessage.sendMessage(
                     "No server preset found for ${formatValue(displayName)} config, using ${
                         formatValue(
                             defaultPreset
@@ -311,7 +310,7 @@ internal object Configurations : AbstractModule(
             if (!serverPresetDisabledMessage()) return
 
             if (serverPresets.isEmpty()) {
-                MessageSendUtils.sendNoSpamChatMessage("No server preset for ${formatValue(displayName)} config!")
+                NoSpamMessage.sendMessage("No server preset for ${formatValue(displayName)} config!")
             } else {
                 val stringBuilder = StringBuilder()
                 stringBuilder.appendLine(
@@ -327,7 +326,7 @@ internal object Configurations : AbstractModule(
                     stringBuilder.appendLine(formatValue(path))
                 }
 
-                MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+                NoSpamMessage.sendMessage(stringBuilder.toString())
             }
         }
 
@@ -335,7 +334,7 @@ internal object Configurations : AbstractModule(
             ip.replace('.', '_').replace(':', '_')
 
         private fun serverPresetDisabledMessage() = if (!serverPreset) {
-            MessageSendUtils.sendNoSpamChatMessage("Server preset is not enabled, enable it in Configurations in ClickGUI")
+            NoSpamMessage.sendMessage("Server preset is not enabled, enable it in Configurations in ClickGUI")
             false
         } else {
             true

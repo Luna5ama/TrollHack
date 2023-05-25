@@ -17,7 +17,7 @@ import dev.luna5ama.trollhack.util.accessor.timer
 import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendNoSpamChatMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.getGroundLevel
 import net.minecraft.client.audio.PositionedSoundRecord
@@ -354,7 +354,7 @@ internal object ElytraFlight : Module(
                             1.0f
                         )
                     )
-                    sendNoSpamChatMessage("$chatName Warning: Elytra has " + (elytraDurability - 1) + " durability remaining")
+                    NoSpamMessage.sendMessage("$chatName Warning: Elytra has " + (elytraDurability - 1) + " durability remaining")
                 } else if (elytraDurability <= 1 && !outOfDurability) {
                     outOfDurability = true
                     if (durabilityWarning) {
@@ -365,7 +365,7 @@ internal object ElytraFlight : Module(
                                 1.0f
                             )
                         )
-                        sendNoSpamChatMessage("$chatName Elytra is out of durability, holding player in the air")
+                        NoSpamMessage.sendMessage("$chatName Elytra is out of durability, holding player in the air")
                     }
                 }
             }
@@ -423,7 +423,7 @@ internal object ElytraFlight : Module(
     private fun SafeClientEvent.landing(event: PlayerTravelEvent) {
         when {
             player.onGround -> {
-                sendNoSpamChatMessage("$chatName Landed!")
+                NoSpamMessage.sendMessage("$chatName Landed!")
                 autoLanding = false
                 return
             }

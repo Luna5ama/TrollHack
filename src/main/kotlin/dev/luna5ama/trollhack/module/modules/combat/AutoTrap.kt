@@ -17,9 +17,8 @@ import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.vector.toBlockPos
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
 import dev.luna5ama.trollhack.util.threads.runSafeSuspend
 import dev.luna5ama.trollhack.util.world.*
@@ -88,7 +87,7 @@ internal object AutoTrap : Module(
         val slots = player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
 
         if (slots == null) { // Obsidian check
-            MessageSendUtils.sendNoSpamChatMessage("$chatName No obsidian in hotbar, disabling!")
+            NoSpamMessage.sendMessage("$chatName No obsidian in hotbar, disabling!")
             disable()
             return null
         }

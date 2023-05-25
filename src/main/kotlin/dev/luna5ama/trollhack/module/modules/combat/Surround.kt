@@ -14,7 +14,6 @@ import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -33,8 +32,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
-import dev.luna5ama.trollhack.util.math.isInSight
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import dev.luna5ama.trollhack.util.threads.runSynchronized
 import dev.luna5ama.trollhack.util.world.*
@@ -446,7 +444,7 @@ internal object Surround : Module(
         val slot = player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
 
         return if (slot == null) {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName No obsidian in hotbar!")
+            NoSpamMessage.sendMessage("$chatName No obsidian in hotbar!")
             null
         } else {
             slot

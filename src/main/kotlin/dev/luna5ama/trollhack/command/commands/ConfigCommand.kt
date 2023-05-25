@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.module.modules.client.Configurations
 import dev.luna5ama.trollhack.util.ConfigUtils
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +27,8 @@ object ConfigCommand : ClientCommand(
                 execute("Reload all configs") {
                     DefaultScope.launch(Dispatchers.IO) {
                         val loaded = ConfigUtils.loadAll()
-                        if (loaded) MessageSendUtils.sendNoSpamChatMessage("All configurations reloaded!")
-                        else MessageSendUtils.sendNoSpamErrorMessage("Failed to load config!")
+                        if (loaded) NoSpamMessage.sendMessage("All configurations reloaded!")
+                        else NoSpamMessage.sendError("Failed to load config!")
                     }
                 }
             }
@@ -37,8 +37,8 @@ object ConfigCommand : ClientCommand(
                 execute("Save all configs") {
                     DefaultScope.launch(Dispatchers.IO) {
                         val saved = ConfigUtils.saveAll()
-                        if (saved) MessageSendUtils.sendNoSpamChatMessage("All configurations saved!")
-                        else MessageSendUtils.sendNoSpamErrorMessage("Failed to load config!")
+                        if (saved) NoSpamMessage.sendMessage("All configurations saved!")
+                        else NoSpamMessage.sendError("Failed to load config!")
                     }
                 }
             }
@@ -108,7 +108,7 @@ object ConfigCommand : ClientCommand(
                         val configType = configTypeArg.value
 
                         if (!configType.serverPresets.contains(ip)) {
-                            MessageSendUtils.sendNoSpamChatMessage("This server doesn't have a preset in config ${configType.displayName}")
+                            NoSpamMessage.sendMessage("This server doesn't have a preset in config ${configType.displayName}")
                             return@executeSafe
                         }
 
@@ -135,7 +135,7 @@ object ConfigCommand : ClientCommand(
         val ip = mc.currentServerData?.serverIP
 
         return if (ip == null || mc.isIntegratedServerRunning) {
-            MessageSendUtils.sendNoSpamWarningMessage("You are not in a server!")
+            NoSpamMessage.sendWarning("You are not in a server!")
             null
         } else {
             ip
@@ -144,7 +144,7 @@ object ConfigCommand : ClientCommand(
 
     private fun IExecuteEvent.confirm(): Boolean {
         return if (!args.contentEquals(lastArgs) || confirmTimer.tick(8L)) {
-            MessageSendUtils.sendNoSpamWarningMessage(
+            NoSpamMessage.sendWarning(
                 "This can't be undone, run " +
                     "${formatValue("${prefix}${args.joinToString(" ")}")} to confirm!"
             )

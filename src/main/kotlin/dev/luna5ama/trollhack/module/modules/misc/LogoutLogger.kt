@@ -13,8 +13,8 @@ import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.BlockPos
@@ -52,6 +52,8 @@ internal object LogoutLogger : Module(
             for (loadedPlayer in world.playerEntities) {
                 if (loadedPlayer !is EntityOtherPlayerMP) continue
                 if (loadedPlayer.isFakeOrSelf) continue
+                @Suppress("SENSELESS_COMPARISON")
+                if (connection.getPlayerInfo(loadedPlayer.gameProfile.id) == null) continue
 
                 loggedPlayers[loadedPlayer] = loadedPlayer.flooredPosition
             }
@@ -77,7 +79,10 @@ internal object LogoutLogger : Module(
             WaypointManager.add(pos, "${player.name} Logout Spot")
         }
         if (print) {
-            MessageSendUtils.sendNoSpamChatMessage("${player.name} logged out at ${pos.asString()}")
+            NoSpamMessage.sendMessage(
+                LogoutLogger.hashCode() xor player.name.hashCode(),
+                "${player.name} logged out at ${pos.asString()}"
+            )
         }
         if (ezLog) {
             if (ezLogAttackTimeout == 0

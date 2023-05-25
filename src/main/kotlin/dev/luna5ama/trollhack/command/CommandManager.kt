@@ -1,16 +1,14 @@
 package dev.luna5ama.trollhack.command
 
 import dev.luna5ama.trollhack.AsyncLoader
-import dev.luna5ama.trollhack.AsyncLoader.Companion
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.ClientExecuteEvent
 import dev.luna5ama.trollhack.event.IListenerOwner
 import dev.luna5ama.trollhack.module.modules.client.CommandSetting
 import dev.luna5ama.trollhack.util.ClassUtils.instance
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
@@ -81,7 +79,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoade
                     handleSubCommandNotFoundException(string, args, e)
                 }
             } catch (e: Exception) {
-                MessageSendUtils.sendNoSpamChatMessage("Error occurred while running command! (${e.message}), check the log for info!")
+                NoSpamMessage.sendMessage("Error occurred while running command! (${e.message}), check the log for info!")
                 TrollHackMod.logger.warn("Error occurred while running command!", e)
             }
         }
@@ -90,7 +88,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoade
     fun tryParseArgument(string: String) = try {
         parseArguments(string)
     } catch (e: IllegalArgumentException) {
-        MessageSendUtils.sendNoSpamChatMessage(e.message.toString())
+        NoSpamMessage.sendMessage(e.message.toString())
         null
     }
 
@@ -108,7 +106,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoade
     }
 
     private fun handleCommandNotFoundException(command: String) {
-        MessageSendUtils.sendNoSpamChatMessage(
+        NoSpamMessage.sendMessage(
             "Unknown command: ${formatValue("$prefix$command")}. " +
                 "Run ${formatValue("${prefix}help")} for a list of commands."
         )
@@ -127,7 +125,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoade
 
         message += "\nRun ${formatValue("${prefix}help ${e.command.name}")} for a list of available arguments."
 
-        MessageSendUtils.sendNoSpamChatMessage(message)
+        NoSpamMessage.sendMessage(message)
     }
 
 }

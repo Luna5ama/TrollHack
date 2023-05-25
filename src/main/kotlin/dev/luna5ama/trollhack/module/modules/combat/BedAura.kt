@@ -45,10 +45,9 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.TimerScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
@@ -156,7 +155,7 @@ internal object BedAura : Module(
     private val forcePlaceBind by setting("Force Place Bind", Bind(), {
         if (isEnabled && it) {
             toggleForcePlace = !toggleForcePlace
-            MessageSendUtils.sendNoSpamChatMessage("$chatName Force placing" + if (toggleForcePlace) " §aenabled" else " §cdisabled")
+            NoSpamMessage.sendMessage("$chatName Force placing" + if (toggleForcePlace) " §aenabled" else " §cdisabled")
         }
     }, page.atValue(Page.FORCE_PLACE))
     private val forcePlaceHealth by setting(

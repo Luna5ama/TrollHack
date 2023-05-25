@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.math.MathUtils
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.util.math.BlockPos
 
 internal object TeleportLogger : Module(
@@ -36,7 +36,7 @@ internal object TeleportLogger : Module(
 
                         if (printRemove.value) {
                             if (removed) {
-                                MessageSendUtils.sendNoSpamChatMessage(
+                                NoSpamMessage.sendMessage(
                                     "$chatName Removed ${otherPlayer.name}, they are now ${
                                         MathUtils.round(
                                             otherPlayer.getDistance(player),
@@ -45,7 +45,7 @@ internal object TeleportLogger : Module(
                                     } blocks away"
                                 )
                             } else {
-                                MessageSendUtils.sendNoSpamErrorMessage("$chatName Error removing ${otherPlayer.name} from coords, their position wasn't saved anymore")
+                                NoSpamMessage.sendError("$chatName Error removing ${otherPlayer.name} from coords, their position wasn't saved anymore")
                             }
                         }
                     }
@@ -59,7 +59,7 @@ internal object TeleportLogger : Module(
 
                 val coords = logCoordinates(otherPlayer.position, "${otherPlayer.name} Teleport Spot")
                 teleportedPlayers[otherPlayer.name] = coords
-                if (printAdd.value) MessageSendUtils.sendNoSpamChatMessage("$chatName ${otherPlayer.name} teleported, ${getSaveText()} ${coords.x}, ${coords.y}, ${coords.z}")
+                if (printAdd.value) NoSpamMessage.sendMessage("$chatName ${otherPlayer.name} teleported, ${getSaveText()} ${coords.x}, ${coords.y}, ${coords.z}")
             }
         }
     }

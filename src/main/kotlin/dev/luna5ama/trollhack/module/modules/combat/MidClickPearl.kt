@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
-import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendNoSpamChatMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem
 import net.minecraft.util.EnumHand
@@ -31,7 +31,7 @@ internal object MidClickPearl : Module(
                         connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                     }
                 } else {
-                    sendNoSpamChatMessage("No Ender Pearl was found in hotbar!")
+                    NoSpamMessage.sendMessage("No Ender Pearl was found in hotbar!")
                 }
             }
         }

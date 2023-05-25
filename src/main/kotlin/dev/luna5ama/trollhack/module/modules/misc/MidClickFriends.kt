@@ -6,10 +6,8 @@ import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
-import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.util.math.RayTraceResult
@@ -39,14 +37,14 @@ internal object MidClickFriends : Module(
 
     private fun remove(name: String) {
         if (FriendManager.removeFriend(name)) {
-            MessageSendUtils.sendNoSpamChatMessage("§b$name§r has been unfriended.")
+            NoSpamMessage.sendMessage("§b$name§r has been unfriended.")
         }
     }
 
     private fun add(name: String) {
         BackgroundScope.launch {
-            if (FriendManager.addFriend(name)) MessageSendUtils.sendNoSpamChatMessage("§b$name§r has been friended.")
-            else MessageSendUtils.sendNoSpamChatMessage("Failed to find UUID of $name")
+            if (FriendManager.addFriend(name)) NoSpamMessage.sendMessage("§b$name§r has been friended.")
+            else NoSpamMessage.sendMessage("Failed to find UUID of $name")
         }
     }
 }

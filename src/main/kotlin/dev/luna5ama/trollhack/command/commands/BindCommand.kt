@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.command.commands
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.util.KeyboardUtils
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 
 object BindCommand : ClientCommand(
@@ -26,7 +26,7 @@ object BindCommand : ClientCommand(
                     stringBuilder.appendLine(it)
                 }
 
-                MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+                NoSpamMessage.sendMessage(stringBuilder.toString())
             }
         }
 
@@ -35,7 +35,7 @@ object BindCommand : ClientCommand(
                 execute("Reset the bind of a module to nothing") {
                     val module = moduleArg.value
                     module.bind.resetValue()
-                    MessageSendUtils.sendNoSpamChatMessage("Reset bind for ${module.name}!")
+                    NoSpamMessage.sendMessage("Reset bind for ${module.name}!")
                 }
             }
         }
@@ -48,7 +48,7 @@ object BindCommand : ClientCommand(
 
                     if (bind.equals("None", true)) {
                         module.bind.resetValue()
-                        MessageSendUtils.sendNoSpamChatMessage("Reset bind for ${module.name}!")
+                        NoSpamMessage.sendMessage("Reset bind for ${module.name}!")
                         return@execute
                     }
 
@@ -58,14 +58,14 @@ object BindCommand : ClientCommand(
                         KeyboardUtils.sendUnknownKeyError(bind)
                     } else {
                         module.bind.setValue(bind)
-                        MessageSendUtils.sendNoSpamChatMessage("Bind for ${module.name} set to ${formatValue(module.bind)}!")
+                        NoSpamMessage.sendMessage("Bind for ${module.name} set to ${formatValue(module.bind)}!")
                     }
                 }
             }
 
             execute("Get the bind of a module") {
                 val module = moduleArg.value
-                MessageSendUtils.sendNoSpamChatMessage("${module.name} is bound to ${formatValue(module.bind)}")
+                NoSpamMessage.sendMessage("${module.name} is bound to ${formatValue(module.bind)}")
             }
         }
     }

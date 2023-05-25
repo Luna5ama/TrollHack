@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.atTrue
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.init.Items
@@ -228,9 +228,9 @@ internal object ElytraReplace : Module(
     private fun sendEquipNotification() {
         sendAlert()
         if (logToChat.value && elytraCount == 1) {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName You equipped your last elytra.")
+            NoSpamMessage.sendMessage("$chatName You equipped your last elytra.")
         } else if (logToChat.value && elytraCount <= logThreshold.value) {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName You have $elytraCount elytra(s) left.")
+            NoSpamMessage.sendMessage("$chatName You have $elytraCount elytra(s) left.")
         }
     }
 
@@ -241,7 +241,7 @@ internal object ElytraReplace : Module(
         }
 
         if (logToChat.value) {
-            MessageSendUtils.sendNoSpamChatMessage("$chatName Your last elytra has reached your durability threshold.")
+            NoSpamMessage.sendMessage("$chatName Your last elytra has reached your durability threshold.")
         }
         if (playSound.value) {
             sendBadAlert()

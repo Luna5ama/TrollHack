@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.util.InfoCalculator
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.bothConverted
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import net.minecraft.util.math.BlockPos
 
@@ -110,14 +111,14 @@ object WaypointCommand : ClientCommand(
 
     private fun add(name: String, pos: BlockPos) {
         WaypointManager.add(pos, name)
-        MessageSendUtils.sendNoSpamChatMessage("Added waypoint at ${pos.asString()} in the ${InfoCalculator.dimension()} with name '§7$name§f'.")
+        NoSpamMessage.sendMessage(WaypointCommand, "Added waypoint at ${pos.asString()} in the ${InfoCalculator.dimension()} with name '§7$name§f'.")
     }
 
     private fun delete(id: Int) {
         if (WaypointManager.remove(id)) {
-            MessageSendUtils.sendNoSpamChatMessage("Removed waypoint with ID $id")
+            NoSpamMessage.sendMessage(WaypointCommand, "Removed waypoint with ID $id")
         } else {
-            MessageSendUtils.sendNoSpamChatMessage("No waypoint with ID $id")
+            NoSpamMessage.sendMessage(WaypointCommand, "No waypoint with ID $id")
         }
     }
 
@@ -128,7 +129,7 @@ object WaypointCommand : ClientCommand(
             val pos = waypoint.currentPos()
             MessageSendUtils.sendBaritoneCommand("goto", pos.x.toString(), pos.y.toString(), pos.z.toString())
         } else {
-            MessageSendUtils.sendNoSpamChatMessage("Couldn't find a waypoint with the ID $id")
+            NoSpamMessage.sendMessage(WaypointCommand, "Couldn't find a waypoint with the ID $id")
         }
     }
 
@@ -139,7 +140,7 @@ object WaypointCommand : ClientCommand(
 
     private fun list() {
         if (WaypointManager.waypoints.isEmpty()) {
-            MessageSendUtils.sendNoSpamChatMessage("No waypoints have been saved.")
+            NoSpamMessage.sendMessage(WaypointCommand, "No waypoints have been saved.")
         } else {
             val stringBuilder = StringBuilder()
             stringBuilder.appendLine("List of waypoints:")
@@ -148,14 +149,14 @@ object WaypointCommand : ClientCommand(
                 stringBuilder.appendLine(format(it))
             }
 
-            MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+            NoSpamMessage.sendMessage(WaypointCommand, stringBuilder.toString())
         }
     }
 
     private fun stash() {
         val filtered = WaypointManager.waypoints.filter { it.name.matches(stashRegex) }
         if (filtered.isEmpty()) {
-            MessageSendUtils.sendNoSpamChatMessage("No stashes have been logged.")
+            NoSpamMessage.sendMessage(WaypointCommand, "No stashes have been logged.")
         } else {
             val stringBuilder = StringBuilder()
             stringBuilder.appendLine("List of logged stashes:")
@@ -164,14 +165,14 @@ object WaypointCommand : ClientCommand(
                 stringBuilder.appendLine(format(it))
             }
 
-            MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+            NoSpamMessage.sendMessage(WaypointCommand, stringBuilder.toString())
         }
     }
 
     private fun search(name: String) {
         val filtered = WaypointManager.waypoints.filter { it.name.equals(name, true) }
         if (filtered.isEmpty()) {
-            MessageSendUtils.sendNoSpamChatMessage("No results for §7$name§f")
+            NoSpamMessage.sendMessage(WaypointCommand, "No results for §7$name§f")
         } else {
             val stringBuilder = StringBuilder()
             stringBuilder.appendLine("Result of search for §7$name§f:")
@@ -180,21 +181,21 @@ object WaypointCommand : ClientCommand(
                 stringBuilder.appendLine(format(it))
             }
 
-            MessageSendUtils.sendNoSpamChatMessage(stringBuilder.toString())
+            NoSpamMessage.sendMessage(WaypointCommand, stringBuilder.toString())
         }
     }
 
     private fun clear() {
         if (System.currentTimeMillis() - confirmTime > 15000L) {
             confirmTime = System.currentTimeMillis()
-            MessageSendUtils.sendNoSpamWarningMessage(
+            NoSpamMessage.sendWarning(
                 "This will delete ALL your waypoints, " +
                     "run ${formatValue("$prefixName clear")} again to confirm"
             )
         } else {
             confirmTime = 0L
             WaypointManager.clear()
-            MessageSendUtils.sendNoSpamChatMessage("Waypoints have been §ccleared")
+            NoSpamMessage.sendMessage(WaypointCommand, "Waypoints have been §ccleared")
         }
     }
 

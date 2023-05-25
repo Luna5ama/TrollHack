@@ -11,6 +11,7 @@ import dev.luna5ama.trollhack.util.MovementUtils.isMoving
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,15 +44,15 @@ internal object LoginMessage : Module(
                         file.forEachLine {
                             if (it.isNotBlank()) loginMessages.add(it.trim())
                         }
-                        MessageSendUtils.sendNoSpamChatMessage("$chatName Loaded ${loginMessages.size} login messages!")
+                        NoSpamMessage.sendMessage("$chatName Loaded ${loginMessages.size} login messages!")
                     } catch (e: Exception) {
-                        MessageSendUtils.sendNoSpamErrorMessage("$chatName Failed loading login messages, $e")
+                        NoSpamMessage.sendError("$chatName Failed loading login messages, $e")
                         disable()
                     }
                 }
             } else {
                 file.createNewFile()
-                MessageSendUtils.sendNoSpamErrorMessage(
+                NoSpamMessage.sendError(
                     "$chatName Login Messages file not found!" +
                         ", please add them in the §7loginmsg.txt§f under the §7.minecraft/trollhack§f directory."
                 )

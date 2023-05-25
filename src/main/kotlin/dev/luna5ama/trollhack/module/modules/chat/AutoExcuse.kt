@@ -8,8 +8,8 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.init.Items
 import net.minecraft.network.play.server.SPacketUpdateHealth
 import net.minecraft.util.EnumHand
@@ -80,14 +80,14 @@ internal object AutoExcuse : Module(
                     val cacheList = ArrayList<String>()
                     try {
                         file.forEachLine { if (it.isNotBlank()) cacheList.add(it.trim()) }
-                        MessageSendUtils.sendNoSpamChatMessage("$chatName Loaded spammer messages!")
+                        NoSpamMessage.sendMessage("$chatName Loaded spammer messages!")
                     } catch (e: Exception) {
                         TrollHackMod.logger.error("Failed loading excuses", e)
                     }
                     cacheList.toTypedArray()
                 } else {
                     file.createNewFile()
-                    MessageSendUtils.sendNoSpamErrorMessage(
+                    NoSpamMessage.sendError(
                         "$chatName Excuses file is empty!" +
                             ", please add them in the §7excuses.txt§f under the §7.minecraft/trollhack§f directory."
                     )

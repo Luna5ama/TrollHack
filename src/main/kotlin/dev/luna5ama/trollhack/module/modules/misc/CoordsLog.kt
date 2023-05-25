@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
 import dev.luna5ama.trollhack.util.math.vector.toBlockPos
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 
 internal object CoordsLog : Module(
     name = "CoordsLog",
@@ -40,7 +40,7 @@ internal object CoordsLog : Module(
                 savedDeath = if (player.isDead || player.health <= 0.0f) {
                     if (!savedDeath) {
                         val deathPoint = WaypointManager.add("Death - " + InfoCalculator.getServerType()).pos
-                        MessageSendUtils.sendNoSpamChatMessage("You died at ${deathPoint.x}, ${deathPoint.y}, ${deathPoint.z}")
+                        NoSpamMessage.sendMessage("You died at ${deathPoint.x}, ${deathPoint.y}, ${deathPoint.z}")
                     }
                     true
                 } else {

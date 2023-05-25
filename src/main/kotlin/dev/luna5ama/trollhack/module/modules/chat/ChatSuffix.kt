@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.text.MessageDetection
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import kotlin.math.min
 
 internal object ChatSuffix : Module(
@@ -72,7 +72,7 @@ internal object ChatSuffix : Module(
                     ignoreCase = true
                 )
             ) {
-                MessageSendUtils.sendNoSpamWarningMessage("$chatName Warning: In order to use the custom $name, please change the CustomText setting in ClickGUI")
+                NoSpamMessage.sendWarning("$chatName Warning: In order to use the custom $name, please change the CustomText setting in ClickGUI")
             }
         }
     }

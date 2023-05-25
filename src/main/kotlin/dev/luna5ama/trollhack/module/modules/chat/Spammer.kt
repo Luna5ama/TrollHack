@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +44,7 @@ internal object Spammer : Module(
         get() = if (remoteURL.value != "Unchanged") {
             remoteURL.value
         } else {
-            MessageSendUtils.sendNoSpamErrorMessage("Change the RemoteURL setting in the ClickGUI!")
+            NoSpamMessage.sendError("Change the RemoteURL setting in the ClickGUI!")
             disable()
             null
         }
@@ -60,9 +61,9 @@ internal object Spammer : Module(
                         val text = URL(url).readText()
                         spammer.addAll(text.split("\n"))
 
-                        MessageSendUtils.sendNoSpamChatMessage("$chatName Loaded remote spammer messages!")
+                        NoSpamMessage.sendMessage("$chatName Loaded remote spammer messages!")
                     } catch (e: Exception) {
-                        MessageSendUtils.sendNoSpamErrorMessage("$chatName Failed loading remote spammer, $e")
+                        NoSpamMessage.sendError("$chatName Failed loading remote spammer, $e")
                         disable()
                     }
                 }
@@ -72,14 +73,14 @@ internal object Spammer : Module(
                     if (file.exists()) {
                         try {
                             file.forEachLine { if (it.isNotBlank()) spammer.add(it.trim()) }
-                            MessageSendUtils.sendNoSpamChatMessage("$chatName Loaded spammer messages!")
+                            NoSpamMessage.sendMessage("$chatName Loaded spammer messages!")
                         } catch (e: Exception) {
-                            MessageSendUtils.sendNoSpamErrorMessage("$chatName Failed loading spammer, $e")
+                            NoSpamMessage.sendError("$chatName Failed loading spammer, $e")
                             disable()
                         }
                     } else {
                         file.createNewFile()
-                        MessageSendUtils.sendNoSpamErrorMessage(
+                        NoSpamMessage.sendError(
                             "$chatName Spammer file is empty!" +
                                 ", please add them in the §7spammer.txt§f under the §7.minecraft/trollhack§f directory."
                         )

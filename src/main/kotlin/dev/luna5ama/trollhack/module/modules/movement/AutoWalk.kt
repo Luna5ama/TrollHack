@@ -17,7 +17,7 @@ import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.Direction
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.util.MovementInputFromOptions
 
@@ -106,7 +106,7 @@ internal object AutoWalk : Module(
 
     private fun checkBaritoneElytra() = mc.player?.let {
         if (it.isElytraFlying && messageTimer.tickAndReset(10L)) {
-            MessageSendUtils.sendNoSpamErrorMessage(
+            NoSpamMessage.sendError(
                 "$chatName Baritone mode isn't currently compatible with Elytra flying!" +
                     " Choose a different mode if you want to use AutoWalk while Elytra flying"
             )

@@ -2,7 +2,7 @@ package dev.luna5ama.trollhack.command.commands
 
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.manager.managers.FriendManager
-import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 
 object FriendCommand : ClientCommand(
     name = "friend",
@@ -18,12 +18,12 @@ object FriendCommand : ClientCommand(
                 execute("Add a friend") {
                     val name = playerArg.value.name
                     if (FriendManager.isFriend(name)) {
-                        MessageSendUtils.sendNoSpamChatMessage("That player is already your friend.")
+                        NoSpamMessage.sendMessage("That player is already your friend.")
                     } else {
                         if (FriendManager.addFriend(name)) {
-                            MessageSendUtils.sendNoSpamChatMessage("§7${name}§r has been friended.")
+                            NoSpamMessage.sendMessage("§7${name}§r has been friended.")
                         } else {
-                            MessageSendUtils.sendNoSpamChatMessage("Failed to find UUID of $name")
+                            NoSpamMessage.sendMessage("Failed to find UUID of $name")
                         }
                     }
                 }
@@ -34,8 +34,8 @@ object FriendCommand : ClientCommand(
             player("player") { playerArg ->
                 execute("Remove a friend") {
                     val name = playerArg.value.name
-                    if (FriendManager.removeFriend(name)) MessageSendUtils.sendNoSpamChatMessage("§7${name}§r has been unfriended.")
-                    else MessageSendUtils.sendNoSpamChatMessage("That player isn't your friend.")
+                    if (FriendManager.removeFriend(name)) NoSpamMessage.sendMessage("§7${name}§r has been unfriended.")
+                    else NoSpamMessage.sendMessage("That player isn't your friend.")
                 }
             }
         }
@@ -44,9 +44,9 @@ object FriendCommand : ClientCommand(
             execute("Disable or enable all friends") {
                 FriendManager.enabled = !FriendManager.enabled
                 if (FriendManager.enabled) {
-                    MessageSendUtils.sendNoSpamChatMessage("Friends have been §aenabled")
+                    NoSpamMessage.sendMessage("Friends have been §aenabled")
                 } else {
-                    MessageSendUtils.sendNoSpamChatMessage("Friends have been §cdisabled")
+                    NoSpamMessage.sendMessage("Friends have been §cdisabled")
                 }
             }
         }
@@ -55,11 +55,11 @@ object FriendCommand : ClientCommand(
             execute("Clear friends list") {
                 if (System.currentTimeMillis() - confirmTime > 15000L) {
                     confirmTime = System.currentTimeMillis()
-                    MessageSendUtils.sendNoSpamChatMessage("This will delete ALL your friends, run §7${prefix}friend clear§f again to confirm")
+                    NoSpamMessage.sendMessage("This will delete ALL your friends, run §7${prefix}friend clear§f again to confirm")
                 } else {
                     confirmTime = 0L
                     FriendManager.clearFriend()
-                    MessageSendUtils.sendNoSpamChatMessage("Friends have been §ccleared")
+                    NoSpamMessage.sendMessage("Friends have been §ccleared")
                 }
             }
         }
@@ -86,18 +86,18 @@ object FriendCommand : ClientCommand(
     private fun isFriend(name: String) {
         val string = if (FriendManager.isFriend(name)) "Yes, $name is your friend."
         else "No, $name isn't a friend of yours."
-        MessageSendUtils.sendNoSpamChatMessage(string)
+        NoSpamMessage.sendMessage(string)
     }
 
     private fun listFriends() {
         if (FriendManager.empty) {
-            MessageSendUtils.sendNoSpamChatMessage("You currently don't have any friends added. run §7${prefix}friend add <name>§r to add one.")
+            NoSpamMessage.sendMessage("You currently don't have any friends added. run §7${prefix}friend add <name>§r to add one.")
         } else {
             val f = FriendManager.friends.values.joinToString(
                 prefix = "\n    ",
                 separator = "\n    "
             ) { it.name } // nicely format the chat output
-            MessageSendUtils.sendNoSpamChatMessage("Your friends: $f")
+            NoSpamMessage.sendMessage("Your friends: $f")
         }
     }
 }
