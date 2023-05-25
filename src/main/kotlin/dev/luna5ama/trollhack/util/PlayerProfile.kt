@@ -15,5 +15,13 @@ class PlayerProfile(
     override fun hashCode(): Int {
         return uuid.hashCode()
     }
+
+    val isInvalid
+        get() = this.uuid == INVALID.uuid
+
+    companion object  {
+        @JvmField
+        val INVALID = PlayerProfile(UUID(0L, 0L), "Invalid")
+    }
 }
 

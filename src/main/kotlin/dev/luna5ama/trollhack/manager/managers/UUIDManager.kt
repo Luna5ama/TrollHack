@@ -4,10 +4,11 @@ import com.google.gson.JsonParser
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.ConfigUtils
-import dev.luna5ama.trollhack.util.ConnectionUtils
 import dev.luna5ama.trollhack.util.PlayerProfile
 import dev.luna5ama.trollhack.util.extension.synchronized
 import java.io.File
+import java.io.FileNotFoundException
+import java.net.URL
 import java.util.*
 
 object UUIDManager : Manager() {
@@ -21,28 +22,36 @@ object UUIDManager : Manager() {
         fixUUID(string)?.let { getByUUID(it) } ?: getByName(string)
     }
 
-    fun getByUUID(uuid: UUID?) = uuid?.let {
-        uuidNameMap.getOrPut(uuid) {
-            requestProfile(uuid.toString())?.also { profile ->
+    fun getByUUID(uuid: UUID?): PlayerProfile? {
+        if (uuid == null) return null
+
+        val result = uuidNameMap.getOrPut(uuid) {
+            requestProfile(uuid)?.also { profile ->
                 // If UUID already present in nameUuidMap but not in uuidNameMap (user changed name)
                 nameProfileMap[profile.name]?.let { uuidNameMap.remove(it.uuid) }
                 nameProfileMap[profile.name] = profile
             } ?: return null
-        }.also {
-            trimMaps()
         }
+
+        trimMaps()
+
+        return result.takeUnless { it.isInvalid }
     }
 
-    fun getByName(name: String?) = name?.let {
-        nameProfileMap.getOrPut(name.lowercase()) {
+    fun getByName(name: String?): PlayerProfile? {
+        if (name == null) return null
+
+        val result = nameProfileMap.getOrPut(name.lowercase()) {
             requestProfile(name)?.also { profile ->
                 // If UUID already present in uuidNameMap but not in nameUuidMap (user changed name)
                 uuidNameMap[profile.uuid]?.let { nameProfileMap.remove(it.name) }
                 uuidNameMap[profile.uuid] = profile
             } ?: return null
-        }.also {
-            trimMaps()
         }
+
+        trimMaps()
+
+        return result.takeUnless { it.isInvalid }
     }
 
     private fun trimMaps() {
@@ -53,24 +62,25 @@ object UUIDManager : Manager() {
         }
     }
 
-    private fun requestProfile(nameOrUUID: String): PlayerProfile? {
-        val isUUID = isUUID(nameOrUUID)
-        val response = if (isUUID) requestProfileFromUUID(nameOrUUID) else requestProfileFromName(nameOrUUID)
+    private fun requestProfile(name: String): PlayerProfile? {
+        val response = try {
+            URL("https://api.mojang.com/users/profiles/minecraft/$name").readText()
+        } catch (e: FileNotFoundException) {
+            return PlayerProfile.INVALID
+        } catch (e: Exception) {
+            TrollHackMod.logger.error("Failed requesting profile", e)
+            return null
+        }
 
-        return if (response.isNullOrBlank()) {
+        return if (response.isBlank()) {
             TrollHackMod.logger.error("Response is null or blank, internet might be down")
             null
         } else {
             try {
-                val jsonElement = parser.parse(response)
-                if (isUUID) {
-                    val name = jsonElement.asJsonArray.last().asJsonObject["name"].asString
-                    PlayerProfile(UUID.fromString(nameOrUUID), name)
-                } else {
-                    val id = jsonElement.asJsonObject["id"].asString
-                    val name = jsonElement.asJsonObject["name"].asString
-                    PlayerProfile(fixUUID(id)!!, name) // let it throw a NPE if failed to parse the string to UUID
-                }
+                val jsonElement = parser.parse(response).asJsonObject
+                val id = jsonElement["id"].asString
+                val realName = jsonElement["name"].asString
+                PlayerProfile(fixUUID(id)!!, realName) // let it throw a NPE if failed to parse the string to UUID
             } catch (e: Exception) {
                 TrollHackMod.logger.error("Failed parsing profile", e)
                 null
@@ -78,17 +88,28 @@ object UUIDManager : Manager() {
         }
     }
 
-    private fun requestProfileFromUUID(uuid: String): String? {
-        return this.request("https://api.mojang.com/user/profiles/${removeDashes(uuid)}/names")
-    }
+    private fun requestProfile(uuid: UUID): PlayerProfile? {
+        val response = try {
+            URL("https://api.mojang.com/user/profiles/${removeDashes(uuid.toString())}/names").readText()
+        } catch (e: FileNotFoundException) {
+            return PlayerProfile.INVALID
+        } catch (e: Exception) {
+            TrollHackMod.logger.error("Failed requesting profile", e)
+            return null
+        }
 
-    private fun requestProfileFromName(name: String): String? {
-        return this.request("https://api.mojang.com/users/profiles/minecraft/$name")
-    }
-
-    private fun request(url: String): String? {
-        return ConnectionUtils.requestRawJsonFrom(url) {
-            TrollHackMod.logger.error("Failed requesting from Mojang API", it)
+        return if (response.isBlank()) {
+            TrollHackMod.logger.error("Response is null or blank, internet might be down")
+            null
+        } else {
+            try {
+                val jsonElement = parser.parse(response).asJsonArray
+                val name = jsonElement.asJsonArray.last().asJsonObject["name"].asString
+                PlayerProfile(uuid, name)
+            } catch (e: Exception) {
+                TrollHackMod.logger.error("Failed parsing profile", e)
+                null
+            }
         }
     }
 
