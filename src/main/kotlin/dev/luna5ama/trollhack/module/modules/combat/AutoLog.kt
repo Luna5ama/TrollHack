@@ -29,8 +29,7 @@ import java.time.LocalTime
 internal object AutoLog : Module(
     name = "AutoLog",
     description = "Automatically log when in danger or on low health",
-    category = Category.COMBAT,
-    alwaysListening = true
+    category = Category.COMBAT
 ) {
     private val disableMode by setting("Disable Mode", DisableMode.ALWAYS)
     private val health by setting("Health", 10, 6..36, 1)
@@ -53,8 +52,6 @@ internal object AutoLog : Module(
 
     init {
         safeListener<TickEvent.Post>(-1000) {
-            if (isDisabled) return@safeListener
-
             when {
                 player.scaledHealth < health -> log(HEALTH)
                 totem && checkTotems() -> log(TOTEM)

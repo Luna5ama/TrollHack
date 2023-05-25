@@ -24,8 +24,7 @@ import net.minecraft.util.text.TextFormatting
 internal object VisualRange : Module(
     name = "VisualRange",
     description = "Shows players who enter and leave range in chat",
-    category = Category.COMBAT,
-    alwaysListening = true
+    category = Category.COMBAT
 ) {
     private const val NAME_FORMAT = "\$NAME"
 
