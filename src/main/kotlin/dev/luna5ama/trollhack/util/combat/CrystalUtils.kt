@@ -28,10 +28,13 @@ object CrystalUtils {
     }
 
     /** Checks colliding with blocks and given entity */
-    fun SafeClientEvent.canPlaceCrystal(pos: BlockPos, entity: EntityLivingBase? = null): Boolean {
+    fun SafeClientEvent.canPlaceCrystal(
+        pos: BlockPos, entity: EntityLivingBase? = null,
+        mutableBlockPos: BlockPos.MutableBlockPos = cacheBlockPos.get()
+    ): Boolean {
         return canPlaceCrystalOn(pos)
             && (entity == null || !getCrystalPlacingBB(pos).intersects(entity.entityBoundingBox))
-            && hasValidSpaceForCrystal(pos)
+            && hasValidSpaceForCrystal(pos, mutableBlockPos)
     }
 
     /** Checks if the block is valid for placing crystal */
@@ -40,7 +43,10 @@ object CrystalUtils {
         return block == Blocks.BEDROCK || block == Blocks.OBSIDIAN
     }
 
-    fun SafeClientEvent.hasValidSpaceForCrystal(pos: BlockPos,mutableBlockPos: BlockPos.MutableBlockPos = cacheBlockPos.get() ): Boolean {
+    fun SafeClientEvent.hasValidSpaceForCrystal(
+        pos: BlockPos,
+        mutableBlockPos: BlockPos.MutableBlockPos = cacheBlockPos.get()
+    ): Boolean {
         return if (CombatSetting.newCrystalPlacement) {
             world.isAir(mutableBlockPos.setAndAdd(pos, 0, 1, 0))
         } else {
@@ -58,9 +64,10 @@ object CrystalUtils {
     }
 
     fun getCrystalPlacingBB(x: Int, y: Int, z: Int): AxisAlignedBB {
+        val margin = CombatSetting.collisionMargin.toDouble()
         return AxisAlignedBB(
-            x + 0.001, y + 1.0, z + 0.001,
-            x + 0.999, y + 3.0, z + 0.999
+            x + margin, y + 1.0, z + margin,
+            x + 1.0 - margin, y + 3.0, z + 1.0 - margin
         )
     }
 

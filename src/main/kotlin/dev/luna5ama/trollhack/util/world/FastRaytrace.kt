@@ -64,6 +64,15 @@ inline fun World.fastRaytrace(
     function: World.(BlockPos, IBlockState) -> FastRayTraceAction
 ): Boolean = fastRaytrace(start.x, start.y, start.z, end.x, end.y, end.z, maxAttempt, mutableBlockPos, function)
 
+fun World.fastRaytrace(
+    start: Vec3d,
+    endX: Double,
+    endY: Double,
+    endZ: Double,
+    maxAttempt: Int = 50,
+    mutableBlockPos: BlockPos.MutableBlockPos
+): Boolean = fastRaytrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, function)
+
 inline fun World.fastRaytrace(
     start: Vec3d,
     endX: Double,

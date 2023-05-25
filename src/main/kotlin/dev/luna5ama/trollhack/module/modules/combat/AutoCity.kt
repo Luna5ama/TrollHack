@@ -23,10 +23,13 @@ import dev.luna5ama.trollhack.util.accessor.packetAction
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystal
+import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
+import dev.luna5ama.trollhack.util.combat.CrystalUtils.isValidMaterial
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
+import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.world.FastRayTraceAction
 import dev.luna5ama.trollhack.util.world.fastRaytrace
 import dev.luna5ama.trollhack.util.world.getBlock
@@ -198,15 +201,12 @@ internal object AutoCity : Module(
 
     private fun SafeClientEvent.updateTargetPos() {
         val flag = anvilPos != null
-        val rangeSq = range.sq
         val target = CombatManager.target
 
         if (target != null) {
             val targetPos = target.betterPosition
 
             val result = if (flag || targetPos == holePos || HoleManager.getHoleInfo(target).isHole) {
-                val playerPos = player.betterPosition
-                val eyePos = player.eyePosition
                 val mutableBlockPos = BlockPos.MutableBlockPos()
 
                 val anvilPos = anvilPos
@@ -218,55 +218,26 @@ internal object AutoCity : Module(
                         if (damage > minUpdateDamage && !updateTimer.tick(updateDelay)) return
                     }
 
-                    val sequence = EnumFacing.HORIZONTALS.asSequence()
-                        .flatMap { mainSide ->
-                            val opposite = mainSide.opposite
-                            val pos1 = targetPos.offset(mainSide)
-                            EnumFacing.HORIZONTALS.asSequence()
-                                .filter {
-                                    it != opposite
-                                }.map {
-                                    pos1 to pos1.offset(it).down()
-                                }
-                        }.filter {
-                            playerPos.distanceSq(it.first) <= rangeSq
-                        }
-                        .filter {
-                            val dist = playerPos.distanceSq(it.second)
-                            dist <= rangeSq
-                                && (dist <= 9
-                                || !world.fastRaytrace(
-                                eyePos,
-                                it.second.x + 0.5,
-                                it.second.y + 2.7,
-                                it.second.z + 0.5,
-                                20,
-                                mutableBlockPos
-                            ) { rayTracePos, blockState ->
-                                if (rayTracePos != it.first && blockState.block != Blocks.AIR && CrystalUtils.isResistant(
-                                        blockState
-                                    )
-                                ) {
-                                    FastRayTraceAction.CALC
-                                } else {
-                                    FastRayTraceAction.SKIP
-                                }
-                            })
-                        }
-                        .filter { (anvilPos, crystalPos) ->
-                            world.getBlock(anvilPos) != Blocks.BEDROCK
-                                && canPlaceCrystal(crystalPos)
-                        }
-
                     var maxDamage = minDamage
                     var result: Pair<BlockPos, BlockPos>? = null
 
-                    for (pair in sequence) {
+                    for (pair in calcSequence(targetPos)) {
                         val damage = calcDamage(context, pair.first, pair.second, mutableBlockPos)
 
                         if (damage > maxDamage) {
                             maxDamage = damage
                             result = pair
+                        }
+                    }
+
+                    if (result == null) {
+                        for (pair in calcInPlaceSequence(targetPos)) {
+                            val damage = calcDamage(context, pair.first, pair.second, mutableBlockPos)
+
+                            if (damage > maxDamage) {
+                                maxDamage = damage
+                                result = pair
+                            }
                         }
                     }
 
@@ -306,9 +277,100 @@ internal object AutoCity : Module(
         holePos = null
     }
 
+    private fun SafeClientEvent.calcSequence(
+        targetPos: BlockPos,
+    ): Sequence<Pair<BlockPos, BlockPos>> {
+        val playerPos = player.betterPosition
+        val eyePos = player.eyePosition
+        val rangeSq = range.sq
+        val mutableBlockPos = BlockPos.MutableBlockPos()
+
+        return EnumFacing.HORIZONTALS.asSequence()
+            .flatMap { mainSide ->
+                val opposite = mainSide.opposite
+                val pos1 = targetPos.offset(mainSide)
+                EnumFacing.HORIZONTALS.asSequence()
+                    .filter {
+                        it != opposite
+                    }.map {
+                        pos1 to pos1.offset(it).down()
+                    }
+            }.filter { (minePos, _) ->
+                playerPos.distanceSq(minePos) <= rangeSq
+            }
+            .filter { (minePos, crystalPos) ->
+                val dist = playerPos.distanceSq(crystalPos)
+                dist <= rangeSq
+                    && (dist <= 9
+                    || !world.fastRaytrace(
+                    eyePos,
+                    crystalPos.x + 0.5,
+                    crystalPos.y + 2.7,
+                    crystalPos.z + 0.5,
+                    20,
+                    mutableBlockPos
+                ) { rayTracePos, blockState ->
+                    if (rayTracePos == minePos || blockState.getCollisionBoundingBox(this, rayTracePos) != null) {
+                        FastRayTraceAction.CALC
+                    } else {
+                        FastRayTraceAction.SKIP
+                    }
+                })
+            }
+            .filter { (minePos, crystalPos) ->
+                world.getBlock(minePos) != Blocks.BEDROCK
+                    && canPlaceCrystal(crystalPos, mutableBlockPos = mutableBlockPos)
+            }
+    }
+
+    private fun SafeClientEvent.calcInPlaceSequence(
+        targetPos: BlockPos,
+    ): Sequence<Pair<BlockPos, BlockPos>> {
+        val playerPos = player.betterPosition
+        val eyePos = player.eyePosition
+        val rangeSq = range.sq
+        val mutableBlockPos = BlockPos.MutableBlockPos()
+
+        return EnumFacing.HORIZONTALS.asSequence()
+            .map { mainSide ->
+                val surroundPos = targetPos.offset(mainSide)
+                surroundPos to surroundPos.down()
+            }.filter { (minePos, _) ->
+                playerPos.distanceSq(minePos) <= rangeSq
+            }
+            .filter { (minePos, crystalPos) ->
+                val dist = playerPos.distanceSq(crystalPos)
+                dist <= rangeSq
+                    && (dist <= 9
+                    || !world.fastRaytrace(
+                    eyePos,
+                    crystalPos.x + 0.5,
+                    crystalPos.y + 2.7,
+                    crystalPos.z + 0.5,
+                    20,
+                    mutableBlockPos
+                ) { rayTracePos, blockState ->
+                    if (rayTracePos == minePos || blockState.getCollisionBoundingBox(this, rayTracePos) != null) {
+                        FastRayTraceAction.CALC
+                    } else {
+                        FastRayTraceAction.SKIP
+                    }
+                })
+            }
+            .filter { (minePos, crystalPos) ->
+                world.getBlock(minePos) != Blocks.BEDROCK
+                    && canPlaceCrystalOn(crystalPos)
+            }
+            .filter { (_, crystalPos) ->
+                CombatSetting.newCrystalPlacement
+                    || isValidMaterial(world.getBlockState(mutableBlockPos.setAndAdd(crystalPos, 0, 2, 0)))
+            }
+    }
+
+
     private fun calcDamage(
         context: CalcContext,
-        anvilPos: BlockPos,
+        minePos: BlockPos,
         pos: BlockPos,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Float {
@@ -320,7 +382,7 @@ internal object AutoCity : Module(
             6.0f,
             mutableBlockPos
         ) { rayTracePos, blockState ->
-            if (rayTracePos != anvilPos && blockState.block != Blocks.AIR && CrystalUtils.isResistant(blockState)) {
+            if (rayTracePos != minePos && blockState.block != Blocks.AIR && CrystalUtils.isResistant(blockState)) {
                 FastRayTraceAction.CALC
             } else {
                 FastRayTraceAction.SKIP

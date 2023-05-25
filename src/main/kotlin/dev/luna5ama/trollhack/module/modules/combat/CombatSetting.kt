@@ -109,6 +109,7 @@ internal object CombatSetting : Module(
         setting("Resume Delay", 3, 1..10, 1, page.atValue(Page.IN_COMBAT) and pauseBaritone.atTrue())
 
     /* Calculation */
+    val collisionMargin by setting("Collision Margin", 0.0001f, 0.0f..0.1f, 0.0001f, page.atValue(Page.CALCULATION))
     val crystalSetDead by setting("Crystal Set Dead", false, page.atValue(Page.CALCULATION))
     val newCrystalPlacement by setting("1.14 Crystal Placement", false, page.atValue(Page.CALCULATION))
     val assumeResistance by setting("Assume Resistance", true, page.atValue(Page.CALCULATION))
