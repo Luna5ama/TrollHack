@@ -142,7 +142,9 @@ object UUIDManager : Manager() {
     fun save(): Boolean {
         return try {
             file.bufferedWriter().use { writer ->
-                uuidNameMap.values.forEach {
+                uuidNameMap.values.asSequence().filter {
+                    !it.isInvalid
+                }.forEach {
                     writer.append(it.name)
                     writer.append(':')
                     writer.append(it.uuid.toString())
