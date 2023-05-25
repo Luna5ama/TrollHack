@@ -110,6 +110,7 @@ internal object CombatSetting : Module(
 
     /* Calculation */
     val crystalSetDead by setting("Crystal Set Dead", false, page.atValue(Page.CALCULATION))
+    val newCrystalPlacement by setting("1.14 Crystal Placement", false, page.atValue(Page.CALCULATION))
     val assumeResistance by setting("Assume Resistance", true, page.atValue(Page.CALCULATION))
     private val motionPredict = setting("Motion Predict", true, page.atValue(Page.CALCULATION))
     private val pingSync = setting("Ping Sync", false, page.atValue(Page.CALCULATION) and motionPredict.atTrue())

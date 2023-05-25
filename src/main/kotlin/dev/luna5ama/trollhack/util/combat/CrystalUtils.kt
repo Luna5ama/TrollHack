@@ -2,8 +2,10 @@ package dev.luna5ama.trollhack.util.combat
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.EntityManager
+import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
+import dev.luna5ama.trollhack.util.world.isAir
 import dev.luna5ama.trollhack.util.world.isLiquid
 import dev.luna5ama.trollhack.util.world.isReplaceable
 import net.minecraft.block.state.IBlockState
@@ -21,7 +23,7 @@ object CrystalUtils {
     val EntityEnderCrystal.blockPos: BlockPos
         get() = BlockPos(this.posX.fastFloor(), this.posY.fastFloor() - 1, this.posZ.fastFloor())
 
-    private val mutableBlockPos = ThreadLocal.withInitial {
+    private val cacheBlockPos = ThreadLocal.withInitial {
         BlockPos.MutableBlockPos()
     }
 
@@ -38,10 +40,13 @@ object CrystalUtils {
         return block == Blocks.BEDROCK || block == Blocks.OBSIDIAN
     }
 
-    fun SafeClientEvent.hasValidSpaceForCrystal(pos: BlockPos): Boolean {
-        val mutableBlockPos = mutableBlockPos.get()
-        return isValidMaterial(world.getBlockState(mutableBlockPos.setAndAdd(pos, 0, 1, 0)))
-            && isValidMaterial(world.getBlockState(mutableBlockPos.add(0, 1, 0)))
+    fun SafeClientEvent.hasValidSpaceForCrystal(pos: BlockPos,mutableBlockPos: BlockPos.MutableBlockPos = cacheBlockPos.get() ): Boolean {
+        return if (CombatSetting.newCrystalPlacement) {
+            world.isAir(mutableBlockPos.setAndAdd(pos, 0, 1, 0))
+        } else {
+            isValidMaterial(world.getBlockState(mutableBlockPos.setAndAdd(pos, 0, 1, 0)))
+                && isValidMaterial(world.getBlockState(mutableBlockPos.add(0, 1, 0)))
+        }
     }
 
     fun isValidMaterial(blockState: IBlockState): Boolean {

@@ -31,6 +31,7 @@ import dev.luna5ama.trollhack.util.combat.CombatUtils.totalHealth
 import dev.luna5ama.trollhack.util.combat.CrystalDamage
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
+import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.isResistant
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.delegate.CachedValueN
@@ -192,7 +193,6 @@ internal object ZealotCrystalPlus : Module(
     private val packetPlace by setting("Packet Place", PacketPlaceMode.WEAK, { page == Page.PLACE })
     private val spamPlace by setting("Spam Place", false, { page == Page.PLACE })
     private val autoSwap by setting("Auto Swap", SwapMode.OFF, { page == Page.PLACE })
-    private val newPlacement by setting("1.13 Place", false, { page == Page.PLACE })
     private val placeSwing by setting("Place Swing", false, { page == Page.PLACE })
     private val placeBypass by setting("Place Bypass", PlaceBypass.UP, { page == Page.PLACE })
     private val placeMinDamage by setting("Place Min Damage", 5.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
@@ -1399,7 +1399,7 @@ internal object ZealotCrystalPlus : Module(
                     val crystalZ = pos.z + 0.5
 
                     if (player.placeDistanceSq(crystalX, crystalY, crystalZ) > rangeSq) continue
-                    if (!isPlaceable(pos, newPlacement, mutableBlockPos)) continue
+                    if (!isPlaceable(pos, mutableBlockPos)) continue
                     if (feetPos.squareDistanceTo(crystalX, crystalY, crystalZ) > wallRangeSq
                         && !world.rayTraceVisible(eyePos, crystalX, crystalY + 1.7, crystalZ, 20, mutableBlockPos)
                     ) continue
@@ -1586,19 +1586,12 @@ internal object ZealotCrystalPlus : Module(
 
     private fun SafeClientEvent.isPlaceable(
         pos: BlockPos,
-        newPlacement: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
         if (!canPlaceCrystalOn(pos)) {
             return false
         }
-        val posUp = mutableBlockPos.setAndAdd(pos, 0, 1, 0)
-        return if (newPlacement) {
-            world.isAir(posUp)
-        } else {
-            CrystalUtils.isValidMaterial(world.getBlockState(posUp))
-                && CrystalUtils.isValidMaterial(world.getBlockState(posUp.add(0, 1, 0)))
-        }
+        return hasValidSpaceForCrystal(pos, mutableBlockPos)
     }
 
 
