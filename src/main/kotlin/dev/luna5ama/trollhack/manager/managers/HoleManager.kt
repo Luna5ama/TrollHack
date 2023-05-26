@@ -205,7 +205,10 @@ object HoleManager : Manager() {
                 val prev = holeMap0.put(holePos, holeInfo)
                 checked.add(holePos.toLong())
 
-                modified = modified || (prev == null || !prev.isHole)
+                modified = modified
+                    || prev == null || prev.type != holeInfo.type
+                    || prev.isTrapped != holeInfo.isTrapped
+                    || prev.isFullyTrapped != holeInfo.isFullyTrapped
             }
 
             modified
