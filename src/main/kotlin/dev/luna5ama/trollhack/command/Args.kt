@@ -187,7 +187,7 @@ class PlayerArg(
     }
 
     override suspend fun convertToType(string: String?): PlayerProfile? {
-        return UUIDManager.getByString(string)
+        return string?.let { UUIDManager.getByString(it) }
     }
 
     private companion object {

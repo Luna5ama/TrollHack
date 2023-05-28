@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.ConfigUtils
 import dev.luna5ama.trollhack.util.PlayerProfile
+import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.extension.synchronized
 import java.io.File
 import java.io.FileNotFoundException
@@ -18,15 +19,15 @@ object UUIDManager : Manager() {
     private val nameProfileMap = LinkedHashMap<String, PlayerProfile>().synchronized()
     private val uuidNameMap = LinkedHashMap<UUID, PlayerProfile>().synchronized()
 
-    fun getByString(stringIn: String?) = stringIn?.let { string ->
-        fixUUID(string)?.let { getByUUID(it) } ?: getByName(string)
+    fun getByString(stringIn: String): PlayerProfile? {
+        return fixUUID(stringIn)?.let {
+            getByUUID(it)
+        } ?: getByName(stringIn)
     }
 
-    fun getByUUID(uuid: UUID?): PlayerProfile? {
-        if (uuid == null) return null
-
+    fun getByUUID(uuid: UUID, forceOnline: Boolean = false): PlayerProfile? {
         val result = uuidNameMap.getOrPut(uuid) {
-            requestProfile(uuid)?.also { profile ->
+            requestProfile(uuid, forceOnline)?.also { profile ->
                 // If UUID already present in nameUuidMap but not in uuidNameMap (user changed name)
                 nameProfileMap[profile.name]?.let { uuidNameMap.remove(it.uuid) }
                 nameProfileMap[profile.name] = profile
@@ -38,11 +39,9 @@ object UUIDManager : Manager() {
         return result.takeUnless { it.isInvalid }
     }
 
-    fun getByName(name: String?): PlayerProfile? {
-        if (name == null) return null
-
+    fun getByName(name: String, forceOnline: Boolean = false): PlayerProfile? {
         val result = nameProfileMap.getOrPut(name.lowercase()) {
-            requestProfile(name)?.also { profile ->
+            requestProfile(name, forceOnline)?.also { profile ->
                 // If UUID already present in uuidNameMap but not in nameUuidMap (user changed name)
                 uuidNameMap[profile.uuid]?.let { nameProfileMap.remove(it.name) }
                 uuidNameMap[profile.uuid] = profile
@@ -62,7 +61,15 @@ object UUIDManager : Manager() {
         }
     }
 
-    private fun requestProfile(name: String): PlayerProfile? {
+    private fun requestProfile(name: String, forceOnline: Boolean): PlayerProfile? {
+        if (!forceOnline) {
+            Wrapper.minecraft.connection?.playerInfoMap?.find {
+                it.gameProfile.name.equals(name, ignoreCase = true)
+            }?.let {
+                return PlayerProfile(it.gameProfile.id, it.gameProfile.name)
+            }
+        }
+
         val response = try {
             URL("https://api.mojang.com/users/profiles/minecraft/$name").readText()
         } catch (e: FileNotFoundException) {
@@ -88,7 +95,13 @@ object UUIDManager : Manager() {
         }
     }
 
-    private fun requestProfile(uuid: UUID): PlayerProfile? {
+    private fun requestProfile(uuid: UUID, forceOnline: Boolean): PlayerProfile? {
+        if (forceOnline) {
+            Wrapper.minecraft.connection?.getPlayerInfo(uuid)?.let {
+                return PlayerProfile(it.gameProfile.id, it.gameProfile.name)
+            }
+        }
+
         val response = try {
             URL("https://api.mojang.com/user/profiles/${removeDashes(uuid.toString())}/names").readText()
         } catch (e: FileNotFoundException) {

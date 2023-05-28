@@ -59,7 +59,7 @@ internal object LogoutLogger : Module(
                 if (loadedPlayer.isFakeOrSelf) continue
                 @Suppress("SENSELESS_COMPARISON")
                 if (connection.getPlayerInfo(loadedPlayer.gameProfile.id) == null) continue
-                if (UUIDManager.getByUUID(loadedPlayer.uniqueID)?.name != loadedPlayer.name) continue
+                if (UUIDManager.getByUUID(loadedPlayer.uniqueID, true)?.name != loadedPlayer.name) continue
 
                 loggedPlayers[loadedPlayer] = loadedPlayer.flooredPosition
             }

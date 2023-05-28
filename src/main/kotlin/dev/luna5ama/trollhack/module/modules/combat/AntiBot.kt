@@ -89,7 +89,7 @@ internal object AntiBot : Module(
             || sleeping && entity.isPlayerSleeping && !entity.onGround
             || hoverOnTop && hoverCheck(entity)
             || entity.ticksExisted < ticksExists
-            || mojangApi && UUIDManager.getByName(entity.name) == null)
+            || mojangApi && UUIDManager.getByName(entity.name, true) == null)
     }
 
     private fun SafeClientEvent.hoverCheck(entity: EntityPlayer): Boolean {
