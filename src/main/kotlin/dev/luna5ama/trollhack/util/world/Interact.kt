@@ -81,7 +81,7 @@ fun SafeClientEvent.getPlacement(
             return data.toPlaceInfo(player.eyePosition)
         }
 
-        if (data.depth >= maxDepth) continue
+        if (data.depth > maxDepth) continue
         if (!visited.add(data.pos.toLong())) continue
 
         for (side in sides) {
