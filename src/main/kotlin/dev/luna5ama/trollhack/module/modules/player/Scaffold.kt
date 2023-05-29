@@ -5,6 +5,7 @@ import dev.fastmc.common.fastFloor
 import dev.fastmc.common.sort.ObjectInsertionSort
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.AddCollisionBoxEvent
+import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
@@ -29,9 +30,13 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.network.play.server.SPacketParticles
+import net.minecraft.network.play.server.SPacketPlayerPosLook
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
+import kotlin.math.max
 
 internal object Scaffold : Module(
     name = "Scaffold",
@@ -43,13 +48,23 @@ internal object Scaffold : Module(
     private val setbackOnFailure by setting("Setback on Failure", true)
     private val setbackOnFalling by setting("Setback on Falling", true)
     private val assumePlaced by setting("Assume Placed", false)
+    private val towerMode by setting("Tower Mode", true)
+    private val towerMotion by setting("Tower Motion", 0.4f, 0.0f..1.0f, 0.01f)
+    private val towerJumpHeight by setting("Tower Jump Height", 0.3f, 0.0f..1.0f, 0.01f)
+    private val towerPlaceHeight by setting("Tower Place Height", 1.1f, 0.0f..1.5f, 0.01f)
+    private val towerChainLimit by setting("Tower Chain Limit", 10, 1..20, 1)
+    private val towerCooldown by setting("Tower Cooldown", 1, 1..5, 1)
+    private val towerFailureTimeout by setting("Tower Failure Timeout", 500, 0..5000, 1)
     private val maxPendingPlace by setting("Max Pending Place", 2, 1..5, 1)
-    private val placeTimeout by setting("Place Timeout", 200, 0..10000, 50)
+    private val placeTimeout by setting("Place Timeout", 200, 0..5000, 50)
     private val placeDelay by setting("Place Delay", 100, 0..1000, 1)
     private val rotation by setting("Rotation", true)
     private val extendAxis by setting("Extend Axis", 0.02f, 0.0f..0.1f, 0.001f)
     private val extendDiagonal by setting("Extend Diagonal", 0.02f, 0.0f..0.1f, 0.001f)
 
+    private val towerFailTimer = TickTimer()
+    private var lastJumpHeight = Int.MIN_VALUE
+    private var towerCount = -1
     private var lastPos: Vec3d? = null
     private var lastSequence: List<PlaceInfo>? = null
     private val placingPos = LongOpenHashSet()
@@ -65,11 +80,19 @@ internal object Scaffold : Module(
 
     init {
         onDisable {
+            resetTower()
+
             lastPos = null
             lastSequence = null
             placingPos.clear()
             pendingPlace.clear()
             placeTimer.reset(-69420L)
+        }
+
+        safeListener<PacketEvent.PostReceive> {
+            if (it.packet !is SPacketPlayerPosLook) return@safeListener
+
+            towerFailTimer.reset()
         }
 
         safeListener<AddCollisionBoxEvent> {
@@ -91,6 +114,36 @@ internal object Scaffold : Module(
             updateSequence()
         }
 
+        safeListener<PlayerMoveEvent.Pre>(-9999) {
+            if (!isTowering()) {
+                resetTower()
+                return@safeListener
+            }
+
+            player.motionX = 0.0
+            player.motionZ = 0.0
+
+            if (!towerFailTimer.tick(towerFailureTimeout)) {
+                resetTower()
+                return@safeListener
+            }
+
+            val floorY = player.posY.fastFloor()
+            if (player.posY - floorY > towerJumpHeight) return@safeListener
+            if (floorY == lastJumpHeight) return@safeListener
+
+            lastJumpHeight = floorY
+            towerCount++
+
+            if (towerCount <= 0) return@safeListener
+            if (towerCount > towerChainLimit) {
+                towerCount = -towerCooldown
+                return@safeListener
+            }
+
+            player.motionY = towerMotion.toDouble()
+        }
+
         safeListener<PlayerMoveEvent.Post> {
             if (setbackOnFalling && player.fallDistance > 3.0f) {
                 sendSetbackPacket()
@@ -107,7 +160,6 @@ internal object Scaffold : Module(
                 return@safeListener
             }
 
-            if (lastSequence != null && lastPos == player.positionVector) return@safeListener
             updateSequence()
         }
 
@@ -137,6 +189,11 @@ internal object Scaffold : Module(
         }
     }
 
+    private fun resetTower() {
+        lastJumpHeight = Int.MIN_VALUE
+        towerCount = 0
+    }
+
     private fun SafeClientEvent.sendSetbackPacket() {
         connection.sendPacket(CPacketPlayer.Position(player.posX, player.posY + 10.0, player.posZ, false))
     }
@@ -144,10 +201,12 @@ internal object Scaffold : Module(
     private fun SafeClientEvent.runPlacing() {
         if (pendingPlace.size >= maxPendingPlace) return
         if (!placeTimer.tick(placeDelay)) return
+
         lastSequence?.let {
             val slot = getBlockSlot() ?: return
             for (placeInfo in it) {
                 if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
+                if (isTowering() && player.posY - placeInfo.placedPos.y <= towerPlaceHeight) return
                 if (rotation && !checkPlaceRotation(placeInfo)) return
                 spoofHotbar(slot) {
                     placeBlock(placeInfo)
@@ -155,6 +214,21 @@ internal object Scaffold : Module(
                 pendingPlace.put(placeInfo.placedPos.toLong(), System.currentTimeMillis() + placeTimeout)
                 placeTimer.reset()
                 break
+            }
+
+            renderer.clear()
+            for (info in it) {
+                val posLong = info.pos.toLong()
+                val placedLong = info.placedPos.toLong()
+                placingPos.add(posLong)
+                placingPos.add(placedLong)
+
+                val box = AxisAlignedBB(info.placedPos)
+                if (pendingPlace.containsKey(placedLong)) {
+                    renderer.add(box, ColorRGB(64, 255, 64))
+                } else {
+                    renderer.add(box, ColorRGB(255, 255, 255))
+                }
             }
         }
     }
@@ -164,17 +238,36 @@ internal object Scaffold : Module(
         return player.hotbarSlots.firstItem<ItemBlock, HotbarSlot>()
     }
 
+    private val towerSides = arrayOf(
+        EnumFacing.DOWN,
+        EnumFacing.NORTH,
+        EnumFacing.SOUTH,
+        EnumFacing.EAST,
+        EnumFacing.WEST
+    )
+
     private fun SafeClientEvent.updateSequence() {
         lastPos = player.positionVector
         lastSequence = null
         renderer.clear()
 
-        val feetY = player.posY.fastFloor() - 1
-
-        val feetPos = BlockPos.MutableBlockPos()
-        val sequence = calcSortedOffsets().asSequence()
-            .mapNotNull { getSequence(feetPos.setPos(it.x.fastFloor(), feetY, it.y.fastFloor())) }
-            .firstOrNull()
+        val floorY = player.posY.fastFloor()
+        val sequence = if (isTowering()) {
+            val feetY = max(world.getGroundLevel(player).toInt(), floorY - 1)
+            val feetPos = BlockPos(player.posX.fastFloor(), feetY, player.posZ.fastFloor())
+            getPlacementSequence(
+                feetPos,
+                5,
+                towerSides,
+                PlacementSearchOption.ENTITY_COLLISION_IGNORE_SELF
+            )
+        } else {
+            val feetY = floorY - 1
+            val feetPos = BlockPos.MutableBlockPos()
+            calcSortedOffsets().asSequence()
+                .mapNotNull { getSequence(feetPos.setPos(it.x.fastFloor(), feetY, it.y.fastFloor())) }
+                .firstOrNull()
+        }
 
         lastSequence = sequence
 
@@ -233,5 +326,9 @@ internal object Scaffold : Module(
             5,
             PlacementSearchOption.ENTITY_COLLISION
         )
+    }
+
+    private fun SafeClientEvent.isTowering(): Boolean {
+        return towerMode && player.movementInput.jump
     }
 }

@@ -186,6 +186,14 @@ fun interface PlacementSearchOption {
                 null
             )
         }
+
+        @JvmField
+        val ENTITY_COLLISION_IGNORE_SELF = PlacementSearchOption { _, _, to ->
+            world.checkNoEntityCollision(
+                AxisAlignedBB(to),
+                player
+            )
+        }
     }
 }
 
