@@ -36,6 +36,10 @@ internal object Fps : LabelHud(
                 it.timeout <= current
             }
 
+            longFrameTimeList.removeIf {
+                it.timeout <= current
+            }
+
             val frameTime = (current - lastRender).toInt()
             shortFrameTimeList.add(FrameTimeRecord(current + (shortWindow * 1_000_000_000L).toLong(), frameTime))
             longFrameTimeList.add(FrameTimeRecord(current + (longWindow * 1_000_000_000L).toLong(), frameTime))
@@ -44,13 +48,7 @@ internal object Fps : LabelHud(
     }
 
     override fun SafeClientEvent.updateText() {
-        val current = System.nanoTime()
-
         val shortFrameTime = shortFrameTimeList.average()
-
-        longFrameTimeList.removeIf {
-            it.timeout <= current
-        }
 
         displayText.add("Fps", GuiSetting.primary)
         addFps(shortFrameTime)
@@ -61,7 +59,7 @@ internal object Fps : LabelHud(
         }
 
         if (showMin) {
-            val minFrameTime = longFrameTimeList.maxBy { it.frameTime }.frameTime
+            val minFrameTime = longFrameTimeList.maxByOrNull { it.frameTime }?.frameTime ?: 0
             displayText.add("Min", GuiSetting.primary)
             addFps(minFrameTime)
         }
