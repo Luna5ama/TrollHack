@@ -28,6 +28,7 @@ import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.item.ItemBlock
+import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -39,6 +40,8 @@ internal object Scaffold : Module(
     modulePriority = 500
 ) {
     private val safeWalk by setting("Safe Walk", true)
+    private val setbackOnFailure by setting("Setback on Failure", true)
+    private val setbackOnFalling by setting("Setback on Falling", true)
     private val assumePlaced by setting("Assume Placed", false)
     private val maxPendingPlace by setting("Max Pending Place", 2, 1..5, 1)
     private val placeTimeout by setting("Place Timeout", 200, 0..10000, 50)
@@ -50,7 +53,9 @@ internal object Scaffold : Module(
     private var lastPos: Vec3d? = null
     private var lastSequence: List<PlaceInfo>? = null
     private val placingPos = LongOpenHashSet()
-    private val pendingPlace = Long2LongOpenHashMap()
+    private val pendingPlace = Long2LongOpenHashMap().apply {
+        defaultReturnValue(-1L)
+    }
 
     private val placeTimer = TickTimer()
     private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
@@ -76,16 +81,30 @@ internal object Scaffold : Module(
         }
 
         safeListener<WorldEvent.ClientBlockUpdate> {
-            pendingPlace.remove(it.pos.toLong())
+            if (setbackOnFailure
+                && pendingPlace.remove(it.pos.toLong()) != -1L && it.newState.block.isReplaceable(world, it.pos)
+            ) {
+                sendSetbackPacket()
+            }
 
             if (!placingPos.contains(it.pos.toLong())) return@safeListener
             updateSequence()
         }
 
         safeListener<PlayerMoveEvent.Post> {
+            if (setbackOnFalling && player.fallDistance > 3.0f) {
+                sendSetbackPacket()
+                return@safeListener
+            }
+
             val currentTime = System.currentTimeMillis()
+            val prevSize = pendingPlace.size
             pendingPlace.values.removeIf {
                 it < currentTime
+            }
+            if (setbackOnFailure && pendingPlace.size > prevSize) {
+                sendSetbackPacket()
+                return@safeListener
             }
 
             if (lastSequence != null && lastPos == player.positionVector) return@safeListener
@@ -116,6 +135,10 @@ internal object Scaffold : Module(
         safeListener<RunGameLoopEvent.Tick> {
             runPlacing()
         }
+    }
+
+    private fun SafeClientEvent.sendSetbackPacket() {
+        connection.sendPacket(CPacketPlayer.Position(player.posX, player.posY + 10.0, player.posZ, false))
     }
 
     private fun SafeClientEvent.runPlacing() {
