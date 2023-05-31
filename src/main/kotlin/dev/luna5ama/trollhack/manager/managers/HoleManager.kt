@@ -48,26 +48,6 @@ object HoleManager : Manager() {
             dirty.set(false)
         }
 
-        safeListener<WorldEvent.RenderUpdate> {
-            BackgroundScope.launch {
-                val playerPos = player.flooredPosition
-                val mutablePos = BlockPos.MutableBlockPos()
-
-                val sequence = sequence {
-                    for (x in it.x2 + 2 downTo it.x1 - 2) {
-                        for (y in it.y2 + 1 downTo it.y1 - 2) {
-                            for (z in it.z2 + 2 downTo it.z1 - 2) {
-                                if (playerPos.distanceSqTo(x, y, z) > RANGE_SQ) continue
-                                yield(mutablePos.setPos(x, y, z))
-                            }
-                        }
-                    }
-                }
-
-                updatePosSequence(sequence)
-            }
-        }
-
         safeListener<WorldEvent.ClientBlockUpdate> {
             BackgroundScope.launch {
                 val playerPos = player.flooredPosition
