@@ -103,7 +103,8 @@ object CombatManager : Manager() {
         safeListener<PacketEvent.Receive>(114514) { event ->
             when (event.packet) {
                 is SPacketSoundEffect -> {
-                    if (event.packet.category == SoundCategory.BLOCKS && event.packet.sound == SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
+                    if (event.packet.category != SoundCategory.BLOCKS) return@safeListener
+                    if (event.packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
                     val list = crystalList.asSequence()
                         .map(Pair<EntityEnderCrystal, CrystalDamage>::first)
                         .filter { it.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) <= 144.0 }
