@@ -38,7 +38,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import kotlin.math.*
 
-@Suppress("NOTHING_TO_INLINE")
 internal object Speed : Module(
     name = "Speed",
     alias = arrayOf("Strafe"),

@@ -16,6 +16,7 @@ import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
+import kotlin.math.min
 
 internal object Step : Module(
     name = "Step",
@@ -31,6 +32,8 @@ internal object Step : Module(
     private val minHeight by setting("Min Height", 0.9f, 0.6f..2.5f, 0.1f)
     val maxHeight by setting("Max Height", 2.0f, 0.6f..2.5f, 0.1f)
     private val enableTicks by setting("Enable Ticks", 0, 0..50, 1)
+    private val postTimer by setting("Post Timer", 0.8f, 0.01f..1.0f, 0.01f)
+    private val maxPostTicks by setting("Max Post Ticks", 40, 0..100, 1)
 
     const val DEFAULT_HEIGHT = 0.6f
     private var timeoutTick = -1
@@ -138,10 +141,12 @@ internal object Step : Module(
             shouldDisable = autoDisable
 
             if (useTimer) {
-                val timer = -0.0666f * array.size + 0.8333f
-                val ticks = -(timer * (array.size + 1) / (timer - 1.0f)).fastCeil()
+                val targetTps = 21.9f
+                val postTps = postTimer * 20.0f
+                val ticks = min((array.size / (targetTps - postTps) * 20.0f).fastCeil(), maxPostTicks)
+                println(ticks)
                 timeoutTick = player.ticksExisted + ticks - 1
-                modifyTimer(50.0f / timer, ticks)
+                modifyTimer(50.0f / postTimer, ticks)
             }
         }
     }
