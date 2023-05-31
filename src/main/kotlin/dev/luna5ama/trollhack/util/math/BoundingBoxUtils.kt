@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.util.math
 
+import dev.luna5ama.trollhack.module.modules.client.Bypass
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.math.VectorUtils.plus
 import dev.luna5ama.trollhack.util.math.VectorUtils.times
@@ -78,9 +79,8 @@ fun AxisAlignedBB.limitSize(x: Double, y: Double, z: Double): AxisAlignedBB {
 fun AxisAlignedBB.isInSight(
     posFrom: Vec3d = Wrapper.player?.getPositionEyes(1.0f) ?: Vec3d.ZERO,
     rotation: Vec2f = Wrapper.player?.let { Vec2f(it) } ?: Vec2f.ZERO,
-    range: Double = 4.25,
-    tolerance: Double = 1.1
-) = isInSight(posFrom, rotation.toViewVec(), range, tolerance)
+    range: Double = 4.25
+) = isInSight(posFrom, rotation.toViewVec(), range)
 
 /**
  * Check if a box is in sight
@@ -88,10 +88,9 @@ fun AxisAlignedBB.isInSight(
 fun AxisAlignedBB.isInSight(
     posFrom: Vec3d,
     viewVec: Vec3d,
-    range: Double = 4.25,
-    tolerance: Double = 0.1
+    range: Double = 4.25
 ): RayTraceResult? {
     val sightEnd = posFrom.add(viewVec.scale(range))
 
-    return grow(tolerance).calculateIntercept(posFrom, sightEnd)
+    return grow(Bypass.placeRotationBoundingBoxGrow).calculateIntercept(posFrom, sightEnd)
 }

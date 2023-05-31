@@ -144,7 +144,6 @@ internal object Step : Module(
                 val targetTps = 21.9f
                 val postTps = postTimer * 20.0f
                 val ticks = min((array.size / (targetTps - postTps) * 20.0f).fastCeil(), maxPostTicks)
-                println(ticks)
                 timeoutTick = player.ticksExisted + ticks - 1
                 modifyTimer(50.0f / postTimer, ticks)
             }

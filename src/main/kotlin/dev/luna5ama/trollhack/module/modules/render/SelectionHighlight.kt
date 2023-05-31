@@ -17,6 +17,7 @@ internal object SelectionHighlight : Module(
     description = "Highlights object you are looking at",
     category = Category.RENDER
 ) {
+    private val expand by setting("Expand", 0.002f, 0.0f..1.0f, 0.001f)
     private val entity by setting("Entity", true)
     private val hitSideOnly by setting("Hit Side Only", false)
     private val depth by setting("Depth", false)
@@ -44,13 +45,13 @@ internal object SelectionHighlight : Module(
                         val hitSide = entity.entityBoundingBox.calculateIntercept(eyePos, sightEnd)?.sideHit
                             ?: return@safeListener
                         val side = if (hitSideOnly) EnumFacingMask.getMaskForSide(hitSide) else EnumFacingMask.ALL
-                        renderer.add(hitObject.entityHit, color, side)
+                        renderer.add(hitObject.entityHit.entityBoundingBox.grow(expand.toDouble()), color, side)
                     }
                 }
                 Type.BLOCK -> {
                     val box = world.getSelectedBox(hitObject.blockPos)
                     val side = if (hitSideOnly) EnumFacingMask.getMaskForSide(hitObject.sideHit) else EnumFacingMask.ALL
-                    renderer.add(box.grow(0.002), color, side)
+                    renderer.add(box.grow(expand.toDouble()), color, side)
                 }
                 else -> {
                 }

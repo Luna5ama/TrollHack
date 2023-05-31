@@ -1137,7 +1137,7 @@ internal object TrollAura : Module(
             val box = AxisAlignedBB(crystalDamage.blockPos)
             val eyePos2 = PlayerPacketManager.position.add(0.0, player.eyeHeight.toDouble(), 0.0)
 
-            if (box.isInSight(eyePos2, PlayerPacketManager.rotation, 8.0, 0.1) == null
+            if (box.isInSight(eyePos2, PlayerPacketManager.rotation, 8.0) == null
                 && (placeRotationRange == 0.0f || RotationUtils.getRotationDiff(
                     getRotationTo(
                         eyePos2,

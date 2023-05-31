@@ -18,6 +18,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.client.Bypass
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isPassive
@@ -50,7 +51,6 @@ import dev.luna5ama.trollhack.util.items.attackDamage
 import dev.luna5ama.trollhack.util.items.duraPercentage
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
-import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.VectorUtils.toViewVec
 import dev.luna5ama.trollhack.util.math.vector.*
 import dev.luna5ama.trollhack.util.pause.HandPause
@@ -59,7 +59,6 @@ import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.*
 import dev.luna5ama.trollhack.util.world.FastRayTraceAction
 import dev.luna5ama.trollhack.util.world.fastRaytrace
-import dev.luna5ama.trollhack.util.world.isAir
 import dev.luna5ama.trollhack.util.world.rayTraceVisible
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
@@ -1495,7 +1494,13 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun checkPlaceRotation(pos: BlockPos, eyePos: Vec3d, sight: Vec3d): Boolean {
-        if (AxisAlignedBB(pos).calculateIntercept(eyePos, sight) != null) return true
+        val grow = Bypass.placeRotationBoundingBoxGrow
+        val growPos = 1.0 + grow
+        val bb = AxisAlignedBB(
+            pos.x - grow, pos.y - grow, pos.z - grow,
+            pos.x + growPos, pos.y + growPos, pos.z + growPos
+        )
+        if (bb.calculateIntercept(eyePos, sight) != null) return true
 
         return placeRotationRange != 0.0f
             && checkRotationDiff(getRotationTo(eyePos, pos.toVec3dCenter()), placeRotationRange)
