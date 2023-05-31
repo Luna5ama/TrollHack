@@ -49,7 +49,7 @@ internal object Scaffold : Module(
     private val setbackOnFalling by setting("Setback on Falling", true)
     private val assumePlaced by setting("Assume Placed", false)
     private val towerMode by setting("Tower Mode", true)
-    private val towerMotion by setting("Tower Motion", 0.4f, 0.0f..1.0f, 0.01f)
+    private val towerMotion by setting("Tower Motion", 0.42f, 0.0f..1.0f, 0.01f)
     private val towerJumpHeight by setting("Tower Jump Height", 0.3f, 0.0f..1.0f, 0.01f)
     private val towerPlaceHeight by setting("Tower Place Height", 1.1f, 0.0f..1.5f, 0.01f)
     private val towerChainLimit by setting("Tower Chain Limit", 10, 1..20, 1)
