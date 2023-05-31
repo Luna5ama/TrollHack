@@ -15,4 +15,7 @@ public interface AccessorEntityLivingBase {
 
     @Invoker("onItemUseFinish")
     void trollInvokeOnItemUseFinish();
+
+    @Invoker("updateArmSwingProgress")
+    void trollUpdateArmSwingProgress();
 }

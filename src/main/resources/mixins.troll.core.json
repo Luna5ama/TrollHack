@@ -60,5 +60,8 @@
         "world.MixinBlockWeb",
         "world.MixinStateImplementation",
         "world.MixinWorld"
+    ],
+    "mixins": [
+        "entity.MixinEntityLivingBase"
     ]
 }
