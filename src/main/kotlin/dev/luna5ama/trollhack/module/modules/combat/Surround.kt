@@ -319,7 +319,8 @@ internal object Surround : Module(
                 offsetPos,
                 2,
                 PlacementSearchOption.range(5.0),
-                PlacementSearchOption.VISIBLE_SIDE.takeIf { strictDirection }
+                PlacementSearchOption.VISIBLE_SIDE.takeIf { strictDirection },
+                PlacementSearchOption { _, _, to -> to != playerPos }
             )?.let { list ->
                 placing[surroundOffset] = list
                 list.forEach {
