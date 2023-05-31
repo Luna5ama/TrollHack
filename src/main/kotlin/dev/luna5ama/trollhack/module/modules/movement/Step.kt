@@ -16,6 +16,7 @@ import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
+import kotlin.math.max
 import kotlin.math.min
 
 internal object Step : Module(
@@ -141,11 +142,12 @@ internal object Step : Module(
             shouldDisable = autoDisable
 
             if (useTimer) {
-                val targetTps = 21.9f
-                val postTps = postTimer * 20.0f
-                val ticks = min((array.size / (targetTps - postTps) * 20.0f).fastCeil(), maxPostTicks)
+                val targetTimer = 1.09f
+                val extraPackets = array.size + 1
+                val ticks = min((extraPackets / (targetTimer - postTimer)).fastCeil(), maxPostTicks)
+                val adjustedTimer = max((targetTimer * ticks - extraPackets) / ticks, postTimer)
                 timeoutTick = player.ticksExisted + ticks - 1
-                modifyTimer(50.0f / postTimer, ticks)
+                modifyTimer(50.0f / adjustedTimer, ticks)
             }
         }
     }
