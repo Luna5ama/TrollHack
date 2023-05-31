@@ -2,8 +2,10 @@ package dev.luna5ama.trollhack.module.modules.player
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
+import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.movement.ElytraFlight
@@ -32,9 +34,10 @@ internal object NoFall : Module(
             it.packet.onGround = true
         }
 
-        safeListener<PlayerMoveEvent.Pre> {
+        safeParallelListener<TickEvent.Post> {
             if (mode.value == Mode.CATCH && noFallCheck() && fallDistCheck()) {
-                it.y = 10.0
+                player.fallDistance = 0.0f
+                connection.sendPacket(CPacketPlayer.Position(player.posX, player.posY + 10.0, player.posZ, false))
             }
         }
     }
@@ -48,6 +51,6 @@ internal object NoFall : Module(
     }
 
     private fun SafeClientEvent.fallDistCheck(): Boolean {
-        return !voidOnly.value && player.fallDistance >= distance.value || world.getGroundLevel(player) == -69420.0
+        return !voidOnly.value && player.fallDistance >= distance.value || player.posY < 1 && world.getGroundLevel(player) == Double.MIN_VALUE
     }
 }

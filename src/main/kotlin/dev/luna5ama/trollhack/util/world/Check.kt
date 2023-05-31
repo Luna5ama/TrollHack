@@ -80,7 +80,7 @@ fun World.getGroundLevel(boundingBox: AxisAlignedBB): Double {
         }
     }
 
-    return if (maxY == Double.MIN_VALUE) -999.0 else maxY
+    return maxY
 }
 
 fun World.isVisible(
