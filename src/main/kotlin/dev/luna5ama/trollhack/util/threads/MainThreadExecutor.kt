@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.util.threads
 
-import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
@@ -10,13 +9,9 @@ import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.minecraft.network.INetHandler
-import net.minecraft.network.Packet
 
 object MainThreadExecutor : AlwaysListening {
     private var jobs = ArrayList<MainThreadJob<*>>()
-    private var packets = ArrayList<Any>()
-    private val lock = Any()
     private val mutex = Mutex()
 
     init {
@@ -48,36 +43,6 @@ object MainThreadExecutor : AlwaysListening {
                     it.run()
                 }
             }
-        }
-
-        if (packets.isNotEmpty()) {
-            val prev: List<Any>
-
-            synchronized(lock) {
-                prev = packets
-                packets = ArrayList()
-            }
-
-            val iterator = prev.iterator()
-
-            while (iterator.hasNext()) {
-                @Suppress("UNCHECKED_CAST")
-                val packet = iterator.next() as Packet<in INetHandler>
-                val processor = iterator.next() as INetHandler
-
-                try {
-                    packet.processPacket(processor)
-                } catch (exception: RuntimeException) {
-                    TrollHackMod.logger.fatal("Error processing packet", exception)
-                }
-            }
-        }
-    }
-
-    fun addProcessingPacket(packetIn: Packet<*>, processor: INetHandler) {
-        synchronized(lock) {
-            packets.add(packetIn)
-            packets.add(processor)
         }
     }
 

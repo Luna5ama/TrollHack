@@ -9,7 +9,6 @@
         "MixinJsonUtils",
         "baritone.MixinBaritoneSettings",
         "gui.MixinGuiInventory",
-        "gui.MixinPacketThreadUtil",
         "optifine.MixinConfig",
         "player.MixinPlayerControllerMP",
         "world.MixinWorld"
