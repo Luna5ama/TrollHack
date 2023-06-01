@@ -9,6 +9,7 @@
         "AccessorItemTool",
         "AccessorKeyBinding",
         "AccessorMinecraft",
+        "AccessorSlot",
         "AccessorTimer",
         "entity.AccessorEntity",
         "entity.AccessorEntityLivingBase",

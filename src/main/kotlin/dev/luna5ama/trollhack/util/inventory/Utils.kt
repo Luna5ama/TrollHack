@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.util.inventory
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.inventory.slot.*
 import dev.luna5ama.trollhack.util.items.isTool
@@ -80,16 +81,18 @@ fun SafeClientEvent.clickSlot(windowID: Int, slot: Slot, mouseButton: Int, type:
  * @return Transaction id
  */
 fun SafeClientEvent.clickSlot(windowID: Int, slot: Int, mouseButton: Int, type: ClickType): Short {
-    val container = getContainerForID(windowID) ?: return -32768
+    synchronized(InventoryTaskManager) {
+        val container = getContainerForID(windowID) ?: return -32768
 
-    val playerInventory = player.inventory ?: return -32768
-    val transactionID = container.getNextTransactionID(playerInventory)
-    val itemStack = container.slotClick(slot, mouseButton, type, player)
+        val playerInventory = player.inventory ?: return -32768
+        val transactionID = container.getNextTransactionID(playerInventory)
+        val itemStack = container.slotClick(slot, mouseButton, type, player)
 
-    connection.sendPacket(CPacketClickWindow(windowID, slot, mouseButton, type, itemStack, transactionID))
-    onMainThreadSafe { playerController.updateController() }
+        connection.sendPacket(CPacketClickWindow(windowID, slot, mouseButton, type, itemStack, transactionID))
+        onMainThreadSafe { playerController.updateController() }
 
-    return transactionID
+        return transactionID
+    }
 }
 
 private fun SafeClientEvent.getContainerForID(windowID: Int): Container? {

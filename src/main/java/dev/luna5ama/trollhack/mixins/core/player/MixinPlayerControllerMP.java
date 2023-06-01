@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.mixins.core.player;
 
 import dev.luna5ama.trollhack.event.events.player.InteractEvent;
 import dev.luna5ama.trollhack.event.events.player.PlayerAttackEvent;
+import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager;
 import dev.luna5ama.trollhack.module.modules.player.BetterEat;
 import dev.luna5ama.trollhack.module.modules.player.FastBreak;
 import dev.luna5ama.trollhack.module.modules.player.FastUse;
@@ -11,7 +12,9 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -174,6 +177,18 @@ public abstract class MixinPlayerControllerMP {
                     }
                 }
             }
+        }
+    }
+
+    @Inject(method = "windowClick", at = @At("HEAD"), cancellable = true)
+    private void Inject$windowClick$HEAD(int windowId, int slotId, int mouseButton, ClickType type, EntityPlayer player, CallbackInfoReturnable<ItemStack> cir) {
+        cir.cancel();
+
+        synchronized (InventoryTaskManager.INSTANCE) {
+            short short1 = player.openContainer.getNextTransactionID(player.inventory);
+            ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player);
+            this.connection.sendPacket(new CPacketClickWindow(windowId, slotId, mouseButton, type, itemstack, short1));
+            cir.setReturnValue(itemstack);
         }
     }
 }
