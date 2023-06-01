@@ -16,7 +16,7 @@ import net.minecraft.network.play.server.SPacketConfirmTransaction
 import net.minecraft.network.play.server.SPacketKeepAlive
 
 internal object PingSpoof : Module(
-    name = "PingSpoof",
+    name = "Ping Spoof",
     category = Category.MISC,
     description = "Cancels or adds delay to your ping packets"
 ) {

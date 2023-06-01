@@ -19,7 +19,7 @@ import net.minecraft.entity.projectile.EntityWitherSkull
 import java.util.*
 
 internal object EntityList : LabelHud(
-    name = "EntityList",
+    name = "Entity List",
     category = Category.WORLD,
     description = "List of entities nearby"
 ) {

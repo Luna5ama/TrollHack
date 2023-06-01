@@ -16,7 +16,7 @@ import net.minecraft.util.EnumHand
 import java.io.File
 
 internal object AutoExcuse : Module(
-    name = "AutoExcuse",
+    name = "Auto Excuse",
     description = "Makes an excuse for you when you die",
     category = Category.CHAT,
     modulePriority = 500

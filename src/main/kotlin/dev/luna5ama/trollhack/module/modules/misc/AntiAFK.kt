@@ -28,7 +28,7 @@ import kotlin.random.Random
  * TODO: Render which chunk is selected
  */
 internal object AntiAFK : Module(
-    name = "AntiAFK",
+    name = "Anti AFK",
     category = Category.MISC,
     description = "Prevents being kicked for AFK"
 ) {

@@ -45,7 +45,7 @@ import net.minecraft.util.math.BlockPos
 
 @CombatManager.CombatModule
 internal object AutoCity : Module(
-    name = "AutoCity",
+    name = "Auto City",
     category = Category.COMBAT,
     description = "Trolling",
     modulePriority = 100

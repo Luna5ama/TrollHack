@@ -12,7 +12,7 @@ import net.minecraft.init.MobEffects
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 
 internal object AntiOverlay : Module(
-    name = "AntiOverlay",
+    name = "Anti Overlay",
     description = "Prevents rendering of fire, water and block texture overlays.",
     category = Category.RENDER
 ) {

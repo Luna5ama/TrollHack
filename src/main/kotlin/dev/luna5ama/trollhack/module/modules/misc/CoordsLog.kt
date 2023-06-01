@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.math.vector.toBlockPos
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 
 internal object CoordsLog : Module(
-    name = "CoordsLog",
+    name = "Coords Log",
     description = "Automatically logs your coords, based on actions",
     category = Category.MISC
 ) {

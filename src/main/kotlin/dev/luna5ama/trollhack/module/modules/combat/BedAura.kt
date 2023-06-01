@@ -73,7 +73,7 @@ import kotlin.math.max
 
 @CombatManager.CombatModule
 internal object BedAura : Module(
-    name = "BedAura",
+    name = "Bed Aura",
     description = "Place bed and kills enemies",
     category = Category.COMBAT,
     modulePriority = 70

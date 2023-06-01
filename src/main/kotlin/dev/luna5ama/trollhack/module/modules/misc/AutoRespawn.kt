@@ -11,7 +11,7 @@ import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import net.minecraft.client.gui.GuiGameOver
 
 internal object AutoRespawn : Module(
-    name = "AutoRespawn",
+    name = "Auto Respawn",
     description = "Automatically respawn after dying",
     category = Category.MISC
 ) {

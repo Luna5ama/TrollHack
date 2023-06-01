@@ -28,7 +28,7 @@ import org.lwjgl.input.Keyboard
  * @see MixinEntityRenderer No Entity Trace
  */
 internal object BlockInteraction : Module(
-    name = "BlockInteraction",
+    name = "Block Interaction",
     alias = arrayOf("LiquidInteract", "MultiTask", "NoEntityTrace", "NoMiningTrace"),
     category = Category.PLAYER,
     description = "Modifies block interaction"

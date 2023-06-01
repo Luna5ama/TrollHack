@@ -25,7 +25,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 
 internal object AutoBurrow : Module(
-    name = "AutoBurrow",
+    name = "Auto Burrow",
     description = "Enables burrow when enemy tries to walk into your hole",
     category = Category.COMBAT,
     modulePriority = 100

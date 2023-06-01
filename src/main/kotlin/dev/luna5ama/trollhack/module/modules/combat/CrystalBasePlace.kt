@@ -49,7 +49,7 @@ import kotlin.math.max
 
 @CombatManager.CombatModule
 internal object CrystalBasePlace : Module(
-    name = "CrystalBasePlace",
+    name = "Crystal Base Place",
     description = "Places obby for placing crystal on",
     category = Category.COMBAT,
     modulePriority = 90

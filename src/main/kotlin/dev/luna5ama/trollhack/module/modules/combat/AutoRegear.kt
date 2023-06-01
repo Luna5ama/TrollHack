@@ -24,7 +24,7 @@ import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemShulkerBox
 
 internal object AutoRegear : Module(
-    name = "AutoRegear",
+    name = "Auto Regear",
     description = "Automatically regear using container",
     category = Category.COMBAT
 ) {

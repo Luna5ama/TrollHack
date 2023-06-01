@@ -10,7 +10,7 @@ import net.minecraft.entity.player.EnumPlayerModelParts
 import java.util.*
 
 internal object SkinBlinker : Module(
-    name = "SkinBlinker",
+    name = "Skin Blinker",
     description = "Toggle your skin layers rapidly for a cool skin effect",
     category = Category.MISC
 ) {

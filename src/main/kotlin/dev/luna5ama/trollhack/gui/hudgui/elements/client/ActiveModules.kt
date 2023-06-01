@@ -28,7 +28,7 @@ import net.minecraft.util.text.TextFormatting
 import kotlin.math.max
 
 internal object ActiveModules : HudElement(
-    name = "ActiveModules",
+    name = "Active Modules",
     category = Category.CLIENT,
     description = "List of enabled modules",
     enabledByDefault = true

@@ -22,7 +22,7 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.util.text.TextFormatting
 
 internal object VisualRange : Module(
-    name = "VisualRange",
+    name = "Visual Range",
     description = "Shows players who enter and leave range in chat",
     category = Category.COMBAT
 ) {

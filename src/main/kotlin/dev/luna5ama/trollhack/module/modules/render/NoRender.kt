@@ -27,7 +27,7 @@ import net.minecraftforge.registries.GameData
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 
 internal object NoRender : Module(
-    name = "NoRender",
+    name = "No Render",
     category = Category.RENDER,
     description = "Ignore entity spawn packets"
 ) {

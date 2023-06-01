@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos
 
 @CombatManager.CombatModule
 internal object BurrowMiner : Module(
-    name = "BurrowMiner",
+    name = "Burrow Miner",
     category = Category.COMBAT,
     description = "Mines your opponent's burrow"
 ) {

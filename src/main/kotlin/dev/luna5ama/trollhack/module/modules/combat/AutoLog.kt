@@ -27,7 +27,7 @@ import net.minecraft.util.text.TextComponentString
 import java.time.LocalTime
 
 internal object AutoLog : Module(
-    name = "AutoLog",
+    name = "Auto Log",
     description = "Automatically log when in danger or on low health",
     category = Category.COMBAT
 ) {

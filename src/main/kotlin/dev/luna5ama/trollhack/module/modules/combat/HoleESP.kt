@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11.*
 
 internal object HoleESP : Module(
-    name = "HoleESP",
+    name = "Hole ESP",
     category = Category.COMBAT,
     description = "Show safe holes for crystal pvp"
 ) {

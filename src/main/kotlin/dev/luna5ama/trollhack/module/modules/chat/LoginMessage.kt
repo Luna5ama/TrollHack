@@ -19,7 +19,7 @@ import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
 
 internal object LoginMessage : Module(
-    name = "LoginMessage",
+    name = "Login Message",
     description = "Sends a given message(s) to public chat on login.",
     category = Category.CHAT,
     visible = false,

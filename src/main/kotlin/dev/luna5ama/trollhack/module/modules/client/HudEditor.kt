@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 
 internal object HudEditor : Module(
-    name = "HudEditor",
+    name = "Hud Editor",
     description = "Edits the Hud",
     category = Category.CLIENT,
     visible = false

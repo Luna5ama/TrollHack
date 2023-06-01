@@ -28,7 +28,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 internal object PacketLogger : Module(
-    name = "PacketLogger",
+    name = "Packet Logger",
     description = "Logs sent packets to a file",
     category = Category.PLAYER
 ) {

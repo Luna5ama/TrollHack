@@ -18,7 +18,7 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.util.EnumHand
 
 internal object FastUse : Module(
-    name = "FastUse",
+    name = "Fast Use",
     category = Category.PLAYER,
     description = "Use items faster"
 ) {

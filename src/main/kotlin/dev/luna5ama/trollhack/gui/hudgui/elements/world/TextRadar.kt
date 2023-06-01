@@ -14,7 +14,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.MobEffects
 
 internal object TextRadar : LabelHud(
-    name = "TextRadar",
+    name = "Text Radar",
     category = Category.WORLD,
     description = "List of players nearby"
 ) {

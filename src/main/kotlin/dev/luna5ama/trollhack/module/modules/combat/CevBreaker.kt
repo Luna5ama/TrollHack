@@ -50,7 +50,7 @@ import net.minecraft.util.math.BlockPos
 
 @CombatManager.CombatModule
 internal object CevBreaker : Module(
-    name = "CevBreaker",
+    name = "Cev Breaker",
     description = "Troll module",
     category = Category.COMBAT,
     modulePriority = 400

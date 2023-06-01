@@ -27,7 +27,7 @@ import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemShulkerBox
 
 internal object ChestStealer : Module(
-    name = "ChestStealer",
+    name = "Chest Stealer",
     category = Category.PLAYER,
     description = "Automatically steal or store items from containers"
 ) {

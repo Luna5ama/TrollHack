@@ -20,7 +20,7 @@ import net.minecraft.entity.player.EntityPlayer
 import kotlin.math.abs
 
 internal object AntiBot : Module(
-    name = "AntiBot",
+    name = "Anti Bot",
     description = "Avoid attacking fake players",
     category = Category.COMBAT,
     alwaysListening = true

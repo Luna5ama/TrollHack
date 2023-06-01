@@ -13,7 +13,7 @@ import net.minecraft.entity.passive.AbstractHorse
 import net.minecraft.entity.passive.EntityTameable
 
 internal object MobOwner : Module(
-    name = "MobOwner",
+    name = "Mob Owner",
     description = "Displays the owner of tamed mobs",
     category = Category.RENDER
 ) {

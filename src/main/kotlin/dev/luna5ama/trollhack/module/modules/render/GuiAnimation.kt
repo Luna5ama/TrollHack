@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.threads.runSafe
 
 internal object GuiAnimation : Module(
-    name = "GuiAnimation",
+    name = "Gui Animation",
     category = Category.RENDER,
     description = "Animates Minecraft gui",
     visible = false,

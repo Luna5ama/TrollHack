@@ -19,7 +19,7 @@ import net.minecraft.inventory.Slot
 import net.minecraft.item.Item
 
 internal object InventorySorter : Module(
-    name = "InventorySorter",
+    name = "Inventory Sorter",
     category = Category.PLAYER,
     description = "Sort out items in inventory",
     modulePriority = 20

@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.util.atFalse
 import net.minecraft.network.play.client.*
 
 internal object PacketCancel : Module(
-    name = "PacketCancel",
+    name = "Packet Cancel",
     description = "Cancels specific packets used for various actions",
     category = Category.PLAYER
 ) {

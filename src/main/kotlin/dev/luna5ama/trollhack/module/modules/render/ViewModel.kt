@@ -13,7 +13,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumHandSide
 
 internal object ViewModel : Module(
-    name = "ViewModel",
+    name = "View Model",
     alias = arrayOf("ItemModel", "SmallShield", "LowerOffhand"),
     description = "Modify hand rendering in first person",
     category = Category.RENDER

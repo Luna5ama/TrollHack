@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.util.TpsCalculator
 import net.minecraft.network.play.client.CPacketAnimation
 
 internal object SwingLimiter : Module(
-    name = "SwingLimiter",
+    name = "Swing Limiter",
     category = Category.PLAYER,
     description = "Limits swing packet",
     modulePriority = 2000

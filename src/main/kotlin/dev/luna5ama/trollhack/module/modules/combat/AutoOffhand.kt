@@ -49,7 +49,7 @@ import kotlin.math.max
 import kotlin.math.pow
 
 internal object AutoOffhand : Module(
-    name = "AutoOffhand",
+    name = "Auto Offhand",
     description = "Manages item in your offhand",
     category = Category.COMBAT,
     modulePriority = 2000

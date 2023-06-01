@@ -32,7 +32,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 internal object MainMenu : AbstractModule(
-    name = "MainMenu",
+    name = "Main Menu",
     description = "Better Main Menu",
     category = Category.CLIENT,
     visible = false,

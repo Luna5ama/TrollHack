@@ -17,7 +17,7 @@ import net.minecraft.tileentity.TileEntity
 import org.lwjgl.opengl.GL30.glBindVertexArray
 
 internal object FastRender : Module(
-    name = "FastRender",
+    name = "Fast Render",
     description = "Fps boost",
     category = Category.RENDER,
     enabledByDefault = true

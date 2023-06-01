@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 
 internal object AntiSpam : Module(
-    name = "AntiSpam",
+    name = "Anti Spam",
     category = Category.CHAT,
     description = "Removes spam and advertising from the chat",
     visible = false

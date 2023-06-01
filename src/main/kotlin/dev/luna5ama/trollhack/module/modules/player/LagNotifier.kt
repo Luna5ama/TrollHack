@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL11.glColor4f
  * Thanks Brady and cooker and leij for helping me not be completely retarded
  */
 internal object LagNotifier : Module(
-    name = "LagNotifier",
+    name = "Lag Notifier",
     description = "Displays a warning when the server is lagging",
     category = Category.PLAYER
 ) {

@@ -22,7 +22,7 @@ import net.minecraft.util.math.BlockPos
 import org.lwjgl.opengl.GL11.*
 
 internal object VoidESP : Module(
-    name = "VoidESP",
+    name = "Void ESP",
     description = "Highlights holes leading to the void",
     category = Category.RENDER
 ) {

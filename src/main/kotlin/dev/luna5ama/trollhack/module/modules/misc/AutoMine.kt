@@ -16,7 +16,7 @@ import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.runSafe
 
 internal object AutoMine : Module(
-    name = "AutoMine",
+    name = "Auto Mine",
     description = "Automatically mines chosen ores",
     category = Category.MISC
 ) {

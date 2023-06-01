@@ -22,7 +22,7 @@ import net.minecraft.client.Minecraft
 @Suppress("UNCHECKED_CAST")
 open class AbstractModule(
     name: String,
-    override val alias: Array<String> = emptyArray(),
+    alias: Array<String> = emptyArray(),
     val category: Category,
     description: String,
     val modulePriority: Int = -1,
@@ -31,10 +31,18 @@ open class AbstractModule(
     val alwaysEnabled: Boolean = false,
     val enabledByDefault: Boolean = false,
     private val config: NameableConfig<out Nameable>
-) : ListenerOwner(), Nameable, Alias, SettingRegister<Nameable>, ITranslateSrc by TranslateSrc(name),
+) : ListenerOwner(),
+    Nameable,
+    Alias,
+    SettingRegister<Nameable>,
+    ITranslateSrc by TranslateSrc("module_${name.replace(" ", "_")}"),
     Comparable<AbstractModule> {
 
+    final override val internalName = name.replace(" ", "")
+
     override val name = TranslateType.SPECIFIC key ("name" to name)
+    override val alias: Array<String> = arrayOf(internalName, *alias)
+
     val description = TranslateType.SPECIFIC key ("description" to description)
 
     val id = idRegistry.register()
@@ -164,8 +172,8 @@ open class AbstractModule(
         }
     }
 
-    protected companion object : ITranslateSrc by TranslateSrc("Module") {
-        val defaultMessage = TranslateType.LONG key ("setToDefault" to "Set to defaults")
+    protected companion object : ITranslateSrc by TranslateSrc("module") {
+        val defaultMessage = TranslateType.COMMON key ("setToDefault" to "Set to defaults")
 
         private val idRegistry = IDRegistry()
         val mc: Minecraft = Minecraft.getMinecraft()

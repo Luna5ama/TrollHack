@@ -60,7 +60,7 @@ import kotlin.collections.minByOrNull
 import kotlin.math.hypot
 
 internal object HolePathFinder : Module(
-    name = "HolePathFinder",
+    name = "Hole Path Finder",
     category = Category.COMBAT,
     description = "I love hole"
 ) {
@@ -513,4 +513,3 @@ internal object HolePathFinder : Module(
         return PathFinder.Node(x, y, z)
     }
 }
-

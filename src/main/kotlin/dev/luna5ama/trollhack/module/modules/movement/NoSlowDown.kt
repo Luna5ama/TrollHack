@@ -25,7 +25,7 @@ import net.minecraft.util.math.BlockPos
  * @see MixinBlockWeb
  */
 internal object NoSlowDown : Module(
-    name = "NoSlowDown",
+    name = "No Slow Down",
     category = Category.MOVEMENT,
     description = "Prevents being slowed down when using an item or going through cobwebs"
 ) {

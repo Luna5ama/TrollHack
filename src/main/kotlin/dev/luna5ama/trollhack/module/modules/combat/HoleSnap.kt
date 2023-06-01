@@ -36,7 +36,7 @@ import org.lwjgl.opengl.GL11.*
 import kotlin.math.*
 
 internal object HoleSnap : Module(
-    name = "HoleSnap",
+    name = "Hole Snap",
     description = "Move you into the hole nearby",
     category = Category.COMBAT,
     modulePriority = 120

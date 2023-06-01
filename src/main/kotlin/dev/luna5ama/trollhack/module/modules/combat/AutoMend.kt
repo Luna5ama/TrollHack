@@ -46,7 +46,7 @@ import kotlin.math.min
 
 @CombatManager.CombatModule
 internal object AutoMend : Module(
-    name = "AutoMend",
+    name = "Auto Mend",
     category = Category.COMBAT,
     description = "Automatically mends armour",
     modulePriority = 100

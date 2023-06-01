@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import org.lwjgl.input.Keyboard
 
 internal object ClickGUI : Module(
-    name = "ClickGUI",
+    name = "Click GUI",
     description = "Opens the Click GUI",
     category = Category.CLIENT,
     visible = false,

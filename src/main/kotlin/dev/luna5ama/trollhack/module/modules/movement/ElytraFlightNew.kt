@@ -18,7 +18,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 internal object ElytraFlightNew : Module(
-    name = "ElytraFlightNew",
+    name = "Elytra Flight New",
     description = "Allows infinite and way easier Elytra flying",
     category = Category.MOVEMENT,
     modulePriority = 1000

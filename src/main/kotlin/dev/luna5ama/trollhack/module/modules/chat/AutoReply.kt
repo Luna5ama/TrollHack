@@ -15,7 +15,7 @@ import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.network.play.server.SPacketChat
 
 internal object AutoReply : Module(
-    name = "AutoReply",
+    name = "Auto Reply",
     description = "Automatically reply to direct messages",
     category = Category.CHAT
 ) {

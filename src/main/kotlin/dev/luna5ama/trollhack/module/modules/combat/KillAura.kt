@@ -35,7 +35,7 @@ import kotlin.random.Random
 
 @CombatManager.CombatModule
 internal object KillAura : Module(
-    name = "KillAura",
+    name = "Kill Aura",
     alias = arrayOf("KA", "Aura", "TriggerBot"),
     category = Category.COMBAT,
     description = "Hits entities around you",

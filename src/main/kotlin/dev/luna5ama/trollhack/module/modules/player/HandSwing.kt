@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.module.Module
 import net.minecraft.network.play.client.CPacketAnimation
 
 internal object HandSwing : Module(
-    name = "HandSwing",
+    name = "Hand Swing",
     category = Category.PLAYER,
     description = "Modifies hand swing animation"
 ) {

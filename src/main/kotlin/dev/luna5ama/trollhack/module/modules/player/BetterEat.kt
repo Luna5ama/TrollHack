@@ -32,7 +32,7 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 
 internal object BetterEat : Module(
-    name = "BetterEat",
+    name = "Better Eat",
     description = "Optimize eating",
     category = Category.PLAYER
 ) {

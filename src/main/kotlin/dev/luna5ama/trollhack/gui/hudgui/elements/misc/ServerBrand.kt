@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 
 internal object ServerBrand : LabelHud(
-    name = "ServerBrand",
+    name = "Server Brand",
     category = Category.MISC,
     description = "Brand / type of the server"
 ) {

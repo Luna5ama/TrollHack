@@ -14,7 +14,7 @@ import net.minecraft.util.MovementInputFromOptions
 import org.lwjgl.input.Keyboard
 
 internal object InventoryMove : Module(
-    name = "InventoryMove",
+    name = "Inventory Move",
     description = "Allows you to walk around with GUIs opened",
     category = Category.MOVEMENT
 ) {

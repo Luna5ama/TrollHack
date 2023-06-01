@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import kotlin.math.round
 
 internal object GuiSetting : Module(
-    name = "GuiSetting",
+    name = "Gui Setting",
     description = "GUI ",
     visible = false,
     category = Category.CLIENT,

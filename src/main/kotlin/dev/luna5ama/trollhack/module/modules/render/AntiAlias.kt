@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.threads.onMainThread
 
 internal object AntiAlias : Module(
-    name = "AntiAlias",
+    name = "Anti Alias",
     description = "Enables Antialias",
     category = Category.RENDER
 ) {

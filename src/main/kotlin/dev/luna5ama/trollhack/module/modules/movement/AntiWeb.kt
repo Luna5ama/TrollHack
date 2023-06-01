@@ -15,7 +15,7 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 
 internal object AntiWeb : Module(
-    name = "AntiWeb",
+    name = "Anti Web",
     description = "Prevents walking into web",
     category = Category.MOVEMENT
 ) {

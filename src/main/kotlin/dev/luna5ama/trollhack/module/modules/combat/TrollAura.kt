@@ -91,7 +91,7 @@ import kotlin.math.roundToInt
 
 @CombatManager.CombatModule
 internal object TrollAura : Module(
-    name = "TrollAura",
+    name = "Troll Aura",
     alias = arrayOf("CA", "AC", "CrystalAura", "AutoCrystal"),
     description = "We doing a massive amount of trolling",
     category = Category.COMBAT,

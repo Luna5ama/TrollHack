@@ -17,7 +17,7 @@ import java.lang.Math.random
 import kotlin.math.abs
 
 internal object AutoFish : Module(
-    name = "AutoFish",
+    name = "Auto Fish",
     category = Category.MISC,
     description = "Automatically catch fish"
 ) {

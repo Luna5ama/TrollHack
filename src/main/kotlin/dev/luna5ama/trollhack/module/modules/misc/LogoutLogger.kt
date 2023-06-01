@@ -25,7 +25,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.BlockPos
 
 internal object LogoutLogger : Module(
-    name = "LogoutLogger",
+    name = "Logout Logger",
     category = Category.MISC,
     description = "Logs when a player leaves the game"
 ) {

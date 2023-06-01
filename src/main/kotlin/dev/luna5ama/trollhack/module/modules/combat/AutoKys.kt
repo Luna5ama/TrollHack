@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.threads.runSafe
 
 internal object AutoKys : Module(
-    name = "AutoKys",
+    name = "Auto Kys",
     description = "Do /kill",
     category = Category.COMBAT
 ) {

@@ -52,7 +52,7 @@ import net.minecraft.util.EnumHand
 import org.lwjgl.opengl.GL11.*
 
 internal object CombatSetting : Module(
-    name = "CombatSetting",
+    name = "Combat Setting",
     description = "Settings for combat module targeting",
     category = Category.COMBAT,
     visible = false,

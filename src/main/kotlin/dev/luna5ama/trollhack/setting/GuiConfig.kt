@@ -5,7 +5,6 @@ import dev.luna5ama.trollhack.gui.rgui.Component
 import dev.luna5ama.trollhack.module.modules.client.Configurations
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.setting.settings.AbstractSetting
-import dev.luna5ama.trollhack.util.extension.rootName
 import java.io.File
 
 internal object GuiConfig : AbstractConfig<Component>(
@@ -18,7 +17,7 @@ internal object GuiConfig : AbstractConfig<Component>(
     override fun addSettingToConfig(owner: Component, setting: AbstractSetting<*>) {
         val groupName = owner.settingGroup.groupName
         if (groupName.isNotEmpty()) {
-            getGroupOrPut(groupName).getGroupOrPut(owner.rootName).addSetting(setting)
+            getGroupOrPut(groupName).getGroupOrPut(owner.internalName).addSetting(setting)
         }
     }
 }

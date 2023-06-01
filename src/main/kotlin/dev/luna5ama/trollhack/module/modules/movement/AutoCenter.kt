@@ -17,7 +17,7 @@ import kotlin.math.hypot
 import kotlin.math.min
 
 internal object AutoCenter : Module(
-    name = "AutoCenter",
+    name = "Auto Center",
     description = "Moves player to the center of a block",
     category = Category.MOVEMENT
 ) {

@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.manager.managers.TimerManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 
 internal object TimerSpeed : LabelHud(
-    name = "TimerSpeed",
+    name = "Timer Speed",
     category = Category.PLAYER,
     description = "Client side timer speed"
 ) {

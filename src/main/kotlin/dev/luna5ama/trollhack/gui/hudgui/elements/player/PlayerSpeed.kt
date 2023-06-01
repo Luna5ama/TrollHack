@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.math.MathUtils
 import java.util.*
 
 internal object PlayerSpeed : LabelHud(
-    name = "PlayerSpeed",
+    name = "Player Speed",
     category = Category.PLAYER,
     description = "Player movement speed"
 ) {

@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.atTrue
  * @see MixinEntityRenderer
  */
 internal object ThirdPersonCamera : Module(
-    name = "ThirdPersonCamera",
+    name = "Third Person Camera",
     category = Category.RENDER,
     description = "Modify 3rd person camera behavior",
     visible = false

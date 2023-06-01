@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.module.Module
 import net.minecraft.init.MobEffects
 
 internal object AntiLevitation : Module(
-    name = "AntiLevitation",
+    name = "Anti Levitation",
     description = "Removes levitation potion effect",
     category = Category.MOVEMENT
 ) {

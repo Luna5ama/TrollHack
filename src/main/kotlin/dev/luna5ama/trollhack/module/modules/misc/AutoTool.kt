@@ -11,7 +11,7 @@ import dev.luna5ama.trollhack.util.inventory.equipBestTool
 import net.minecraft.entity.EntityLivingBase
 
 internal object AutoTool : Module(
-    name = "AutoTool",
+    name = "Auto Tool",
     description = "Automatically switch to the best tools when mining or attacking",
     category = Category.MISC
 ) {

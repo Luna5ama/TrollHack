@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.util.math.BlockPos
 
 internal object TeleportLogger : Module(
-    name = "TeleportLogger",
+    name = "Teleport Logger",
     category = Category.MISC,
     description = "Logs when a player teleports somewhere"
 ) {

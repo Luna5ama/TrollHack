@@ -19,7 +19,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 internal object MotionLogger : Module(
-    name = "MotionLogger",
+    name = "Motion Logger",
     description = "Logs player motion to a file",
     category = Category.PLAYER
 ) {

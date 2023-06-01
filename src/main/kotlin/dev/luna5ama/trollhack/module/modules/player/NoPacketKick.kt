@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.util.text.NoSpamMessage
  * @see MixinNetworkManager
  */
 internal object NoPacketKick : Module(
-    name = "NoPacketKick",
+    name = "No Packet Kick",
     category = Category.PLAYER,
     description = "Suppress network exceptions and prevent getting kicked",
     visible = false

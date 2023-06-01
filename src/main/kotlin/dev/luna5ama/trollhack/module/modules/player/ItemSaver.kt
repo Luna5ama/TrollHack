@@ -15,7 +15,7 @@ import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 
 internal object ItemSaver : Module(
-    name = "ItemSaver",
+    name = "Item Saver",
     category = Category.PLAYER,
     description = "Saves your items from breaking",
     modulePriority = 20

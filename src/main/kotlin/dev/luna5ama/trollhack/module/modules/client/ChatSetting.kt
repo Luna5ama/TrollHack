@@ -4,7 +4,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 
 internal object ChatSetting : Module(
-    name = "ChatSetting",
+    name = "Chat Setting",
     category = Category.CLIENT,
     description = "Configures chat message manager",
     visible = false,

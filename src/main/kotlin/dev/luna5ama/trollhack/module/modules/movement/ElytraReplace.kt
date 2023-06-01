@@ -16,7 +16,7 @@ import net.minecraft.item.ItemElytra
 import net.minecraft.item.ItemStack
 
 internal object ElytraReplace : Module(
-    name = "ElytraReplace",
+    name = "Elytra Replace",
     description = "Automatically swap and replace your chestplate and elytra.",
     category = Category.MOVEMENT
 ) {

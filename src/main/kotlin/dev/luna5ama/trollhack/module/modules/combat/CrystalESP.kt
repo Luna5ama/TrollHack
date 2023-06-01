@@ -37,7 +37,7 @@ import kotlin.math.min
 import kotlin.math.sin
 
 internal object CrystalESP : Module(
-    name = "CrystalESP",
+    name = "Crystal ESP",
     description = "Renders ESP for End Crystals",
     category = Category.COMBAT
 ) {

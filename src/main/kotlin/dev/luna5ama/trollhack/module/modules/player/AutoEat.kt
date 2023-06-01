@@ -28,7 +28,7 @@ import net.minecraft.item.ItemTool
 import net.minecraft.util.EnumHand
 
 internal object AutoEat : Module(
-    name = "AutoEat",
+    name = "Auto Eat",
     description = "Automatically eat when hungry",
     category = Category.PLAYER
 ) {

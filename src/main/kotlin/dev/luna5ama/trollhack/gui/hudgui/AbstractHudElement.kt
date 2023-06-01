@@ -9,6 +9,9 @@ import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
 import dev.luna5ama.trollhack.setting.GuiConfig.setting
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
+import dev.luna5ama.trollhack.translation.ITranslateSrc
+import dev.luna5ama.trollhack.translation.TranslateSrc
+import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
@@ -28,7 +31,8 @@ abstract class AbstractHudElement(
     val alwaysListening: Boolean,
     enabledByDefault: Boolean,
     config: AbstractConfig<out Nameable>
-) : BasicWindow(name, 20.0f, 20.0f, 100.0f, 50.0f, SettingGroup.HUD_GUI, config), Alias,
+) : BasicWindow(name, 20.0f, 20.0f, 100.0f, 50.0f, SettingGroup.HUD_GUI, config),
+    Alias,
     IListenerOwner by ListenerOwner() {
 
     val bind by setting("Bind", Bind())
@@ -98,7 +102,7 @@ abstract class AbstractHudElement(
             if (it) {
                 settingList.filter { it != visibleSetting && it != default }.forEach { it.resetValue() }
                 default.value = false
-                NoSpamMessage.sendMessage(Companion, "$name Set to defaults!")
+                NoSpamMessage.sendMessage(Companion, "$name $defaultMessage!")
             }
         }
 
@@ -113,5 +117,7 @@ abstract class AbstractHudElement(
         MISC("Misc")
     }
 
-    private companion object
+    private companion object : ITranslateSrc by TranslateSrc("hud") {
+        val defaultMessage = TranslateType.COMMON key ("setToDefault" to "Set to defaults")
+    }
 }

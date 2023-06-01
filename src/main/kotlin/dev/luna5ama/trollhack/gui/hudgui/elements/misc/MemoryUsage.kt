@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.threads.runSynchronized
 import kotlin.math.roundToInt
 
 internal object MemoryUsage : LabelHud(
-    name = "MemoryUsage",
+    name = "Memory Usage",
     category = Category.MISC,
     description = "Display the used, allocated and max memory"
 ) {

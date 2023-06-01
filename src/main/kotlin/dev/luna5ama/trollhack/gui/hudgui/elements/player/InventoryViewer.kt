@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.storageSlots
 import dev.luna5ama.trollhack.util.threads.runSafe
 
 internal object InventoryViewer : HudElement(
-    name = "InventoryViewer",
+    name = "Inventory Viewer",
     category = Category.PLAYER,
     description = "Items in Inventory"
 ) {

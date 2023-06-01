@@ -24,7 +24,7 @@ import net.minecraft.tileentity.TileEntityShulkerBox
 import net.minecraft.util.math.BlockPos
 
 internal object AntiRegear : Module(
-    name = "AntiRegear",
+    name = "Anti Regear",
     description = "Prevents enemy from regearing using shulkers",
     category = Category.COMBAT,
     modulePriority = 100

@@ -24,7 +24,7 @@ import net.minecraft.util.math.ChunkPos
 import kotlin.math.roundToInt
 
 internal object StashLogger : Module(
-    name = "StashLogger",
+    name = "Stash Logger",
     category = Category.MISC,
     description = "Logs storage units in render distance."
 ) {

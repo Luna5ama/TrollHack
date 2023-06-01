@@ -16,7 +16,7 @@ import net.minecraft.util.math.ChunkPos
 import org.lwjgl.opengl.GL11.GL_LINES
 
 internal object NewChunks : Module(
-    name = "NewChunks",
+    name = "New Chunks",
     description = "Highlights newly generated chunks",
     category = Category.RENDER
 ) {

@@ -28,7 +28,7 @@ import net.minecraft.util.text.TextFormatting
 import java.util.*
 
 internal object AutoEZ : Module(
-    name = "AutoEZ",
+    name = "Auto EZ",
     category = Category.COMBAT,
     description = "Sends an insult in chat after killing someone"
 ) {

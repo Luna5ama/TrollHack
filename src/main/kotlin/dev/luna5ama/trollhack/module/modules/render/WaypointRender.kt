@@ -27,7 +27,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 internal object WaypointRender : Module(
-    name = "WaypointRender",
+    name = "Waypoint Render",
     description = "Render saved waypoints",
     category = Category.RENDER
 ) {

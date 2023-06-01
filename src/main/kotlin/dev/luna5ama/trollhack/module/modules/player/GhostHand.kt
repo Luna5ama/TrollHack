@@ -18,7 +18,7 @@ import org.lwjgl.input.Mouse
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
 
 internal object GhostHand : Module(
-    name = "GhostHand",
+    name = "Ghost Hand",
     description = "Ignores interaction with certain blocks",
     category = Category.PLAYER
 ) {

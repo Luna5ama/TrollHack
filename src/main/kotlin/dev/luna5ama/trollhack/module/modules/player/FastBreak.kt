@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.util.accessor.blockHitDelay
 import dev.luna5ama.trollhack.util.threads.runSafe
 
 internal object FastBreak : Module(
-    name = "FastBreak",
+    name = "Fast Break",
     category = Category.PLAYER,
     description = "Breaks block faster and nullifies the break delay"
 ) {

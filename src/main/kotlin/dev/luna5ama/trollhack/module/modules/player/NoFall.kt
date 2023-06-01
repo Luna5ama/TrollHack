@@ -16,7 +16,7 @@ import dev.luna5ama.trollhack.util.world.getGroundLevel
 import net.minecraft.network.play.client.CPacketPlayer
 
 internal object NoFall : Module(
-    name = "NoFall",
+    name = "No Fall",
     category = Category.PLAYER,
     description = "Prevents fall damage"
 ) {

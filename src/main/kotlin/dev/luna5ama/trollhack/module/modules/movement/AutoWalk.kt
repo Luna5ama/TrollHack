@@ -22,7 +22,7 @@ import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.util.MovementInputFromOptions
 
 internal object AutoWalk : Module(
-    name = "AutoWalk",
+    name = "Auto Walk",
     category = Category.MOVEMENT,
     description = "Automatically walks somewhere"
 ) {

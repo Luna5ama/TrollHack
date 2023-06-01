@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityEnderCrystal
 
 internal object CrystalChams : Module(
-    name = "CrystalChams",
+    name = "Crystal Chams",
     description = "Renders chams for End Crystals",
     category = Category.COMBAT
 ) {

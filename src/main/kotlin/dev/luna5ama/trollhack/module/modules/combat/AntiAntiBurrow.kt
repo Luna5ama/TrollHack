@@ -20,7 +20,7 @@ import net.minecraft.util.math.Vec3d
 import kotlin.math.max
 
 internal object AntiAntiBurrow : Module(
-    name = "AntiAntiBurrow",
+    name = "Anti Anti Burrow",
     category = Category.COMBAT,
     description = "Fuck you ab"
 ) {

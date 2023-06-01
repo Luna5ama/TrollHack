@@ -19,7 +19,7 @@ import net.minecraft.network.play.server.SPacketBlockBreakAnim
 import kotlin.math.abs
 
 internal object BreakWarning : Module(
-    name = "BreakWarning",
+    name = "Break Warning",
     description = "Sends warning when someone breaking blocks near you",
     category = Category.MISC
 ) {

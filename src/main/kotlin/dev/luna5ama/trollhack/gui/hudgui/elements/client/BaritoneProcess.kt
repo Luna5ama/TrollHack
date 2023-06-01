@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.process.PauseProcess
 import dev.luna5ama.trollhack.util.BaritoneUtils
 
 internal object BaritoneProcess : LabelHud(
-    name = "BaritoneProcess",
+    name = "Baritone Process",
     category = Category.CLIENT,
     description = "Shows what Baritone is doing"
 ) {

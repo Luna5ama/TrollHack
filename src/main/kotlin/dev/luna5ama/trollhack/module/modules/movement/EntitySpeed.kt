@@ -24,7 +24,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 internal object EntitySpeed : Module(
-    name = "EntitySpeed",
+    name = "Entity Speed",
     category = Category.MOVEMENT,
     description = "Abuse client-sided movement to shape sound barrier breaking rideables"
 ) {

@@ -21,7 +21,7 @@ import java.awt.Color
  * @see MixinGuiScreen.renderToolTip
  */
 internal object MapPreview : Module(
-    name = "MapPreview",
+    name = "Map Preview",
     category = Category.RENDER,
     description = "Previews maps when hovering over them"
 ) {

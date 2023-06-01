@@ -13,7 +13,7 @@ import net.minecraft.network.play.client.CPacketPlayer
  * https://github.com/seppukudevelopment/seppuku/blob/005e2da/src/main/java/me/rigamortis/seppuku/impl/module/player/NoHungerModule.java
  */
 internal object AntiHunger : Module(
-    name = "AntiHunger",
+    name = "Anti Hunger",
     category = Category.MOVEMENT,
     description = "Reduces hunger lost when moving around"
 ) {

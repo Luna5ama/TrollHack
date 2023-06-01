@@ -11,7 +11,7 @@ import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
 
 internal object CombatItemCount : LabelHud(
-    name = "CombatItemCount",
+    name = "Combat Item Count",
     category = Category.COMBAT,
     description = "Counts combat items like gapples, crystal, etc"
 ) {

@@ -13,7 +13,7 @@ import net.minecraft.util.text.TextFormatting
 import net.minecraft.world.EnumDifficulty
 
 internal object AutoQMain : Module(
-    name = "AutoQMain",
+    name = "Auto QMain",
     description = "Automatically does '/queue main'",
     category = Category.CHAT,
     visible = false

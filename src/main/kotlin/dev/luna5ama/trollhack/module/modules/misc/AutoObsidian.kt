@@ -60,7 +60,7 @@ import net.minecraft.world.EnumDifficulty
 import kotlin.math.ceil
 
 internal object AutoObsidian : Module(
-    name = "AutoObsidian",
+    name = "Auto Obsidian",
     category = Category.MISC,
     description = "Breaks down Ender Chests to restock obsidian",
     modulePriority = 15

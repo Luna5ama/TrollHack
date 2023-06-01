@@ -21,7 +21,7 @@ import net.minecraft.util.math.BlockPos
 import kotlin.math.*
 
 internal object FastSwim : Module(
-    name = "FastSwim",
+    name = "Fast Swim",
     category = Category.MOVEMENT,
     description = "Swim faster"
 ) {

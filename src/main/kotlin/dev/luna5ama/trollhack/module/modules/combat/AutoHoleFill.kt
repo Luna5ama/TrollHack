@@ -54,7 +54,7 @@ import net.minecraft.util.math.Vec3d
 import java.util.*
 
 internal object AutoHoleFill : Module(
-    name = "AutoHoleFill",
+    name = "Auto Hole Fill",
     description = "Automatically fills hole while enemy walks into hole",
     category = Category.COMBAT,
     modulePriority = 100

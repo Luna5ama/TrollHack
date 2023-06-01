@@ -20,7 +20,7 @@ import kotlin.random.Random
 import kotlin.random.nextInt
 
 internal object CornerClip : Module(
-    name = "CornerClip",
+    name = "Corner Clip",
     category = Category.COMBAT,
     description = "Partially clips into corner on 5b",
     modulePriority = 9999

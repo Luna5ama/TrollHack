@@ -12,7 +12,7 @@ import net.minecraft.network.play.client.CPacketPlayer
 import kotlin.math.min
 
 internal object PacketLimiter : Module(
-    name = "PacketLimiter",
+    name = "Packet Limiter",
     category = Category.PLAYER,
     description = "Adjust timer automatically to ensure not sending too many movement packets",
     modulePriority = 1000

@@ -32,7 +32,7 @@ import net.minecraft.tileentity.*
 import org.lwjgl.opengl.GL11.*
 
 internal object StorageESP : Module(
-    name = "StorageESP",
+    name = "Storage ESP",
     description = "Draws an ESP on top of storage units",
     category = Category.RENDER
 ) {

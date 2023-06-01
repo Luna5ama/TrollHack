@@ -43,7 +43,7 @@ import kotlin.math.abs
 
 @CombatManager.CombatModule
 internal object AntiCamp : Module(
-    name = "AntiCamp",
+    name = "Anti Camp",
     category = Category.COMBAT,
     description = "Push enemy out of hole/burrow",
     modulePriority = 160

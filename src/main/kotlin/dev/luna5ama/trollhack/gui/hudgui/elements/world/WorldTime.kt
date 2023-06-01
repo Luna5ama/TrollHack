@@ -7,7 +7,7 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import org.apache.commons.lang3.time.DurationFormatUtils
 
 internal object WorldTime : LabelHud(
-    name = "WorldTime",
+    name = "World Time",
     category = Category.WORLD,
     description = "Time in the Minecraft world"
 ) {

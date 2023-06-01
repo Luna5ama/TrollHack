@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11.GL_LINES
 import kotlin.math.min
 
 internal object EyeFinder : Module(
-    name = "EyeFinder",
+    name = "Eye Finder",
     description = "Draw lines from entity's heads to where they are looking",
     category = Category.RENDER
 ) {

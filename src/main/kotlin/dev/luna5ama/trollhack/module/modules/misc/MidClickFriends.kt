@@ -13,7 +13,7 @@ import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.util.math.RayTraceResult
 
 internal object MidClickFriends : Module(
-    name = "MidClickFriends",
+    name = "Mid Click Friends",
     category = Category.MISC,
     description = "Middle click players to friend or unfriend them",
     visible = false

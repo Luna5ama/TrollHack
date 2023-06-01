@@ -10,7 +10,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 internal object FullBright : Module(
-    name = "FullBright",
+    name = "Full Bright",
     description = "Makes everything brighter!",
     category = Category.RENDER,
     alwaysListening = true

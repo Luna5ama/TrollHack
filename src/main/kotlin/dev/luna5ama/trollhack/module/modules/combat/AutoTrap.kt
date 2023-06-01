@@ -33,7 +33,7 @@ import net.minecraft.util.math.BlockPos
 
 @CombatManager.CombatModule
 internal object AutoTrap : Module(
-    name = "AutoTrap",
+    name = "Auto Trap",
     category = Category.COMBAT,
     description = "Traps your enemies in obsidian",
     modulePriority = 150

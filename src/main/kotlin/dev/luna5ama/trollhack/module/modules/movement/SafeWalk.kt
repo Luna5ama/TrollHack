@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos
  * @see MixinEntity.moveInvokeIsSneakingPost
  */
 internal object SafeWalk : Module(
-    name = "SafeWalk",
+    name = "Safe Walk",
     category = Category.MOVEMENT,
     description = "Keeps you from walking off edges"
 ) {

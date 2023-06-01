@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.world.getSelectedBox
 import net.minecraft.util.math.RayTraceResult.Type
 
 internal object SelectionHighlight : Module(
-    name = "SelectionHighlight",
+    name = "Selection Highlight",
     description = "Highlights object you are looking at",
     category = Category.RENDER
 ) {

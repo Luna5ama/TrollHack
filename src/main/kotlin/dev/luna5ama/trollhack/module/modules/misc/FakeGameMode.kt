@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.world.GameType
 
 internal object FakeGameMode : Module(
-    name = "FakeGameMode",
+    name = "Fake Game Mode",
     description = "Fakes your current gamemode client side",
     category = Category.MISC
 ) {

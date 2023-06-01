@@ -40,7 +40,7 @@ import kotlin.math.log2
 import kotlin.math.roundToInt
 
 internal object NoteBot : Module(
-    name = "NoteBot",
+    name = "Note Bot",
     category = Category.MISC,
     description = "Plays music with note blocks"
 ) {

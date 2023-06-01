@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.module.Module
  * @see MixinEntityPlayerSP
  */
 internal object PortalChat : Module(
-    name = "PortalChat",
+    name = "Portal Chat",
     category = Category.CHAT,
     description = "Allows you to open GUIs in portals",
     visible = false

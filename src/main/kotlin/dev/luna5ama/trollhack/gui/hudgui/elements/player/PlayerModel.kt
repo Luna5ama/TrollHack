@@ -10,7 +10,7 @@ import net.minecraft.util.math.MathHelper
 import org.lwjgl.opengl.GL11.*
 
 internal object PlayerModel : HudElement(
-    name = "PlayerModel",
+    name = "Player Model",
     category = Category.PLAYER,
     description = "Your player icon, or players you attacked"
 ) {

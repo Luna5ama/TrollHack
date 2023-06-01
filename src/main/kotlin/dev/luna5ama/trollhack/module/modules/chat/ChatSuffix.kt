@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import kotlin.math.min
 
 internal object ChatSuffix : Module(
-    name = "ChatSuffix",
+    name = "Chat Suffix",
     category = Category.CHAT,
     description = "Add a custom ending to your message!",
     visible = false,

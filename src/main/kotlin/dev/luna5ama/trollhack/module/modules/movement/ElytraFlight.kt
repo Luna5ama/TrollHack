@@ -30,7 +30,7 @@ import kotlin.math.*
 
 // TODO: Rewrite
 internal object ElytraFlight : Module(
-    name = "ElytraFlight",
+    name = "Elytra Flight",
     description = "Allows infinite and way easier Elytra flying",
     category = Category.MOVEMENT,
     modulePriority = 1000

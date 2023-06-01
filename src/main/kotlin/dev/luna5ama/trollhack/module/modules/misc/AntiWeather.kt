@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.module.Module
  * @see MixinWorld.getRainStrengthHead
  */
 internal object AntiWeather : Module(
-    name = "AntiWeather",
+    name = "Anti Weather",
     description = "Removes rain and thunder from your world",
     category = Category.MISC
 )

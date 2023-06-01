@@ -18,7 +18,7 @@ import net.minecraft.util.text.TextFormatting
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
 
 internal object FriendHighlight : Module(
-    name = "FriendHighlight",
+    name = "Friend Highlight",
     description = "Highlights friends in GUI",
     category = Category.RENDER,
     visible = false

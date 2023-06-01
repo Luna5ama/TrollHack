@@ -14,7 +14,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.math.RayTraceResult.Type
 
 internal object MidClickPearl : Module(
-    name = "MidClickPearl",
+    name = "Mid Click Pearl",
     category = Category.COMBAT,
     description = "Throws a pearl automatically when you middle click in air"
 ) {

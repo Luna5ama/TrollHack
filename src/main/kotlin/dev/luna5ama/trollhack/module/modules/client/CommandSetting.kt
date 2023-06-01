@@ -4,7 +4,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 
 internal object CommandSetting : Module(
-    name = "CommandSetting",
+    name = "Command Setting",
     category = Category.CLIENT,
     description = "Settings for commands",
     visible = false,

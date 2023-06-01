@@ -21,7 +21,7 @@ import kotlin.math.floor
 import kotlin.math.min
 
 internal object HungerOverlay : Module(
-    name = "HungerOverlay",
+    name = "Hunger Overlay",
     description = "Displays a helpful overlay over your hunger bar.",
     category = Category.RENDER
 ) {

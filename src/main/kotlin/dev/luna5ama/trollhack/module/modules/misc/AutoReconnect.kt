@@ -13,7 +13,7 @@ import net.minecraft.client.multiplayer.ServerData
 import kotlin.math.max
 
 internal object AutoReconnect : Module(
-    name = "AutoReconnect",
+    name = "Auto Reconnect",
     description = "Automatically reconnects after being disconnected",
     category = Category.MISC,
     alwaysListening = true

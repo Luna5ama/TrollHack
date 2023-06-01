@@ -21,7 +21,7 @@ import kotlin.math.max
 import kotlin.math.pow
 
 internal object BreakESP : Module(
-    name = "BreakESP",
+    name = "Break ESP",
     description = "Highlights blocks being broken nearby",
     category = Category.RENDER
 ) {

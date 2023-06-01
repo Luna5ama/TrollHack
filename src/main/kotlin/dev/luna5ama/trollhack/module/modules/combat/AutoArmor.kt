@@ -31,7 +31,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 internal object AutoArmor : Module(
-    name = "AutoArmor",
+    name = "Auto Armor",
     category = Category.COMBAT,
     description = "Automatically equips armour",
     modulePriority = 500

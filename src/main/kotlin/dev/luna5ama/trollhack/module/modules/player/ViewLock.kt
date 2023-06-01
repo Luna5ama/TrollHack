@@ -19,7 +19,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 internal object ViewLock : Module(
-    name = "ViewLock",
+    name = "View Lock",
     alias = arrayOf("YawLock", "PitchLock"),
     category = Category.PLAYER,
     description = "Locks your camera view"

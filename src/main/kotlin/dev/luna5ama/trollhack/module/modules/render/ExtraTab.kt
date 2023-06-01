@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.module.Module
 import net.minecraft.client.network.NetworkPlayerInfo
 
 internal object ExtraTab : Module(
-    name = "ExtraTab",
+    name = "Extra Tab",
     description = "Expands the player tab menu",
     category = Category.RENDER
 ) {

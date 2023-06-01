@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.world.getGroundLevel
 import net.minecraft.network.play.server.SPacketPlayerPosLook
 
 internal object ReverseStep : Module(
-    name = "ReverseStep",
+    name = "Reverse Step",
     description = "Walks down edge of block faster",
     category = Category.MOVEMENT
 ) {

@@ -16,7 +16,7 @@ import net.minecraft.network.play.client.CPacketClickWindow
  * https://discordapp.com/channels/573954110454366214/634010802403409931/693919755647844352
  */
 internal object AntiBookKick : Module(
-    name = "AntiBookKick",
+    name = "Anti Book Kick",
     category = Category.MISC,
     description = "Prevents being kicked by clicking on books",
     visible = false

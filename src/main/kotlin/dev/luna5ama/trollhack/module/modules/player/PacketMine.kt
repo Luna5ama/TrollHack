@@ -63,7 +63,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.collections.set
 
 internal object PacketMine : Module(
-    name = "PacketMine",
+    name = "Packet Mine",
     alias = arrayOf("InstantMine"),
     category = Category.PLAYER,
     description = "Break block with packet",

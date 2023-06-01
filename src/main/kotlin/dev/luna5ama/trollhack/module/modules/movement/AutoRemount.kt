@@ -12,7 +12,7 @@ import net.minecraft.entity.passive.*
 import net.minecraft.util.EnumHand
 
 internal object AutoRemount : Module(
-    name = "AutoRemount",
+    name = "Auto Remount",
     description = "Automatically remounts your horse",
     category = Category.MOVEMENT
 ) {

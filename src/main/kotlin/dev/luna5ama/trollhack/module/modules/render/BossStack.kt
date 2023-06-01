@@ -22,7 +22,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 internal object BossStack : Module(
-    name = "BossStack",
+    name = "Boss Stack",
     description = "Modify the boss health GUI to take up less space",
     category = Category.RENDER
 ) {

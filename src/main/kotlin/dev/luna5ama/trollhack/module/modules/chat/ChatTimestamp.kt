@@ -13,7 +13,7 @@ import net.minecraft.network.play.server.SPacketChat
 import net.minecraft.util.text.TextComponentString
 
 internal object ChatTimestamp : Module(
-    name = "ChatTimestamp",
+    name = "Chat Timestamp",
     category = Category.CHAT,
     description = "Shows the time a message was sent beside the message",
     visible = false

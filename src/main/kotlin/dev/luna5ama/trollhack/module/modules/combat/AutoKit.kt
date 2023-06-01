@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 
 internal object AutoKit : Module(
-    name = "AutoKit",
+    name = "Auto Kit",
     description = "Do /kit automatically",
     category = Category.COMBAT
 ) {

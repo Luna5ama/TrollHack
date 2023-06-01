@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TimeUnit
 
 internal object AutoJump : Module(
-    name = "AutoJump",
+    name = "Auto Jump",
     category = Category.MOVEMENT,
     description = "Automatically jumps if possible"
 ) {

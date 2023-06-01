@@ -15,6 +15,7 @@ import dev.luna5ama.trollhack.gui.hudgui.elements.client.Watermark
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.manager.managers.HotbarManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbarBypass
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -111,7 +112,7 @@ import kotlin.system.measureNanoTime
 
 @CombatManager.CombatModule
 internal object ZealotCrystalPlus : Module(
-    name = "ZealotCrystal+",
+    name = "Zealot Crystal+",
     description = "Lol wtf",
     category = Category.COMBAT,
     modulePriority = 80
@@ -1036,7 +1037,7 @@ internal object ZealotCrystalPlus : Module(
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
                     onMainThread {
                         val slot = player.getCrystalSlot() ?: return@onMainThread
-                        spoofHotbar(slot) {
+                        spoofHotbarBypass(slot) {
                             connection.sendPacket(packet)
                         }
                     }

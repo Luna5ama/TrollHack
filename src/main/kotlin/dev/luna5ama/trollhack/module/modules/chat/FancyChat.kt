@@ -9,7 +9,7 @@ import kotlin.math.min
 import kotlin.random.Random
 
 internal object FancyChat : Module(
-    name = "FancyChat",
+    name = "Fancy Chat",
     category = Category.CHAT,
     description = "Makes messages you send fancy",
     visible = false,

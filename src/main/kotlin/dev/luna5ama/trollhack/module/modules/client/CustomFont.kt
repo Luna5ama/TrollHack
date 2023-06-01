@@ -15,7 +15,7 @@ import java.awt.GraphicsEnvironment
 import java.util.*
 
 internal object CustomFont : Module(
-    name = "CustomFont",
+    name = "Custom Font",
     description = "Use the better font instead of the stupid Minecraft font",
     visible = false,
     category = Category.CLIENT,

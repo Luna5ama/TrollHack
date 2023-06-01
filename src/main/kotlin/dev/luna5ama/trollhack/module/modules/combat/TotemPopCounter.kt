@@ -15,7 +15,7 @@ import dev.luna5ama.trollhack.util.text.format
 import net.minecraft.util.text.TextFormatting
 
 internal object TotemPopCounter : Module(
-    name = "TotemPopCounter",
+    name = "Totem Pop Counter",
     description = "Counts how many times players pop",
     category = Category.COMBAT
 ) {

@@ -20,7 +20,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 internal object PacketFly : Module(
-    name = "PacketFly",
+    name = "Packet Fly",
     description = "Experimental!",
     category = Category.MOVEMENT,
     modulePriority = 9999

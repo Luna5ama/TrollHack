@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.util.inventory.operation.moveTo
 import dev.luna5ama.trollhack.util.inventory.slot.*
 
 internal object HotbarRefill : Module(
-    name = "HotbarRefill",
+    name = "Hotbar Refill",
     category = Category.PLAYER,
     description = "Automatically refills stackable items in your hotbar",
     modulePriority = 15

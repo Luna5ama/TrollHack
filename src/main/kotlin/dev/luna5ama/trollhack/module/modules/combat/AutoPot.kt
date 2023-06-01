@@ -45,7 +45,7 @@ import kotlin.math.abs
 import kotlin.math.sqrt
 
 internal object AutoPot : Module(
-    name = "AutoPot",
+    name = "Auto Pot",
     description = "药水哥",
     category = Category.COMBAT,
     modulePriority = 100

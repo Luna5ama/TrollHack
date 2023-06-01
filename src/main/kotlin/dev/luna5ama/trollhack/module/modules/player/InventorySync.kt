@@ -20,7 +20,7 @@ import net.minecraft.network.play.server.SPacketConfirmTransaction
 import net.minecraft.network.play.server.SPacketSetSlot
 
 internal object InventorySync : Module(
-    name = "InventorySync",
+    name = "Inventory Sync",
     category = Category.PLAYER,
     description = "Fix inventory desyncs",
     modulePriority = 50

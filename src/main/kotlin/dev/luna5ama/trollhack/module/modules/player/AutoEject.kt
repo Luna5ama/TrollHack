@@ -18,7 +18,7 @@ import net.minecraft.inventory.Slot
 import net.minecraft.item.Item
 
 internal object AutoEject : Module(
-    name = "AutoEject",
+    name = "Auto Eject",
     category = Category.PLAYER,
     description = "Automatically ejects items from your inventory",
     modulePriority = 10
