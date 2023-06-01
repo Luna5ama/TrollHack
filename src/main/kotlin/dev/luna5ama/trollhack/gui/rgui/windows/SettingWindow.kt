@@ -90,9 +90,6 @@ abstract class SettingWindow<T : Any>(
     }
 
     override fun onRender(absolutePos: Vec2f) {
-        scrollSpeed = 0.0f
-        scrollProgress = 0.0f
-
         updateHeightToFit(true)
 
         super.onRender(absolutePos)
