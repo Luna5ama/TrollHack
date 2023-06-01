@@ -12,7 +12,9 @@ import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.inventory.ClickType
 import net.minecraft.item.ItemStack
+import net.minecraft.network.play.client.CPacketClickWindow
 import net.minecraft.network.play.client.CPacketHeldItemChange
 
 @Suppress("NOTHING_TO_INLINE")
@@ -29,7 +31,7 @@ object HotbarManager : Manager() {
 
             val prev = serverSideHotbar
 
-            synchronized(playerController) {
+            synchronized(HotbarManager) {
                 serverSideHotbar = it.packet.slotId
                 swapTime = System.currentTimeMillis()
             }
@@ -41,7 +43,7 @@ object HotbarManager : Manager() {
     }
 
     inline fun SafeClientEvent.spoofHotbar(slot: HotbarSlot, crossinline block: () -> Unit) {
-        synchronized(playerController) {
+        synchronized(HotbarManager) {
             spoofHotbar(slot)
             block.invoke()
             resetHotbar()
@@ -49,7 +51,7 @@ object HotbarManager : Manager() {
     }
 
     inline fun SafeClientEvent.spoofHotbar(slot: Int, crossinline block: () -> Unit) {
-        synchronized(playerController) {
+        synchronized(HotbarManager) {
             spoofHotbar(slot)
             block.invoke()
             resetHotbar()
@@ -57,14 +59,31 @@ object HotbarManager : Manager() {
     }
 
     inline fun SafeClientEvent.spoofHotbarBypass(slot: HotbarSlot, crossinline block: () -> Unit) {
-        synchronized(playerController) {
+        synchronized(HotbarManager) {
             val swap = slot.hotbarSlot != serverSideHotbar
             if (swap) {
-                inventoryTaskNow {
-                    val hotbarSlot = player.hotbarSlots[serverSideHotbar]
-                    swapWith(slot, hotbarSlot)
-                    action { block.invoke() }
-                    swapWith(slot, hotbarSlot)
+                synchronized(InventoryTaskManager) {
+                    connection.sendPacket(
+                        CPacketClickWindow(
+                            0,
+                            slot.slotNumber,
+                            serverSideHotbar,
+                            ClickType.SWAP,
+                            ItemStack.EMPTY,
+                            player.inventoryContainer.getNextTransactionID(player.inventory)
+                        )
+                    )
+                    block.invoke()
+                    connection.sendPacket(
+                        CPacketClickWindow(
+                            0,
+                            slot.slotNumber,
+                            serverSideHotbar,
+                            ClickType.SWAP,
+                            ItemStack.EMPTY,
+                            player.inventoryContainer.getNextTransactionID(player.inventory)
+                        )
+                    )
                 }
             } else {
                 block.invoke()
@@ -73,7 +92,7 @@ object HotbarManager : Manager() {
     }
 
     inline fun SafeClientEvent.spoofHotbarBypass(slot: Int, crossinline block: () -> Unit) {
-        synchronized(playerController) {
+        synchronized(HotbarManager) {
             val swap = slot != serverSideHotbar
             if (swap) {
                 inventoryTaskNow {
@@ -94,15 +113,19 @@ object HotbarManager : Manager() {
     }
 
     inline fun SafeClientEvent.spoofHotbar(slot: Int) {
-        if (serverSideHotbar != slot) {
-            connection.sendPacket(CPacketHeldItemChange(slot))
+        synchronized(HotbarManager) {
+            if (serverSideHotbar != slot) {
+                connection.sendPacket(CPacketHeldItemChange(slot))
+            }
         }
     }
 
     inline fun SafeClientEvent.resetHotbar() {
-        val slot = playerController.currentPlayerItem
-        if (serverSideHotbar != slot) {
-            spoofHotbar(slot)
+        synchronized(HotbarManager) {
+            val slot = playerController.currentPlayerItem
+            if (serverSideHotbar != slot) {
+                spoofHotbar(slot)
+            }
         }
     }
 }

@@ -2,10 +2,13 @@ package dev.luna5ama.trollhack.mixins.core.player;
 
 import dev.luna5ama.trollhack.event.events.player.InteractEvent;
 import dev.luna5ama.trollhack.event.events.player.PlayerAttackEvent;
+import dev.luna5ama.trollhack.manager.managers.HotbarManager;
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager;
 import dev.luna5ama.trollhack.module.modules.player.BetterEat;
 import dev.luna5ama.trollhack.module.modules.player.FastBreak;
 import dev.luna5ama.trollhack.module.modules.player.FastUse;
+import dev.luna5ama.trollhack.util.Wrapper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -15,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
+import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -45,6 +49,13 @@ public abstract class MixinPlayerControllerMP {
 
     @Shadow
     protected abstract void syncCurrentPlayItem();
+
+    @Shadow
+    @Final
+    private Minecraft mc;
+
+    @Shadow
+    private int currentPlayerItem;
 
     @Inject(method = "attackEntity", at = @At("HEAD"), cancellable = true)
     public void attackEntity(EntityPlayer playerIn, Entity targetEntity, CallbackInfo ci) {
@@ -189,6 +200,21 @@ public abstract class MixinPlayerControllerMP {
             ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player);
             this.connection.sendPacket(new CPacketClickWindow(windowId, slotId, mouseButton, type, itemstack, short1));
             cir.setReturnValue(itemstack);
+        }
+    }
+
+    @Inject(method = "syncCurrentPlayItem", at = @At("HEAD"), cancellable = true)
+    private void Inject$syncCurrentPlayItem$HEAD(CallbackInfo ci) {
+        ci.cancel();
+        if (Wrapper.getPlayer() == null) return;
+
+        synchronized (HotbarManager.INSTANCE) {
+            int i = this.mc.player.inventory.currentItem;
+
+            if (i != this.currentPlayerItem) {
+                this.currentPlayerItem = i;
+                this.connection.sendPacket(new CPacketHeldItemChange(this.currentPlayerItem));
+            }
         }
     }
 }

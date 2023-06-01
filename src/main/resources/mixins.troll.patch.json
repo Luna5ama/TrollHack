@@ -10,7 +10,6 @@
         "baritone.MixinBaritoneSettings",
         "gui.MixinGuiInventory",
         "optifine.MixinConfig",
-        "player.MixinPlayerControllerMP",
         "world.MixinWorld"
     ]
 }
