@@ -69,7 +69,7 @@ dependencies {
         exclude(group = "org.apache.logging.log4j")
     }
 
-    jarLibImplementation("org.joml:joml:1.10.4")
+    jarLibImplementation("org.joml:joml:1.10.5")
     jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
     jarLibImplementation("dev.fastmc:mem-util:1.0-SNAPSHOT")
 

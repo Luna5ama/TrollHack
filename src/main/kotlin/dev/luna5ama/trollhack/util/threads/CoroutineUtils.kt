@@ -18,9 +18,9 @@ object DefaultScope : CoroutineScope by CoroutineScope(Dispatchers.Default) {
     val context = Dispatchers.Default
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 private val concurrentContext = Dispatchers.Default.limitedParallelism(max(ParallelUtils.CPU_THREADS / 2, 1))
 
-@OptIn(ExperimentalCoroutinesApi::class)
 object ConcurrentScope : CoroutineScope by CoroutineScope(concurrentContext) {
     val context = concurrentContext
 }
