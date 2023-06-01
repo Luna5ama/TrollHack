@@ -22,7 +22,7 @@ plugins {
     kotlin("jvm")
     id("dev.fastmc.fast-remapper").version("1.1-SNAPSHOT")
     id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
-    id("dev.fastmc.mod-loader-plugin").version("1.0-SNAPSHOT")
+    id("dev.fastmc.mod-loader-plugin").version("1.1-SNAPSHOT")
 }
 
 apply {
