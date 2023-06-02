@@ -9,9 +9,7 @@ class ModuleSettingWindow(
     posX: Float,
     posY: Float
 ) : SettingWindow<AbstractModule>(module.name, module, posX, posY, SettingGroup.NONE) {
-
     override fun getSettingList(): List<AbstractSetting<*>> {
-        return element.fullSettingList.filter { it.name != "Enabled" && it.name != "Clicks" }
+        return element.fullSettingList.filter { it.name != "Enabled" }
     }
-
 }

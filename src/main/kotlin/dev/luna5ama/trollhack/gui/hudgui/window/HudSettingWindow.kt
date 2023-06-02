@@ -9,9 +9,7 @@ class HudSettingWindow(
     posX: Float,
     posY: Float
 ) : SettingWindow<AbstractHudElement>(hudElement.name, hudElement, posX, posY, SettingGroup.NONE) {
-
     override fun getSettingList(): List<AbstractSetting<*>> {
         return element.settingList
     }
-
 }

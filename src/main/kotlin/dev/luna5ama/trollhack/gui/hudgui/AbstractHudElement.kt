@@ -51,7 +51,7 @@ abstract class AbstractHudElement(
     open val hudHeight: Float get() = 10f
 
     val settingList
-        get() = GuiConfig.getGroupOrPut(SettingGroup.HUD_GUI.groupName).getGroupOrPut(rootName).getSettings()
+        get() = GuiConfig.getGroupOrPut(SettingGroup.HUD_GUI.groupName).getGroupOrPut(internalName).getSettings()
 
     init {
         safeParallelListener<TickEvent.Pre> {
