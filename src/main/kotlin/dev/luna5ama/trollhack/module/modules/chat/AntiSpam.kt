@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.SpamFilters
+import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.network.play.server.SPacketChat
 import net.minecraft.util.text.TextComponentString
 import java.util.concurrent.ConcurrentHashMap
@@ -95,16 +96,16 @@ internal object AntiSpam : Module(
             messageHistory.clear()
         }
 
-        safeListener<PacketEvent.Receive> { event ->
+        safeListener<PacketEvent.Receive>(9999) { event ->
             if (event.packet !is SPacketChat) return@safeListener
 
             messageHistory.values.removeIf { System.currentTimeMillis() - it > 600000 }
 
-            if (duplicates && checkDupes(event.packet.chatComponent.unformattedText)) {
+            if (duplicates && checkDupes(event.packet.chatComponent.unformatted)) {
                 event.cancel()
             }
 
-            val pattern = isSpam(event.packet.textComponent.unformattedText)
+            val pattern = isSpam(event.packet.textComponent.unformatted)
 
             if (pattern != null) { // null means no pattern found
                 if (mode == Mode.HIDE) {
@@ -121,11 +122,11 @@ internal object AntiSpam : Module(
             }
 
             if (fancyChat) {
-                val message = sanitizeFancyChat(event.packet.textComponent.unformattedText)
+                val message = sanitizeFancyChat(event.packet.textComponent.formattedText)
                 if (message.trim { it <= ' ' }
                         .isEmpty()) { // this should be removed if we are going for an intelligent de-fancy
                     event.packet.textComponent =
-                        TextComponentString(getUsername(event.packet.textComponent.unformattedText) + " [Fancychat]")
+                        TextComponentString(getUsername(event.packet.textComponent.formattedText) + " [Fancychat]")
                 }
             }
         }
@@ -212,7 +213,10 @@ internal object AntiSpam : Module(
     }
 
     private fun sendResult(name: String, message: String) {
-        if (showBlocked == ShowBlocked.CHAT || showBlocked == ShowBlocked.BOTH) NoSpamMessage.sendMessage(AntiSpam, "$chatName $name: $message")
+        if (showBlocked == ShowBlocked.CHAT || showBlocked == ShowBlocked.BOTH) NoSpamMessage.sendMessage(
+            AntiSpam,
+            "$chatName $name: $message"
+        )
         if (showBlocked == ShowBlocked.LOG_FILE || showBlocked == ShowBlocked.BOTH) TrollHackMod.logger.info("$chatName $name: $message")
     }
 }

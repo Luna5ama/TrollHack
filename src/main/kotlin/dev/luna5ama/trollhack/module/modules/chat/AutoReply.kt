@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
+import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.network.play.server.SPacketChat
 
 internal object AutoReply : Module(
@@ -25,8 +26,8 @@ internal object AutoReply : Module(
     private val timer = TickTimer(TimeUnit.SECONDS)
 
     init {
-        listener<PacketEvent.Receive> {
-            if (it.packet !is SPacketChat || MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformattedText) return@listener
+        listener<PacketEvent.Receive>(9000) {
+            if (it.packet !is SPacketChat || MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformatted) return@listener
             if (customMessage.value) {
                 sendServerMessage("/r " + customText.value)
             } else {

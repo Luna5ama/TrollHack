@@ -1,15 +1,19 @@
 {
-    "required" : false,
-    "minVersion" : "0.7",
-    "compatibilityLevel" : "JAVA_8",
-    "package" : "dev.luna5ama.trollhack.mixins.patch",
-    "refmap" : "mixins.troll.refmap.json",
-    "client" : [
+    "required": false,
+    "minVersion": "0.7",
+    "compatibilityLevel": "JAVA_8",
+    "package": "dev.luna5ama.trollhack.mixins.patch",
+    "refmap": "mixins.troll.refmap.json",
+    "client": [
         "MixinDisplay",
         "MixinJsonUtils",
         "baritone.MixinBaritoneSettings",
+        "chat.MixinTextComponentTranslation",
         "gui.MixinGuiInventory",
         "optifine.MixinConfig",
         "world.MixinWorld"
+    ],
+    "mixins": [
+        "chat.MixinITextComponent"
     ]
 }

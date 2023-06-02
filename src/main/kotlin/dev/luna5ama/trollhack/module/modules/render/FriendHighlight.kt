@@ -3,10 +3,12 @@ package dev.luna5ama.trollhack.module.modules.render
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.manager.managers.FriendManager
+import dev.luna5ama.trollhack.mixins.PatchedITextComponent
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.accessor.textComponent
-import dev.luna5ama.trollhack.util.graphics.color.EnumTextColor
+import dev.luna5ama.trollhack.util.text.EnumTextColor
+import dev.luna5ama.trollhack.util.text.unformatted
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.network.NetworkPlayerInfo
@@ -29,12 +31,15 @@ internal object FriendHighlight : Module(
     private val bold by setting("Bold", false)
     private val color by setting("Color", EnumTextColor.GREEN)
 
-    private val regex1 = "<(.*?)>".toRegex()
+    private val playerNameRegex = "<(.+?)>".toRegex()
 
     init {
         listener<PacketEvent.Receive>(-100) {
-            if (!chat || !FriendManager.enabled || it.packet !is SPacketChat) return@listener
-            if (replace(it.packet.textComponent) && messageSound) {
+            if (!chat) return@listener
+            if (!FriendManager.enabled) return@listener
+            if (it.packet !is SPacketChat) return@listener
+
+            if (replace(it.packet) && messageSound) {
                 onMainThread {
                     mc.soundHandler.playSound(
                         PositionedSoundRecord.getRecord(
@@ -48,27 +53,50 @@ internal object FriendHighlight : Module(
         }
     }
 
-    private fun replace(textComponent: ITextComponent): Boolean {
-        var friend = false
-
-        for ((index, sibling) in textComponent.siblings.withIndex()) {
-            val playerName = regex1.find(sibling.unformattedComponentText)?.groupValues?.get(1)
-            if (playerName != null && FriendManager.isFriend(playerName)) {
-                val modified = TextComponentString(
-                    sibling.unformattedComponentText.replaceFirst(
-                        playerName,
-                        getReplacement(playerName)
-                    )
-                )
-                textComponent.siblings[index] = modified
-                friend = true
-                continue
-            }
-
-            replace(sibling)
+    private fun replace(packet: SPacketChat): Boolean {
+        val playerName = playerNameRegex.findAll(packet.textComponent.unformatted).map {
+            it.groupValues[1]
+        }.find {
+            FriendManager.isFriend(it)
         }
 
-        return friend
+        return if (playerName != null) {
+            val list = (packet.textComponent as PatchedITextComponent).inplaceIterator().asSequence().toList()
+            if (list.size == 1) {
+                // Whole message in 1 component
+                replaceComponent(packet.textComponent, playerName)?.let {
+                    packet.textComponent = it
+                }
+            } else {
+                val nameComponent = list.find { it.unformatted == playerName }
+                if (nameComponent != null) {
+                    nameComponent.style.color = color.textFormatting
+                } else {
+                    replaceSibling(packet.textComponent, playerName)
+                }
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    fun replaceSibling(component: ITextComponent, playerName: String): Boolean {
+        val list = component.siblings
+        for (i in list.indices) {
+            replaceComponent(list[i], playerName)?.let {
+                list[i] = it
+                return true
+            }
+        }
+
+        list.forEach {
+            if (replaceSibling(it, playerName)) {
+                return true
+            }
+        }
+
+        return false
     }
 
     @JvmStatic
@@ -80,6 +108,19 @@ internal object FriendHighlight : Module(
         if (FriendManager.isFriend(name)) {
             cir.returnValue = getReplacement(name)
         }
+    }
+
+    private fun replaceComponent(component: ITextComponent, playerName: String): TextComponentString? {
+        var found = false
+        val newText = component.formattedText.replace(playerNameRegex) {
+            if (it.groupValues[1].contains(playerName)) {
+                found = true
+                it.value.replace(playerName, getReplacement(playerName))
+            } else {
+                it.value
+            }
+        }
+        return if (found) TextComponentString(newText).apply { style = component.style } else null
     }
 
     private fun getReplacement(name: String): String {

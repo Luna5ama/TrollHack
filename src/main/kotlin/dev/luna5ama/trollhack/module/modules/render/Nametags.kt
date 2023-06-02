@@ -26,6 +26,7 @@ import dev.luna5ama.trollhack.util.items.originalName
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.lerp
+import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.Entity
@@ -190,7 +191,7 @@ internal object Nametags : Module(
             null
         }
         ContentType.NAME -> {
-            val name = entity.displayName.unformattedText
+            val name = entity.displayName.unformatted
             val color = if (FriendManager.isFriend(name)) ColorRGB(32, 255, 32, aText.value) else getTextColor()
             TextComponent.TextElement(name, color)
         }

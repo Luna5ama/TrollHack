@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.graphics.color.EnumTextColor
+import dev.luna5ama.trollhack.util.text.EnumTextColor
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.format

@@ -18,6 +18,7 @@ import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
+import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.network.play.server.SPacketChat
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
@@ -90,9 +91,9 @@ internal object AntiAFK : Module(
     }
 
     init {
-        listener<PacketEvent.Receive> {
+        listener<PacketEvent.Receive>(10000) {
             if (!autoReply || it.packet !is SPacketChat) return@listener
-            if (MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformattedText) {
+            if (MessageDetection.Direct.RECEIVE detect it.packet.chatComponent.unformatted) {
                 sendServerMessage("/r I am currently AFK and using Troll Hack!")
             }
         }

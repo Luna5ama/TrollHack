@@ -20,6 +20,7 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
+import dev.luna5ama.trollhack.util.text.unformatted
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSets
 import net.minecraft.entity.player.EntityPlayer
@@ -69,10 +70,10 @@ internal object AutoEZ : Module(
             reset()
         }
 
-        safeListener<PacketEvent.Receive> { event ->
+        safeListener<PacketEvent.Receive>(Int.MAX_VALUE) { event ->
             if (event.packet !is SPacketChat || detectMode != DetectMode.BROADCAST || !player.isEntityAlive) return@safeListener
 
-            val message = event.packet.textComponent.unformattedText
+            val message = event.packet.textComponent.unformatted
             if (!message.contains(player.name)) return@safeListener
 
             attackedPlayers.keys.find {

@@ -6,8 +6,8 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TimeUtils
 import dev.luna5ama.trollhack.util.accessor.textComponent
-import dev.luna5ama.trollhack.util.graphics.color.EnumTextColor
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
+import dev.luna5ama.trollhack.util.text.EnumTextColor
 import dev.luna5ama.trollhack.util.text.format
 import net.minecraft.network.play.server.SPacketChat
 import net.minecraft.util.text.TextComponentString
@@ -24,7 +24,7 @@ internal object ChatTimestamp : Module(
     private val timeUnit by setting("Time Unit", TimeUtils.TimeUnit.H12)
 
     init {
-        listener<PacketEvent.Receive> {
+        listener<PacketEvent.Receive>(-69696420) {
             if (it.packet is SPacketChat) {
                 it.packet.textComponent = TextComponentString(formattedTime).appendSibling(it.packet.textComponent)
             }

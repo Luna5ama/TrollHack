@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.util.graphics.color
+package dev.luna5ama.trollhack.util.text
 
 import net.minecraft.util.text.TextFormatting
 
