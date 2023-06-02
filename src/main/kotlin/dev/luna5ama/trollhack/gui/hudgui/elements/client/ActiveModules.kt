@@ -68,9 +68,9 @@ internal object ActiveModules : HudElement(
     override val hudHeight: Float get() = cacheHeight
 
     private val textLineMap = Int2ObjectOpenHashMap<TextComponent.TextLine>()
-    private var lastSorted =  makeKeyPair(ModuleManager.modules)
+    private var lastSorted = makeKeyPair(ModuleManager.modules)
 
-    private val cachedList = DoubleBuffered {FastObjectArrayList<AbstractModule>()}
+    private val cachedList = DoubleBuffered { FastObjectArrayList<AbstractModule>() }
 
     private val sortedModuleList by AsyncCachedValue(5L) {
         val modules = ModuleManager.modules
@@ -79,21 +79,34 @@ internal object ActiveModules : HudElement(
         if (modules.size != lastSorted.size) {
             lastSorted = makeKeyPair(modules)
             list.clear()
+        } else {
+            for (i in lastSorted.indices) {
+                lastSorted[i].update()
+            }
         }
 
-        lastSorted.sortBy { it.second }
+        lastSorted.sort()
         list.clearFast()
         for (i in lastSorted.indices) {
-            list.add(lastSorted[i].first)
+            list.add(lastSorted[i].module)
         }
         list
     }
 
-    private fun makeKeyPair(modules: List<AbstractModule>): Array<Pair<AbstractModule, Comparable<Comparable<*>>>> {
-        return Array(modules.size) {
-            val module = modules[it]
+    private data class SortingPair(val module: AbstractModule, var key: Comparable<*> = sortingMode.keySelector(module)) : Comparable<SortingPair> {
+        fun update() {
+            key = sortingMode.keySelector(module)
+        }
+
+        override fun compareTo(other: SortingPair): Int {
             @Suppress("UNCHECKED_CAST")
-            module to sortingMode.keySelector(module) as Comparable<Comparable<*>>
+            return (key as Comparable<Comparable<*>>).compareTo(other.key)
+        }
+    }
+
+    private fun makeKeyPair(modules: List<AbstractModule>): Array<SortingPair> {
+        return Array(modules.size) {
+            SortingPair(modules[it])
         }
     }
 
@@ -298,5 +311,4 @@ internal object ActiveModules : HudElement(
         relativePosY = 2.0f
         dockingH = HAlign.RIGHT
     }
-
 }
