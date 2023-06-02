@@ -96,6 +96,9 @@ open class Slider(
         super.onTick()
         height = maxHeight
         if (visibility != null) visible = visibility.invoke()
+        if (!visible) {
+            renderProgress.forceUpdate(0.0f, 0.0f)
+        }
     }
 
     override fun onRender(absolutePos: Vec2f) {
