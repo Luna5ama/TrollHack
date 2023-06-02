@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.client
 
+import dev.fastmc.common.DoubleBuffered
+import dev.fastmc.common.collection.FastObjectArrayList
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
@@ -53,11 +55,11 @@ internal object ActiveModules : HudElement(
     @Suppress("UNUSED")
     private enum class SortingMode(
         override val displayName: CharSequence,
-        val comparator: Comparator<AbstractModule>
+        val keySelector: (AbstractModule) -> Comparable<*>
     ) : DisplayEnum {
-        LENGTH("Length", compareByDescending { it.textLine.getWidth() }),
-        ALPHABET("Alphabet", compareBy { it.nameAsString }),
-        CATEGORY("Category", compareBy { it.category.ordinal })
+        LENGTH("Length", { -it.textLine.getWidth() }),
+        ALPHABET("Alphabet", { it.nameAsString }),
+        CATEGORY("Category", { it.category.ordinal })
     }
 
     private var cacheWidth = 20.0f
@@ -66,16 +68,33 @@ internal object ActiveModules : HudElement(
     override val hudHeight: Float get() = cacheHeight
 
     private val textLineMap = Int2ObjectOpenHashMap<TextComponent.TextLine>()
-    private var lastSorted = ModuleManager.modules.toTypedArray()
+    private var lastSorted =  makeKeyPair(ModuleManager.modules)
+
+    private val cachedList = DoubleBuffered {FastObjectArrayList<AbstractModule>()}
 
     private val sortedModuleList by AsyncCachedValue(5L) {
         val modules = ModuleManager.modules
+        val list = cachedList.swap().front
+
         if (modules.size != lastSorted.size) {
-            lastSorted = modules.toTypedArray()
+            lastSorted = makeKeyPair(modules)
+            list.clear()
         }
 
-        lastSorted.sortWith(sortingMode.comparator)
-        lastSorted
+        lastSorted.sortBy { it.second }
+        list.clearFast()
+        for (i in lastSorted.indices) {
+            list.add(lastSorted[i].first)
+        }
+        list
+    }
+
+    private fun makeKeyPair(modules: List<AbstractModule>): Array<Pair<AbstractModule, Comparable<Comparable<*>>>> {
+        return Array(modules.size) {
+            val module = modules[it]
+            @Suppress("UNCHECKED_CAST")
+            module to sortingMode.keySelector(module) as Comparable<Comparable<*>>
+        }
     }
 
     private var prevToggleMap = ArrayMap<ModuleToggleFlag>()
