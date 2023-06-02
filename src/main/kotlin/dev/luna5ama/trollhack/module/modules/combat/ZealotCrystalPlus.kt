@@ -1037,7 +1037,7 @@ internal object ZealotCrystalPlus : Module(
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
                     onMainThread {
                         val slot = player.getCrystalSlot() ?: return@onMainThread
-                        spoofHotbarBypass(slot) {
+                        spoofHotbar(slot) {
                             connection.sendPacket(packet)
                         }
                     }

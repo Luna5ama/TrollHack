@@ -1,10 +1,11 @@
+import dev.fastmc.loader.ModPackagingTask
 import dev.fastmc.loader.ModPlatform
 import dev.fastmc.remapper.mapping.MappingName
 import net.minecraftforge.gradle.userdev.UserDevExtension
 import kotlin.math.max
 
 group = "dev.luna5ama"
-version = "1.0.1"
+version = "1.1.0"
 
 buildscript {
     repositories {
@@ -132,6 +133,17 @@ modLoader {
 }
 
 tasks {
+    register<Task>("releaseBuild") {
+        group = "build"
+        finalizedBy("build")
+
+        doFirst {
+            named<ModPackagingTask>("modPackaging") {
+                dictSize.set(32 * 1024 * 1024)
+            }
+        }
+    }
+
     afterEvaluate {
         getByName("reobfJar").enabled = false
     }
