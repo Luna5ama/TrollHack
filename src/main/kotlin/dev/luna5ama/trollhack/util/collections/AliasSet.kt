@@ -10,8 +10,10 @@ class AliasSet<T : Alias>(
         var modified = super.add(element)
         element.alias.forEach { alias ->
             val prevValue = map.put(alias.toString().lowercase(), element)
-            prevValue?.let { remove(it) }
-            modified = prevValue == null || modified
+            if (prevValue != null && prevValue != element) {
+                remove(prevValue)
+            }
+            modified = prevValue != element || modified
         }
         return modified
     }

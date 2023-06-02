@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.setting.GuiConfig.setting
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.delegate.FrameValue
+import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.graphics.AnimationFlag
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.HAlign
@@ -24,6 +25,8 @@ open class Component(
     val settingGroup: SettingGroup,
     val config: AbstractConfig<out Nameable> = GuiConfig
 ) : Nameable {
+    override val internalName = rootName.replace(" ", "")
+
     // Basic info
     protected val visibleSetting = setting("Visible", true, { false }, { _, it -> it || !closeable })
     var visible by visibleSetting
