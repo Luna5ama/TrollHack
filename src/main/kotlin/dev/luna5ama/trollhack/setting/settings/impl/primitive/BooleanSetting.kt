@@ -11,7 +11,8 @@ open class BooleanSetting(
     value: Boolean,
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: Boolean, input: Boolean) -> Boolean = { _, input -> input },
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : MutableSetting<Boolean>(name, value, visibility, consumer, description) {
 
     override fun write(): JsonElement = JsonPrimitive(value)

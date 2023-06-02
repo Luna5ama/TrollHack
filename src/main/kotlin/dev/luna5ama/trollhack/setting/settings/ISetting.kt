@@ -11,6 +11,7 @@ interface ISetting<T : Any> : Nameable {
     val description: CharSequence
     val isVisible: Boolean
     val isModified: Boolean
+    val isTransient: Boolean
 
     fun setValue(valueIn: String)
     fun resetValue()

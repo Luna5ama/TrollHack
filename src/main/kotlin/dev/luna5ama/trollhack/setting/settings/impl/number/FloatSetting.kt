@@ -12,7 +12,8 @@ class FloatSetting(
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: Float, input: Float) -> Float = { _, input -> input },
     description: CharSequence = "",
-    fineStep: Float = step
+    fineStep: Float = step,
+    override val isTransient: Boolean = false
 ) : NumberSetting<Float>(name, value, range, step, visibility, consumer, description, fineStep) {
 
     init {

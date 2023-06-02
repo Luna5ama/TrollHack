@@ -11,7 +11,7 @@ import com.google.gson.JsonElement
  * @param consumer Called on setting [value] to process the value input
  * @param description Description of this setting
  */
-open class MutableSetting<T : Any>(
+abstract class MutableSetting<T : Any>(
     override val name: CharSequence,
     valueIn: T,
     override val visibility: ((() -> Boolean))?,

@@ -30,7 +30,7 @@ internal object Breadcrumbs : Module(
     category = Category.RENDER,
     alwaysListening = true
 ) {
-    private val clear = setting("Clear", false)
+    private val clear = setting("Clear", false, isTransient = true)
     private val whileDisabled = setting("While Disabled", false)
     private val smoothFactor = setting("Smooth Factor", 5.0f, 0.0f..10.0f, 0.25f)
     private val maxDistance = setting("Max Distance", 4096, 1024..16384, 1024)

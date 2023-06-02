@@ -47,7 +47,7 @@ internal object ElytraFlight : Module(
         page.atValue(Page.GENERIC_SETTINGS) and (durabilityWarning0.atTrue()),
         description = "Threshold of durability to start sending warnings"
     )
-    private var autoLanding by setting("Auto Landing", false, page.atValue(Page.GENERIC_SETTINGS))
+    private var autoLanding by setting("Auto Landing", false, page.atValue(Page.GENERIC_SETTINGS), isTransient = true)
 
     /* Generic Settings */
     /* Takeoff */

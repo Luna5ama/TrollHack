@@ -46,8 +46,8 @@ internal object NoteBot : Module(
 ) {
     private val isNotNbsFormat = { !isNbsFormat }
 
-    private val togglePlay = setting("Toggle Play", false)
-    private val reloadSong = setting("Reload Song", false)
+    private val togglePlay = setting("Toggle Play", false, isTransient = true)
+    private val reloadSong = setting("Reload Song", false, isTransient = true)
     private val songName = setting("Song Name", "Unchanged")
     private val channel1 = setting("Channel 1", NoteBlockEvent.Instrument.PIANO, isNotNbsFormat)
     private val channel2 = setting("Channel 2", NoteBlockEvent.Instrument.PIANO, isNotNbsFormat)

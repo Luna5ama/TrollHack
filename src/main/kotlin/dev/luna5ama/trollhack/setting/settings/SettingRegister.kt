@@ -28,7 +28,8 @@ interface SettingRegister<T : Any> {
         consumer: (prev: Int, input: Int) -> Int = { _, input -> input },
         description: CharSequence = "",
         fineStep: Int = step,
-    ) = setting(IntegerSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep))
+        isTransient: Boolean = false
+    ) = setting(IntegerSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep, isTransient))
 
     /** Double Setting */
     fun T.setting(
@@ -40,7 +41,8 @@ interface SettingRegister<T : Any> {
         consumer: (prev: Double, input: Double) -> Double = { _, input -> input },
         description: CharSequence = "",
         fineStep: Double = step,
-    ) = setting(DoubleSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep))
+        isTransient: Boolean = false
+    ) = setting(DoubleSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep, isTransient))
 
     /** Float Setting */
     fun T.setting(
@@ -52,7 +54,8 @@ interface SettingRegister<T : Any> {
         consumer: (prev: Float, input: Float) -> Float = { _, input -> input },
         description: CharSequence = "",
         fineStep: Float = step,
-    ) = setting(FloatSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep))
+        isTransient: Boolean = false
+    ) = setting(FloatSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep, isTransient))
 
     /** Bind Setting */
     fun T.setting(
@@ -60,8 +63,9 @@ interface SettingRegister<T : Any> {
         value: Bind,
         action: ((Boolean) -> Unit)? = null,
         visibility: ((() -> Boolean))? = null,
-        description: CharSequence = ""
-    ) = setting(BindSetting(settingName(name), value, visibility, action, description))
+        description: CharSequence = "",
+        isTransient: Boolean = false
+    ) = setting(BindSetting(settingName(name), value, visibility, action, description, isTransient))
 
     /** Color Setting */
     fun T.setting(
@@ -69,8 +73,9 @@ interface SettingRegister<T : Any> {
         value: ColorRGB,
         hasAlpha: Boolean = true,
         visibility: ((() -> Boolean))? = null,
-        description: CharSequence = ""
-    ) = setting(ColorSetting(settingName(name), value, hasAlpha, visibility, description))
+        description: CharSequence = "",
+        isTransient: Boolean = false
+    ) = setting(ColorSetting(settingName(name), value, hasAlpha, visibility, description, isTransient))
 
     /** Boolean Setting */
     fun T.setting(
@@ -78,8 +83,9 @@ interface SettingRegister<T : Any> {
         value: Boolean,
         visibility: ((() -> Boolean))? = null,
         consumer: (prev: Boolean, input: Boolean) -> Boolean = { _, input -> input },
-        description: CharSequence = ""
-    ) = setting(BooleanSetting(settingName(name), value, visibility, consumer, description))
+        description: CharSequence = "",
+        isTransient: Boolean = false
+    ) = setting(BooleanSetting(settingName(name), value, visibility, consumer, description, isTransient))
 
     /** Enum Setting */
     fun <E : Enum<E>> T.setting(
@@ -87,8 +93,9 @@ interface SettingRegister<T : Any> {
         value: E,
         visibility: (() -> Boolean)? = null,
         consumer: (prev: E, input: E) -> E = { _, input -> input },
-        description: CharSequence = ""
-    ) = setting(EnumSetting(settingName(name), value, visibility, consumer, description))
+        description: CharSequence = "",
+        isTransient: Boolean = false
+    ) = setting(EnumSetting(settingName(name), value, visibility, consumer, description, isTransient))
 
     /** String Setting */
     fun T.setting(
@@ -96,8 +103,9 @@ interface SettingRegister<T : Any> {
         value: String,
         visibility: (() -> Boolean)? = null,
         consumer: (prev: String, input: String) -> String = { _, input -> input },
-        description: CharSequence = ""
-    ) = setting(StringSetting(settingName(name), value, visibility, consumer, description))
+        description: CharSequence = "",
+        isTransient: Boolean = false
+    ) = setting(StringSetting(settingName(name), value, visibility, consumer, description, isTransient))
     /* End of setting registering */
 
     /**

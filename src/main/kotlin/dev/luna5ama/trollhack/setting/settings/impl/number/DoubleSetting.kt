@@ -12,7 +12,8 @@ class DoubleSetting(
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: Double, input: Double) -> Double = { _, input -> input },
     description: CharSequence = "",
-    fineStep: Double = step
+    fineStep: Double = step,
+    override val isTransient: Boolean = false
 ) : NumberSetting<Double>(name, value, range, step, visibility, consumer, description, fineStep) {
 
     init {

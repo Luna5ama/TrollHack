@@ -14,7 +14,8 @@ class ColorSetting(
     value: ColorRGB,
     val hasAlpha: Boolean = true,
     visibility: ((() -> Boolean))? = null,
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : MutableSetting<ColorRGB>(
     name,
     value,

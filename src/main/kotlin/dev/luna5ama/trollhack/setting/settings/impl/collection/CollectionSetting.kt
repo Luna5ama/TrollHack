@@ -14,6 +14,7 @@ class CollectionSetting<E, T : MutableCollection<E>>(
     private val typeToken: TypeToken<*>,
     visibility: ((() -> Boolean))? = null,
     description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : ImmutableSetting<T>(name, value, visibility, { _, input -> input }, description), MutableCollection<E> by value {
 
     override val defaultValue: T = valueClass.newInstance()

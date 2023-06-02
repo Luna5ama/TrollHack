@@ -12,7 +12,8 @@ class IntegerSetting(
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: Int, input: Int) -> Int = { _, input -> input },
     description: CharSequence = "",
-    fineStep: Int = step
+    fineStep: Int = step,
+    override val isTransient: Boolean = false
 ) : NumberSetting<Int>(name, value, range, step, visibility, consumer, description, fineStep) {
 
     init {

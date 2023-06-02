@@ -21,7 +21,8 @@ class BindSetting(
     value: Bind,
     visibility: ((() -> Boolean))? = null,
     private val action: ((Boolean) -> Unit)? = null,
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : ImmutableSetting<Bind>(name, value, visibility, { _, input -> input }, description), NonPrimitive<Bind> {
 
     init {

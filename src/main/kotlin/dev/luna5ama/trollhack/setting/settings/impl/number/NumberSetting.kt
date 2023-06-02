@@ -11,7 +11,8 @@ abstract class NumberSetting<T>(
     visibility: ((() -> Boolean))?,
     consumer: (prev: T, input: T) -> T,
     description: CharSequence = "",
-    val fineStep: T
+    val fineStep: T,
+    override val isTransient: Boolean = false
 ) : MutableSetting<T>(name, value, visibility, consumer, description)
     where T : Number, T : Comparable<T> {
 

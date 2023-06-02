@@ -9,7 +9,8 @@ class MapSetting<K, V, T : MutableMap<K, V>>(
     override val value: T,
     private val typeToken: TypeToken<T>,
     visibility: ((() -> Boolean))? = null,
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : ImmutableSetting<T>(name, value, visibility, { _, input -> input }, description) {
     override val defaultValue: T = valueClass.newInstance()
 

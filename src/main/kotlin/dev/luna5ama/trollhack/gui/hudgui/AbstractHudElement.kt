@@ -37,7 +37,7 @@ abstract class AbstractHudElement(
 
     val bind by setting("Bind", Bind())
     val scale by setting("Scale", 1.0f, 0.1f..4.0f, 0.05f)
-    val default = setting("Default", false)
+    val default = setting("Default", false, isTransient = true)
 
     override val resizable = false
 

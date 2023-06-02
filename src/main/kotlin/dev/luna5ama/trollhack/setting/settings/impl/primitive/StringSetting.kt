@@ -28,7 +28,8 @@ class CharSequenceSetting(
     value: CharSequence,
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: CharSequence, input: CharSequence) -> CharSequence = { _, input -> input },
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : AbstractCharSequenceSetting<CharSequence>(name, value, visibility, consumer, description) {
     override fun setValue(valueIn: String) {
         value = valueIn
@@ -40,7 +41,8 @@ class StringSetting(
     value: String,
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: String, input: String) -> String = { _, input -> input },
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : AbstractCharSequenceSetting<String>(name, value, visibility, consumer, description) {
     override fun setValue(valueIn: String) {
         value = valueIn

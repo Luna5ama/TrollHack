@@ -13,7 +13,8 @@ class EnumSetting<T : Enum<T>>(
     value: T,
     visibility: ((() -> Boolean))? = null,
     consumer: (prev: T, input: T) -> T = { _, input -> input },
-    description: CharSequence = ""
+    description: CharSequence = "",
+    override val isTransient: Boolean = false
 ) : MutableSetting<T>(name, value, visibility, consumer, description), MutableNonPrimitive<T> {
 
     val enumClass: Class<T> = value.declaringJavaClass

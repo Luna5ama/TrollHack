@@ -48,6 +48,8 @@ open class SettingGroup(
         if (subSetting.isNotEmpty()) {
             add("settings", JsonObject().apply {
                 for (setting in subSetting.values) {
+                    if (setting.isTransient) continue
+
                     add(setting.rootName.toJsonName(), setting.write())
                 }
             })
@@ -63,6 +65,8 @@ open class SettingGroup(
         if (subSetting.isNotEmpty()) {
             (jsonObject.get("settings") as? JsonObject)?.also { settings ->
                 for (setting in subSetting.values) {
+                    if (setting.isTransient) continue
+
                     try {
                         settings.get(setting.rootName.toJsonName())?.let {
                             setting.read(it)
