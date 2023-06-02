@@ -37,8 +37,8 @@ fun World.getGroundPos(boundingBox: AxisAlignedBB): BlockPos {
 
     val pos = BlockPos.PooledMutableBlockPos.retain()
 
-    for (x in boundingBox.minX.fastFloor()..boundingBox.maxX.fastFloor()) {
-        for (z in boundingBox.minZ.fastFloor()..boundingBox.maxZ.fastFloor()) {
+    for (x in (boundingBox.minX + 0.01).fastFloor()..(boundingBox.maxX - 0.01).fastFloor()) {
+        for (z in (boundingBox.minZ + 0.01).fastFloor()..(boundingBox.maxZ - 0.01).fastFloor()) {
             for (y in (boundingBox.minY - 0.5).fastFloor() downTo -1) {
                 if (y < ry) break
 
@@ -66,8 +66,8 @@ fun World.getGroundLevel(boundingBox: AxisAlignedBB): Double {
     var maxY = Double.MIN_VALUE
     val pos = BlockPos.PooledMutableBlockPos.retain()
 
-    for (x in (boundingBox.minX - 0.1).fastFloor()..(boundingBox.maxX + 0.1).fastFloor()) {
-        for (z in (boundingBox.minZ - 0.1).fastFloor()..(boundingBox.maxZ + 0.1).fastFloor()) {
+    for (x in (boundingBox.minX + 0.01).fastFloor()..(boundingBox.maxX - 0.01).fastFloor()) {
+        for (z in (boundingBox.minZ + 0.01).fastFloor()..(boundingBox.maxZ - 0.01).fastFloor()) {
             for (y in (boundingBox.minY - 0.5).fastFloor() downTo -1) {
                 if (y < maxY.fastCeil() - 1) break
 
@@ -79,6 +79,8 @@ fun World.getGroundLevel(boundingBox: AxisAlignedBB): Double {
             }
         }
     }
+
+    pos.release()
 
     return maxY
 }

@@ -253,7 +253,7 @@ internal object Scaffold : Module(
 
         val floorY = player.posY.fastFloor()
         val sequence = if (isTowering()) {
-            val feetY = max(world.getGroundLevel(player).toInt(), floorY - 1)
+            val feetY = world.getGroundLevel(player).toInt()
             val feetPos = BlockPos(player.posX.fastFloor(), feetY, player.posZ.fastFloor())
             getPlacementSequence(
                 feetPos,
