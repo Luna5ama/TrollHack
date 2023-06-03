@@ -31,8 +31,7 @@ import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
+import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import kotlinx.coroutines.delay
@@ -156,7 +155,7 @@ internal object CrystalBasePlace : Module(
                 timer.reset()
 
                 delay(50)
-                onMainThreadSafeSuspend {
+                onMainThread {
                     placeBlock(placeInfo, slot)
                     Notification.send(CrystalBasePlace, "$chatName Obsidian placed")
                 }

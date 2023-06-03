@@ -14,7 +14,7 @@ import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
+import dev.luna5ama.trollhack.util.threads.onMainThread
 import kotlinx.coroutines.launch
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.init.SoundEvents
@@ -87,7 +87,7 @@ internal object StashLogger : Module(
             }
 
             if (playSound) {
-                onMainThreadSuspend {
+                onMainThread {
                     mc.soundHandler.playSound(
                         PositionedSoundRecord.getRecord(
                             SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP,

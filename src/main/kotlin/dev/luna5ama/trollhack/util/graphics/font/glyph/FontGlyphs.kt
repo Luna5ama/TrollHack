@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.graphics.texture.BC4Compression
 import dev.luna5ama.trollhack.util.graphics.texture.Mipmaps
 import dev.luna5ama.trollhack.util.graphics.texture.RawImage
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
+import dev.luna5ama.trollhack.util.threads.onMainThread
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
@@ -142,13 +142,13 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
 
     private suspend fun loadGlyphChunkAsync(chunkID: Int): GlyphChunk {
         return coroutineScope {
-            val deferredTexture = onMainThreadSuspend {
+            val deferredTexture = onMainThread {
                 GlyphTexture(textureSize, textureSize, 4)
             }
 
             val cache = GlyphCache.get(font, chunkID) ?: createNewGlyph(chunkID)
 
-            val deferredBuffer = onMainThreadSuspend {
+            val deferredBuffer = onMainThread {
                 val bufferID = glCreateBuffers()
                 glNamedBufferStorage(bufferID, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
                 bufferID to glMapNamedBufferRange(bufferID, 0, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
@@ -156,7 +156,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
 
             val (bufferID, buffer) = deferredBuffer.await()
             buffer.setBytesUnsafe(cache.data)
-            onMainThreadSuspend {
+            onMainThread {
                 glUnmapNamedBuffer(bufferID)
             }.await()
 
@@ -187,7 +187,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
                 }
             }
 
-            onMainThreadSuspend {
+            onMainThread {
                 glDeleteBuffers(bufferID)
             }
 
@@ -197,7 +197,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
 
     private suspend fun uploadSmoothed(block: () -> Unit) {
         uploadMutex.withLock {
-            onMainThreadSuspend(block).join()
+            onMainThread(block).join()
         }
     }
 

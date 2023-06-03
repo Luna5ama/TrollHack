@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.util.ClassUtils.instance
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSuspend
+import dev.luna5ama.trollhack.util.threads.onMainThread
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -98,7 +98,7 @@ object CommandManager : AbstractCommandManager<ClientExecuteEvent>(), AsyncLoade
         val finalArg = command.finalArgs.firstOrNull { it.checkArgs(event.args) }
             ?: throw SubCommandNotFoundException(event.args, command)
 
-        onMainThreadSuspend {
+        onMainThread {
             runBlocking {
                 finalArg.invoke(event)
             }

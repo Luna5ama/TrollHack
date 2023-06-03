@@ -34,7 +34,6 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
-import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
 import dev.luna5ama.trollhack.util.world.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -597,7 +596,7 @@ internal object AutoObsidian : Module(
             if (shulkerOpenTimer.tickAndReset(50L)) {
                 DefaultScope.launch {
                     delay(20L)
-                    onMainThreadSafeSuspend {
+                    onMainThread {
                         connection.sendPacket(
                             CPacketPlayerTryUseItemOnBlock(
                                 pos,
@@ -633,7 +632,7 @@ internal object AutoObsidian : Module(
 
         DefaultScope.launch {
             delay(20L)
-            onMainThreadSafeSuspend {
+            onMainThread {
                 player.spoofSneak {
                     placeBlock(placeInfo)
                 }
@@ -668,7 +667,7 @@ internal object AutoObsidian : Module(
 
         DefaultScope.launch {
             delay(20L)
-            onMainThreadSafeSuspend {
+            onMainThread {
                 if (pre || miningTimeoutTimer.tickAndReset(8L)) {
                     connection.sendPacket(
                         CPacketPlayerDigging(

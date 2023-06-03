@@ -7,7 +7,8 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.threads.DefaultScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
+import dev.luna5ama.trollhack.util.threads.onMainThread
+import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.minecraft.network.play.client.CPacketConfirmTransaction
@@ -47,7 +48,7 @@ internal object PingSpoof : Module(
                     it.cancel()
                     DefaultScope.launch {
                         delay((delay * multiplier).toLong())
-                        onMainThreadSafeSuspend {
+                        onMainThreadSafe {
                             connection.sendPacket(CPacketKeepAlive(it.packet.id))
                         }
                     }
@@ -61,7 +62,7 @@ internal object PingSpoof : Module(
                         it.cancel()
                         DefaultScope.launch {
                             delay((delay * multiplier).toLong())
-                            onMainThreadSafeSuspend {
+                            onMainThreadSafe {
                                 connection.sendPacket(
                                     CPacketConfirmTransaction(
                                         it.packet.windowId,

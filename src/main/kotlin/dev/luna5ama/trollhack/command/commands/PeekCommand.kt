@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.command.commands
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.onMainThreadSafeSuspend
+import dev.luna5ama.trollhack.util.threads.onMainThread
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.ScaledResolution
@@ -35,7 +35,7 @@ object PeekCommand : ClientCommand(
 
                 ConcurrentScope.launch {
                     delay(50L)
-                    onMainThreadSafeSuspend {
+                    onMainThread {
                         mc.displayGuiScreen(gui)
                     }
                 }

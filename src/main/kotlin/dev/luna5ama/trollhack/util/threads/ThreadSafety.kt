@@ -64,32 +64,20 @@ suspend fun <R> runSafeSuspend(block: suspend SafeClientEvent.() -> R): R? {
     return SafeClientEvent.instance?.let { block(it) }
 }
 
-fun <T> onMainThreadSafe(block: SafeClientEvent.() -> T) =
-    onMainThread { SafeClientEvent.instance?.block() }
-
-fun <T> onMainThread(block: () -> T) =
-    MainThreadExecutor.add(block)
-
-/**
- * Runs [block] on Minecraft main thread (Client thread)
- * The [block] will the called with a [SafeClientEvent] to ensure null safety.
- *
- * @return [CompletableDeferred] callback
- *
- * @see [onMainThreadSuspend]
- */
-suspend fun <T> onMainThreadSafeSuspend(block: SafeClientEvent.() -> T) =
-    onMainThreadSuspend { SafeClientEvent.instance?.block() }
+fun <T> onMainThreadSafe(block: SafeClientEvent.() -> T): CompletableDeferred<T?> {
+    return onMainThread { SafeClientEvent.instance?.block() }
+}
 
 /**
  * Runs [block] on Minecraft main thread (Client thread)
  *
  * @return [CompletableDeferred] callback
  *
- * @see [onMainThreadSafeSuspend]
+ * @see [onMainThread]
  */
-suspend fun <T> onMainThreadSuspend(block: () -> T) =
-    MainThreadExecutor.addSuspend(block)
+fun <T> onMainThread(block: () -> T): CompletableDeferred<T> {
+    return MainThreadExecutor.add(block)
+}
 
 inline fun <T : Any, R> T.runSynchronized(block: T.() -> R): R {
     contract {

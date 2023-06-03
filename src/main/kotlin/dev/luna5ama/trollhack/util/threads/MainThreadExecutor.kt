@@ -1,18 +1,19 @@
 package dev.luna5ama.trollhack.util.threads
 
+import dev.fastmc.common.DoubleBuffered
+import dev.fastmc.common.collection.FastObjectArrayList
 import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.util.Wrapper
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.completeWith
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 object MainThreadExecutor : AlwaysListening {
-    private var jobs = ArrayList<MainThreadJob<*>>()
-    private val mutex = Mutex()
+    private val jobs = DoubleBuffered { FastObjectArrayList<MainThreadJob<*>>() }
+    private val signal = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
 
     init {
         listener<RunGameLoopEvent.Start>(Int.MAX_VALUE, true) {
@@ -30,45 +31,37 @@ object MainThreadExecutor : AlwaysListening {
     }
 
     private fun runJobs() {
-        if (jobs.isNotEmpty()) {
-            runBlocking {
-                val prev: List<MainThreadJob<*>>
-
-                mutex.withLock {
-                    prev = jobs
-                    jobs = ArrayList()
-                }
-
-                prev.forEach {
-                    it.run()
-                }
+        signal.tryReceive()
+        jobs.swap().front.runSynchronized {
+            forEach {
+                it.run()
             }
+            clear()
         }
     }
 
-    fun <T> add(block: () -> T) =
-        MainThreadJob(block).apply {
-            if (Wrapper.minecraft.isCallingFromMinecraftThread) {
-                run()
-            } else {
-                runBlocking {
-                    mutex.withLock {
-                        jobs.add(this@apply)
-                    }
-                }
+    suspend fun runJobAdapter() {
+        signal.receive()
+        jobs.swap().front.runSynchronized {
+            forEach {
+                it.run()
             }
-        }.deferred
+            clear()
+        }
+    }
 
-    suspend fun <T> addSuspend(block: () -> T) =
-        MainThreadJob(block).apply {
-            if (Wrapper.minecraft.isCallingFromMinecraftThread) {
-                run()
-            } else {
-                mutex.withLock {
-                    jobs.add(this)
-                }
+    fun <T> add(block: () -> T): CompletableDeferred<T> {
+        val job = MainThreadJob(block)
+        if (Wrapper.minecraft.isCallingFromMinecraftThread) {
+            job.run()
+        } else {
+            jobs.back.runSynchronized {
+                add(job)
             }
-        }.deferred
+            signal.trySend(Unit)
+        }
+        return job.deferred
+    }
 
     private class MainThreadJob<T>(private val block: () -> T) {
         val deferred = CompletableDeferred<T>()
