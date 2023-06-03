@@ -1,8 +1,8 @@
 [//]: <> (Thanks for the advice KiLAB, now I'm going to ice out the README even more)
 [//]: <> (Don't worry, these are comments, they won't actually show on the readme :)
 
-[![Download button](https://img.shields.io/badge/client-download-success.svg)](https://github.com/Luna5ama/TrollHack/releases/download/1.1.1/TrollHack-1.1.1.jar)
-![Current version](https://img.shields.io/badge/version-1.1.1-blue)
+[![Download button](https://img.shields.io/badge/client-download-success.svg)](https://github.com/Luna5ama/TrollHack/releases/download/1.1.2/TrollHack-1.1.2.jar)
+![Current version](https://img.shields.io/badge/version-1.1.2-blue)
 ![Download count](https://img.shields.io/github/downloads/Luna5ama/TrollHack/latest/total)
 
 # TrollHack
@@ -28,10 +28,9 @@ Crashing with `java.lang.IllegalAccessError: tried to access field net.minecraft
  - Please remove `-Xverify:none` from your launch JVM arguments.
 
 Before opening an issue, please consider the following:  
-- Are you on the very latest version? In this case, it should be 1.1.1
+- Are you on the very latest version? In this case, it should be 1.1.2
 - Did you compile it yourself, or did you use the release?
 - Are your graphics drivers up to date?
-- Are you using fast render? (If your version is below 1.1.1, you must upgrade to fix the fast render crash)  
 If you're sure you've tried everything, open an issue. [How to ask a good question](https://stackoverflow.com/help/how-to-ask)
 
 # Can't open the GUI?

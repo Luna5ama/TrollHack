@@ -5,7 +5,7 @@ import net.minecraftforge.gradle.userdev.UserDevExtension
 import kotlin.math.max
 
 group = "dev.luna5ama"
-version = "1.1.1"
+version = "1.1.2"
 
 buildscript {
     repositories {
@@ -135,6 +135,7 @@ modLoader {
 tasks {
     register<Task>("releaseBuild") {
         group = "build"
+        dependsOn("clean")
         finalizedBy("build")
 
         doFirst {
