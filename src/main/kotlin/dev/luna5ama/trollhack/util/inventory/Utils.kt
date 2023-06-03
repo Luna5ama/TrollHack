@@ -22,7 +22,7 @@ fun SafeClientEvent.equipBestTool(blockState: IBlockState) {
 }
 
 fun SafeClientEvent.findBestTool(blockState: IBlockState): HotbarSlot? {
-    var maxSpeed = 1.0f
+    var maxSpeed = 0.0f
     var bestSlot: HotbarSlot? = null
 
     for (slot in player.hotbarSlots) {
@@ -33,9 +33,7 @@ fun SafeClientEvent.findBestTool(blockState: IBlockState): HotbarSlot? {
         } else {
             var speed = stack.getDestroySpeed(blockState)
 
-            if (speed <= 1.0f) {
-                continue
-            } else {
+            if (speed > 1.0f) {
                 val efficiency = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack)
                 if (efficiency > 0) {
                     speed += efficiency * efficiency + 1.0f

@@ -46,7 +46,6 @@ import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.canBreakBlock
-import dev.luna5ama.trollhack.util.world.getBlock
 import dev.luna5ama.trollhack.util.world.getMiningSide
 import dev.luna5ama.trollhack.util.world.isAir
 import net.minecraft.block.state.IBlockState
@@ -94,7 +93,7 @@ internal object PacketMine : Module(
     private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
     private val packetTimer = TickTimer()
     private var miningInfo0: MiningInfo? = null
-    private var breakConfirm: Pair<BlockPos, Long>? = null
+    private var breakConfirm: BreakConfirmInfo? = null
     val miningInfo: IMiningInfo? get() = miningInfo0
 
     private val miningQueue = HashMap<AbstractModule, MiningTask>().synchronized()
@@ -180,7 +179,8 @@ internal object PacketMine : Module(
 
             if (event.packet is SPacketBlockChange && event.packet.blockPosition == miningInfo.pos) {
                 val newBlockState = event.packet.blockState
-                val current = world.getBlock(miningInfo.pos)
+                val currentState = world.getBlockState(miningInfo.pos)
+                val current = currentState.block
                 val new = newBlockState.block
 
                 if (new != Blocks.AIR) {
@@ -188,18 +188,22 @@ internal object PacketMine : Module(
                     if (new != current) {
                         miningInfo.isAir = false
 
-                        if (miningMode == MiningMode.CONTINUOUS_INSTANT) {
+                        if (miningMode == MiningMode.CONTINUOUS_INSTANT && miningInfo.mined) {
                             finishMining(newBlockState, miningInfo)
                         } else if (miningMode == MiningMode.CONTINUOUS_NORMAL) {
-                            miningInfo.length = calcBreakTime(miningInfo.pos)
+                            miningInfo.updateLength(this)
                             if (System.currentTimeMillis() < miningInfo.endTime) {
                                 reset(PacketMine)
-                                mineBlock(PacketMine, miningInfo.pos, modulePriority)
+                                mineBlock(miningInfo.module, miningInfo.pos, miningInfo.module.modulePriority)
                             }
                         }
                     }
                 } else if (new != current) {
-                    breakConfirm = miningInfo.pos to System.currentTimeMillis() + 50L
+                    breakConfirm = BreakConfirmInfo(
+                        miningInfo.pos,
+                        System.currentTimeMillis() + 50L,
+                        miningInfo.mined || currentState.getBlockHardness(world, miningInfo.pos) > 0.0f
+                    )
                 }
             }
         }
@@ -243,19 +247,16 @@ internal object PacketMine : Module(
             val miningInfo = miningInfo0 ?: return@safeListener
             val breakConfirm = breakConfirm
 
-            if (breakConfirm != null && System.currentTimeMillis() < breakConfirm.second) {
+            if (breakConfirm != null && System.currentTimeMillis() < breakConfirm.time) {
                 miningInfo.isAir = true
-                miningInfo.mined = true
+                miningInfo.mined = breakConfirm.instantMineable
 
                 if (!miningMode.continous) {
                     reset()
                     miningQueue.remove(miningInfo.module)
                 } else if (miningMode.continous) {
-                    if (miningMode == MiningMode.CONTINUOUS_NORMAL) {
-                        miningInfo.startTime = System.currentTimeMillis()
-                        miningInfo.length
-                    }
-                    if (startPacketAfterBreak) {
+                    if (!breakConfirm.instantMineable) {
+                        miningInfo.updateLength(this)
                         connection.sendPacket(
                             CPacketPlayerDigging(
                                 CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
@@ -263,15 +264,28 @@ internal object PacketMine : Module(
                                 miningInfo.side
                             )
                         )
-                    }
-                    if (endPacketAfterBreak) {
-                        connection.sendPacket(
-                            CPacketPlayerDigging(
-                                CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                                miningInfo.pos,
-                                miningInfo.side
+                    } else {
+                        if (miningMode == MiningMode.CONTINUOUS_NORMAL) {
+                            miningInfo.startTime = System.currentTimeMillis()
+                        }
+                        if (startPacketAfterBreak) {
+                            connection.sendPacket(
+                                CPacketPlayerDigging(
+                                    CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
+                                    miningInfo.pos,
+                                    miningInfo.side
+                                )
                             )
-                        )
+                        }
+                        if (endPacketAfterBreak) {
+                            connection.sendPacket(
+                                CPacketPlayerDigging(
+                                    CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
+                                    miningInfo.pos,
+                                    miningInfo.side
+                                )
+                            )
+                        }
                     }
                 }
 
@@ -289,7 +303,12 @@ internal object PacketMine : Module(
             if (isFinished(miningInfo, blockState) && checkRotation(miningInfo)) {
                 if (packetTimer.tick(packetDelay)) {
                     if (finishMining(blockState, miningInfo)) {
-                        if (miningMode == MiningMode.NORMAL_ONCE) reset(miningInfo.module)
+                        if (!miningMode.continous) {
+                            reset(miningInfo.module)
+                            if (miningMode == MiningMode.NORMAL_RETRY) {
+                                mineBlock(miningInfo.module, miningInfo.pos, miningInfo.module.modulePriority)
+                            }
+                        }
                     }
                 }
             } else if (spamPackets) {
@@ -305,8 +324,7 @@ internal object PacketMine : Module(
     private fun SafeClientEvent.finishMining(blockState: IBlockState, miningInfo: MiningInfo): Boolean {
         var result = false
 
-        val swapMode = swapMode
-        when (swapMode) {
+        when (val swapMode = swapMode) {
             SwapMode.OFF -> {
                 // do nothing
             }
@@ -424,11 +442,10 @@ internal object PacketMine : Module(
                 val vector = player.eyePosition.subtract(task.pos.x + 0.5, task.pos.y + 0.5, task.pos.z + 0.5)
                 EnumFacing.getFacingFromVector(vector.x.toFloat(), vector.y.toFloat(), vector.z.toFloat())
             }
-            miningInfo0 =
-                MiningInfo(task.owner, task.pos, side, (breakTime * breakTimeMultiplier + breakTimeBias).ceilToInt())
+            miningInfo0 = MiningInfo(this, task.owner, task.pos, side)
             packetTimer.reset(-69420)
 
-            if (startPacketOnClick) connection.sendPacket(
+            if (startPacketOnClick || breakTime == 0) connection.sendPacket(
                 CPacketPlayerDigging(
                     CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
                     task.pos,
@@ -473,10 +490,18 @@ internal object PacketMine : Module(
             return -1
         }
 
+        if (hardness == 0.0f) {
+            return 0
+        }
+
         val relativeDamage = breakSpeed / hardness / 30.0f
         val ticks = (0.7f / relativeDamage).fastCeil()
 
-        return ticks * 50
+        if (ticks <= 0) {
+            return 0
+        }
+
+        return (ticks * 50 * breakTimeMultiplier + breakTimeBias).ceilToInt()
     }
 
     private fun SafeClientEvent.getBreakSpeed(blockState: IBlockState): Float {
@@ -550,14 +575,21 @@ internal object PacketMine : Module(
     }
 
     private class MiningInfo(
+        event: SafeClientEvent,
         val module: AbstractModule,
         override val pos: BlockPos,
         override val side: EnumFacing,
-        var length: Int
     ) : IMiningInfo {
+        var length = event.calcBreakTime(pos); private set
         var startTime = System.currentTimeMillis()
         val endTime get() = startTime + length
         var isAir = false
         var mined = false
+
+        fun updateLength(event: SafeClientEvent) {
+            length = event.calcBreakTime(pos)
+        }
     }
+
+    private data class BreakConfirmInfo(val pos: BlockPos, val time: Long, val instantMineable: Boolean)
 }
