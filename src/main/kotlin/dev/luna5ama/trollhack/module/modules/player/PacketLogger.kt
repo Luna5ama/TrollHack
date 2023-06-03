@@ -230,19 +230,19 @@ internal object PacketLogger : Module(
             disable()
         }
 
-        listener<PacketEvent.Receive>(Int.MIN_VALUE) {
-            clientSide.handle(it)
-        }
-
         listener<PacketEvent.Send>(Int.MIN_VALUE) {
             clientSide.handle(it)
         }
 
-        listener<PacketEvent.PostReceive>(Int.MIN_VALUE) {
+        listener<PacketEvent.PostSend>(Int.MIN_VALUE) {
+            clientSide.handle(it)
+        }
+
+        listener<PacketEvent.Receive>(Int.MIN_VALUE) {
             serverSide.handle(it)
         }
 
-        listener<PacketEvent.PostSend>(Int.MIN_VALUE) {
+        listener<PacketEvent.PostReceive>(Int.MIN_VALUE) {
             serverSide.handle(it)
         }
     }
