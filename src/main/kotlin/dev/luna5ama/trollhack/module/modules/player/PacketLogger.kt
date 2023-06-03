@@ -143,7 +143,7 @@ internal object PacketLogger : Module(
 
         private val handlers = mutableMapOf<Class<out Packet<*>>, Handler>().apply {
             handleFunc.associateTo(this) { (clazz, func) ->
-                clazz to Handler(setting(clazz.simpleName, true, { page == side && sideEnabled }), func)
+                clazz to Handler(setting(clazz.simpleName, false, { page == side && sideEnabled }), func)
             }
         }
 
@@ -154,7 +154,7 @@ internal object PacketLogger : Module(
         fun handle(event: PacketEvent) {
             if (!sideEnabled) return
             if (!sideStage.predicate(event.stage)) return
-            if (logCancelled && event is ICancellable && event.cancelled) return
+            if (!logCancelled && event is ICancellable && event.cancelled) return
 
             getHandler(event).handle(event)
         }
