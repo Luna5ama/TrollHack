@@ -49,7 +49,7 @@ internal object HoleESP : Module(
     private val aFilled by setting("Filled Alpha", 63, 0..255, 1, filled0.atTrue())
     private val aOutline by setting("Outline Alpha", 255, 0..255, 1, outline0.atTrue())
     private val glowHeight by setting("Glow Height", 1.0f, 0.25f..4.0f, 0.25f, renderMode0.atValue(RenderMode.GLOW))
-    private val flatOutline by setting("Flat Outline", true)
+    private val flatOutline by setting("Flat Outline", true, renderMode0.atValue(RenderMode.GLOW))
     private val width by setting("Width", 2.0f, 1.0f..8.0f, 0.1f, outline0.atTrue())
     private val range by setting("Range", 16, 4..32, 1)
 
@@ -83,13 +83,17 @@ internal object HoleESP : Module(
         glShadeModel(GL_SMOOTH)
         GlStateManager.glLineWidth(width)
 
-        GlStateUtils.cull(false)
-        renderGlowESPFilled()
-        RenderUtils3D.draw(GL_QUADS)
-        GlStateUtils.cull(true)
+        if (filled) {
+            GlStateUtils.cull(false)
+            renderGlowESPFilled()
+            RenderUtils3D.draw(GL_QUADS)
+            GlStateUtils.cull(true)
+        }
 
-        renderGlowESPOutline()
-        RenderUtils3D.draw(GL_LINES)
+        if (outline) {
+            renderGlowESPOutline()
+            RenderUtils3D.draw(GL_LINES)
+        }
 
         GlStateUtils.depth(true)
         GlStateManager.glLineWidth(1.0f)
