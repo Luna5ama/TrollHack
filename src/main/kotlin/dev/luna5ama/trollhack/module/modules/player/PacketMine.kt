@@ -409,60 +409,65 @@ internal object PacketMine : Module(
         synchronized(miningQueue) {
             if (miningQueue.isEmpty()) return@synchronized
             val sorted = miningQueue.values.toTypedArray()
-            sorted.sortBy { it.priority }
+            sorted.sort()
 
-            var index = sorted.size - 1
-            maxPriorityTask = sorted[index]
+            val rangeSq = range * range
 
-            while (maxPriorityTask != null && index > 0
-                && (maxPriorityTask!!.owner.isDisabled
-                    || (!miningMode.continous || maxPriorityTask!!.once) && world.isAir(maxPriorityTask!!.pos))
-            ) {
-                miningQueue.remove(maxPriorityTask!!.owner)
-                maxPriorityTask = sorted[--index]
+            for (task in sorted) {
+                if (player.getDistanceSqToCenter(task.pos) > rangeSq) continue // Ignore tasks out of range
+                if (!world.canBreakBlock(task.pos)) {
+                    miningQueue.remove(task.owner) // Remove invalid tasks
+                    continue
+                }
+                if ((!miningMode.continous || task.once) && world.isAir(task.pos)) {
+                    miningQueue.remove(task.owner) // Remove finished tasks
+                    continue
+                }
+
+                maxPriorityTask = task
             }
         }
 
         maxPriorityTask?.let {
-            mineBlock(it)
+            if (it.pos != miningInfo0?.pos) {
+                startMining(it)
+            } else {
+                miningInfo0?.updateLength(this)
+            }
         } ?: run {
             reset()
         }
     }
 
-    private fun SafeClientEvent.mineBlock(task: MiningTask) {
-        if (world.canBreakBlock(task.pos) && task.pos != miningInfo0?.pos) {
-            if (player.getDistanceSqToCenter(task.pos) > range * range) return
+    private fun SafeClientEvent.startMining(task: MiningTask) {
+        val breakTime = calcBreakTime(task.pos)
+        if (breakTime == -1) return
 
-            val breakTime = calcBreakTime(task.pos)
-            if (breakTime == -1) return
-
-            reset()
-            val side = getMiningSide(task.pos) ?: run {
-                val vector = player.eyePosition.subtract(task.pos.x + 0.5, task.pos.y + 0.5, task.pos.z + 0.5)
-                EnumFacing.getFacingFromVector(vector.x.toFloat(), vector.y.toFloat(), vector.z.toFloat())
-            }
-            miningInfo0 = MiningInfo(this, task.owner, task.pos, side)
-            packetTimer.reset(-69420)
-
-            if (startPacketOnClick || breakTime == 0) connection.sendPacket(
-                CPacketPlayerDigging(
-                    CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                    task.pos,
-                    side
-                )
-            )
-            connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, task.pos, side))
-
-            if (noAnimation) connection.sendPacket(
-                CPacketPlayerDigging(
-                    CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK,
-                    task.pos,
-                    side
-                )
-            )
-            if (!noSwing) swingMode.swingHand(this, EnumHand.MAIN_HAND)
+        reset()
+        val side = getMiningSide(task.pos) ?: run {
+            val vector = player.eyePosition.subtract(task.pos.x + 0.5, task.pos.y + 0.5, task.pos.z + 0.5)
+            EnumFacing.getFacingFromVector(vector.x.toFloat(), vector.y.toFloat(), vector.z.toFloat())
         }
+        miningInfo0 = MiningInfo(this, task.owner, task.pos, side)
+        packetTimer.reset(-69420)
+
+        if (startPacketOnClick || breakTime == 0) connection.sendPacket(
+            CPacketPlayerDigging(
+                CPacketPlayerDigging.Action.START_DESTROY_BLOCK,
+                task.pos,
+                side
+            )
+        )
+        connection.sendPacket(CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, task.pos, side))
+
+        if (noAnimation) connection.sendPacket(
+            CPacketPlayerDigging(
+                CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK,
+                task.pos,
+                side
+            )
+        )
+        if (!noSwing) swingMode.swingHand(this, EnumHand.MAIN_HAND)
     }
 
     private fun SafeClientEvent.checkRotation(miningInfo: MiningInfo): Boolean {
@@ -486,9 +491,6 @@ internal object PacketMine : Module(
 
         val hardness = blockState.getBlockHardness(world, pos)
         val breakSpeed = getBreakSpeed(blockState)
-        if (breakSpeed == -1.0f) {
-            return -1
-        }
 
         if (hardness == 0.0f) {
             return 0
@@ -515,9 +517,7 @@ internal object PacketMine : Module(
             } else {
                 var speed = stack.getDestroySpeed(blockState)
 
-                if (speed <= 1.0f) {
-                    continue
-                } else {
+                if (speed > 1.0f) {
                     val efficiency = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack)
                     if (efficiency > 0) {
                         speed += efficiency * efficiency + 1.0f
@@ -567,7 +567,11 @@ internal object PacketMine : Module(
 
     private class SwapInfo(val swapMode: SwapMode, val prevSlot: Int, val swapSlot: Int, var swapTick: Int)
 
-    private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int, val once: Boolean)
+    private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int, val once: Boolean): Comparable<MiningTask> {
+        override fun compareTo(other: MiningTask): Int {
+            return -priority.compareTo(other.priority)
+        }
+    }
 
     interface IMiningInfo {
         val pos: BlockPos
