@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.math.vector.distanceSq
+import dev.luna5ama.trollhack.util.world.isAir
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.math.BlockPos
 
@@ -81,25 +82,24 @@ internal object BurrowMiner : Module(
     }
 
     private fun SafeClientEvent.getClipPos(target: EntityLivingBase): BlockPos? {
-        val pos = BlockPos.MutableBlockPos()
-        val detectBB = target.entityBoundingBox.setMaxY(target.posY + 1.0)
+        val detectBB = target.entityBoundingBox
 
         var minDist = Double.MAX_VALUE
-        var minDistPos: BlockPos? = null
+        val minDistPos = BlockPos.MutableBlockPos()
 
         val y = target.posY.fastFloor()
-        for (x in detectBB.minX.fastFloor()..detectBB.maxX.fastFloor()) {
-            for (z in detectBB.minZ.fastFloor()..detectBB.maxZ.fastFloor()) {
+        for (x in (detectBB.minX + 0.001).fastFloor()..(detectBB.maxX + 0.001).fastFloor()) {
+            for (z in (detectBB.minZ + 0.001).fastFloor()..(detectBB.maxZ + 0.001).fastFloor()) {
                 val dist = distanceSq(x + 0.5, z + 0.5, target.posX, target.posZ)
 
-                if (dist < minDist && !world.isAirBlock(pos.setPos(x, y, z))) {
+                if (dist < minDist && !world.isAir(x, y, z)) {
                     minDist = dist
-                    minDistPos = pos
+                    minDistPos.setPos(x, y, z)
                 }
             }
         }
 
-        return minDistPos
+        return minDistPos.takeIf { minDist < Double.MAX_VALUE }
     }
 
     private fun reset() {

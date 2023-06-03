@@ -428,6 +428,7 @@ internal object PacketMine : Module(
                 }
 
                 maxPriorityTask = task
+                break
             }
         }
 
