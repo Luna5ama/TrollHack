@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
-import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category

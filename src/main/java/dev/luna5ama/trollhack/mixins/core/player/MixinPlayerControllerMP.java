@@ -2,7 +2,7 @@ package dev.luna5ama.trollhack.mixins.core.player;
 
 import dev.luna5ama.trollhack.event.events.player.InteractEvent;
 import dev.luna5ama.trollhack.event.events.player.PlayerAttackEvent;
-import dev.luna5ama.trollhack.manager.managers.HotbarManager;
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager;
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager;
 import dev.luna5ama.trollhack.module.modules.player.BetterEat;
 import dev.luna5ama.trollhack.module.modules.player.FastBreak;
@@ -208,7 +208,7 @@ public abstract class MixinPlayerControllerMP {
         ci.cancel();
         if (Wrapper.getPlayer() == null) return;
 
-        synchronized (HotbarManager.INSTANCE) {
+        synchronized (HotbarSwitchManager.INSTANCE) {
             int i = this.mc.player.inventory.currentItem;
 
             if (i != this.currentPlayerItem) {

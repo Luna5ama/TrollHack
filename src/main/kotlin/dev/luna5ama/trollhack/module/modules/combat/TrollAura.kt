@@ -11,8 +11,8 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.*
-import dev.luna5ama.trollhack.manager.managers.HotbarManager.serverSideItem
-import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -784,7 +784,7 @@ internal object TrollAura : Module(
         }
 
         // Anticheat doesn't allow you attack right after changing item
-        if ((!autoSwap || !spoofHotbar) && System.currentTimeMillis() - HotbarManager.swapTime < swapDelay * 50L) {
+        if ((!autoSwap || !spoofHotbar) && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) {
             return false
         }
 

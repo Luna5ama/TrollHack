@@ -3,8 +3,8 @@ package dev.luna5ama.trollhack.util.world
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.fastmc.common.fastFloor
 import dev.luna5ama.trollhack.event.SafeClientEvent
-import dev.luna5ama.trollhack.manager.managers.HotbarManager.serverSideItem
-import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.collections.EnumSet

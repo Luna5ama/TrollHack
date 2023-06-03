@@ -2,7 +2,7 @@ package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.luna5ama.trollhack.event.events.InputEvent
 import dev.luna5ama.trollhack.event.safeListener
-import dev.luna5ama.trollhack.manager.managers.HotbarManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem

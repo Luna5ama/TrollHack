@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
-import dev.luna5ama.trollhack.manager.managers.HotbarManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
@@ -125,7 +125,7 @@ internal object KillAura : Module(
 
         if (CombatSetting.pause) return
         if (player.getDistance(target) >= range) return
-        if (swapDelay > 0 && System.currentTimeMillis() - HotbarManager.swapTime < swapDelay * 50L) return
+        if (swapDelay > 0 && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
 
         MainHandPause.withPause(KillAura) {
             inactiveTicks = 0
