@@ -47,7 +47,7 @@ internal object AutoPot : Module(
     category = Category.COMBAT,
     modulePriority = 100
 ) {
-    private val switchMode by setting("Switch Mode", HotbarSwitchManager.Override.PICK)
+    private val ghostSwitchBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.Override.PICK)
     private val slot by setting("Slot", 7, 1..9, 1)
     private val heal by setting("Heal", true)
     private val healHealth by setting("Heal Health", 12.0f, 0.0f..20.0f, 0.5f, ::heal)
@@ -142,7 +142,7 @@ internal object AutoPot : Module(
         safeListener<OnUpdateWalkingPlayerEvent.Post> {
             hotbarSlot?.let {
                 if (PlayerPacketManager.prevRotation.y > 85.0f && PlayerPacketManager.rotation.y > 85.0f) {
-                    ghostSwitch(switchMode, it) {
+                    ghostSwitch(ghostSwitchBypass, it) {
                         connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                         potionType.timer.reset()
                         potionType = PotionType.NONE

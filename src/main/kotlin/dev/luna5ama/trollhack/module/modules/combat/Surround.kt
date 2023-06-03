@@ -60,7 +60,7 @@ internal object Surround : Module(
     description = "Surrounds you with obsidian to take less damage",
     modulePriority = 200
 ) {
-    private val switchMode by setting("Switch Mode", HotbarSwitchManager.Override.DEFAULT)
+    private val ghostSwitchBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.Override.DEFAULT)
     private val placeDelay by setting("Place delay", 50, 0..1000, 1)
     private val multiPlace by setting("Multi Place", 2, 1..5, 1)
     private val placeTimeout by setting("Place Timeout", 100, 0..1000, 10)
@@ -410,7 +410,7 @@ internal object Surround : Module(
         val sneak = !player.isSneaking
         if (sneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
 
-        ghostSwitch(switchMode, slot) {
+        ghostSwitch(ghostSwitchBypass, slot) {
             connection.sendPacket(placeInfo.toPlacePacket(EnumHand.MAIN_HAND))
         }
         connection.sendPacket(CPacketAnimation(EnumHand.MAIN_HAND))

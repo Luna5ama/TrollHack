@@ -69,7 +69,7 @@ internal object PacketMine : Module(
 ) {
     private val miningMode by setting("Mining Mode", MiningMode.NORMAL_RETRY)
     private val switchMode by setting("Switch Mode", SwitchMode.GHOST)
-    private val ghostSwitchMode by setting("Ghost Switch Mode", HotbarSwitchManager.Override.SWAP)
+    private val ghostSwitchBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.Override.SWAP)
     private val preSwapDelay by setting("Pre Swap Delay", 1, 0..20, 1, { switchMode.swap })
     private val postSwapDelay by setting("Post Swap Delay", 1, 0..20, 1, { switchMode.swap })
     private val cancelOnSwap by setting("Cancel On Swap", false, { switchMode == SwitchMode.BYPASS })
@@ -378,7 +378,7 @@ internal object PacketMine : Module(
             }
             SwitchMode.GHOST -> {
                 findBestTool(blockState)?.let {
-                    ghostSwitch(ghostSwitchMode, it) {
+                    ghostSwitch(ghostSwitchBypass, it) {
                         sendMiningPacket(miningInfo, true)
                     }
                     result = true
