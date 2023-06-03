@@ -1035,7 +1035,7 @@ internal object ZealotCrystalPlus : Module(
                 SwitchMode.GHOST -> {
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
                     onMainThread {
-                        val slot = player.getCrystalSlot() ?: return@onMainThread
+                        val slot = player.getMaxCrystalSlot() ?: return@onMainThread
                         spoofHotbar(slot) {
                             connection.sendPacket(packet)
                         }
@@ -1134,6 +1134,14 @@ internal object ZealotCrystalPlus : Module(
     private fun SafeClientEvent.isHoldingTool(): Boolean {
         val item = player.serverSideItem.item
         return item is ItemTool || item is ItemSword
+    }
+
+    private fun EntityPlayerSP.getMaxCrystalSlot(): HotbarSlot? {
+        return this.hotbarSlots.asSequence().filter {
+            it.stack.item == Items.END_CRYSTAL
+        }.maxByOrNull {
+            it.stack.count
+        }
     }
 
     private fun EntityPlayerSP.getCrystalSlot(): HotbarSlot? {

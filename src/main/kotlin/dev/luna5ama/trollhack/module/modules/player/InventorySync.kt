@@ -21,7 +21,7 @@ internal object InventorySync : Module(
 ) {
     private val startDelay by setting("Start Delay", 200, 50..1000, 50, fineStep = 1)
     private val endTimeout by setting("End Timeout", 300, 50..1000, 50, fineStep = 1)
-    private val interval by setting("Interval", 1000, 50..3000, 50)
+    private val interval by setting("Interval", 1500, 50..3000, 50)
 
     private val firstPacketTimer = TickTimer()
     private val packetTimer = TickTimer()
