@@ -208,7 +208,7 @@ public abstract class MixinPlayerControllerMP {
         ci.cancel();
         if (Wrapper.getPlayer() == null) return;
 
-        synchronized (HotbarSwitchManager.INSTANCE) {
+        synchronized (InventoryTaskManager.INSTANCE) {
             int i = this.mc.player.inventory.currentItem;
 
             if (i != this.currentPlayerItem) {

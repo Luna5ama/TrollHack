@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.util.inventory.operation
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
+import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
 import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow
 import dev.luna5ama.trollhack.util.inventory.slot.*
@@ -135,7 +136,7 @@ fun SafeClientEvent.swapToSlot(hotbarSlot: HotbarSlot) {
  */
 fun SafeClientEvent.swapToSlot(slot: Int) {
     if (slot !in 0..8) return
-    synchronized(HotbarSwitchManager) {
+    synchronized(InventoryTaskManager) {
         player.inventory.currentItem = slot
         playerController.syncCurrentPlayItem()
     }

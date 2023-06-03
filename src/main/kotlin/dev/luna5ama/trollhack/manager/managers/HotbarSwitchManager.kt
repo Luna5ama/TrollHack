@@ -25,14 +25,15 @@ object HotbarSwitchManager : Manager() {
         safeListener<PacketEvent.Send>(Int.MIN_VALUE) {
             if (it.cancelled || it.packet !is CPacketHeldItemChange) return@safeListener
 
-            val prev = serverSideHotbar
+            val prev: Int
 
-            synchronized(HotbarSwitchManager) {
+            synchronized(InventoryTaskManager) {
+                prev = serverSideHotbar
                 serverSideHotbar = it.packet.slotId
                 swapTime = System.currentTimeMillis()
             }
 
-            if (prev != serverSideHotbar) {
+            if (prev != it.packet.slotId) {
                 HotbarUpdateEvent(prev, serverSideHotbar).post()
             }
         }
@@ -51,17 +52,16 @@ object HotbarSwitchManager : Manager() {
     }
 
     fun SafeClientEvent.ghostSwitch(override: Override, slot: Int, block: () -> Unit) {
-        synchronized(HotbarSwitchManager) {
-            synchronized(InventoryTaskManager) {
-                if (slot != serverSideHotbar) {
-                    override.mode.run {
-                        switch(slot, block)
-                    }
-                } else {
-                    block.invoke()
+        synchronized(InventoryTaskManager) {
+            if (slot != serverSideHotbar) {
+                override.mode.run {
+                    switch(slot, block)
                 }
+                return
             }
         }
+
+        block.invoke()
     }
 
     enum class BypassMode {
