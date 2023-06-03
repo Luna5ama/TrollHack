@@ -160,12 +160,14 @@ public abstract class MixinContainer {
                 } else if (clickTypeIn == ClickType.QUICK_MOVE) {
                     if (slotId < 0) {
                         cir.setReturnValue(ItemStack.EMPTY);
+                        return;
                     }
 
                     Slot slot5 = this.inventorySlots.get(slotId);
 
                     if (slot5 == null || !slot5.canTakeStack(player)) {
                         cir.setReturnValue(ItemStack.EMPTY);
+                        return;
                     }
 
                     for (ItemStack itemstack7 = this.transferStackInSlot(player, slotId); !itemstack7.isEmpty() && ItemStack.areItemsEqual(slot5.getStack(), itemstack7); itemstack7 = this.transferStackInSlot(player, slotId)) {
@@ -174,6 +176,7 @@ public abstract class MixinContainer {
                 } else {
                     if (slotId < 0) {
                         cir.setReturnValue(ItemStack.EMPTY);
+                        return;
                     }
 
                     Slot slot6 = this.inventorySlots.get(slotId);
