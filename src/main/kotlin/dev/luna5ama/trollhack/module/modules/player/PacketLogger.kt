@@ -76,10 +76,10 @@ internal object PacketLogger : Module(
                 append(packet.javaClass.simpleName)
                 append(',')
 
-                append(System.currentTimeMillis() - start)
+                append(formattedTime(System.nanoTime() - start))
                 append(',')
 
-                append(System.currentTimeMillis() - last)
+                append(formattedTime(System.nanoTime() - last))
                 append(',')
             }
         }
@@ -121,7 +121,7 @@ internal object PacketLogger : Module(
 
             synchronized(PacketLogger) {
                 lines.add(string)
-                last = System.currentTimeMillis()
+                last = System.nanoTime()
             }
 
             if (logInChat) {
@@ -199,11 +199,14 @@ internal object PacketLogger : Module(
 
     init {
         onEnable {
-            start = System.currentTimeMillis()
+            start = System.nanoTime()
+            last = start
+            lastTick = start
+
             filename = "${fileTimeFormatter.format(LocalTime.now())}.csv"
 
             synchronized(PacketLogger) {
-                lines.add("From,Packet Name,Time Since Start (ms),Time Since Last (ms),Data\n")
+                lines.add("From,Stage,Packet Name,Time Since Start (ms),Time Since Last (ms),Data\n")
             }
         }
 
@@ -214,8 +217,8 @@ internal object PacketLogger : Module(
         safeParallelListener<TickEvent.Pre> {
             if (showClientTicks) {
                 synchronized(PacketLogger) {
-                    val current = System.currentTimeMillis()
-                    lines.add("Tick Pulse,,${current - start},${current - lastTick}\n")
+                    val current = System.nanoTime()
+                    lines.add("Tick Pulse,,${formattedTime(current - start)},${formattedTime(current - lastTick)}\n")
                     lastTick = current
                 }
             }
@@ -267,6 +270,10 @@ internal object PacketLogger : Module(
                 TrollHackMod.logger.warn("$chatName Failed saving packet log!", e)
             }
         }
+    }
+
+    private fun formattedTime(nano: Long): String {
+        return String.format("%.2f", nano / 1_000_000.0)
     }
 
     private fun SideSetting.Builder.registerClient() {
