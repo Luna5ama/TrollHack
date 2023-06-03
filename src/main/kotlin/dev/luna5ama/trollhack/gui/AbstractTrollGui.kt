@@ -156,6 +156,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         val scaledResolution = ScaledResolution(mc)
         width = scaledResolution.scaledWidth + 16
         height = scaledResolution.scaledHeight + 16
+        typedString = ""
 
         for (window in windowList) window.onGuiInit()
     }
