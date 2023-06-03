@@ -4,7 +4,7 @@ import dev.fastmc.common.collection.FastObjectArrayList
 import dev.fastmc.common.fastFloor
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.collections.EnumSet
@@ -393,7 +393,7 @@ fun SafeClientEvent.placeBlock(
     if (sneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
     val packet = placeInfo.toPlacePacket(EnumHand.MAIN_HAND)
 
-    spoofHotbar(slot) {
+    ghostSwitch(slot) {
         connection.sendPacket(packet)
     }
     player.swingArm(EnumHand.MAIN_HAND)

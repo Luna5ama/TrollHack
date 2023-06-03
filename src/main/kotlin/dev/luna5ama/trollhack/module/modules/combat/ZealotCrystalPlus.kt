@@ -14,7 +14,7 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Watermark
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -191,7 +191,8 @@ internal object ZealotCrystalPlus : Module(
     private val placeMode by setting("Place Mode", PlaceMode.SINGLE, { page == Page.PLACE })
     private val packetPlace by setting("Packet Place", PacketPlaceMode.WEAK, { page == Page.PLACE })
     private val spamPlace by setting("Spam Place", false, { page == Page.PLACE })
-    private val autoSwap by setting("Auto Swap", SwitchMode.OFF, { page == Page.PLACE })
+    private val placeSwitchMode by setting("Place Switch Mode", SwitchMode.OFF, { page == Page.PLACE })
+    private val placeGhostSwitchMode by setting("Place Ghost Switch Mode", HotbarSwitchManager.Override.PICK)
     private val placeSwing by setting("Place Swing", false, { page == Page.PLACE })
     private val placeBypass by setting("Place Bypass", PlaceBypass.UP, { page == Page.PLACE })
     private val placeMinDamage by setting("Place Min Damage", 5.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
@@ -213,6 +214,7 @@ internal object ZealotCrystalPlus : Module(
         25,
         { page == Page.BREAK && (breakMode == BreakMode.OWN || packetBreak == BreakMode.OWN) })
     private val antiWeakness by setting("Anti Weakness", SwitchMode.OFF, { page == Page.BREAK })
+    private val antiWeaknessGhostSwitchMode by setting("Anti Weakness Ghost Switch Mode", HotbarSwitchManager.Override.DEFAULT)
     private val swapDelay by setting("Swap Delay", 0, 0..20, 1, { page == Page.BREAK })
     private val breakMinDamage by setting("Break Min Damage", 4.0f, 0.0f..20.0f, 0.25f, { page == Page.BREAK })
     private val breakMaxSelfDamage by setting("Break Max Self Damage", 8.0f, 0.0f..20.0f, 0.25f, { page == Page.BREAK })
@@ -1018,7 +1020,7 @@ internal object ZealotCrystalPlus : Module(
         val hand = getHandNullable()
 
         if (hand == null) {
-            when (autoSwap) {
+            when (placeSwitchMode) {
                 SwitchMode.OFF -> {
                     return
                 }
@@ -1036,7 +1038,7 @@ internal object ZealotCrystalPlus : Module(
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
                     onMainThread {
                         val slot = player.getMaxCrystalSlot() ?: return@onMainThread
-                        spoofHotbar(slot) {
+                        ghostSwitch(placeGhostSwitchMode, slot) {
                             connection.sendPacket(packet)
                         }
                     }
@@ -1074,7 +1076,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun SafeClientEvent.breakDirect(x: Double, y: Double, z: Double, entityID: Int) {
-        if (autoSwap != SwitchMode.GHOST && antiWeakness != SwitchMode.GHOST && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
+        if (placeSwitchMode != SwitchMode.GHOST && antiWeakness != SwitchMode.GHOST && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
 
         if (player.isWeaknessActive() && !isHoldingTool()) {
             when (antiWeakness) {
@@ -1085,7 +1087,7 @@ internal object ZealotCrystalPlus : Module(
                     val slot = getWeaponSlot() ?: return
                     MainHandPause.withPause(ZealotCrystalPlus, placeDelay * 2) {
                         swapToSlot(slot)
-                        if (autoSwap != SwitchMode.GHOST && swapDelay != 0) return@withPause
+                        if (placeSwitchMode != SwitchMode.GHOST && swapDelay != 0) return@withPause
                         connection.sendPacket(attackPacket(entityID))
                         swingHand()
                     }
@@ -1093,7 +1095,7 @@ internal object ZealotCrystalPlus : Module(
                 SwitchMode.GHOST -> {
                     val slot = getWeaponSlot() ?: return
                     val packet = attackPacket(entityID)
-                    spoofHotbar(slot) {
+                    ghostSwitch(antiWeaknessGhostSwitchMode, slot) {
                         connection.sendPacket(packet)
                         swingHand()
                     }

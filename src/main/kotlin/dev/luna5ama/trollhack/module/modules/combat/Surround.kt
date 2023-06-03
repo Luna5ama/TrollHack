@@ -13,7 +13,8 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -59,6 +60,7 @@ internal object Surround : Module(
     description = "Surrounds you with obsidian to take less damage",
     modulePriority = 200
 ) {
+    private val switchMode by setting("Switch Mode", HotbarSwitchManager.Override.DEFAULT)
     private val placeDelay by setting("Place delay", 50, 0..1000, 1)
     private val multiPlace by setting("Multi Place", 2, 1..5, 1)
     private val placeTimeout by setting("Place Timeout", 100, 0..1000, 10)
@@ -408,7 +410,7 @@ internal object Surround : Module(
         val sneak = !player.isSneaking
         if (sneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
 
-        spoofHotbar(slot) {
+        ghostSwitch(switchMode, slot) {
             connection.sendPacket(placeInfo.toPlacePacket(EnumHand.MAIN_HAND))
         }
         connection.sendPacket(CPacketAnimation(EnumHand.MAIN_HAND))

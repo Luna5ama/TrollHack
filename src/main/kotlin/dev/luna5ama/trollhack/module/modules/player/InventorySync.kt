@@ -60,7 +60,6 @@ internal object InventorySync : Module(
 
             connection.sendPacket(illegalPacket)
             sent = true
-            println("Syncing")
         }
     }
 }

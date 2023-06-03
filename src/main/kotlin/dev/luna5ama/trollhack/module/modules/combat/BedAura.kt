@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -508,7 +508,7 @@ internal object BedAura : Module(
         val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, handMode, 0.5f, 1.0f, 0.5f)
 
         if (handMode == EnumHand.MAIN_HAND) {
-            spoofHotbar(bedSlot - 1) {
+            ghostSwitch(bedSlot - 1) {
                 connection.sendPacket(placePacket)
             }
         } else {

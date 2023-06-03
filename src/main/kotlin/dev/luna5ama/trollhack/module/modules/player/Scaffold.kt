@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -30,13 +30,11 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.CPacketPlayer
-import net.minecraft.network.play.server.SPacketParticles
 import net.minecraft.network.play.server.SPacketPlayerPosLook
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import kotlin.math.max
 
 internal object Scaffold : Module(
     name = "Scaffold",
@@ -208,7 +206,7 @@ internal object Scaffold : Module(
                 if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
                 if (isTowering() && player.posY - placeInfo.placedPos.y <= towerPlaceHeight) return
                 if (rotation && !checkPlaceRotation(placeInfo)) return
-                spoofHotbar(slot) {
+                ghostSwitch(slot) {
                     placeBlock(placeInfo)
                 }
                 pendingPlace.put(placeInfo.placedPos.toLong(), System.currentTimeMillis() + placeTimeout)

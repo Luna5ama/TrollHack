@@ -7,7 +7,8 @@ import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.EntityManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
@@ -20,13 +21,9 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.confirmedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
-import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow
-import dev.luna5ama.trollhack.util.inventory.operation.action
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import dev.luna5ama.trollhack.util.pause.OffhandPause
-import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.world.getGroundLevel
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import net.minecraft.entity.Entity
@@ -50,7 +47,7 @@ internal object AutoPot : Module(
     category = Category.COMBAT,
     modulePriority = 100
 ) {
-    private val handMode by setting("Hand Mode", EnumHand.MAIN_HAND)
+    private val switchMode by setting("Switch Mode", HotbarSwitchManager.Override.PICK)
     private val slot by setting("Slot", 7, 1..9, 1)
     private val heal by setting("Heal", true)
     private val healHealth by setting("Heal Health", 12.0f, 0.0f..20.0f, 0.5f, ::heal)
@@ -145,26 +142,10 @@ internal object AutoPot : Module(
         safeListener<OnUpdateWalkingPlayerEvent.Post> {
             hotbarSlot?.let {
                 if (PlayerPacketManager.prevRotation.y > 85.0f && PlayerPacketManager.rotation.y > 85.0f) {
-                    if (handMode == EnumHand.OFF_HAND) {
-                        OffhandPause.withPause(AutoPot) {
-                            inventoryTaskNow {
-                                swapWith(player.offhandSlot, it)
-                                action {
-                                    connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.OFF_HAND))
-                                    potionType.timer.reset()
-                                    potionType = PotionType.NONE
-                                }
-                                runInGui()
-                                delay(0)
-                                postDelay(25)
-                            }
-                        }
-                    } else {
-                        spoofHotbar(it) {
-                            connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
-                            potionType.timer.reset()
-                            potionType = PotionType.NONE
-                        }
+                    ghostSwitch(switchMode, it) {
+                        connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
+                        potionType.timer.reset()
+                        potionType = PotionType.NONE
                     }
                 }
             }

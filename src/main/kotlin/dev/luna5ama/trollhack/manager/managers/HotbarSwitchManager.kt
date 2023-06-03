@@ -38,15 +38,23 @@ object HotbarSwitchManager : Manager() {
         }
     }
 
-    fun SafeClientEvent.spoofHotbar(slot: HotbarSlot, block: () -> Unit) {
-        spoofHotbar(slot.hotbarSlot, block)
+    fun SafeClientEvent.ghostSwitch(slot: HotbarSlot, block: () -> Unit) {
+        ghostSwitch(Override.DEFAULT, slot, block)
     }
 
-    fun SafeClientEvent.spoofHotbar(slot: Int, block: () -> Unit) {
+    fun SafeClientEvent.ghostSwitch(slot: Int, block: () -> Unit) {
+        ghostSwitch(Override.DEFAULT, slot, block)
+    }
+
+    fun SafeClientEvent.ghostSwitch(override: Override, slot: HotbarSlot, block: () -> Unit) {
+        ghostSwitch(override, slot.hotbarSlot, block)
+    }
+
+    fun SafeClientEvent.ghostSwitch(override: Override, slot: Int, block: () -> Unit) {
         synchronized(HotbarSwitchManager) {
             synchronized(InventoryTaskManager) {
                 if (slot != serverSideHotbar) {
-                    Bypass.ghostSwitchBypass.run {
+                    override.mode.run {
                         switch(slot, block)
                     }
                 } else {
@@ -153,5 +161,25 @@ object HotbarSwitchManager : Manager() {
         };
 
         abstract fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit)
+    }
+
+    enum class Override {
+        DEFAULT {
+            override val mode get() = Bypass.ghostSwitchBypass
+        },
+        NONE {
+            override val mode = BypassMode.NONE
+        },
+        MOVE {
+            override val mode = BypassMode.MOVE
+        },
+        SWAP {
+            override val mode = BypassMode.SWAP
+        },
+        PICK {
+            override val mode = BypassMode.PICK
+        };
+
+        abstract val mode: BypassMode
     }
 }

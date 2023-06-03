@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -53,7 +53,6 @@ import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.TimerScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
@@ -985,7 +984,7 @@ internal object TrollAura : Module(
                     }
                 } else {
                     val packet = placePacket(pos, EnumHand.MAIN_HAND)
-                    spoofHotbar(slot) {
+                    ghostSwitch(slot) {
                         connection.sendPacket(packet)
                     }
                 }

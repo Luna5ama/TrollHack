@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
@@ -394,7 +394,7 @@ internal object AutoCity : Module(
         if (!placeCrystal) return
 
         player.hotbarSlots.firstItem(Items.END_CRYSTAL)?.let {
-            spoofHotbar(it) {
+            ghostSwitch(it) {
                 connection.sendPacket(
                     CPacketPlayerTryUseItemOnBlock(
                         targetPos,
@@ -415,7 +415,7 @@ internal object AutoCity : Module(
         if (!placeAnvil) return
         player.hotbarSlots.firstBlock(Blocks.ANVIL)?.let {
             player.spoofSneak {
-                spoofHotbar(it) {
+                ghostSwitch(it) {
                     connection.sendPacket(
                         CPacketPlayerTryUseItemOnBlock(
                             targetPos,

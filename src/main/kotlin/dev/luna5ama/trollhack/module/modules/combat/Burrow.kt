@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
@@ -308,7 +308,7 @@ internal object Burrow : Module(
             val last = it.last()
 
             if (it.size > 1) {
-                spoofHotbar(obbySlot) {
+                ghostSwitch(obbySlot) {
                     for (placeInfo in it) {
                         if (placeInfo === last) break
                         placeBlock(placeInfo)
@@ -316,7 +316,7 @@ internal object Burrow : Module(
                 }
             }
 
-            spoofHotbar(anvilSlot) {
+            ghostSwitch(anvilSlot) {
                 placeBlock(last)
             }
         }
@@ -356,7 +356,7 @@ internal object Burrow : Module(
         val packet = CPacketPlayerTryUseItemOnBlock(target, EnumFacing.UP, EnumHand.MAIN_HAND, 0.5f, 1.0f, 0.5f)
 
         player.spoofSneak {
-            spoofHotbar(slot) {
+            ghostSwitch(slot) {
                 connection.sendPacket(packet)
             }
         }

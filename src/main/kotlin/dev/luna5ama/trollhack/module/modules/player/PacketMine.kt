@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.AbstractModule
@@ -69,6 +69,7 @@ internal object PacketMine : Module(
 ) {
     private val miningMode by setting("Mining Mode", MiningMode.NORMAL_RETRY)
     private val switchMode by setting("Switch Mode", SwitchMode.GHOST)
+    private val ghostSwitchMode by setting("Ghost Switch Mode", HotbarSwitchManager.Override.SWAP)
     private val preSwapDelay by setting("Pre Swap Delay", 1, 0..20, 1, { switchMode.swap })
     private val postSwapDelay by setting("Post Swap Delay", 1, 0..20, 1, { switchMode.swap })
     private val cancelOnSwap by setting("Cancel On Swap", false, { switchMode == SwitchMode.BYPASS })
@@ -331,7 +332,14 @@ internal object PacketMine : Module(
                     MainHandPause.withPause(PacketMine, 150L) {
                         val temp: SwapInfo? = swapInfo.get()
                         if (temp == null || player.currentHotbarSlot != it) {
-                            swapInfo.set(SwapInfo(swapMode, HotbarSwitchManager.serverSideHotbar, it.hotbarSlot, tickCount))
+                            swapInfo.set(
+                                SwapInfo(
+                                    swapMode,
+                                    HotbarSwitchManager.serverSideHotbar,
+                                    it.hotbarSlot,
+                                    tickCount
+                                )
+                            )
                             swapToSlot(it)
                         } else if (tickCount - temp.swapTick >= preSwapDelay) {
                             mc.playerController.updateController()
@@ -353,7 +361,12 @@ internal object PacketMine : Module(
                         } else if (temp == null || tempTask == null || tempTask.finished) {
                             val currentTick = tickCount
                             val info =
-                                SwapInfo(swapMode, HotbarSwitchManager.serverSideHotbar, it.hotbarSlot, currentTick + 20)
+                                SwapInfo(
+                                    swapMode,
+                                    HotbarSwitchManager.serverSideHotbar,
+                                    it.hotbarSlot,
+                                    currentTick + 20
+                                )
                             swapInfo.set(info)
                             lastTask = inventoryTask {
                                 swapWith(player.hotbarSlots[HotbarSwitchManager.serverSideHotbar], it)
@@ -365,7 +378,7 @@ internal object PacketMine : Module(
             }
             SwitchMode.GHOST -> {
                 findBestTool(blockState)?.let {
-                    spoofHotbar(it) {
+                    ghostSwitch(ghostSwitchMode, it) {
                         sendMiningPacket(miningInfo, true)
                     }
                     result = true
@@ -557,7 +570,8 @@ internal object PacketMine : Module(
 
     private class SwapInfo(val swapMode: SwitchMode, val prevSlot: Int, val swapSlot: Int, var swapTick: Int)
 
-    private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int, val once: Boolean): Comparable<MiningTask> {
+    private class MiningTask(val owner: AbstractModule, val pos: BlockPos, val priority: Int, val once: Boolean) :
+        Comparable<MiningTask> {
         override fun compareTo(other: MiningTask): Int {
             return -priority.compareTo(other.priority)
         }

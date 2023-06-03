@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
@@ -205,14 +205,14 @@ internal object AutoMend : Module(
                                 ).toInt()
                             )
                         ) {
-                            spoofHotbar(slot) {
+                            ghostSwitch(slot) {
                                 connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                                 throwAmount--
                             }
                         }
                     } else {
                         if (timer.tickAndReset(minDelay)) {
-                            spoofHotbar(slot) {
+                            ghostSwitch(slot) {
                                 var count = 0
                                 while (count++ < fastThrow && throwAmount > 0) {
                                     connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))

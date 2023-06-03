@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
@@ -396,7 +396,7 @@ internal object AutoHoleFill : Module(
 
         onMainThread {
             player.spoofSneak {
-                spoofHotbar(slot) {
+                ghostSwitch(slot) {
                     connection.sendPacket(packet)
                 }
             }

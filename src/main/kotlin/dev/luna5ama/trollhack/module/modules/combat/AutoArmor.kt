@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.module.modules.combat
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.spoofHotbar
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
@@ -177,7 +177,7 @@ internal object AutoArmor : Module(
                 inventoryTask {
                     pickUp(slotTo)
                     action {
-                        spoofHotbar(it) {
+                        ghostSwitch(it) {
                             connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                         }
                     }
@@ -188,7 +188,7 @@ internal object AutoArmor : Module(
             } else {
                 inventoryTask {
                     action {
-                        spoofHotbar(it) {
+                        ghostSwitch(it) {
                             connection.sendPacket(CPacketPlayerTryUseItem(EnumHand.MAIN_HAND))
                         }
                     }
