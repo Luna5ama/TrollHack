@@ -56,7 +56,7 @@ object HotbarSwitchManager : Manager() {
         }
     }
 
-    enum class GhostSwitchBypassMode {
+    enum class BypassMode {
         NONE {
             override fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit) {
                 val prevSlot = serverSideHotbar

@@ -83,8 +83,6 @@ public abstract class MixinContainer {
     ) {
         cir.cancel();
         synchronized (InventoryTaskManager.INSTANCE) {
-            InventorySync.handleSlotClick((Container) (Object) this, dragType, slotId, clickTypeIn);
-
             ItemStack itemstack = ItemStack.EMPTY;
             InventoryPlayer inventoryplayer = player.inventory;
 
