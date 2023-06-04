@@ -59,6 +59,7 @@ internal object AutoCity : Module(
     private val minDamage by setting("Min Damage", 4.0f, 1.0f..10.0f, 0.1f)
     private val minUpdateDamage by setting("Min Update Damage", 8.0f, 1.0f..10.0f, 0.1f)
     private val updateDelay by setting("Update Delay", 200, 0..1000, 5)
+    private val wallRange by setting("Wall Range", 3.0f, 1.0f..6.0f, 0.1f)
     private val range by setting("Range", 4.5f, 1.0f..6.0f, 0.1f)
 
     private val placeTimer = TickTimer()
@@ -283,6 +284,7 @@ internal object AutoCity : Module(
         val playerPos = player.betterPosition
         val eyePos = player.eyePosition
         val rangeSq = range.sq
+        val wallRangeSq = wallRange.sq
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
         return EnumFacing.HORIZONTALS.asSequence()
@@ -301,7 +303,7 @@ internal object AutoCity : Module(
             .filter { (minePos, crystalPos) ->
                 val dist = playerPos.distanceSq(crystalPos)
                 dist <= rangeSq
-                    && (dist <= 9
+                    && (dist <= wallRangeSq
                     || !world.fastRaytrace(
                     eyePos,
                     crystalPos.x + 0.5,
@@ -310,7 +312,7 @@ internal object AutoCity : Module(
                     20,
                     mutableBlockPos
                 ) { rayTracePos, blockState ->
-                    if (rayTracePos == minePos || blockState.getCollisionBoundingBox(this, rayTracePos) != null) {
+                    if (rayTracePos != minePos && blockState.getCollisionBoundingBox(this, rayTracePos) != null) {
                         FastRayTraceAction.CALC
                     } else {
                         FastRayTraceAction.SKIP
@@ -329,6 +331,7 @@ internal object AutoCity : Module(
         val playerPos = player.betterPosition
         val eyePos = player.eyePosition
         val rangeSq = range.sq
+        val wallRangeSq = wallRange.sq
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
         return EnumFacing.HORIZONTALS.asSequence()
@@ -341,7 +344,7 @@ internal object AutoCity : Module(
             .filter { (minePos, crystalPos) ->
                 val dist = playerPos.distanceSq(crystalPos)
                 dist <= rangeSq
-                    && (dist <= 9
+                    && (dist <= wallRangeSq
                     || !world.fastRaytrace(
                     eyePos,
                     crystalPos.x + 0.5,
@@ -350,7 +353,7 @@ internal object AutoCity : Module(
                     20,
                     mutableBlockPos
                 ) { rayTracePos, blockState ->
-                    if (rayTracePos == minePos || blockState.getCollisionBoundingBox(this, rayTracePos) != null) {
+                    if (rayTracePos != minePos && blockState.getCollisionBoundingBox(this, rayTracePos) != null) {
                         FastRayTraceAction.CALC
                     } else {
                         FastRayTraceAction.SKIP
