@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.combat.HolePathFinder.setting
 import dev.luna5ama.trollhack.module.modules.player.AutoEat
 import dev.luna5ama.trollhack.process.PauseProcess
 import dev.luna5ama.trollhack.process.PauseProcess.pauseBaritone
@@ -148,6 +149,12 @@ internal object CombatSetting : Module(
     ).apply { listeners.add(ExposureSample::resetSamplePoints) }
     val backSideSampling by setting("Back Side Sampling", true, page.atValue(Page.CALCULATION))
 
+    val bedrockHole by setting("Bedrock Hole", true)
+    val obsidianHole by setting("Obsidian Hole", true)
+    val twoBlocksHole by setting("2 Blocks Hole", true)
+    val fourBlocksHole by setting("4 Blocks Hole", true)
+    val ignoreNonFullCubeFilling by setting("Ignore Non-Full Cube Filling", true)
+
     /* Render */
     private val renderPrediction =
         setting("Render Prediction", true, page.atValue(Page.RENDER) and motionPredict.atTrue())
@@ -161,7 +168,7 @@ internal object CombatSetting : Module(
     )
 
     private enum class Page {
-        TARGET_TYPE, TARGET_PRIORITY, IN_COMBAT, CALCULATION, RENDER
+        TARGET_TYPE, TARGET_PRIORITY, IN_COMBAT, CALCULATION, HOLE_DETECTION, RENDER
     }
 
     private var overrideRange = targetRange

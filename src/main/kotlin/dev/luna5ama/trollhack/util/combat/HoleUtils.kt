@@ -1,8 +1,10 @@
 package dev.luna5ama.trollhack.util.combat
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.world.isAir
+import dev.luna5ama.trollhack.util.world.isFullBox
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import net.minecraft.init.Blocks
@@ -118,54 +120,47 @@ object HoleUtils {
     }
 
     private inline fun SafeClientEvent.checkHole1(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
+        if (!CombatSetting.obsidianHole && !CombatSetting.bedrockHole) return null
+
         if (!checkAir(holeOffsetCheck1, pos, mutablePos)) return null
 
-//        return checkType(
-//            pos,
-//            mutablePos,
-//            HoleType.BEDROCK,
-//            HoleType.OBBY,
-//            surroundOffset1,
-//            holeOffset1,
-//            AxisAlignedBB(pos),
-//            0.5,
-//            0.5
-//        )
-
         val type = checkSurroundPos(pos, mutablePos, surroundOffset1, HoleType.BEDROCK, HoleType.OBBY)
-        return if (type == HoleType.NONE) {
-            null
-        } else {
-            val holePosArray = holeOffset1.offset(pos)
 
-            var trapped = false
-            var fullyTrapped = true
+        if (type == HoleType.NONE) return null
+        if (!CombatSetting.bedrockHole && type == HoleType.BEDROCK) return null
+        if (!CombatSetting.obsidianHole && type == HoleType.OBBY) return null
 
-            for (holePos in holePosArray) {
-                if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
-                    fullyTrapped = false
-                } else {
-                    trapped = true
-                }
+        val holePosArray = holeOffset1.offset(pos)
+
+        var trapped = false
+        var fullyTrapped = true
+
+        for (holePos in holePosArray) {
+            if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
+                fullyTrapped = false
+            } else {
+                trapped = true
             }
-
-            HoleInfo(
-                pos.toImmutable(),
-                pos.toVec3d(
-                    0.5,
-                    0.0, 0.5
-                ),
-                AxisAlignedBB(pos),
-                holePosArray,
-                surroundOffset1.offset(pos),
-                type,
-                trapped,
-                fullyTrapped
-            )
         }
+
+        return HoleInfo(
+            pos.toImmutable(),
+            pos.toVec3d(
+                0.5,
+                0.0, 0.5
+            ),
+            AxisAlignedBB(pos),
+            holePosArray,
+            surroundOffset1.offset(pos),
+            type,
+            trapped,
+            fullyTrapped
+        )
     }
 
     private inline fun SafeClientEvent.checkHole2(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
+        if (!CombatSetting.twoBlocksHole) return null
+
         var x = true
 
         if (!world.isAir(mutablePos.setPos(pos.x + 1, pos.y, pos.z))) {
@@ -181,137 +176,102 @@ object HoleUtils {
         val centerX = if (x) 1.0 else 0.5
         val centerZ = if (x) 0.5 else 1.0
 
-//        val boundingBox = if (x) {
-//            AxisAlignedBB(
-//                pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
-//                pos.x + 2.0, pos.y + 1.0, pos.z + 1.0
-//            )
-//        } else {
-//            AxisAlignedBB(
-//                pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
-//                pos.x + 1.0, pos.y + 1.0, pos.z + 2.0
-//            )
-//        }
-//
-//        return checkType(
-//            pos,
-//            mutablePos,
-//            HoleType.TWO,
-//            HoleType.TWO,
-//            surroundOffset,
-//            holeOffset,
-//            boundingBox,
-//            centerX,
-//            centerZ
-//        )
-
         val type = checkSurroundPos(pos, mutablePos, surroundOffset, HoleType.TWO, HoleType.TWO)
-        return if (type == HoleType.NONE) {
-            null
-        } else {
-            val holePosArray = holeOffset.offset(pos)
 
-            var trapped = false
-            var fullyTrapped = true
+        if (type == HoleType.NONE) return null
 
-            for (holePos in holePosArray) {
-                if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
-                    fullyTrapped = false
-                } else {
-                    trapped = true
-                }
+
+        val holePosArray = holeOffset.offset(pos)
+
+        var trapped = false
+        var fullyTrapped = true
+
+        for (holePos in holePosArray) {
+            if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
+                fullyTrapped = false
+            } else {
+                trapped = true
             }
-
-            HoleInfo(
-                pos.toImmutable(),
-                pos.toVec3d(
-                    centerX,
-                    0.0, centerZ
-                ),
-                if (x) {
-                    AxisAlignedBB(
-                        pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
-                        pos.x + 2.0, pos.y + 1.0, pos.z + 1.0
-                    )
-                } else {
-                    AxisAlignedBB(
-                        pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
-                        pos.x + 1.0, pos.y + 1.0, pos.z + 2.0
-                    )
-                },
-                holePosArray,
-                surroundOffset.offset(pos),
-                type,
-                trapped,
-                fullyTrapped
-            )
         }
+
+        return HoleInfo(
+            pos.toImmutable(),
+            pos.toVec3d(
+                centerX,
+                0.0, centerZ
+            ),
+            if (x) {
+                AxisAlignedBB(
+                    pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
+                    pos.x + 2.0, pos.y + 1.0, pos.z + 1.0
+                )
+            } else {
+                AxisAlignedBB(
+                    pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
+                    pos.x + 1.0, pos.y + 1.0, pos.z + 2.0
+                )
+            },
+            holePosArray,
+            surroundOffset.offset(pos),
+            type,
+            trapped,
+            fullyTrapped
+        )
     }
 
     private inline fun SafeClientEvent.checkHole4(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
+        if (!CombatSetting.fourBlocksHole) return null
         if (!checkAir(holeOffsetCheck4, pos, mutablePos)) return null
 
-//        val boundingBox = AxisAlignedBB(
-//            pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
-//            pos.x + 2.0, pos.y + 1.0, pos.z + 2.0
-//        )
-//
-//        return checkType(
-//            pos,
-//            mutablePos,
-//            HoleType.FOUR,
-//            HoleType.FOUR,
-//            surroundOffset4,
-//            holeOffset4,
-//            boundingBox,
-//            1.0,
-//            1.0
-//        )
-
         val type = checkSurroundPos(pos, mutablePos, surroundOffset4, HoleType.FOUR, HoleType.FOUR)
-        return if (type == HoleType.NONE) {
-            null
-        } else {
-            val holePosArray = holeOffset4.offset(pos)
+        if (type == HoleType.NONE) return null
 
-            var trapped = false
-            var fullyTrapped = true
+        val holePosArray = holeOffset4.offset(pos)
 
-            for (holePos in holePosArray) {
-                if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
-                    fullyTrapped = false
-                } else {
-                    trapped = true
-                }
+        var trapped = false
+        var fullyTrapped = true
+
+        for (holePos in holePosArray) {
+            if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
+                fullyTrapped = false
+            } else {
+                trapped = true
             }
-
-            HoleInfo(
-                pos.toImmutable(),
-                pos.toVec3d(
-                    1.0,
-                    0.0, 1.0
-                ),
-                AxisAlignedBB(
-                    pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
-                    pos.x + 2.0, pos.y + 1.0, pos.z + 2.0
-                ),
-                holePosArray,
-                surroundOffset4.offset(pos),
-                type,
-                trapped,
-                fullyTrapped
-            )
         }
+
+        return HoleInfo(
+            pos.toImmutable(),
+            pos.toVec3d(
+                1.0,
+                0.0, 1.0
+            ),
+            AxisAlignedBB(
+                pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(),
+                pos.x + 2.0, pos.y + 1.0, pos.z + 2.0
+            ),
+            holePosArray,
+            surroundOffset4.offset(pos),
+            type,
+            trapped,
+            fullyTrapped
+        )
     }
 
     private inline fun SafeClientEvent.checkAir(
         array: Array<BlockPos>,
         pos: BlockPos,
         mutablePos: BlockPos.MutableBlockPos
-    ) =
-        array.all {
-            world.isAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
+    ): Boolean {
+        return if (CombatSetting.ignoreNonFullCubeFilling) {
+            array.all {
+                !world.getBlockState(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z)).isFullBox
+            }
+        } else {
+            array.all {
+                world.isAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
+            }
         }
+    }
 
     private inline fun Array<BlockPos>.offset(pos: BlockPos): ObjectSet<BlockPos> {
         val result = ObjectOpenHashSet<BlockPos>(size)
@@ -319,48 +279,6 @@ object HoleUtils {
             result.add(pos.add(blockPos))
         }
         return result
-    }
-
-    private inline fun SafeClientEvent.checkType(
-        pos: BlockPos,
-        mutablePos: BlockPos.MutableBlockPos,
-        expectType: HoleType,
-        obbyType: HoleType,
-        surroundOffset: Array<BlockPos>,
-        holeOffset: Array<BlockPos>,
-        boundingBox: AxisAlignedBB,
-        centerX: Double,
-        centerZ: Double
-    ): HoleInfo? {
-        val type = checkSurroundPos(pos, mutablePos, surroundOffset, expectType, obbyType)
-
-        return if (type == HoleType.NONE) {
-            null
-        } else {
-            val holePosArray = holeOffset.offset(pos)
-
-            var trapped = false
-            var fullyTrapped = true
-
-            for (holePos in holePosArray) {
-                if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
-                    fullyTrapped = false
-                } else {
-                    trapped = true
-                }
-            }
-
-            HoleInfo(
-                pos.toImmutable(),
-                pos.toVec3d(centerX, 0.0, centerZ),
-                boundingBox,
-                holePosArray,
-                surroundOffset.offset(pos),
-                type,
-                trapped,
-                fullyTrapped
-            )
-        }
     }
 
     private inline fun SafeClientEvent.checkSurroundPos(

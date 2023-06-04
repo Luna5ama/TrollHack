@@ -2,7 +2,6 @@ package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
-import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.module.Category
@@ -12,7 +11,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.world.checkBlockCollision
 import dev.luna5ama.trollhack.util.world.isAir
-import net.minecraft.block.material.Material
+import dev.luna5ama.trollhack.util.world.isFullBox
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 
@@ -23,6 +22,8 @@ internal object BedCity : Module(
     description = "Auto city for bed pvp",
     modulePriority = 100
 ) {
+    private val ignoreNonFullBox by setting("Ignore Non-Full Box", true)
+
     private var lastTargetPos: BlockPos? = null
     private var lastMinePos: BlockPos? = null
 
@@ -65,31 +66,35 @@ internal object BedCity : Module(
             diffX * directionVec.x + diffZ * directionVec.z
         }
 
-        fun SafeClientEvent.minePos(minePos: BlockPos?): Boolean {
+        fun checkEmpty(pos: BlockPos): Boolean {
+            return if (ignoreNonFullBox) !world.getBlockState(pos).isFullBox else world.isAir(pos)
+        }
+
+        fun minePos(minePos: BlockPos?): Boolean {
             if (minePos == null) return false
-            PacketMine.mineBlock(BedCity, minePos, if (world.isAir(targetPos)) -100 else modulePriority)
+            PacketMine.mineBlock(BedCity, minePos, if (checkEmpty(targetPos)) -100 else modulePriority)
             lastTargetPos = targetPos
             lastMinePos = minePos
             return true
         }
 
-        fun SafeClientEvent.tryMine(pos: BlockPos): Boolean {
-            if (world.isAir(pos)) return false
+        fun tryMine(pos: BlockPos): Boolean {
+            if (checkEmpty(pos)) return false
 
             minePos(pos)
             return true
         }
 
-        fun SafeClientEvent.tryMineSurround(pos: BlockPos): Boolean {
-            if (world.isAir(pos)) return false
+        fun tryMineSurround(pos: BlockPos): Boolean {
+            if (checkEmpty(pos)) return false
             if (!surrounded && !world.checkBlockCollision(pos, target.entityBoundingBox)) return false
 
             minePos(pos)
             return true
         }
 
-        fun SafeClientEvent.tryHeadMineSurround(pos: BlockPos): Boolean {
-            if (world.isAir(pos)) return false
+        fun tryHeadMineSurround(pos: BlockPos): Boolean {
+            if (checkEmpty(pos)) return false
             if (surrounded && !world.checkBlockCollision(pos, target.entityBoundingBox)) return false
 
             minePos(pos)
