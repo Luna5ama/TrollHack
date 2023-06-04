@@ -34,7 +34,7 @@ class ModuleArg(
             ModuleManager.modules.asSequence()
                 .flatMap {
                     sequence {
-                        yield(it.name.toString())
+                        yield(it.internalName)
                         it.alias.forEach {
                             yield(it)
                         }
@@ -59,7 +59,7 @@ class HudElementArg(
             GuiManager.hudElements.asSequence()
                 .flatMap {
                     sequence {
-                        yield(it.name.toString())
+                        yield(it.internalName.toString())
                         it.alias.forEach {
                             yield(it.toString())
                         }
