@@ -21,8 +21,8 @@ object MovementUtils {
     private val mc = Minecraft.getMinecraft()
 
     inline val isInputtingAny: Boolean
-        get() = isInputting || Wrapper.player?.movementInput?.let {
-            it.jump || it.sneak
+        get() = Wrapper.player?.movementInput?.let {
+            it.moveForward != 0.0f || it.moveStrafe != 0.0f || it.jump || it.sneak
         } ?: false
 
     inline val isInputting
@@ -52,7 +52,8 @@ object MovementUtils {
         moveForward: Float,
         moveStrafe: Float
     ): Double {
-        val moveYaw = if (moveForward == 0.0f && moveStrafe == 0.0f) 0.0 else atan2(moveForward, moveStrafe).toDegree() - 90.0
+        val moveYaw =
+            if (moveForward == 0.0f && moveStrafe == 0.0f) 0.0 else atan2(moveForward, moveStrafe).toDegree() - 90.0
         return RotationUtils.normalizeAngle(yaw + moveYaw).toRadian()
     }
 

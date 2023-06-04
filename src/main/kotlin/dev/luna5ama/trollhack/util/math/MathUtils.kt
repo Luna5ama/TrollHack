@@ -1,9 +1,6 @@
 package dev.luna5ama.trollhack.util.math
 
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.round
+import kotlin.math.*
 
 @Suppress("NOTHING_TO_INLINE")
 object MathUtils {
@@ -89,5 +86,25 @@ object MathUtils {
     @JvmStatic
     inline fun lerp(from: Float, to: Float, delta: Float): Float {
         return from + (to - from) * delta
+    }
+
+    @JvmStatic
+    fun equals(a: Double, b: Double, epsilon: Double = 0.0001): Boolean {
+        return abs(a - b) < epsilon
+    }
+
+    @JvmStatic
+    fun equals(a: Float, b: Float, epsilon: Float = 0.0001f): Boolean {
+        return abs(a - b) < epsilon
+    }
+
+    @JvmStatic
+    fun frac(value: Double): Double {
+        return value - floor(value)
+    }
+
+    @JvmStatic
+    fun frac(value: Float): Float {
+        return value - floor(value)
     }
 }

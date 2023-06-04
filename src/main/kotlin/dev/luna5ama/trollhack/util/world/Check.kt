@@ -74,7 +74,7 @@ fun World.getGroundLevel(boundingBox: AxisAlignedBB): Double {
                 if (y < maxY.fastCeil() - 1) break
 
                 pos.setPos(x, y, z)
-                val box = this.getBlockState(pos).getCollisionBoundingBox(this, pos)
+                val box = this.getCollisionBox(pos)
                 if (box != null) {
                     maxY = max(maxY, y + box.maxY)
                 }
