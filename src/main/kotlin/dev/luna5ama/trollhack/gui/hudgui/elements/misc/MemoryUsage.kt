@@ -1,13 +1,12 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.misc
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
+import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.extension.synchronized
-import dev.luna5ama.trollhack.util.threads.TimerScope
-import dev.luna5ama.trollhack.util.threads.runSynchronized
-import kotlin.math.roundToInt
+import java.util.*
+import kotlin.math.max
 
 internal object MemoryUsage : LabelHud(
     name = "Memory Usage",
@@ -19,28 +18,25 @@ internal object MemoryUsage : LabelHud(
     private val showAllocations by setting("Show Allocations", false)
 
     private const val BYTE_TO_MB = 1048576L
-    private const val BYTE_TO_MB_D = 1048576.0
-    private val allocations = ArrayList<Pair<Long, Double>>().synchronized()
+    private val allocations = ArrayDeque<AllocationRecord>()
     private var lastUsed = getUsed()
-    private var lastUpdate = System.nanoTime()
 
     init {
-        TimerScope.launchLooping(rootName, 5L) {
-            if (visible && showAllocations) {
-                val last = lastUsed
-                val lastTime = lastUpdate
-                val current = getUsed()
-                val currentTime = System.nanoTime()
-
-                val diff = current - last
-                if (diff > 0L) {
-                    val adjustFactor = (currentTime - lastTime).toDouble() / 5_000_000.0
-                    allocations.add(currentTime + 3_000_000_000L to (diff * adjustFactor))
-                }
-
-                lastUsed = current
-                lastUpdate = currentTime
+        listener<RunGameLoopEvent.Start> {
+            if (!showAllocations) {
+                allocations.clear()
             }
+
+            val current = getUsed()
+
+            if (lastUsed != 0L) {
+                val diff = current - lastUsed
+                if (diff > 0L) {
+                    allocations.add(AllocationRecord(System.nanoTime() + 3_000_000_000L, diff.toFloat() / 1024.0f))
+                }
+            }
+
+            lastUsed = current
         }
     }
 
@@ -48,16 +44,7 @@ internal object MemoryUsage : LabelHud(
         displayText.add(getUsedMB().toString(), GuiSetting.text)
 
         if (showAllocations) {
-            val current = System.nanoTime()
-            val allocation = allocations.runSynchronized {
-                removeIf {
-                    it.first <= current
-                }
-                allocations.sumOf {
-                    it.second / 3.0 / BYTE_TO_MB_D
-                }
-            }
-            displayText.add("(${allocation.roundToInt()} MB/s)", GuiSetting.text)
+            displayText.add(getAllocationText(), GuiSetting.text)
         }
         if (showAllocated) {
             val allocatedMemory = Runtime.getRuntime().totalMemory() / BYTE_TO_MB
@@ -71,6 +58,26 @@ internal object MemoryUsage : LabelHud(
         displayText.add("MB", GuiSetting.primary)
     }
 
+    private fun getAllocationText(): String {
+        val current = System.nanoTime()
+        while (allocations.isNotEmpty() && allocations.peek().time < current) {
+            allocations.poll()
+        }
+
+        if (allocations.isEmpty()) {
+            return "(0.0 MB/s)"
+        }
+
+        var allocation = 0.0f
+        for (entry in allocations) {
+            allocation += entry.allocation
+        }
+        val timeLength = (allocations.last.time - allocations.first.time) / 1_000_000_000.0f
+
+        return "(%.2f MB/s)".format(allocation / max(timeLength, 0.1f) / 1024.0f)
+    }
+
+
     private fun getUsedMB(): Int {
         return (getUsed() / 1048576L).toInt()
     }
@@ -78,4 +85,6 @@ internal object MemoryUsage : LabelHud(
     private fun getUsed(): Long {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
     }
+
+    private class AllocationRecord(val time: Long, val allocation: Float)
 }
