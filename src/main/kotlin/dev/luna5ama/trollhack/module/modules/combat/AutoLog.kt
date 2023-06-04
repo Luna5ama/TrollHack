@@ -43,7 +43,7 @@ internal object AutoLog : Module(
     private val minTotems by setting("Min Totems", 2, 1..10, 1, totem0.atTrue())
     private val players0 = setting("Players", false)
     private val players by players0
-    private val playerDistance by setting("Player Distance", 64, 32..128, 4, players0.atTrue())
+    private val playerDistance by setting("Player Distance", 64, 4..128, 4, players0.atTrue())
     private val friends by setting("Friends", false, players0.atTrue())
 
     @Suppress("UNUSED")
