@@ -11,11 +11,12 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideIte
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
-import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
+import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.items.block
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.runIf
 import dev.luna5ama.trollhack.util.world.getBlock
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.minecraft.block.BlockShulkerBox
@@ -32,8 +33,8 @@ internal object AntiRegear : Module(
     private val ignoreSelfPlaced by setting("Ignore Self Placed", true)
     private val selfRange by setting("Self Range", 1.0f, 0.0f..10.0f, 0.1f)
     private val friendRange by setting("Friend Range", 1.0f, 0.0f..10.0f, 0.1f)
-    private val otherPlayerRange by setting("Other Player Range", 4.0f, 0.0f..10.0f, 0.1f)
-    private val mineRange by setting("Mine Range", 6.0f, 1.0f..10.0f, 0.1f)
+    private val otherPlayerRange by setting("Other Player Range", 6.0f, 0.0f..10.0f, 0.1f)
+    private val mineRange by setting("Mine Range", 5.5f, 1.0f..10.0f, 0.1f)
     private val silentNotification by setting("Silent Notification", false)
 
     private val selfPlaced = ObjectLinkedOpenHashSet<BlockPos>()
@@ -71,7 +72,9 @@ internal object AntiRegear : Module(
                 .filterIsInstance<TileEntityShulkerBox>()
                 .filter { player.distanceSqTo(it.pos) <= mineRangeSq }
                 .filter { otherPlayerNearBy(it.pos) }
-                .filter { !ignoreSelfPlaced || !selfPlaced.contains(it.pos) }
+                .runIf(ignoreSelfPlaced) {
+                    filterNot { selfPlaced.contains(it.pos) }
+                }
                 .mapTo(mineQueue) { it.pos }
 
             var pos: BlockPos? = null
@@ -106,14 +109,6 @@ internal object AntiRegear : Module(
                 if (ignoreSelfPlaced && selfPlaced.contains(event.pos)) return@safeListener
                 if (playerDistance <= selfRange.sq) return@safeListener
                 if (mineQueue.contains(event.pos)) return@safeListener
-
-                val friendRangeSq = friendRange.sq
-                if (friendRangeSq > 0.0f && EntityManager.players.asSequence()
-                        .filter { it.isFriend }
-                        .filter { it.distanceSqTo(event.pos) <= friendRangeSq }
-                        .any()
-                ) return@safeListener
-
                 if (!otherPlayerNearBy(event.pos)) return@safeListener
 
                 mineQueue.add(event.pos)
@@ -125,11 +120,19 @@ internal object AntiRegear : Module(
         pos: BlockPos
     ): Boolean {
         val otherPlayerRangeSq = otherPlayerRange.sq
-        return EntityManager.players.asSequence()
-            .filter { !it.isFakeOrSelf }
-            .filter { !it.isFriend }
+        val friendRangeSq = friendRange.sq
+        val playerSequence = EntityManager.players.asSequence().filterNot { it.isSelf }
+
+        val noFriendInRange = playerSequence.filter { it.isFriend }
+            .filter { it.distanceSqTo(pos) <= friendRangeSq }
+            .none()
+
+        val othersInRange = playerSequence
+            .filterNot { it.isFriend }
             .filter { it.distanceSqTo(pos) <= otherPlayerRangeSq }
             .any()
+
+        return noFriendInRange && othersInRange
     }
 
     private fun addSelfPlaced(pos: BlockPos) {

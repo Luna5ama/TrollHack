@@ -62,6 +62,8 @@ object EntityUtils {
 
     val EntityPlayer.isFriend get() = FriendManager.isFriend(this.name)
 
+    val EntityPlayer.isSelf get() = this == mc.player || this == mc.renderViewEntity
+
     val EntityPlayer.isFakeOrSelf get() = this == mc.player || this == mc.renderViewEntity || this.entityId < 0
 
     val EntityPlayer.isFlying: Boolean
