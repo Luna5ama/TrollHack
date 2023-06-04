@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.module.modules.combat
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.viewEntity
@@ -51,7 +52,7 @@ internal object CrystalChams : Module(
             GlStateManager.glLineWidth(width)
             GlStateUtils.useProgram(0)
 
-            for (crystal in world.loadedEntityList) {
+            for (crystal in EntityManager.entity) {
                 if (crystal !is EntityEnderCrystal) continue
                 if (viewEntity.getDistanceSq(crystal) > rangeSq) continue
 

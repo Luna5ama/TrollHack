@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.module.modules.movement
 
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
@@ -37,7 +38,7 @@ internal object AutoRemount : Module(
             }
 
             if (remountTimer.tickAndReset(remountDelay)) {
-                world.loadedEntityList.asSequence()
+                EntityManager.entity.asSequence()
                     .filter(::isValidEntity)
                     .minByOrNull { player.getDistanceSq(it) }
                     ?.let {

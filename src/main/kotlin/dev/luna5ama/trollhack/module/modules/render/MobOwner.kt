@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.module.modules.render
 
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.UUIDManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -25,7 +26,7 @@ internal object MobOwner : Module(
     init {
         onDisable {
             onMainThreadSafe {
-                for (entity in world.loadedEntityList) {
+                for (entity in EntityManager.entity) {
                     if (entity !is AbstractHorse) continue
                     entity.alwaysRenderNameTag = false
                 }
@@ -33,7 +34,7 @@ internal object MobOwner : Module(
         }
 
         safeListener<TickEvent.Post> {
-            for (entity in world.loadedEntityList) {
+            for (entity in EntityManager.entity) {
                 /* Non Horse types, such as wolves */
                 if (entity is EntityTameable) {
                     val owner = entity.owner

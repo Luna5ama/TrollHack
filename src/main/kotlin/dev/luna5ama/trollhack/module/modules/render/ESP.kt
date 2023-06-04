@@ -234,7 +234,7 @@ internal object ESP : Module(
                     }
 
                     val rangeSq = range.sq
-                    for (entity in world.loadedEntityList) {
+                    for (entity in EntityManager.entity) {
                         entity.isGlowing = player.getDistanceSq(entity) <= rangeSq && checkEntityType(entity)
                     }
                 }
@@ -324,7 +324,7 @@ internal object ESP : Module(
         camera.setPosition(x, y, z)
 
         // Draw the entities into the framebuffer
-        for (entity in world.loadedEntityList) {
+        for (entity in EntityManager.entity) {
             if (player.getDistanceSq(entity) > rangeSq) continue
             if (!checkEntityType(entity)) continue
 
@@ -436,7 +436,7 @@ internal object ESP : Module(
                 shader.shaderManager.getShaderUniform("Radius")?.set(2.0f) // default radius
             }
 
-            for (entity in world.loadedEntityList) {
+            for (entity in EntityManager.entity) {
                 entity.isGlowing = false
             }
         }

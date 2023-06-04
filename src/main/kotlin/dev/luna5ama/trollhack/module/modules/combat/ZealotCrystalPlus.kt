@@ -574,7 +574,7 @@ internal object ZealotCrystalPlus : Module(
         }
 
         safeParallelListener<TickEvent.Post> {
-            for (entity in world.loadedEntityList) {
+            for (entity in EntityManager.entity) {
                 if (entity !is EntityLivingBase) continue
                 reductionMap[entity] = DamageReduction(entity)
             }

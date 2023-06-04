@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.gui.mc.TrollGuiDisconnected
 import dev.luna5ama.trollhack.manager.managers.CombatManager
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -78,7 +79,7 @@ internal object AutoLog : Module(
     }
 
     private fun SafeClientEvent.checkCreeper(): Boolean {
-        for (entity in world.loadedEntityList) {
+        for (entity in EntityManager.entity) {
             if (entity !is EntityCreeper) continue
             if (player.getDistance(entity) > creeperDistance) continue
             log(CREEPER, MathUtils.round(entity.getDistance(player), 2).toString())
@@ -88,7 +89,7 @@ internal object AutoLog : Module(
     }
 
     private fun SafeClientEvent.checkPlayers(): Boolean {
-        for (entity in world.loadedEntityList) {
+        for (entity in EntityManager.entity) {
             if (entity !is EntityPlayer) continue
             if (AntiBot.isBot(entity)) continue
             if (entity.isFakeOrSelf) continue

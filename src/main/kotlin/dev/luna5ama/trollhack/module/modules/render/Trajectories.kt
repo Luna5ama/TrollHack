@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.combat.MidClickPearl
@@ -156,7 +157,7 @@ internal object Trajectories : Module(
 
             if (collision == null) {
                 val resultList = ArrayList<RayTraceResult>()
-                for (entity in mc.world.loadedEntityList) {
+                for (entity in EntityManager.entity) {
                     if (!entity.canBeCollidedWith()) continue
                     if (entity == mc.player) continue
                     val box = entity.entityBoundingBox.grow(0.30000001192092896) ?: continue

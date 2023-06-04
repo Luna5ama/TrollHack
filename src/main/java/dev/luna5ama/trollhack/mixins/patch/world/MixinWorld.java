@@ -17,10 +17,6 @@ import java.util.List;
 
 @Mixin(World.class)
 public abstract class MixinWorld {
-    @Shadow
-    @Final
-    public List<Entity> loadedEntityList;
-
     protected MixinWorld() {
     }
 

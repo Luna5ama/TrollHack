@@ -6,6 +6,7 @@ import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.inventory.slot.filterByStack
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
@@ -114,7 +115,7 @@ object CombatUtils : AlwaysListening {
 
     init {
         safeParallelListener<TickEvent.Post> {
-            for (entity in world.loadedEntityList) {
+            for (entity in EntityManager.entity) {
                 if (entity !is EntityLivingBase) continue
                 val armorValue = entity.totalArmorValue.toFloat()
                 val toughness =

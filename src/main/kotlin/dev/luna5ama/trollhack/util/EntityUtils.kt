@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.util
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.items.id
@@ -113,12 +114,9 @@ object EntityUtils {
         range: Float,
         ignoreSelf: Boolean = true
     ): ArrayList<EntityLivingBase> {
-        if (mc.world.loadedEntityList.isNullOrEmpty()) return ArrayList()
         val entityList = ArrayList<EntityLivingBase>()
-        val clonedList = ArrayList(mc.world.loadedEntityList)
-        for (entity in clonedList) {
+        for (entity in EntityManager.livingBase) {
             /* Entity type check */
-            if (entity !is EntityLivingBase) continue
             if (ignoreSelf && entity == player) continue
             if (entity == mc.renderViewEntity) continue
             if (entity is EntityPlayer) {
@@ -141,7 +139,7 @@ object EntityUtils {
 
     fun SafeClientEvent.getDroppedItems(itemId: Int, range: Float): ArrayList<EntityItem> {
         val entityList = ArrayList<EntityItem>()
-        for (entity in world.loadedEntityList) {
+        for (entity in EntityManager.entity) {
             if (entity !is EntityItem) continue /* Entites that are dropped item */
             if (entity.item.item.id != itemId) continue /* Dropped items that are has give item id */
             if (entity.getDistance(player) > range) continue /* Entities within specified  blocks radius */

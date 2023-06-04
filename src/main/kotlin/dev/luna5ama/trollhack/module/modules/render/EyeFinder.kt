@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
@@ -109,7 +110,7 @@ internal object EyeFinder : Module(
             ?: return null
 
         if (result.typeOfHit == RayTraceResult.Type.MISS) {
-            for (otherEntity in world.loadedEntityList) {
+            for (otherEntity in EntityManager.entity) {
                 if (otherEntity.getDistance(entity) > 10.0) continue
                 if (otherEntity == entity || otherEntity == mc.renderViewEntity) continue
                 val box = otherEntity.entityBoundingBox
