@@ -4,14 +4,21 @@ import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.mixins.accessor.network.AccessorCPacketClickWindow
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.TickTimer
+import dev.luna5ama.trollhack.util.extension.synchronized
+import it.unimi.dsi.fastutil.shorts.ShortLinkedOpenHashSet
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.ClickType
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.CPacketClickWindow
+import net.minecraft.network.play.client.CPacketConfirmTransaction
+import net.minecraft.network.play.server.SPacketConfirmTransaction
+import kotlin.math.abs
+import kotlin.random.Random
 
 internal object InventorySync : Module(
     name = "Inventory Sync",
@@ -22,20 +29,16 @@ internal object InventorySync : Module(
     private val startDelay by setting("Start Delay", 200, 50..1000, 50, fineStep = 1)
     private val endTimeout by setting("End Timeout", 300, 50..1000, 50, fineStep = 1)
     private val interval by setting("Interval", 1500, 50..3000, 50)
+    private val forceConfirm by setting("Force Confirm", true)
+    private val cancelExtraConfirm by setting("Cancel Extra Confirm", false)
 
     private val firstPacketTimer = TickTimer()
     private val packetTimer = TickTimer()
     private val sendTimer = TickTimer()
     private var sent = false
 
-    private val illegalPacket = CPacketClickWindow(
-        0,
-        0,
-        0,
-        ClickType.PICKUP,
-        ItemStack(Item.getItemFromBlock(Blocks.BEDROCK)),
-        0
-    )
+    private val illegalStack = ItemStack(Item.getItemFromBlock(Blocks.BARRIER))
+    private val randomActionID = ShortLinkedOpenHashSet().synchronized()
 
     init {
         onEnable {
@@ -45,21 +48,70 @@ internal object InventorySync : Module(
             sent = true
         }
 
+        onDisable {
+            randomActionID.clear()
+        }
+
         safeListener<PacketEvent.PostSend> {
-            if (it.packet is CPacketClickWindow && it.packet !== illegalPacket) {
-                if (sent && packetTimer.tick(endTimeout)) firstPacketTimer.reset()
-                packetTimer.reset()
-                sent = false
+            if (it.packet !is CPacketClickWindow) return@safeListener
+            if (it.packet.clickedItem === illegalStack) return@safeListener
+
+            if (sent && packetTimer.tick(endTimeout)) firstPacketTimer.reset()
+            packetTimer.reset()
+            sent = false
+        }
+
+        safeListener<PacketEvent.Receive> {
+            if (!forceConfirm || !cancelExtraConfirm) return@safeListener
+            if (it.packet !is SPacketConfirmTransaction) return@safeListener
+            if (it.packet.windowId != 0) return@safeListener
+            if (it.packet.wasAccepted()) return@safeListener
+
+            if (randomActionID.remove(it.packet.actionNumber)) {
+                it.cancel()
             }
         }
 
         safeParallelListener<TickEvent.Post> {
-            if (!firstPacketTimer.tick(startDelay)) return@safeParallelListener
-            if (sent && packetTimer.tick(endTimeout)) return@safeParallelListener
+            if (!firstPacketTimer.tick(startDelay)) {
+                if (forceConfirm && cancelExtraConfirm) randomActionID.clear()
+                return@safeParallelListener
+            }
+
+            if (sent && packetTimer.tick(endTimeout))return@safeParallelListener
             if (!sendTimer.tickAndReset(interval)) return@safeParallelListener
 
-            connection.sendPacket(illegalPacket)
+            var random = Random.nextInt().toShort()
+            val potentialNumber = player.inventoryContainer.getNextTransactionID(player.inventory)
+
+            if (abs(random - potentialNumber) < 1000) {
+                random = if (potentialNumber > random) {
+                    (potentialNumber + 1337).toShort()
+                } else {
+                    (potentialNumber - 1337).toShort()
+                }
+            }
+
+            val packet = CPacketClickWindow(
+                0,
+                0,
+                0,
+                ClickType.PICKUP,
+                ItemStack.EMPTY,
+                random
+            )
+            @Suppress("KotlinConstantConditions")
+            (packet as AccessorCPacketClickWindow).trollSetClickedItem(illegalStack)
+
+            connection.sendPacket(
+                packet
+            )
             sent = true
+
+            if (forceConfirm) {
+                connection.sendPacket(CPacketConfirmTransaction(0, random, true))
+                if (cancelExtraConfirm) randomActionID.add(random)
+            }
         }
     }
 }

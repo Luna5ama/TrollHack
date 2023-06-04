@@ -19,6 +19,7 @@
         "gui.AccessorGuiDisconnected",
         "gui.AccessorGuiEditSign",
         "network.AccessorCPacketChatMessage",
+        "network.AccessorCPacketClickWindow",
         "network.AccessorCPacketCloseWindow",
         "network.AccessorCPacketPlayer",
         "network.AccessorCPacketPlayerTryUseItemOnBlock",
