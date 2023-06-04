@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent;
 import dev.luna5ama.trollhack.manager.managers.MessageManager;
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager;
 import dev.luna5ama.trollhack.module.modules.chat.PortalChat;
-import dev.luna5ama.trollhack.module.modules.combat.AntiAntiBurrow;
+import dev.luna5ama.trollhack.module.modules.exploit.AntiAntiBurrow;
 import dev.luna5ama.trollhack.module.modules.movement.Velocity;
 import dev.luna5ama.trollhack.module.modules.player.Freecam;
 import dev.luna5ama.trollhack.module.modules.player.SwingLimiter;

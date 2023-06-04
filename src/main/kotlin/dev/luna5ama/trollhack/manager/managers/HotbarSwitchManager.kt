@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.HotbarUpdateEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
-import dev.luna5ama.trollhack.module.modules.client.Bypass
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import net.minecraft.client.entity.EntityPlayerSP

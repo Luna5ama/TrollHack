@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.TickTimer

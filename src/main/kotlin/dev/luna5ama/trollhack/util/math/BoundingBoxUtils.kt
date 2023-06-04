@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.util.math
 
-import dev.luna5ama.trollhack.module.modules.client.Bypass
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.math.VectorUtils.plus
 import dev.luna5ama.trollhack.util.math.VectorUtils.times

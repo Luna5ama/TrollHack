@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.module.modules.combat.Burrow
+import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import net.minecraft.block.Block
