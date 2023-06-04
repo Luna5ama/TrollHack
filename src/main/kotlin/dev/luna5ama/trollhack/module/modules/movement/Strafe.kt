@@ -60,7 +60,7 @@ internal object Strafe : Module(
 
                 if (onGround && groundBoost || !onGround && airBoost) {
                     if (inputting) {
-                        val yaw = calcMoveYaw()
+                        val yaw = player.calcMoveYaw()
                         var baseSpeed = if (player.isSprinting) sprintSpeed else speed
                         if (player.isSneaking) baseSpeed *= 0.2f
                         if (speedPotionBoost) baseSpeed = player.applySpeedPotionEffects(baseSpeed)

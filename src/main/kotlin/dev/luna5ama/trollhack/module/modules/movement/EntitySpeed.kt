@@ -81,7 +81,7 @@ internal object EntitySpeed : Module(
     }
 
     private fun SafeClientEvent.steerEntity(entity: Entity) {
-        val yawRad = calcMoveYaw()
+        val yawRad = player.calcMoveYaw()
 
         val motionX = -sin(yawRad) * speed.value
         val motionZ = cos(yawRad) * speed.value

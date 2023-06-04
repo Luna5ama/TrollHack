@@ -232,7 +232,7 @@ internal object Speed : Module(
             if (globalCheck()) return@safeListener
 
             if (shouldStrafe()) {
-                val yaw = calcMoveYaw()
+                val yaw = player.calcMoveYaw()
                 val dirX = -sin(yaw)
                 val dirZ = cos(yaw)
                 val baseSpeed = player.applySpeedPotionEffects(baseSpeed)

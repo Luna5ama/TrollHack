@@ -83,7 +83,7 @@ internal object ElytraFlightNew : Module(
         player.motionY = 0.0
 
         if (MovementUtils.isInputting) {
-            val yaw = calcMoveYaw()
+            val yaw = player.calcMoveYaw()
             event.x = -sin(yaw) * speed
             event.z = cos(yaw) * speed
             modifyTimer(50.0f / boostTimer)

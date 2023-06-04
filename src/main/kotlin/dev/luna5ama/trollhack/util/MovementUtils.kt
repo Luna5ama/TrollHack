@@ -1,6 +1,9 @@
 package dev.luna5ama.trollhack.util
 
-import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.util.extension.toDegree
+import dev.luna5ama.trollhack.util.extension.toRadian
+import dev.luna5ama.trollhack.util.math.RotationUtils
+import dev.luna5ama.trollhack.util.math.vector.Vec3f
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
@@ -10,6 +13,7 @@ import net.minecraft.util.MovementInput
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.hypot
 
 @Suppress("NOTHING_TO_INLINE")
@@ -35,27 +39,45 @@ object MovementUtils {
     inline val Entity.realMotionZ get() = posZ - prevPosZ
 
     /* totally not taken from elytrafly */
-    fun SafeClientEvent.calcMoveYaw(
-        yawIn: Float = mc.player.rotationYaw,
-        moveForward: Float = roundedForward,
-        moveString: Float = roundedStrafing
-    ): Double {
-        var strafe = 90 * moveString
-        strafe *= if (moveForward != 0F) moveForward * 0.5F else 1F
-
-        var yaw = yawIn - strafe
-        yaw -= if (moveForward < 0F) 180 else 0
-
-        return Math.toRadians(yaw.toDouble())
+    fun EntityPlayerSP.calcMoveYaw(): Double {
+        return calcMoveYaw(
+            yaw = rotationYaw,
+            moveForward = movementInput.moveForward,
+            moveStrafe = movementInput.moveStrafe
+        )
     }
 
-    private inline val roundedForward get() = getRoundedMovementInput(mc.player.movementInput.moveForward)
-    private inline val roundedStrafing get() = getRoundedMovementInput(mc.player.movementInput.moveStrafe)
+    fun calcMoveYaw(
+        yaw: Float,
+        moveForward: Float,
+        moveStrafe: Float
+    ): Double {
+        val moveYaw = if (moveForward == 0.0f && moveStrafe == 0.0f) 0.0 else atan2(moveForward, moveStrafe).toDegree() - 90.0
+        return RotationUtils.normalizeAngle(yaw + moveYaw).toRadian()
+    }
 
-    private fun getRoundedMovementInput(input: Float) = when {
-        input > 0f -> 1f
-        input < 0f -> -1f
-        else -> 0f
+    fun calcMovementInput(
+        forward: Boolean,
+        backward: Boolean,
+        left: Boolean,
+        right: Boolean,
+        up: Boolean,
+        down: Boolean,
+    ): Vec3f {
+        var moveForward = 0.0f
+        var moveStrafing = 0.0f
+        var moveVertical = 0.0f
+
+        if (forward) moveForward++
+        if (backward) moveForward--
+
+        if (left) moveStrafing++
+        if (right) moveStrafing--
+
+        if (up) moveVertical++
+        if (down) moveVertical--
+
+        return Vec3f(moveStrafing, moveVertical, moveForward)
     }
 
     inline fun EntityLivingBase.applySpeedPotionEffects(speed: Double): Double {

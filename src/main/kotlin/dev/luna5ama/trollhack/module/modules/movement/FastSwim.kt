@@ -108,7 +108,7 @@ internal object FastSwim : Module(
         }
 
         if (MovementUtils.isInputting) {
-            val yaw = calcMoveYaw()
+            val yaw = player.calcMoveYaw()
             moveSpeed = min(max(moveSpeed * lavaHBoost, 0.05), lavaHSpeed / 20.0)
             player.motionX = -sin(yaw) * moveSpeed
             player.motionZ = cos(yaw) * moveSpeed
@@ -125,7 +125,7 @@ internal object FastSwim : Module(
         }
 
         if (MovementUtils.isInputting) {
-            val yaw = calcMoveYaw()
+            val yaw = player.calcMoveYaw()
             val multiplier = player.speedEffectMultiplier
 
             moveSpeed = min(max(moveSpeed * waterHBoost, 0.075), waterHSpeed / 20.0)

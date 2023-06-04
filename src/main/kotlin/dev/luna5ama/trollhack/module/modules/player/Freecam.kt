@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.BaritoneUtils
+import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
 import dev.luna5ama.trollhack.util.MovementUtils.resetJumpSneak
 import dev.luna5ama.trollhack.util.MovementUtils.resetMove
@@ -20,6 +21,7 @@ import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
+import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
@@ -197,26 +199,30 @@ internal object Freecam : Module(
     }
 
     private fun SafeClientEvent.updatePlayerMovement() {
-        cameraGuy?.let {
-            val forward = Keyboard.isKeyDown(Keyboard.KEY_UP) to Keyboard.isKeyDown(Keyboard.KEY_DOWN)
-            val strafe = Keyboard.isKeyDown(Keyboard.KEY_LEFT) to Keyboard.isKeyDown(Keyboard.KEY_RIGHT)
-            val movementInput = calcMovementInput(forward, strafe, false to false)
+        val cameraGuy = cameraGuy ?: return
+        val movementInput = MovementUtils.calcMovementInput(
+            Keyboard.isKeyDown(Keyboard.KEY_UP),
+            Keyboard.isKeyDown(Keyboard.KEY_DOWN),
+            Keyboard.isKeyDown(Keyboard.KEY_LEFT),
+            Keyboard.isKeyDown(Keyboard.KEY_RIGHT),
+            up = false,
+            down = false
+        )
 
-            val yawDiff = player.rotationYaw - it.rotationYaw
-            val yawRad = calcMoveYaw(yawDiff, movementInput.first, movementInput.second).toFloat()
-            val inputTotal = min(abs(movementInput.first) + abs(movementInput.second), 1.0f)
+        val yawDiff = RotationUtils.normalizeAngle(player.rotationYaw - cameraGuy.rotationYaw)
+        val yawRad = calcMoveYaw(yawDiff, movementInput.z, movementInput.x).toFloat()
+        val inputTotal = if (movementInput.x == 0.0f && movementInput.z == 0.0f) 0.0f else 1.0f
 
-            player.movementInput?.apply {
-                moveForward = cos(yawRad) * inputTotal
-                moveStrafe = sin(yawRad) * inputTotal
+        player.movementInput?.apply {
+            moveForward = cos(yawRad) * inputTotal
+            moveStrafe = -sin(yawRad) * inputTotal
 
-                forwardKeyDown = moveForward > 0.0f
-                backKeyDown = moveForward < 0.0f
-                leftKeyDown = moveStrafe < 0.0f
-                rightKeyDown = moveStrafe > 0.0f
+            forwardKeyDown = moveForward > 0.0f
+            backKeyDown = moveForward < 0.0f
+            leftKeyDown = moveStrafe < 0.0f
+            rightKeyDown = moveStrafe > 0.0f
 
-                jump = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
-            }
+            jump = Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)
         }
     }
 
@@ -245,20 +251,23 @@ internal object Freecam : Module(
             updateEntityActionState()
 
             // We have to update movement input from key binds because mc.player.movementInput is used by Baritone
-            val forward = mc.gameSettings.keyBindForward.isKeyDown to mc.gameSettings.keyBindBack.isKeyDown
-            val strafe = mc.gameSettings.keyBindLeft.isKeyDown to mc.gameSettings.keyBindRight.isKeyDown
-            val vertical = mc.gameSettings.keyBindJump.isKeyDown to mc.gameSettings.keyBindSneak.isKeyDown
-            val movementInput = calcMovementInput(forward, strafe, vertical)
+            val movementInput = MovementUtils.calcMovementInput(
+                mc.gameSettings.keyBindForward.isKeyDown,
+                mc.gameSettings.keyBindBack.isKeyDown,
+                mc.gameSettings.keyBindLeft.isKeyDown,
+                mc.gameSettings.keyBindRight.isKeyDown,
+                mc.gameSettings.keyBindJump.isKeyDown,
+                mc.gameSettings.keyBindSneak.isKeyDown,
+            )
 
-            moveForward = movementInput.first
-            moveStrafing = movementInput.second
-            moveVertical = movementInput.third
+            moveForward = movementInput.z
+            moveStrafing = movementInput.x
+            moveVertical = movementInput.y
 
             // Update sprinting
             isSprinting = mc.gameSettings.keyBindSprint.isKeyDown
 
-            val absYaw = RotationUtils.getRotationFromVec(Vec3d(moveStrafing.toDouble(), 0.0, moveForward.toDouble())).x
-            val yawRad = (rotationYaw - absYaw).toDouble().toRadian()
+            val yawRad =  calcMoveYaw(player.rotationYaw, moveForward, moveStrafing)
             val speed = (horizontalSpeed / 20.0f) * min(abs(moveForward) + abs(moveStrafing), 1.0f)
 
             if (directionMode == FlightMode.THREE_DEE) {
@@ -294,41 +303,5 @@ internal object Freecam : Module(
         override fun isInvisible() = true
 
         override fun isInvisibleToPlayer(player: EntityPlayer) = true
-    }
-
-    /**
-     * @param forward <Forward, Backward>
-     * @param strafe <Left, Right>
-     * @param vertical <Up, Down>
-     *
-     * @return <Forward, Strafe, Vertical>
-     */
-    private fun calcMovementInput(
-        forward: Pair<Boolean, Boolean>,
-        strafe: Pair<Boolean, Boolean>,
-        vertical: Pair<Boolean, Boolean>
-    ): Triple<Float, Float, Float> {
-        // Forward movement input
-        val moveForward = if (forward.first xor forward.second) {
-            if (forward.first) 1.0f else -1.0f
-        } else {
-            0.0f
-        }
-
-        // Strafe movement input
-        val moveStrafing = if (strafe.first xor strafe.second) {
-            if (strafe.second) 1.0f else -1.0f
-        } else {
-            0.0f
-        }
-
-        // Vertical movement input
-        val moveVertical = if (vertical.first xor vertical.second) {
-            if (vertical.first) 1.0f else -1.0f
-        } else {
-            0.0f
-        }
-
-        return Triple(moveForward, moveStrafing, moveVertical)
     }
 }

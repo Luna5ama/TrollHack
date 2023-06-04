@@ -495,7 +495,7 @@ internal object ElytraFlight : Module(
      *  @return Yaw in radians based on player rotation yaw and movement input
      */
     private fun SafeClientEvent.getYaw(): Double {
-        val yawRad = calcMoveYaw()
+        val yawRad = player.calcMoveYaw()
         packetYaw = Math.toDegrees(yawRad).toFloat()
         return yawRad
     }

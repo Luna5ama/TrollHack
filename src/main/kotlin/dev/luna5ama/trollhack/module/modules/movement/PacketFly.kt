@@ -274,7 +274,7 @@ internal object PacketFly : Module(
             if (player.movementInput.jump xor player.movementInput.sneak) {
                 motionY = if (player.movementInput.jump) upSpeed else -downSpeed
             } else if (MovementUtils.isInputting) {
-                val yaw = calcMoveYaw()
+                val yaw = player.calcMoveYaw()
                 motionX -= sin(yaw) * speed
                 motionZ += cos(yaw) * speed
             }
@@ -334,7 +334,7 @@ internal object PacketFly : Module(
     }
 
     private fun SafeClientEvent.isPhasing(): Boolean {
-        val yaw = calcMoveYaw()
+        val yaw = player.calcMoveYaw()
         val box = player.entityBoundingBox.grow(-0.001, -0.001, -0.001)
         val nextBox = box.offset(-sin(yaw) * 0.05, 0.0, cos(yaw) * 0.05)
 
