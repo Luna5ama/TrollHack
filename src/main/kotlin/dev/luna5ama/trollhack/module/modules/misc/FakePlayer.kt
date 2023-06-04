@@ -5,9 +5,14 @@ import dev.luna5ama.trollhack.command.CommandManager
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.GuiEvent
+import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.KeyboardUtils
+import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.onMainThread
@@ -21,7 +26,10 @@ import net.minecraft.init.Items
 import net.minecraft.init.MobEffects
 import net.minecraft.item.ItemStack
 import net.minecraft.potion.PotionEffect
+import org.lwjgl.input.Keyboard
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 internal object FakePlayer : Module(
     name = "Fake Player",
@@ -32,7 +40,9 @@ internal object FakePlayer : Module(
     private val copyPotions by setting("Copy Potions", true)
     private val maxArmor by setting("Max Armor", false)
     private val gappleEffects by setting("Gapple Effects", false)
-    val playerName by setting("Player Name", "Player")
+    private val playerName by setting("Player Name", "Player")
+    private val arrowMove by setting("Arrow Move", false)
+    private val arrowMoveSpeed by setting("Arrow Move Speed", 0.1f, 0.01f..2.0f, 0.01f)
 
     private const val ENTITY_ID = -696969420
     private var fakePlayer: EntityOtherPlayerMP? = null
@@ -65,6 +75,29 @@ internal object FakePlayer : Module(
 
         listener<GuiEvent.Displayed> {
             if (it.screen is GuiGameOver) disable()
+        }
+
+        safeParallelListener<TickEvent.Post> {
+            val fakePlayer = fakePlayer ?: return@safeParallelListener
+            if (!arrowMove) return@safeParallelListener
+
+            val movementInput = MovementUtils.calcMovementInput(
+                Keyboard.isKeyDown(Keyboard.KEY_UP),
+                Keyboard.isKeyDown(Keyboard.KEY_DOWN),
+                Keyboard.isKeyDown(Keyboard.KEY_LEFT),
+                Keyboard.isKeyDown(Keyboard.KEY_RIGHT),
+                Keyboard.isKeyDown(Keyboard.KEY_RSHIFT),
+                Keyboard.isKeyDown(Keyboard.KEY_RCONTROL),
+            )
+            val moveYaw = MovementUtils.calcMoveYaw(player.rotationYaw, movementInput.z, movementInput.x)
+            val xzMotion = if (movementInput.x == 0.0f && movementInput.z == 0.0f) 0.0f else arrowMoveSpeed
+            val yMotion = if (movementInput.y == 0.0f) 0.0f else arrowMoveSpeed
+
+            fakePlayer.setPosition(
+                fakePlayer.posX + -sin(moveYaw) * xzMotion,
+                fakePlayer.posY + movementInput.y * yMotion,
+                fakePlayer.posZ + cos(moveYaw) * xzMotion
+            )
         }
     }
 
