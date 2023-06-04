@@ -15,6 +15,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.Bind
+import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.spoofUnSneak
 import dev.luna5ama.trollhack.util.TickTimer
@@ -39,10 +40,7 @@ import dev.luna5ama.trollhack.util.items.blockBlacklist
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils
-import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.math.vector.toVec3d
-import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
+import dev.luna5ama.trollhack.util.math.vector.*
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -61,6 +59,7 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
+import net.minecraft.network.play.server.SPacketBlockChange
 import net.minecraft.network.play.server.SPacketSoundEffect
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
@@ -69,6 +68,7 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
 @CombatManager.CombatModule
@@ -88,6 +88,8 @@ internal object BedAura : Module(
         1,
         page.atValue(Page.GENERAL) and { handMode == EnumHand.MAIN_HAND })
     private val assumeInstantMine by setting("Assume Instant Mine", true, page.atValue(Page.GENERAL))
+    private val antiBlocker by setting("Anti Blocker", true, page.atValue(Page.GENERAL))
+    private val antiBlockerSwitch by setting("Anti Blocker Switch", 200, 0..500, 10, page.atValue(Page.GENERAL) and ::antiBlocker)
     private val strictRotation by setting("Strict Rotation", false, page.atValue(Page.GENERAL))
     private val strictDirection by setting("Strict Direction", false, page.atValue(Page.GENERAL))
     private val newPlacement by setting("1.13 Placement", false, page.atValue(Page.GENERAL))
@@ -246,6 +248,9 @@ internal object BedAura : Module(
     private val updateTimer = TickTimer()
     private val timer = TickTimer()
     private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
+    private val blockerExists = AtomicBoolean(true)
+    private val blockerSwitch = AtomicBoolean(false)
+    private val blockerTimer = TickTimer()
 
     private var switchPlacing = false
     private var placeInfo: PlaceInfo? = null
@@ -265,12 +270,11 @@ internal object BedAura : Module(
 
     private val bedAABB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 0.5625, 1.0)
 
-    @Suppress("NullableBooleanElvis")
     private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { pos, blockState ->
         val block = blockState.block
         if (block == Blocks.AIR
             || block == Blocks.BED
-            || checkInstantMining(pos)
+            || assumeInstantMine && PacketMine.isInstantMining(pos)
             || !CrystalUtils.isResistant(blockState)
         ) {
             FastRayTraceAction.SKIP
@@ -301,14 +305,24 @@ internal object BedAura : Module(
         }
 
         safeListener<PacketEvent.Receive>(114514) {
-            val placeInfo = placeInfo ?: return@safeListener
-            val packet = it.packet
-            if (packet !is SPacketSoundEffect) return@safeListener
-            if (packet.category != SoundCategory.BLOCKS) return@safeListener
-            if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
-            if (placeInfo.center.squareDistanceTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
+            val target = CombatManager.target ?: return@safeListener
+            when (val packet = it.packet) {
+                is SPacketSoundEffect -> {
+                    val placeInfo = placeInfo ?: return@safeListener
+                    if (packet.category != SoundCategory.BLOCKS) return@safeListener
+                    if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
+                    if (placeInfo.center.squareDistanceTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
 
-            explosionCount++
+                    explosionCount++
+                }
+                is SPacketBlockChange -> {
+                    val targetPos = target.betterPosition
+                    if (packet.blockPosition != targetPos) return@safeListener
+                    if (CrystalUtils.isResistant(packet.blockState)) return@safeListener
+
+                    blockerExists.set(true)
+                }
+            }
         }
 
         listener<Render3DEvent> {
@@ -482,7 +496,6 @@ internal object BedAura : Module(
     private fun SafeClientEvent.breakBed(placeInfo: PlaceInfo) {
         val side = getMiningSide(placeInfo.bedPosFoot) ?: EnumFacing.UP
         val hitVecOffset = getHitVecOffset(side)
-        player.isSneaking
 
         player.spoofUnSneak {
             connection.sendPacket(
@@ -498,6 +511,7 @@ internal object BedAura : Module(
         }
         connection.sendPacket(CPacketAnimation(handMode))
 
+        blockerExists.set(false)
         timer.reset()
         inactiveTicks = 0
     }
@@ -600,12 +614,20 @@ internal object BedAura : Module(
         val map = Long2ObjectOpenHashMap<Vec2f>()
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
+        var ignoreNonFullBox = false
+        if (antiBlocker) {
+            if (blockerTimer.tickAndReset(antiBlockerSwitch)) {
+                ignoreNonFullBox = blockerSwitch.getAndSet(!blockerSwitch.get())
+            }
+            ignoreNonFullBox = antiBlocker && !blockerExists.get()
+        }
+
         return VectorUtils.getBlockPosInSphere(eyePos, range)
             .filter { !strictDirection || eyePos.y > it.y + 1.0 }
             .mapToCalcInfo(eyePos)
             .filterNot { contextTarget.entity.getDistanceSqToCenter(it.bedPosHead) > 100.0 }
             .filter { isValidBasePos(it.basePosFoot) && (newPlacement || isValidBasePos(it.basePosHead)) }
-            .filter { isValidBedPos(it) }
+            .filter { isValidBedPos(ignoreNonFullBox, it) }
             .mapNotNull { checkDamage(map, contextSelf, contextTarget, it, mutableBlockPos) }
             .maxWithOrNull(
                 compareBy<DamageInfo> { it.targetDamage }
@@ -670,14 +692,27 @@ internal object BedAura : Module(
         return world.getBlockState(basePos).isSideSolid(world, basePos, EnumFacing.UP)
     }
 
-    private fun SafeClientEvent.isValidBedPos(calcInfo: CalcInfo): Boolean {
-        val headBlockState = world.getBlockState(calcInfo.bedPosHead)
-        val footBlock = world.getBlockState(calcInfo.bedPosFoot).block
-        val headBlock = headBlockState.block
+    private fun SafeClientEvent.isValidBedPos(ignoreNonFullBox: Boolean, calcInfo: CalcInfo): Boolean {
+        val headState = world.getBlockState(calcInfo.bedPosHead)
+        val footState = world.getBlockState(calcInfo.bedPosFoot)
 
-        return (footBlock == Blocks.AIR || checkInstantMining(calcInfo.bedPosFoot) || footBlock == Blocks.BED)
-            && (headBlock == Blocks.AIR || checkInstantMining(calcInfo.bedPosHead) || headBlock == Blocks.BED
-            && headBlockState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD && headBlockState.getValue(BlockBed.FACING) == calcInfo.side)
+        val headBlock = headState.block
+        val footBlock = footState.block
+
+        return (checkBedBlock(ignoreNonFullBox, calcInfo.bedPosFoot, footState) || footBlock == Blocks.BED)
+            && (checkBedBlock(ignoreNonFullBox, calcInfo.bedPosHead, headState)
+            || headBlock == Blocks.BED && headState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD && headState.getValue(BlockBed.FACING) == calcInfo.side)
+    }
+
+    private fun checkBedBlock(
+        ignoreNonFullBox: Boolean,
+        pos: BlockPos,
+        state: IBlockState,
+    ): Boolean {
+        val block = state.block
+        return block == Blocks.AIR
+            || assumeInstantMine && PacketMine.isInstantMining(pos)
+            || ignoreNonFullBox && block != Blocks.BED && !state.isFullBox
     }
 
     private fun checkDamage(
@@ -732,10 +767,6 @@ internal object BedAura : Module(
         return (toggleForcePlace || shouldForcePlace) && targetDamage >= forcePlaceMinDamage && diff >= forcePlaceDamageBalance
     }
 
-    private fun checkInstantMining(pos: BlockPos): Boolean {
-        return assumeInstantMine && PacketMine.isInstantMining(pos)
-    }
-
     private fun DamageInfo.toPlaceInfo(): PlaceInfo {
         val directionVec = side.directionVec
         val boxBase = AxisAlignedBB(
@@ -762,6 +793,8 @@ internal object BedAura : Module(
     }
 
     private fun reset() {
+        blockerExists.set(true)
+
         updateTimer.reset(-69420L)
         timer.reset(-69420L)
         renderer.clear()
