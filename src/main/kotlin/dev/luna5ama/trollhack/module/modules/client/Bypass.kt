@@ -30,7 +30,7 @@ internal object Bypass : Module(
 
     init {
         safeParallelListener<TickEvent.Post> {
-            if (ghostSwitchBypass == HotbarSwitchManager.BypassMode.SWAP && InventorySync.isDisabled && warningTimer.tick(5)) {
+            if (ghostSwitchBypass == HotbarSwitchManager.BypassMode.SWAP && InventorySync.isDisabled && warningTimer.tickAndReset(5)) {
                 val id = (Bypass.hashCode().toLong() shl 32) or swapWarningMessage.hashCode().toLong()
                 NoSpamMessage.sendWarning(id, swapWarningMessage)
             }
