@@ -53,8 +53,8 @@ inline fun World.getBlock(pos: BlockPos): Block =
 inline fun World.getMaterial(pos: BlockPos): Material =
     this.getBlockState(pos).material
 
-inline fun WorldClient.getSelectedBox(pos: BlockPos): AxisAlignedBB =
+inline fun World.getSelectedBox(pos: BlockPos): AxisAlignedBB =
     this.getBlockState(pos).getSelectedBoundingBox(this, pos)
 
-inline fun WorldClient.getCollisionBox(pos: BlockPos): AxisAlignedBB? =
+inline fun World.getCollisionBox(pos: BlockPos): AxisAlignedBB? =
     this.getBlockState(pos).getCollisionBoundingBox(this, pos)

@@ -8,6 +8,8 @@ import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
+import net.minecraft.block.material.Material
+import net.minecraft.block.state.IBlockState
 import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks
 import net.minecraft.util.EnumFacing
@@ -119,3 +121,15 @@ fun SafeClientEvent.hasNeighbor(pos: BlockPos): Boolean {
 fun World.isPlaceable(pos: BlockPos, ignoreSelfCollide: Boolean = false) =
     this.getBlockState(pos).isReplaceable
         && this.checkNoEntityCollision(AxisAlignedBB(pos), if (ignoreSelfCollide) Wrapper.player else null)
+
+fun IBlockState.isAir() = this.material == Material.AIR
+
+fun World.checkBlockCollision(pos: BlockPos, box: AxisAlignedBB): Boolean {
+    val blockBox = getCollisionBox(pos) ?: return false
+    return pos.x + blockBox.minX < box.maxX
+        && pos.x + blockBox.maxX > box.minX
+        && pos.y + blockBox.minY < box.maxY
+        && pos.y + blockBox.maxY > box.minY
+        && pos.z + blockBox.minZ < box.maxZ
+        && pos.z + blockBox.maxZ > box.minZ
+}

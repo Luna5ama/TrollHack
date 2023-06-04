@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.util.math
 
 import dev.luna5ama.trollhack.util.extension.*
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
@@ -52,25 +53,34 @@ object VectorUtils {
         return Vec3d(sinYaw * cosPitch, sinPitch, cosYaw * cosPitch)
     }
 
-    inline fun Vec3i.multiply(multiplier: Int): Vec3i {
+    fun Vec3i.multiply(multiplier: Int): Vec3i {
         return Vec3i(this.x * multiplier, this.y * multiplier, this.z * multiplier)
     }
 
-    inline infix operator fun Vec3d.times(vec3d: Vec3d): Vec3d = Vec3d(x * vec3d.x, y * vec3d.y, z * vec3d.z)
+    infix operator fun Vec3d.times(vec3d: Vec3d): Vec3d = Vec3d(x * vec3d.x, y * vec3d.y, z * vec3d.z)
 
-    inline infix operator fun Vec3d.times(multiplier: Double): Vec3d =
+    infix operator fun Vec3d.times(multiplier: Double): Vec3d =
         Vec3d(x * multiplier, y * multiplier, z * multiplier)
 
-    inline infix operator fun Vec3d.plus(vec3d: Vec3d): Vec3d = add(vec3d)
+    infix operator fun Vec3d.plus(vec3d: Vec3d): Vec3d = add(vec3d)
 
-    inline infix operator fun Vec3d.minus(vec3d: Vec3d): Vec3d = subtract(vec3d)
+    infix operator fun Vec3d.minus(vec3d: Vec3d): Vec3d = subtract(vec3d)
 
-    inline fun BlockPos.MutableBlockPos.setAndAdd(set: BlockPos, add: BlockPos): BlockPos.MutableBlockPos {
+    fun BlockPos.MutableBlockPos.setAndAdd(set: Vec3i, add: Vec3i): BlockPos.MutableBlockPos {
         return this.setPos(set.x + add.x, set.y + add.y, set.z + add.z)
     }
 
-    inline fun BlockPos.MutableBlockPos.setAndAdd(set: BlockPos, x: Int, y: Int, z: Int): BlockPos.MutableBlockPos {
+    fun BlockPos.MutableBlockPos.setAndAdd(set: Vec3i, x: Int, y: Int, z: Int): BlockPos.MutableBlockPos {
         return this.setPos(set.x + x, set.y + y, set.z + z)
+    }
+
+    fun BlockPos.MutableBlockPos.setAndAdd(set: BlockPos, side: EnumFacing): BlockPos.MutableBlockPos {
+        return this.setAndAdd(set, side.directionVec)
+    }
+
+    fun BlockPos.MutableBlockPos.setAndAdd(set: BlockPos, side: EnumFacing, n: Int): BlockPos.MutableBlockPos {
+        val dirVec = side.directionVec
+        return this.setPos(set.x + dirVec.x * n, set.y + dirVec.y * n, set.z + dirVec.z * n)
     }
 }
 

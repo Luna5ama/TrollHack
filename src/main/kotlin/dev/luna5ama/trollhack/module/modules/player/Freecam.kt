@@ -21,7 +21,6 @@ import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
-import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
@@ -37,7 +36,6 @@ import net.minecraft.util.MovementInput
 import net.minecraft.util.MovementInputFromOptions
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.Vec3d
 import org.lwjgl.input.Keyboard
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.abs
@@ -267,7 +265,7 @@ internal object Freecam : Module(
             // Update sprinting
             isSprinting = mc.gameSettings.keyBindSprint.isKeyDown
 
-            val yawRad =  calcMoveYaw(player.rotationYaw, moveForward, moveStrafing)
+            val yawRad = calcMoveYaw(rotationYaw, moveForward, moveStrafing)
             val speed = (horizontalSpeed / 20.0f) * min(abs(moveForward) + abs(moveStrafing), 1.0f)
 
             if (directionMode == FlightMode.THREE_DEE) {
