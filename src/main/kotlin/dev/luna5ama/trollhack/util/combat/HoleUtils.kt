@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet
 import net.minecraft.init.Blocks
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 
 @Suppress("NOTHING_TO_INLINE")
 object HoleUtils {
@@ -109,7 +110,7 @@ object HoleUtils {
     }
 
     fun SafeClientEvent.checkHoleM(pos: BlockPos): HoleInfo {
-        if (pos.y !in 1..255 || !world.isAir(pos)) return HoleInfo.empty(pos.toImmutable())
+        if (pos.y !in 1..255 || !world.checkAir(pos)) return HoleInfo.empty(pos.toImmutable())
 
         val mutablePos = mutableBlockPos.get().setPos(pos)
 
@@ -122,7 +123,7 @@ object HoleUtils {
     private inline fun SafeClientEvent.checkHole1(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
         if (!CombatSetting.obsidianHole && !CombatSetting.bedrockHole) return null
 
-        if (!checkAir(holeOffsetCheck1, pos, mutablePos)) return null
+        if (!world.checkAirMultiple(holeOffsetCheck1, pos, mutablePos)) return null
 
         val type = checkSurroundPos(pos, mutablePos, surroundOffset1, HoleType.BEDROCK, HoleType.OBBY)
 
@@ -136,7 +137,7 @@ object HoleUtils {
         var fullyTrapped = true
 
         for (holePos in holePosArray) {
-            if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
+            if (world.checkAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
                 fullyTrapped = false
             } else {
                 trapped = true
@@ -163,13 +164,13 @@ object HoleUtils {
 
         var x = true
 
-        if (!world.isAir(mutablePos.setPos(pos.x + 1, pos.y, pos.z))) {
-            if (!world.isAir(mutablePos.setPos(pos.x, pos.y, pos.z + 1))) return null
+        if (!world.checkAir(mutablePos.setPos(pos.x + 1, pos.y, pos.z))) {
+            if (!world.checkAir(mutablePos.setPos(pos.x, pos.y, pos.z + 1))) return null
             else x = false
         }
 
         val checkArray = if (x) holeOffsetCheck2X else holeOffsetCheck2Z
-        if (!checkAir(checkArray, pos, mutablePos)) return null
+        if (!world.checkAirMultiple(checkArray, pos, mutablePos)) return null
 
         val surroundOffset = if (x) surroundOffset2X else surroundOffset2Z
         val holeOffset = if (x) holeOffset2X else holeOffset2Z
@@ -187,7 +188,7 @@ object HoleUtils {
         var fullyTrapped = true
 
         for (holePos in holePosArray) {
-            if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
+            if (world.checkAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
                 fullyTrapped = false
             } else {
                 trapped = true
@@ -221,7 +222,7 @@ object HoleUtils {
 
     private inline fun SafeClientEvent.checkHole4(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
         if (!CombatSetting.fourBlocksHole) return null
-        if (!checkAir(holeOffsetCheck4, pos, mutablePos)) return null
+        if (!world.checkAirMultiple(holeOffsetCheck4, pos, mutablePos)) return null
 
         val type = checkSurroundPos(pos, mutablePos, surroundOffset4, HoleType.FOUR, HoleType.FOUR)
         if (type == HoleType.NONE) return null
@@ -232,7 +233,7 @@ object HoleUtils {
         var fullyTrapped = true
 
         for (holePos in holePosArray) {
-            if (world.isAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
+            if (world.checkAir(mutablePos.setPos(holePos.x, holePos.y + 2, holePos.z))) {
                 fullyTrapped = false
             } else {
                 trapped = true
@@ -257,19 +258,27 @@ object HoleUtils {
         )
     }
 
-    private inline fun SafeClientEvent.checkAir(
+    private inline fun World.checkAirMultiple(
         array: Array<BlockPos>,
         pos: BlockPos,
         mutablePos: BlockPos.MutableBlockPos
     ): Boolean {
         return if (CombatSetting.ignoreNonFullCubeFilling) {
             array.all {
-                !world.getBlockState(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z)).isFullBox
+                !getBlockState(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z)).isFullBox
             }
         } else {
             array.all {
-                world.isAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
+                isAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
             }
+        }
+    }
+
+    private inline fun World.checkAir(pos: BlockPos): Boolean {
+        return if (CombatSetting.ignoreNonFullCubeFilling) {
+            !getBlockState(pos).isFullBox
+        } else {
+            isAir(pos)
         }
     }
 
