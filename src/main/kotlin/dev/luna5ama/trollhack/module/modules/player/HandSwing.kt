@@ -17,6 +17,7 @@ internal object HandSwing : Module(
     private val cancelClientSide by setting("Cancel Client Side", false)
     private val cancelServerSide by setting("Cancel Server Side", false)
     val swingTicks by setting("Swing ticks", -1, -1..20, 1, { !cancelClientSide })
+    val cancelEquipAnimation by setting("Cancel Equip Animation", false)
 
     val modifiedSwingSpeed: Boolean
         get() = isEnabled && !cancelClientSide && swingTicks != -1
