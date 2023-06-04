@@ -2,8 +2,9 @@ package dev.luna5ama.trollhack.event
 
 import dev.luna5ama.trollhack.util.collections.ArrayMap
 import dev.luna5ama.trollhack.util.interfaces.Helper
-import dev.luna5ama.trollhack.util.threads.MainThreadExecutor
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -56,19 +57,11 @@ open class EventBus : EventPosting {
     protected fun invokeParallel(event: Any) {
         if (!parallelListeners.isEmpty()) {
             runBlocking {
-                val mainCallback = launch {
-                    do {
-                        MainThreadExecutor.runJobAdapter()
-                    } while (isActive)
-                }
-                coroutineScope {
-                    for (listener in parallelListeners) {
-                        launch(Dispatchers.Default) {
-                            listener.function.invoke(event)
-                        }
+                for (listener in parallelListeners) {
+                    launch(Dispatchers.Default) {
+                        listener.function.invoke(event)
                     }
                 }
-                mainCallback.cancel()
             }
         }
     }
