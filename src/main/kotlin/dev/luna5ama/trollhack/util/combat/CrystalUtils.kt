@@ -228,6 +228,7 @@ object CrystalUtils {
     }
 
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "DEPRECATION")
-    fun isResistant(blockState: IBlockState) =
-        !blockState.isLiquid && blockState.block.getExplosionResistance(null) >= 19.7
+    fun isResistant(blockState: IBlockState): Boolean {
+        return blockState.material == Blocks.AIR || !blockState.isLiquid && blockState.block.getExplosionResistance(null) >= 19.7
+    }
 }

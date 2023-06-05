@@ -13,13 +13,14 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Watermark
 import dev.luna5ama.trollhack.manager.managers.*
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
+import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
@@ -33,7 +34,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalDamage
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
-import dev.luna5ama.trollhack.util.combat.CrystalUtils.isResistant
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.delegate.CachedValueN
 import dev.luna5ama.trollhack.util.extension.ceilToInt
@@ -80,7 +80,6 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.init.MobEffects
 import net.minecraft.init.SoundEvents
@@ -166,6 +165,7 @@ internal object ZealotCrystalPlus : Module(
     private val forcePlaceSword by setting("Force Place Sword", false, { page == Page.FORCE_PLACE })
 
     // Calculation
+    private val assumeInstantMine by setting("Assume Instant Mine", true, { page == Page.CALCULATION })
     private val noSuicide by setting("No Suicide", 2.0f, 0.0f..20.0f, 0.25f, { page == Page.CALCULATION })
     private val wallRange by setting("Wall Range", 3.0f, 0.0f..8.0f, 0.1f, { page == Page.CALCULATION })
     private val motionPredict by setting("Motion Predict", true, { page == Page.CALCULATION })
@@ -584,7 +584,7 @@ internal object ZealotCrystalPlus : Module(
 
         safeListener<WorldEvent.ClientBlockUpdate>(114514) {
             if (player.distanceSqTo(it.pos) < (placeRange.ceilToInt() + 1).sq
-                && isResistant(it.oldState) != isResistant(it.newState)
+                && checkResistant(it.pos, it.oldState) != checkResistant(it.pos, it.newState)
             ) {
                 rawPosList.updateLazy()
                 rotationInfo.updateLazy()
@@ -1673,14 +1673,13 @@ internal object ZealotCrystalPlus : Module(
 
         damage = if (isPlayer
             && crystalY - entityPos.y > 1.5652173822904127
-            && isResistant(
-                world.getBlockState(
-                    mutableBlockPos.setPos(
-                        crystalX.fastFloor(),
-                        crystalY.fastFloor() - 1,
-                        crystalZ.fastFloor()
-                    )
-                )
+            && checkResistant(
+                mutableBlockPos.setPos(
+                    crystalX.fastFloor(),
+                    crystalY.fastFloor() - 1,
+                    crystalZ.fastFloor()
+                ),
+                world.getBlockState(mutableBlockPos)
             )
         ) {
             1.0f
@@ -1707,12 +1706,18 @@ internal object ZealotCrystalPlus : Module(
         return ((factor * factor + factor) * DAMAGE_FACTOR + 1.0f)
     }
 
-    private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { _, blockState ->
-        if (blockState.block != Blocks.AIR && isResistant(blockState)) {
+    private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { pos, blockState ->
+        if (checkResistant(pos, blockState)) {
             FastRayTraceAction.CALC
         } else {
             FastRayTraceAction.SKIP
         }
+    }
+
+    private fun checkResistant(pos: BlockPos, state: IBlockState): Boolean {
+        return CrystalUtils.isResistant(state)
+            && (!assumeInstantMine
+            || !PacketMine.isInstantMining(pos))
     }
 
     private fun SafeClientEvent.getExposureAmount(
