@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
@@ -17,6 +18,7 @@ import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
+import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 
@@ -323,22 +325,31 @@ internal object Step : Module(
         return 0.0
     }
 
-    private fun getStepArray(stepHeight: Double) =
-        when (stepHeight) {
-            in 0.6..1.0 -> stepOne
-            in 1.0..1.5 -> stepOneHalf
-            in 1.5..2.0 -> stepTwo
-            in 2.0..2.5 -> stepTwoHalf
+    private fun getStepArray(stepHeight: Double): DoubleArray? {
+        return when (stepHeight) {
+            in 0.6..1.05 -> {
+                step10[0] = 0.42499 * stepHeight
+                step10[1] = 0.75752 * stepHeight
+                step10
+            }
+            in 1.05..1.2 -> step12
+            in 1.2..1.3 -> step13
+            in 1.3..1.5 -> step15
+            in 1.5..2.0 -> step20
+            in 2.0..2.5 -> step25
             else -> null
         }
+    }
 
-    private val stepOne = doubleArrayOf(0.41999, 0.75320)
-    private val stepOneHalf = doubleArrayOf(0.41999, 0.75320, 1.00133, 1.16611, 1.24919, 1.17079)
-    private val stepTwo = doubleArrayOf(0.42, 0.78, 0.63, 0.51, 0.90, 1.21, 1.45, 1.43)
-    private val stepTwoHalf = doubleArrayOf(0.425, 0.821, 0.699, 0.599, 1.022, 1.372, 1.652, 1.869, 2.019, 1.907)
+    private val step10 = doubleArrayOf(0.42499, 0.75752)
+    private val step12 = doubleArrayOf(0.42499, 0.82721, 1.13981)
+    private val step13 = doubleArrayOf(0.42499, 0.82108, 1.13367, 1.32728)
+    private val step15  =doubleArrayOf(0.42499, 0.76, 1.01, 1.093, 1.015)
+    private val step20 = doubleArrayOf(0.42499, 0.78, 0.63, 0.51, 0.90, 1.21, 1.45, 1.43)
+    private val step25 = doubleArrayOf(0.42499, 0.821, 0.699, 0.599, 1.022, 1.372, 1.652, 1.869, 2.019, 1.907)
 
     fun isValidHeight(height: Double): Boolean {
-        return height >= minHeight && height <= maxHeight
+        return height in minHeight..maxHeight
     }
 
     private fun globalCheck(): Boolean {
