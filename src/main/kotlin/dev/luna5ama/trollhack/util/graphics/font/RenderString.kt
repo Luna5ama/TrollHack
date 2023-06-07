@@ -11,9 +11,9 @@ import dev.luna5ama.trollhack.util.graphics.font.renderer.AbstractFontRenderer
 import dev.luna5ama.trollhack.util.graphics.glNamedBufferStorage
 import dev.luna5ama.trollhack.util.graphics.shaders.DrawShader
 import dev.luna5ama.trollhack.util.graphics.use
+import net.minecraft.client.renderer.GlStateManager
 import org.joml.Matrix4f
-import org.lwjgl.opengl.GL11.GL_TRIANGLES
-import org.lwjgl.opengl.GL11.GL_UNSIGNED_SHORT
+import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL15.*
 import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30.glBindVertexArray
@@ -106,6 +106,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
         }
 
         glBindVertexArray(0)
+        GlStateManager.bindTexture(0)
     }
 
     fun tryClean(current: Long): Boolean {
