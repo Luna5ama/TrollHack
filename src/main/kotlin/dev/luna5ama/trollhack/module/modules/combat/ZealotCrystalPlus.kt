@@ -192,7 +192,7 @@ internal object ZealotCrystalPlus : Module(
     private val packetPlace by setting("Packet Place", PacketPlaceMode.WEAK, { page == Page.PLACE })
     private val spamPlace by setting("Spam Place", false, { page == Page.PLACE })
     private val placeSwitchMode by setting("Place Switch Mode", SwitchMode.OFF, { page == Page.PLACE })
-    private val placeSwitchBypass by setting("Place Switch Bypass", HotbarSwitchManager.Override.PICK)
+    private val placeSwitchBypass by setting("Place Switch Bypass", HotbarSwitchManager.Override.PICK, { page == Page.PLACE && placeSwitchMode == SwitchMode.GHOST })
     private val placeSwing by setting("Place Swing", false, { page == Page.PLACE })
     private val placeBypass by setting("Place Bypass", PlaceBypass.UP, { page == Page.PLACE })
     private val placeMinDamage by setting("Place Min Damage", 5.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
@@ -214,7 +214,7 @@ internal object ZealotCrystalPlus : Module(
         25,
         { page == Page.BREAK && (breakMode == BreakMode.OWN || packetBreak == BreakMode.OWN) })
     private val antiWeakness by setting("Anti Weakness", SwitchMode.OFF, { page == Page.BREAK })
-    private val antiWeaknessBypass by setting("Anti Weakness Byass", HotbarSwitchManager.Override.DEFAULT)
+    private val antiWeaknessBypass by setting("Anti Weakness Byass", HotbarSwitchManager.Override.DEFAULT, { page == Page.BREAK && antiWeakness == SwitchMode.GHOST })
     private val swapDelay by setting("Swap Delay", 0, 0..20, 1, { page == Page.BREAK })
     private val breakMinDamage by setting("Break Min Damage", 4.0f, 0.0f..20.0f, 0.25f, { page == Page.BREAK })
     private val breakMaxSelfDamage by setting("Break Max Self Damage", 8.0f, 0.0f..20.0f, 0.25f, { page == Page.BREAK })
