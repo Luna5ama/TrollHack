@@ -31,7 +31,6 @@ apply {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://maven.fastmc.dev/")
     maven("https://repo.spongepowered.org/repository/maven-public/")
