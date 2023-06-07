@@ -194,7 +194,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
     }
 
     private fun drawColorField() {
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
 
         // Saturation
         val interpolatedHue = prevHue + (hue - prevHue) * mc.renderPartialTicks
@@ -216,7 +216,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         RenderUtils2D.putVertex(fieldPos.second, bottomColor) // Bottom right
         RenderUtils2D.draw(GL_TRIANGLE_STRIP)
 
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
 
         // Circle pointer
         val interpolatedSaturation = MathUtils.lerp(prevSaturation, saturation, RenderUtils3D.partialTicks)
@@ -240,7 +240,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         val height = (hueLinePos.second.y - hueLinePos.first.y) / 6.0f
 
         // Hue slider
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
         RenderUtils2D.putVertex(hueLinePos.first, color1)
         RenderUtils2D.putVertex(hueLinePos.first.plus(8.0f, 0.0f), color1)
 
@@ -262,7 +262,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         RenderUtils2D.putVertex(hueLinePos.second, color1)
         RenderUtils2D.putVertex(hueLinePos.second.plus(8.0f, height * 0.0f), color1)
         RenderUtils2D.draw(GL_TRIANGLE_STRIP)
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
 
         // Arrow pointer
         val interpolatedHue = prevHue + (hue - prevHue) * mc.renderPartialTicks
@@ -284,7 +284,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
     }
 
     private fun drawColorPreview() {
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
 
         // Previous color
         val prevColor = setting?.value?.alpha(255) ?: ColorRGB(255, 255, 255)
@@ -308,7 +308,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
 
         // Previous hex
 
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
     }
 
     private fun actionOk() {

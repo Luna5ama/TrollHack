@@ -228,9 +228,9 @@ internal object Notification : HudElement(
             val color get() = if (nvidia) ColorRGB(118, 185, 0) else GuiSetting.primary.alpha(255)
             val backGroundColor get() = if (nvidia) ColorRGB(0, 0, 0, backgroundAlpha) else GuiSetting.backGround
 
-            val minWidth get() = 128.0f
+            val minWidth get() = 150.0f
 
-            val height get() = 24.0f
+            val height get() = MainFontRenderer.getHeight() * 4.0f
             val space get() = 4.0f
 
             val padding get() = 4.0f

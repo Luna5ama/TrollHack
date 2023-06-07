@@ -81,7 +81,7 @@ object RenderUtils2D {
     }
 
     fun drawRectOutline(x1: Float, y1: Float, x2: Float, y2: Float, lineWidth: Float = 1.0f, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
         GlStateManager.glLineWidth(lineWidth)
 
         putVertex(x1, y2, color)
@@ -90,7 +90,7 @@ object RenderUtils2D {
         putVertex(x2, y2, color)
         draw(GL_LINE_LOOP)
 
-        releaseGl()
+        releaseGL()
     }
 
     fun drawRectFilled(width: Float, height: Float, color: ColorRGB) {
@@ -98,7 +98,7 @@ object RenderUtils2D {
     }
 
     fun drawRectFilled(x1: Float, y1: Float, x2: Float, y2: Float, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
 
         putVertex(x1, y2, color)
         putVertex(x2, y2, color)
@@ -107,11 +107,11 @@ object RenderUtils2D {
 
         draw(GL_QUADS)
 
-        releaseGl()
+        releaseGL()
     }
 
     fun drawQuad(pos1: Vec2f, pos2: Vec2f, pos3: Vec2f, pos4: Vec2f, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
 
         putVertex(pos1, color)
         putVertex(pos2, color)
@@ -120,7 +120,7 @@ object RenderUtils2D {
 
         draw(GL_TRIANGLE_STRIP)
 
-        releaseGl()
+        releaseGL()
     }
 
     fun drawTriangleOutline(pos1: Vec2f, pos2: Vec2f, pos3: Vec2f, lineWidth: Float = 1f, color: ColorRGB) {
@@ -129,18 +129,18 @@ object RenderUtils2D {
     }
 
     fun drawTriangleFilled(pos1: Vec2f, pos2: Vec2f, pos3: Vec2f, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
 
         putVertex(pos1, color)
         putVertex(pos2, color)
         putVertex(pos3, color)
         draw(GL_TRIANGLES)
 
-        releaseGl()
+        releaseGL()
     }
 
     fun drawTriangleFan(center: Vec2f, vertices: Array<Vec2f>, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
 
         putVertex(center, color)
         for (vertex in vertices) {
@@ -148,22 +148,22 @@ object RenderUtils2D {
         }
         draw(GL_TRIANGLE_FAN)
 
-        releaseGl()
+        releaseGL()
     }
 
     fun drawTriangleStrip(vertices: Array<Vec2f>, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
 
         for (vertex in vertices) {
             putVertex(vertex, color)
         }
         draw(GL_TRIANGLE_STRIP)
 
-        releaseGl()
+        releaseGL()
     }
 
     fun drawLineLoop(vertices: Array<Vec2f>, lineWidth: Float = 1f, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
         GlStateManager.glLineWidth(lineWidth)
 
         for (vertex in vertices) {
@@ -171,12 +171,12 @@ object RenderUtils2D {
         }
         draw(GL_LINE_LOOP)
 
-        releaseGl()
+        releaseGL()
         GlStateManager.glLineWidth(1f)
     }
 
     fun drawLineStrip(vertices: Array<Vec2f>, lineWidth: Float = 1f, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
         GlStateManager.glLineWidth(lineWidth)
 
         for (vertex in vertices) {
@@ -184,19 +184,19 @@ object RenderUtils2D {
         }
         draw(GL_LINE_STRIP)
 
-        releaseGl()
+        releaseGL()
         GlStateManager.glLineWidth(1f)
     }
 
     fun drawLine(posBegin: Vec2f, posEnd: Vec2f, lineWidth: Float = 1f, color: ColorRGB) {
-        prepareGl()
+        prepareGL()
         GlStateManager.glLineWidth(lineWidth)
 
         putVertex(posBegin, color)
         putVertex(posEnd, color)
         draw(GL_LINES)
 
-        releaseGl()
+        releaseGL()
         GlStateManager.glLineWidth(1f)
     }
 
@@ -248,17 +248,14 @@ object RenderUtils2D {
         return max(segments.roundToInt(), 16)
     }
 
-    fun prepareGl() {
-        GlStateUtils.texture2d(false)
+    fun prepareGL() {
+        GlStateUtils.alpha(false)
         GlStateUtils.blend(true)
-        GlStateUtils.smooth(true)
         GlStateUtils.lineSmooth(true)
         GlStateUtils.cull(false)
     }
 
-    fun releaseGl() {
-        GlStateUtils.texture2d(true)
-        GlStateUtils.smooth(false)
+    fun releaseGL() {
         GlStateUtils.lineSmooth(false)
         GlStateUtils.cull(true)
     }

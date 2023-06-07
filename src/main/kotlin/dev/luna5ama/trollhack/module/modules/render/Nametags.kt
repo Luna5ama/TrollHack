@@ -544,7 +544,7 @@ internal object Nametags : Module(
 
         val width = halfWidth + halfWidth
 
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
 
         if (absorption > 0.0) {
             val absorptionColor = ColorRGB(234, 204, 32)
@@ -576,7 +576,7 @@ internal object Nametags : Module(
         }
 
         RenderUtils2D.draw(GL_QUADS)
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
 
         textComponent.draw(skipEmptyLine = true, horizontalAlign = HAlign.CENTER, verticalAlign = VAlign.CENTER)
 
@@ -598,7 +598,7 @@ internal object Nametags : Module(
 
         val width = halfWidth + halfWidth
 
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
 
         RenderUtils2D.putVertex(-halfWidth, -halfHeight, GuiSetting.backGround)
         RenderUtils2D.putVertex(-halfWidth, halfHeight + 1.0f, GuiSetting.backGround)
@@ -611,7 +611,7 @@ internal object Nametags : Module(
         RenderUtils2D.putVertex(-halfWidth + width * 1.0f, halfHeight - 1.0f, GuiSetting.primary)
         RenderUtils2D.draw(GL_QUADS)
 
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
 
         textComponent.draw(skipEmptyLine = true, horizontalAlign = HAlign.CENTER, verticalAlign = VAlign.CENTER)
     }

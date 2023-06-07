@@ -5,11 +5,13 @@ import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.manager.managers.ChunkManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.*
+import dev.luna5ama.trollhack.util.EntityUtils
 import dev.luna5ama.trollhack.util.EntityUtils.isNeutral
 import dev.luna5ama.trollhack.util.EntityUtils.isPassive
+import dev.luna5ama.trollhack.util.and
+import dev.luna5ama.trollhack.util.atTrue
+import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawCircleFilled
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawCircleOutline
@@ -17,9 +19,8 @@ import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.threads.runSafe
-import net.minecraft.client.renderer.BufferBuilder
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import it.unimi.dsi.fastutil.floats.FloatArrayList
+import it.unimi.dsi.fastutil.ints.IntArrayList
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
@@ -60,7 +61,7 @@ internal object Radar : HudElement(
     private val unloadedChunk by unloadedChunk0
     private val unloadedChunkColor by setting(
         "Unloaded Chunk Color",
-        ColorRGB(127, 127, 127, 31),
+        ColorRGB(255, 127, 127, 127),
         true,
         page.atValue(Page.CHUNK) and chunk0.atTrue() and unloadedChunk0.atTrue()
     )
@@ -85,6 +86,9 @@ internal object Radar : HudElement(
     private const val halfSize = 50.0
     private const val radius = 48.0f
 
+    private val chunkPos = IntArrayList()
+    private val chunkVertices = FloatArrayList()
+
     override fun renderHud() {
         super.renderHud()
 
@@ -108,31 +112,25 @@ internal object Radar : HudElement(
     }
 
     private fun SafeClientEvent.drawEntity() {
-        val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.buffer
 
         val partialTicks = RenderUtils3D.partialTicks
         val playerPos = EntityUtils.getInterpolatedPos(player, partialTicks)
         val posMultiplier = radius / radarRange
 
         prepareGLPoint()
-        buffer.begin(GL_POINTS, DefaultVertexFormats.POSITION_COLOR)
 
         // Player marker
-        buffer.pos(0.0, 0.0, 0.0).color(GuiSetting.text.r, GuiSetting.text.g, GuiSetting.text.b, GuiSetting.text.a)
-            .endVertex()
+        RenderUtils2D.putVertex(0.0f, 0.0f, GuiSetting.text)
 
         for (entity in getEntityList()) {
             val diff = EntityUtils.getInterpolatedPos(entity, partialTicks).subtract(playerPos)
             if (abs(diff.y) > 24.0) continue
 
             val color = getColor(entity)
-            buffer.pos(diff.x * posMultiplier, diff.z * posMultiplier, 0.0).color(color.r, color.g, color.b, color.a)
-                .endVertex()
+            RenderUtils2D.putVertex((diff.x * posMultiplier).toFloat(), (diff.z * posMultiplier).toFloat(), color)
         }
 
-        GlStateUtils.useProgram(0)
-        tessellator.draw()
+        RenderUtils2D.draw(GL_POINTS)
         releaseGLPoint()
     }
 
@@ -143,127 +141,122 @@ internal object Radar : HudElement(
     }
 
     private fun prepareGLPoint() {
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
         glPointSize(pointSize)
         glEnable(GL_POINT_SMOOTH)
         glHint(GL_POINT_SMOOTH_HINT, GL_NICEST)
     }
 
     private fun releaseGLPoint() {
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
         glPointSize(1.0f)
         glDisable(GL_POINT_SMOOTH)
         glHint(GL_POINT_SMOOTH_HINT, GL_DONT_CARE)
     }
 
     private fun SafeClientEvent.drawChunk() {
-        RenderUtils2D.prepareGl()
+        RenderUtils2D.prepareGL()
 
         val interpolatedPos = EntityUtils.getInterpolatedPos(player, RenderUtils3D.partialTicks)
-        val chunkX = (interpolatedPos.x / 16.0).fastFloor()
-        val chunkZ = (interpolatedPos.z / 16.0).fastFloor()
+        val playerChunkX = (interpolatedPos.x / 16.0).fastFloor()
+        val playerChunkZ = (interpolatedPos.z / 16.0).fastFloor()
 
         val posMultiplier = radius / radarRange
-        val diffX = (chunkX * 16 - interpolatedPos.x) * posMultiplier
-        val diffZ = (chunkZ * 16 - interpolatedPos.z) * posMultiplier
+        val diffX = (playerChunkX * 16 - interpolatedPos.x) * posMultiplier
+        val diffZ = (playerChunkZ * 16 - interpolatedPos.z) * posMultiplier
 
-        val chunks = drawChunkGrid(diffX, diffZ)
-        drawChunkFilled(chunks, chunkX, chunkZ)
+        drawChunkGrid(diffX, diffZ)
+        drawChunkFilled(playerChunkX, playerChunkZ)
 
-        RenderUtils2D.releaseGl()
+        RenderUtils2D.releaseGL()
     }
 
-    private fun drawChunkGrid(
-        diffX: Double,
-        diffZ: Double
-    ): List<Pair<Pair<Int, Int>, Quad<Double, Double, Double, Double>>> {
+    private fun drawChunkGrid(diffX: Double, diffZ: Double) {
         val chunkDist = radarRange / 16
         val posMultiplier = radius / radarRange
         val chunkPosMultiplier = posMultiplier * 16.0
         val rangeSq = (radarRange * posMultiplier) * (radarRange * posMultiplier)
 
-        val chunks = ArrayList<Pair<Pair<Int, Int>, Quad<Double, Double, Double, Double>>>()
+        chunkPos.clear()
+        chunkVertices.clear()
 
-        val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.buffer
         val drawGrid = chunkGrid
-
-        if (drawGrid) buffer.begin(GL_LINES, DefaultVertexFormats.POSITION_COLOR)
 
         for (chunkX in -chunkDist..chunkDist) {
             for (chunkZ in -chunkDist..chunkDist) {
-                val x1 = chunkX * chunkPosMultiplier + diffX
-                val y1 = chunkZ * chunkPosMultiplier + diffZ
-                val x2 = (chunkX + 1) * chunkPosMultiplier + diffX
-                val y2 = (chunkZ + 1) * chunkPosMultiplier + diffZ
+                val x1 = (chunkX * chunkPosMultiplier + diffX).toFloat()
+                val y1 = (chunkZ * chunkPosMultiplier + diffZ).toFloat()
+                val x2 = ((chunkX + 1) * chunkPosMultiplier + diffX).toFloat()
+                val y2 = ((chunkZ + 1) * chunkPosMultiplier + diffZ).toFloat()
 
                 if (calcMaxDistSq(x1, y1, x2, y2) >= rangeSq) continue
 
                 if (drawGrid) {
-                    buffer.pos(x1, y1, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
-                    buffer.pos(x1, y2, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
+                    RenderUtils2D.putVertex(x1, y1, gridColor)
+                    RenderUtils2D.putVertex(x1, y2, gridColor)
 
-                    buffer.pos(x1, y2, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
-                    buffer.pos(x2, y2, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
+                    RenderUtils2D.putVertex(x1, y2, gridColor)
+                    RenderUtils2D.putVertex(x2, y2, gridColor)
 
-                    buffer.pos(x2, y2, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
-                    buffer.pos(x2, y1, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
+                    RenderUtils2D.putVertex(x2, y2, gridColor)
+                    RenderUtils2D.putVertex(x2, y1, gridColor)
 
-                    buffer.pos(x2, y1, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
-                    buffer.pos(x1, y1, 0.0).color(gridColor.r, gridColor.g, gridColor.b, gridColor.a).endVertex()
+                    RenderUtils2D.putVertex(x2, y1, gridColor)
+                    RenderUtils2D.putVertex(x1, y1, gridColor)
                 }
 
-                chunks.add((chunkX to chunkZ) to Quad(x1, y1, x2, y2))
+                chunkPos.add(chunkX)
+                chunkPos.add(chunkZ)
+
+                chunkVertices.add(x1)
+                chunkVertices.add(y1)
+                chunkVertices.add(x2)
+                chunkVertices.add(y2)
             }
         }
 
         if (drawGrid) {
-            GlStateUtils.useProgram(0)
-            tessellator.draw()
+            RenderUtils2D.draw(GL_LINES)
         }
-
-        return chunks
     }
 
-    private fun calcMaxDistSq(x1: Double, y1: Double, x2: Double, y2: Double): Double {
-        val maxX = if (x1 + x2 >= 0.0) x2 else x1
-        val maxY = if (y1 + y2 >= 0.0) y2 else y1
+    private fun calcMaxDistSq(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+        val maxX = if (x1 + x2 >= 0.0f) x2 else x1
+        val maxY = if (y1 + y2 >= 0.0f) y2 else y1
         return maxX * maxX + maxY * maxY
     }
 
-    private fun SafeClientEvent.drawChunkFilled(
-        chunks: List<Pair<Pair<Int, Int>, Quad<Double, Double, Double, Double>>>,
-        chunkX: Int,
-        chunkZ: Int
-    ) {
+    private fun SafeClientEvent.drawChunkFilled(playerChunkX: Int, playerChunkZ: Int) {
         if (unloadedChunk || newChunk) {
-            val tessellator = Tessellator.getInstance()
-            val buffer = tessellator.buffer
+            for (i in 0 until chunkPos.size / 2) {
+                val chunkX = chunkPos.getInt(i * 2) + playerChunkX
+                val chunkZ = chunkPos.getInt(i * 2 + 1) + playerChunkZ
 
-            buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
+                val chunk = world.getChunk(chunkX, chunkZ)
 
-            for ((chunkPos, quad) in chunks) {
-                val chunk = world.getChunk(chunkX + chunkPos.first, chunkZ + chunkPos.second)
+                val x1 = chunkVertices.getFloat(i * 4)
+                val y1 = chunkVertices.getFloat(i * 4 + 1)
+                val x2 = chunkVertices.getFloat(i * 4 + 2)
+                val y2 = chunkVertices.getFloat(i * 4 + 3)
 
                 if (unloadedChunk && (chunk.isEmpty || !chunk.isLoaded)) {
-                    buffer.drawChunkQuad(quad, unloadedChunkColor)
+                    drawChunkQuad(x1, y1, x2, y2, unloadedChunkColor)
                 }
 
                 if (newChunk && ChunkManager.isNewChunk(chunk)) {
-                    buffer.drawChunkQuad(quad, newChunkColor)
+                    drawChunkQuad(x1, y1, x2, y2, newChunkColor)
                 }
             }
 
-            GlStateUtils.useProgram(0)
-            tessellator.draw()
+            RenderUtils2D.draw(GL_QUADS)
         }
     }
 
-    private fun BufferBuilder.drawChunkQuad(quad: Quad<Double, Double, Double, Double>, color: ColorRGB) {
-        pos(quad.first, quad.second, 0.0).color(color.r, color.g, color.b, color.a).endVertex()
-        pos(quad.first, quad.fourth, 0.0).color(color.r, color.g, color.b, color.a).endVertex()
-        pos(quad.third, quad.fourth, 0.0).color(color.r, color.g, color.b, color.a).endVertex()
-        pos(quad.third, quad.second, 0.0).color(color.r, color.g, color.b, color.a).endVertex()
+    private fun drawChunkQuad(x1: Float, y1: Float, x2: Float, y2: Float, color: ColorRGB) {
+        RenderUtils2D.putVertex(x1, y1, color)
+        RenderUtils2D.putVertex(x1, y2, color)
+        RenderUtils2D.putVertex(x2, y2, color)
+        RenderUtils2D.putVertex(x2, y1, color)
     }
 
     private fun drawLabels() {
@@ -277,7 +270,7 @@ internal object Radar : HudElement(
         MainFontRenderer.drawString(
             name,
             MainFontRenderer.getWidth(name, 0.8f) * -0.5f,
-            -radius.toFloat(),
+            -radius,
             GuiSetting.primary,
             0.8f
         )
