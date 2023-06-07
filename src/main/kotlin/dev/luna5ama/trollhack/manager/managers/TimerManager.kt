@@ -18,14 +18,14 @@ object TimerManager : Manager() {
     private val modifiers = TreeMap<AbstractModule, Modifier>().synchronized()
     private var modified = false
 
-    var totalTicks = Int.MIN_VALUE
+    var globalTicks = Int.MIN_VALUE; private set
     var tickLength = 50.0f; private set
 
     init {
         listener<RunGameLoopEvent.Start>(Int.MAX_VALUE, true) {
             runSafe {
                 synchronized(modifiers) {
-                    modifiers.values.removeIf { it.endTick < totalTicks }
+                    modifiers.values.removeIf { it.endTick < globalTicks }
                     modifiers.lastValueOrNull()?.let {
                         mc.timer.tickLength = it.tickLength
                     } ?: return@runSafe null
@@ -44,7 +44,7 @@ object TimerManager : Manager() {
         }
 
         listener<TickEvent.Pre>(Int.MAX_VALUE, true) {
-            totalTicks++
+            globalTicks++
         }
     }
 
@@ -55,7 +55,7 @@ object TimerManager : Manager() {
     fun AbstractModule.modifyTimer(tickLength: Float, timeoutTicks: Int = 1) {
         runSafe {
             modifiers[this@modifyTimer] =
-                Modifier(tickLength, totalTicks + RenderUtils3D.partialTicks.roundToInt() + timeoutTicks)
+                Modifier(tickLength, globalTicks + RenderUtils3D.partialTicks.roundToInt() + timeoutTicks)
         }
     }
 

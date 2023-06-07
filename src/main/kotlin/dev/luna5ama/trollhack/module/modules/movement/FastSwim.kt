@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.isEven
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
@@ -154,7 +155,7 @@ internal object FastSwim : Module(
             }
         } else {
             val y = 0.1.pow(jitter)
-            if (player.ticksExisted % 2 == 0) -y else y
+            if (player.ticksExisted.isEven) -y else y
         }
 
         player.motionY = motionY

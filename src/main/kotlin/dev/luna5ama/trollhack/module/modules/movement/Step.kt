@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.TimerManager
 import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -37,7 +38,7 @@ internal object Step : Module(
     private val maxPostTicks by setting("Max Post Ticks", 40, 0..100, 1)
 
     const val DEFAULT_HEIGHT = 0.6f
-    private var timeoutTick = -1
+    private var timeoutTick = Int.MIN_VALUE
     private var shouldDisable = false
     private var prevCollided = false
     private var collideTicks = 0
@@ -57,7 +58,7 @@ internal object Step : Module(
                 ridingEntity?.stepHeight = 1.0f
                 stepHeight = DEFAULT_HEIGHT
             }
-            timeoutTick = -1
+            timeoutTick = Int.MIN_VALUE
             shouldDisable = false
             prevCollided = false
             collideTicks = 0
@@ -118,7 +119,7 @@ internal object Step : Module(
             && !player.isFlying
             && !player.isOnLadder
             && !player.isInOrAboveLiquid
-            && (mode == Mode.VANILLA || player.ticksExisted > timeoutTick)
+            && (mode == Mode.VANILLA || TimerManager.globalTicks > timeoutTick)
             && (!strictYMotion || y in -0.08..0.0 && player.lastTickPosY == player.posY)
             && (MovementUtils.isInputting || HolePathFinder.isActive())
             && (x.sq + z.sq) > 0.001
@@ -146,7 +147,7 @@ internal object Step : Module(
                 val extraPackets = array.size + 1
                 val ticks = min((extraPackets / (targetTimer - postTimer)).fastCeil(), maxPostTicks)
                 val adjustedTimer = max((targetTimer * ticks - extraPackets) / ticks, postTimer)
-                timeoutTick = player.ticksExisted + ticks - 1
+                timeoutTick = TimerManager.globalTicks + ticks - 1
                 modifyTimer(50.0f / adjustedTimer, ticks)
             }
         }

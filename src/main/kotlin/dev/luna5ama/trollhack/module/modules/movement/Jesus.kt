@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.isEven
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.AddCollisionBoxEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
@@ -54,7 +55,7 @@ internal object Jesus : Module(
 
         safeListener<PacketEvent.Send> {
             if (it.packet !is CPacketPlayer || !it.packet.moving) return@safeListener
-            if (mc.gameSettings.keyBindSneak.isKeyDown || player.ticksExisted % 2 != 0) return@safeListener
+            if (mc.gameSettings.keyBindSneak.isKeyDown || player.ticksExisted.isEven) return@safeListener
 
             val entity = player.ridingEntity ?: player
 
