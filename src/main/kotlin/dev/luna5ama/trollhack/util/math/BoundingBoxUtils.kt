@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.util.math
 
+import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.math.VectorUtils.plus
@@ -9,6 +10,7 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import kotlin.math.min
@@ -73,14 +75,24 @@ fun AxisAlignedBB.limitSize(x: Double, y: Double, z: Double): AxisAlignedBB {
     )
 }
 
+fun AxisAlignedBB.intersectsBlock(x: Int, y: Int, z: Int): Boolean {
+    return intersects(x.toDouble(), y.toDouble(), z.toDouble(), x + 1.0, y + 1.0, z + 1.0)
+}
+
+fun AxisAlignedBB.intersectsBlock(pos: BlockPos): Boolean {
+    return intersectsBlock(pos.x, pos.y, pos.z)
+}
+
 /**
  * Check if a box is in sight
  */
 fun AxisAlignedBB.isInSight(
-    posFrom: Vec3d = Wrapper.player?.getPositionEyes(1.0f) ?: Vec3d.ZERO,
-    rotation: Vec2f = Wrapper.player?.let { Vec2f(it) } ?: Vec2f.ZERO,
-    range: Double = 4.25
-) = isInSight(posFrom, rotation.toViewVec(), range)
+    posFrom: Vec3d = PlayerPacketManager.position,
+    rotation: Vec2f = PlayerPacketManager.rotation,
+    range: Double = 8.0
+): Boolean {
+    return isInSight(posFrom, rotation.toViewVec(), range)
+}
 
 /**
  * Check if a box is in sight
@@ -89,8 +101,7 @@ fun AxisAlignedBB.isInSight(
     posFrom: Vec3d,
     viewVec: Vec3d,
     range: Double = 4.25
-): RayTraceResult? {
+): Boolean {
     val sightEnd = posFrom.add(viewVec.scale(range))
-
-    return grow(Bypass.placeRotationBoundingBoxGrow).calculateIntercept(posFrom, sightEnd)
+    return grow(Bypass.placeRotationBoundingBoxGrow).intersects(posFrom, sightEnd)
 }

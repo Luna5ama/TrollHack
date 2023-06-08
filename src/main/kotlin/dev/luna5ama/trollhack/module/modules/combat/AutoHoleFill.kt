@@ -17,6 +17,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
+import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.combat.HoleType
@@ -39,10 +40,10 @@ import dev.luna5ama.trollhack.util.world.isReplaceable
 import it.unimi.dsi.fastutil.longs.Long2LongMaps
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2LongMaps
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
 import net.minecraft.entity.Entity
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
@@ -173,34 +174,11 @@ internal object AutoHoleFill : Module(
     }
 
     private fun SafeClientEvent.updatePosRender(holeInfos: List<IntermediateHoleInfo>) {
-        val sqRange = detectRange.sq
         val set = LongOpenHashSet()
 
-        for (entity in EntityManager.players) {
-            if (entity == player) continue
-            if (!entity.isEntityAlive) continue
-            if (entity == player) continue
-            if (entity.isFriend) continue
-            if (player.getDistanceSq(entity) > sqRange) continue
-
-            val current = entity.positionVector
-            val predict = entity.calcPredict(current)
-
-            for (holeInfo in holeInfos) {
-                if (entity.posY <= holeInfo.blockPos.y + 0.5) continue
-                if (holeInfo.toward && holeInfo.playerDist - entity.horizontalDist(holeInfo.center) < distanceBalance) continue
-
-                if (holeInfo.detectBox.contains(current)
-                    || !holeInfo.toward
-                    && (holeInfo.detectBox.contains(predict) || holeInfo.detectBox.calculateIntercept(
-                        current,
-                        predict
-                    ) != null)
-                ) {
-                    set.add(holeInfo.blockPos.toLong())
-                    renderBlockMap.putIfAbsent(holeInfo.blockPos, -1L)
-                }
-            }
+        calcPosSequence(holeInfos).forEach {
+            set.add(it.second.blockPos.toLong())
+            renderBlockMap.putIfAbsent(it.second.blockPos, -1L)
         }
 
         renderBlockMap.runSynchronized {
@@ -211,100 +189,62 @@ internal object AutoHoleFill : Module(
     }
 
     private fun SafeClientEvent.getPos(holeInfos: List<IntermediateHoleInfo>, checkRotation: Boolean): BlockPos? {
-        val sqRange = detectRange.sq
+        val set = LongOpenHashSet()
+        val eyePos = PlayerPacketManager.eyePosition
 
-        val placeable = Object2FloatOpenHashMap<BlockPos>()
-
-        for (entity in EntityManager.players) {
-            if (entity == player) continue
-            if (!entity.isEntityAlive) continue
-            if (entity == player) continue
-            if (entity.isFriend) continue
-            if (player.getDistanceSq(entity) > sqRange) continue
-
-            val current = entity.positionVector
-            val predict = entity.calcPredict(current)
-
-            for (holeInfo in holeInfos) {
-                if (entity.posY <= holeInfo.blockPos.y + 0.5) continue
-                val dist = entity.horizontalDist(holeInfo.center)
-                if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) continue
-
-                if (holeInfo.detectBox.contains(current)
-                    || !holeInfo.toward
-                    && (holeInfo.detectBox.contains(predict) || holeInfo.detectBox.calculateIntercept(
-                        current,
-                        predict
-                    ) != null)
-                ) {
-
-                    placeable[holeInfo.blockPos] = dist.toFloat()
-                    renderBlockMap.putIfAbsent(holeInfo.blockPos, -1L)
-                }
+        val targetPos = calcPosSequence(holeInfos).onEach {
+            set.add(it.second.blockPos.toLong())
+            renderBlockMap.putIfAbsent(it.second.blockPos, -1L)
+        }.runIf(checkRotation) {
+            filter { (_, holeInfo) ->
+                val pos = holeInfo.blockPos
+                AxisAlignedBB(
+                    pos.x.toDouble(), pos.y - 1.0, pos.z.toDouble(),
+                    pos.x + 1.0, pos.y.toDouble(), pos.z + 1.0,
+                ).isInSight(eyePos, PlayerPacketManager.rotation)
             }
-        }
-
-        val eyePos = PlayerPacketManager.position.add(0.0, player.getEyeHeight().toDouble(), 0.0)
-
-        val targetPos = placeable.object2FloatEntrySet().asSequence()
-            .runIf(checkRotation) {
-                filter {
-                    AxisAlignedBB(
-                        it.key.x.toDouble(), it.key.y - 1.0, it.key.z.toDouble(),
-                        it.key.x + 1.0, it.key.y.toDouble(), it.key.z + 1.0,
-                    ).isInSight(eyePos, PlayerPacketManager.rotation) != null
-                }
-            }
-            .minByOrNull { it.floatValue }
-            ?.key
+        }.minByOrNull { it.first.horizontalDist(it.second.center) }?.second?.blockPos
 
         renderBlockMap.runSynchronized {
             object2LongEntrySet().removeIf {
-                it.longValue == -1L && !placeMap.containsKey(it.key.toLong()) && !placeable.containsKey(it.key)
+                it.longValue == -1L && !placeMap.containsKey(it.key.toLong()) && !set.contains(it.key.toLong())
             }
         }
 
         return targetPos
     }
 
-    private fun SafeClientEvent.getRotationPos(holeInfos: List<IntermediateHoleInfo>): BlockPos? {
-        val sqRange = detectRange.sq
+    private fun SafeClientEvent.calcPosSequence(holeInfos: List<IntermediateHoleInfo>): Sequence<Pair<EntityPlayer, IntermediateHoleInfo>> {
+        return sequence {
+            val detectRangeSq = detectRange.sq
 
-        var minDist = Double.MAX_VALUE
-        var minDistPos: BlockPos? = null
+            for (entity in EntityManager.players) {
+                if (entity.isSelf) continue
+                if (!entity.isEntityAlive) continue
+                if (entity.isFriend) continue
+                if (player.getDistanceSq(entity) > detectRangeSq) continue
 
-        for (entity in EntityManager.players) {
-            if (entity == player) continue
-            if (!entity.isEntityAlive) continue
-            if (entity == player) continue
-            if (entity.isFriend) continue
-            if (player.getDistanceSq(entity) > sqRange) continue
+                val current = entity.positionVector
+                val predict = entity.calcPredict(current)
 
-            val current = entity.positionVector
-            val predict = entity.calcPredict(current)
+                for (holeInfo in holeInfos) {
+                    if (entity.posY <= holeInfo.blockPos.y + 0.5) continue
+                    val dist = entity.horizontalDist(holeInfo.center)
+                    if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) continue
+                    if (!holeInfo.detectBox.contains(current)
+                        && (holeInfo.toward || !holeInfo.detectBox.intersects(current, predict))
+                    ) continue
 
-            for (holeInfo in holeInfos) {
-                if (entity.posY <= holeInfo.blockPos.y + 0.5) continue
-
-                val dist = entity.horizontalDist(holeInfo.center)
-                if (dist >= minDist) continue
-                if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) continue
-
-                if (holeInfo.detectBox.contains(current)
-                    || !holeInfo.toward
-                    && (holeInfo.detectBox.contains(predict) || holeInfo.detectBox.calculateIntercept(
-                        current,
-                        predict
-                    ) != null)
-                ) {
-
-                    minDistPos = holeInfo.blockPos
-                    minDist = dist
+                    yield(entity to holeInfo)
                 }
             }
         }
+    }
 
-        return minDistPos
+    private fun SafeClientEvent.getRotationPos(holeInfos: List<IntermediateHoleInfo>): BlockPos? {
+        return calcPosSequence(holeInfos)
+            .minByOrNull { it.first.horizontalDist(it.second.center) }
+            ?.second?.blockPos
     }
 
     private fun SafeClientEvent.getHoleInfos(): List<IntermediateHoleInfo> {
@@ -327,24 +267,23 @@ internal object AutoHoleFill : Module(
                     else -> false
                 }
             }
-            .filter { holeInfo ->
-                holeInfo.holePos.any {
-                    eyePos.distanceSqTo(it) <= rangeSq
-                }
+            .filter {
+                targetHole || (it.origin != HoleSnap.hole?.origin && it.origin != HolePathFinder.hole?.origin)
+            }
+            .filterNot {
+                player.entityBoundingBox.intersects(it.boundingBox)
             }
             .filter { holeInfo ->
                 entities.none {
                     it.entityBoundingBox.intersects(holeInfo.boundingBox)
                 }
             }
-            .filter {
-                targetHole || (it.origin != HoleSnap.hole?.origin && it.origin != HolePathFinder.hole?.origin)
-            }
-            .mapNotNull { holeInfo ->
+            .flatMap { holeInfo ->
                 holeInfo.holePos.asSequence()
                     .filter { !placeMap.containsKey(it.toLong()) }
-                    .minByOrNull { eyePos.distanceSqTo(it) }
-                    ?.let {
+                    .filter { eyePos.distanceSqTo(it) <= rangeSq }
+                    .filter { world.getBlockState(it).isReplaceable }
+                    .map {
                         val box = AxisAlignedBB(
                             holeInfo.boundingBox.minX - hRange,
                             holeInfo.boundingBox.minY,
@@ -353,21 +292,16 @@ internal object AutoHoleFill : Module(
                             holeInfo.boundingBox.maxY + vRange,
                             holeInfo.boundingBox.maxZ + hRange
                         )
-
-                        if (player.entityBoundingBox.intersects(holeInfo.boundingBox)) {
-                            null
-                        } else {
-                            val dist = player.horizontalDist(holeInfo.center)
-                            val prevDist =
-                                distance(player.lastTickPosX, player.lastTickPosZ, holeInfo.center.x, holeInfo.center.z)
-                            IntermediateHoleInfo(
-                                holeInfo.center,
-                                it,
-                                box,
-                                dist,
-                                holeInfo.origin == HoleSnap.hole?.origin || dist - prevDist < -0.15
-                            )
-                        }
+                        val dist = player.horizontalDist(holeInfo.center)
+                        val prevDist =
+                            distance(player.lastTickPosX, player.lastTickPosZ, holeInfo.center.x, holeInfo.center.z)
+                        IntermediateHoleInfo(
+                            holeInfo.center,
+                            it,
+                            box,
+                            dist,
+                            holeInfo.origin == HoleSnap.hole?.origin || dist - prevDist < -0.15
+                        )
                     }
             }
             .toList()
