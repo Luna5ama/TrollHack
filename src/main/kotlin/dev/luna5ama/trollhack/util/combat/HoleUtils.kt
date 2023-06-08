@@ -3,8 +3,7 @@ package dev.luna5ama.trollhack.util.combat
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
-import dev.luna5ama.trollhack.util.world.isAir
-import dev.luna5ama.trollhack.util.world.isFullBox
+import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import net.minecraft.init.Blocks
@@ -263,23 +262,19 @@ object HoleUtils {
         pos: BlockPos,
         mutablePos: BlockPos.MutableBlockPos
     ): Boolean {
-        return if (CombatSetting.ignoreNonFullCubeFilling) {
-            array.all {
-                !getBlockState(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z)).isFullBox
-            }
-        } else {
-            array.all {
-                isAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
-            }
+        return array.all {
+            checkAir(mutablePos.setPos(pos.x + it.x, pos.y + it.y, pos.z + it.z))
         }
     }
 
     private inline fun World.checkAir(pos: BlockPos): Boolean {
-        return if (CombatSetting.ignoreNonFullCubeFilling) {
-            !getBlockState(pos).isFullBox
-        } else {
-            isAir(pos)
-        }
+        val blockState = getBlockState(pos)
+        if (blockState.block == Blocks.WEB) return false
+        if (CombatSetting.ignoreReplaceableFilling && blockState.isReplaceable) return true
+        if (CombatSetting.ignoreNonFullCubeFilling && !blockState.isFullCube) return true
+        if (CombatSetting.ignoreNonCollidingFilling && blockState.getCollisionBoundingBox(this, pos) == null) return true
+
+        return blockState.isAir
     }
 
     private inline fun Array<BlockPos>.offset(pos: BlockPos): ObjectSet<BlockPos> {

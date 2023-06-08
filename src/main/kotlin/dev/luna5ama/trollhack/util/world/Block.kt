@@ -36,12 +36,14 @@ fun World.getBlockState(x: Int, y: Int, z: Int): IBlockState {
     }
 }
 
+val IBlockState.isAir get() = material == Material.AIR
+
 fun World.isAir(x: Int, y: Int, z: Int): Boolean {
-    return getBlockState(x, y, z).block == Blocks.AIR
+    return getBlockState(x, y, z).isAir
 }
 
 fun World.isAir(pos: BlockPos): Boolean {
-    return getBlockState(pos).block == Blocks.AIR
+    return getBlockState(pos).isAir
 }
 
 fun World.getBlock(pos: BlockPos): Block =

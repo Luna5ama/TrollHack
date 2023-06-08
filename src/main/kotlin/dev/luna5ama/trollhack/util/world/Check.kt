@@ -122,8 +122,6 @@ fun World.isPlaceable(pos: BlockPos, ignoreSelfCollide: Boolean = false) =
     this.getBlockState(pos).isReplaceable
         && this.checkNoEntityCollision(AxisAlignedBB(pos), if (ignoreSelfCollide) Wrapper.player else null)
 
-fun IBlockState.isAir() = this.material == Material.AIR
-
 fun World.checkBlockCollision(pos: BlockPos, box: AxisAlignedBB): Boolean {
     val blockBox = getCollisionBox(pos) ?: return false
     return pos.x + blockBox.minX < box.maxX
