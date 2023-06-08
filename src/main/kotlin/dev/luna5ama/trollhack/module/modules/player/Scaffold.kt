@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.event.events.AddCollisionBoxEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
+import dev.luna5ama.trollhack.event.events.player.InputUpdateEvent
 import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
@@ -110,6 +111,13 @@ internal object Scaffold : Module(
 
             if (!placingPos.contains(it.pos.toLong())) return@safeListener
             updateSequence()
+        }
+
+        safeListener<InputUpdateEvent> {
+            if (isTowering()) {
+                it.movementInput.moveStrafe = 0.0f
+                it.movementInput.moveForward = 0.0f
+            }
         }
 
         safeListener<PlayerMoveEvent.Pre>(-9999) {
