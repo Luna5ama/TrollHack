@@ -5,17 +5,18 @@ import dev.luna5ama.trollhack.util.graphics.font.glyph.CharInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.Font
-import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
+import java.io.RandomAccessFile
 import java.security.MessageDigest
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
+
 object GlyphCache {
-    private val oldDir = "${TrollHackMod.DIRECTORY}/glyphs"
-    private val directory = "${TrollHackMod.DIRECTORY}/glyph_cache_v1"
+    private const val oldDir = "${TrollHackMod.DIRECTORY}/glyphs"
+    private const val directory = "${TrollHackMod.DIRECTORY}/glyph_cache_v1"
 
     init {
         runCatching {
@@ -64,35 +65,45 @@ object GlyphCache {
         }.getOrNull()
     }
 
-    suspend fun loadInfo(file: File): Entry {
-        val rawBytes = withContext(Dispatchers.IO) {
-            file.readBytes()
-        }
-        return DataInputStream(GZIPInputStream(ByteArrayInputStream(rawBytes)).buffered()).use {
-            val count = it.readInt()
-            val width = it.readInt()
-            val height = it.readInt()
-            val levels = it.readInt()
-            val baseSize = it.readInt()
-            val charInfoArray = Array(count) { _ ->
-                CharInfo(
-                    it.readFloat(),
-                    it.readFloat(),
-                    it.readFloat(),
-                    shortArrayOf(
-                        it.readShort(),
-                        it.readShort(),
-                        it.readShort(),
-                        it.readShort()
-                    )
-                )
+    private suspend fun loadInfo(file: File): Entry {
+        return withContext(Dispatchers.IO) {
+            val uncompressedSize = RandomAccessFile(file, "r").use {
+                it.seek(it.length() - 4)
+                val b4 = it.read()
+                val b3 = it.read()
+                val b2 = it.read()
+                val b1 = it.read()
+                (b1 shl 24) or (b2 shl 16) or (b3 shl 8) or (b4)
             }
-            val data = it.readBytes()
-            Entry(count, width, height, levels, baseSize, charInfoArray, data)
+            DataInputStream(GZIPInputStream(file.inputStream().buffered()).buffered()).use {
+                val count = it.readInt()
+                val width = it.readInt()
+                val height = it.readInt()
+                val levels = it.readInt()
+                val baseSize = it.readInt()
+                val charInfoArray = Array(count) { _ ->
+                    CharInfo(
+                        it.readFloat(),
+                        it.readFloat(),
+                        it.readFloat(),
+                        shortArrayOf(
+                            it.readShort(),
+                            it.readShort(),
+                            it.readShort(),
+                            it.readShort()
+                        )
+                    )
+                }
+                val headerSize = 20 + 20 * count
+                val data = ByteArray(uncompressedSize - headerSize)
+                it.readFully(data)
+                Entry(count, width, height, levels, baseSize, charInfoArray, data)
+            }
         }
+
     }
 
-    suspend fun saveInfo(file: File, entry: Entry) {
+    private suspend fun saveInfo(file: File, entry: Entry) {
         withContext(Dispatchers.IO) {
             DataOutputStream(GZIPOutputStream(file.outputStream()).buffered()).use {
                 it.writeInt(entry.count)
