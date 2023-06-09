@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.confirmedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.moveTo
+import dev.luna5ama.trollhack.util.inventory.operation.quickMove
 import dev.luna5ama.trollhack.util.inventory.slot.*
 
 internal object HotbarRefill : Module(
@@ -35,7 +36,7 @@ internal object HotbarRefill : Module(
 
             val targetSlots = player.hotbarSlots + player.offhandSlot
 
-            for (slotTo in targetSlots) {
+            for (slotTo in targetSlots.asReversed()) {
                 val stack = slotTo.stack
                 if (stack.isEmpty) continue
                 if (!stack.isStackable) continue
@@ -43,11 +44,20 @@ internal object HotbarRefill : Module(
                 if (AutoEject.ejectMap.value.containsKey(stack.item.registryName.toString())) continue
 
                 val slotFrom = sourceSlots.getMaxCompatibleStack(slotTo) ?: continue
-                inventoryTask {
-                    moveTo(slotFrom, slotTo)
-                    runInGui()
-                    delay(0)
-                    postDelay(delayMs)
+                lastTask = if (slotTo is HotbarSlot) {
+                    inventoryTask {
+                        quickMove(slotFrom)
+                        runInGui()
+                        delay(0)
+                        postDelay(delayMs)
+                    }
+                } else {
+                    inventoryTask {
+                        moveTo(slotFrom, slotTo)
+                        runInGui()
+                        delay(0)
+                        postDelay(delayMs)
+                    }
                 }
                 break
             }
