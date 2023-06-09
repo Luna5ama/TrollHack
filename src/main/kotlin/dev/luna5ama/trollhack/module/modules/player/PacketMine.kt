@@ -482,7 +482,7 @@ internal object PacketMine : Module(
                 eyeHeight,
                 0.0
             ), rotation = PlayerPacketManager.rotation
-        ) != null
+        )
     }
 
     private fun isFinished(miningInfo: MiningInfo, blockState: IBlockState): Boolean {

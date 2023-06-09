@@ -37,7 +37,7 @@ fun SafeClientEvent.checkPlaceRotation(placeInfo: PlaceInfo): Boolean {
             eyeHeight.toDouble(),
             0.0
         ), rotation = PlayerPacketManager.rotation
-    ) != null
+    )
 }
 
 fun SafeClientEvent.getPlacement(

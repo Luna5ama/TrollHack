@@ -13,6 +13,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
@@ -90,7 +91,6 @@ internal object BedAura : Module(
     private val assumeInstantMine by setting("Assume Instant Mine", true, page.atValue(Page.GENERAL))
     private val antiBlocker by setting("Anti Blocker", true, page.atValue(Page.GENERAL))
     private val antiBlockerSwitch by setting("Anti Blocker Switch", 200, 0..500, 10, page.atValue(Page.GENERAL) and ::antiBlocker)
-    private val strictRotation by setting("Strict Rotation", false, page.atValue(Page.GENERAL))
     private val strictDirection by setting("Strict Direction", false, page.atValue(Page.GENERAL))
     private val newPlacement by setting("1.13 Placement", false, page.atValue(Page.GENERAL))
     private val smartDamage by setting("Smart Damage", true, page.atValue(Page.GENERAL))
@@ -349,7 +349,7 @@ internal object BedAura : Module(
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
             placeInfo?.let {
-                val rotation = if (strictRotation) {
+                val rotation = if (Bypass.blockPlaceRotation) {
                     getRotationTo(it.hitVec)
                 } else {
                     Vec2f(it.side.yaw, 0.0f)
@@ -626,7 +626,7 @@ internal object BedAura : Module(
     }
 
     private fun Sequence<BlockPos>.mapToCalcInfo(eyePos: Vec3d): Sequence<CalcInfo> {
-        return if (strictRotation) {
+        return if (Bypass.blockPlaceRotation) {
             map {
                 val bedPos = it.up()
                 val hitVec = it.toVec3d(0.5, 1.0, 0.5)

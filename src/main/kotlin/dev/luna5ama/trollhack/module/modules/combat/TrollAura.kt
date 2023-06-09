@@ -16,6 +16,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
@@ -101,22 +102,21 @@ internal object TrollAura : Module(
 
     /* General */
     private val noSuicide by setting("No Suicide", 8.0f, 0.0f..20.0f, 0.5f, page.atValue(Page.GENERAL))
-    private val rotation by setting("Rotation", true, page.atValue(Page.GENERAL))
     private val placeRotationRange by setting(
         "Place Rotation Range",
         45.0f,
         0.0f..180.0f,
         5.0f,
-        page.atValue(Page.GENERAL) and ::rotation
+        page.atValue(Page.GENERAL)
     )
     private val breakRotationRange by setting(
         "Break Rotation Range",
         60.0f,
         0.0f..180.0f,
         5.0f,
-        page.atValue(Page.GENERAL) and ::rotation
+        page.atValue(Page.GENERAL)
     )
-    private val yawSpeed by setting("Yaw Speed", 30.0f, 5.0f..90.0f, 5.0f, page.atValue(Page.GENERAL) and ::rotation)
+    private val yawSpeed by setting("Yaw Speed", 30.0f, 5.0f..90.0f, 5.0f, page.atValue(Page.GENERAL))
     private val swingMode by setting("Swing Mode", SwingMode.CLIENT, page.atValue(Page.GENERAL))
     private val swingHand by setting("Swing Hand", SwingHand.AUTO, page.atValue(Page.GENERAL))
     private val countAllCrystals by setting("Count All Crystals", true, page.atValue(Page.GENERAL))
@@ -590,7 +590,7 @@ internal object TrollAura : Module(
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
             if (!CombatManager.isOnTopPriority(TrollAura) || CombatSetting.pause) return@safeListener
 
-            if (rotation) {
+            if (Bypass.crystalRotation) {
                 doRotation()
             }
         }
@@ -960,7 +960,7 @@ internal object TrollAura : Module(
     private fun SafeClientEvent.doPlace() {
         if (!canPlace()) return
         val mutableBlockPos = BlockPos.MutableBlockPos()
-        val crystalDamage = getPlacingPos(rotation, mutableBlockPos) ?: return
+        val crystalDamage = getPlacingPos(Bypass.crystalRotation, mutableBlockPos) ?: return
         if (crystalDamage.blockPos != overridePos
             && checkSlowMode(crystalDamage)
             && !placeTimer.tick(slowPlaceDelay)
@@ -1136,7 +1136,7 @@ internal object TrollAura : Module(
             val box = AxisAlignedBB(crystalDamage.blockPos)
             val eyePos2 = PlayerPacketManager.position.add(0.0, player.eyeHeight.toDouble(), 0.0)
 
-            if (box.isInSight(eyePos2, PlayerPacketManager.rotation, 8.0) == null
+            if (box.isInSight(eyePos2, PlayerPacketManager.rotation, 8.0)
                 && (placeRotationRange == 0.0f || RotationUtils.getRotationDiff(
                     getRotationTo(
                         eyePos2,
@@ -1290,13 +1290,13 @@ internal object TrollAura : Module(
     }
 
     private fun SafeClientEvent.checkCrystalRotation(crystalDamage: CrystalDamage): Boolean {
-        if (!rotation) return true
+        if (!Bypass.crystalRotation) return true
 
         val box = CrystalUtils.getCrystalBB(crystalDamage.blockPos)
         val eyePos = PlayerPacketManager.position.add(0.0, player.eyeHeight.toDouble(), 0.0)
         val rotationToCenter = getRotationTo(PlayerPacketManager.position, box.center)
 
-        return box.isInSight(eyePos, PlayerPacketManager.rotation, 8.0) != null
+        return box.isInSight(eyePos, PlayerPacketManager.rotation, 8.0)
             || RotationUtils.getRotationDiff(rotationToCenter, PlayerPacketManager.rotation) <= breakRotationRange
     }
 

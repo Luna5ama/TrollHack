@@ -178,7 +178,7 @@ internal object KillAura : Module(
         } && target.entityBoundingBox.isInSight(
             PlayerPacketManager.position.add(0.0, player.eyeHeight.toDouble(), 0.0),
             PlayerPacketManager.rotation
-        ) != null
+        )
     }
 
     private fun SafeClientEvent.attack(entity: Entity) {

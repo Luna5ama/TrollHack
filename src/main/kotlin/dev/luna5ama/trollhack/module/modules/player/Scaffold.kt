@@ -17,6 +17,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
@@ -58,7 +59,6 @@ internal object Scaffold : Module(
     private val maxPendingPlace by setting("Max Pending Place", 2, 1..5, 1)
     private val placeTimeout by setting("Place Timeout", 200, 0..5000, 50)
     private val placeDelay by setting("Place Delay", 100, 0..1000, 1)
-    private val rotation by setting("Rotation", true)
     private val extendAxis by setting("Extend Axis", 0.02f, 0.0f..0.1f, 0.001f)
     private val extendDiagonal by setting("Extend Diagonal", 0.02f, 0.0f..0.1f, 0.001f)
 
@@ -175,7 +175,7 @@ internal object Scaffold : Module(
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
-            if (!rotation) return@safeListener
+            if (!Bypass.blockPlaceRotation) return@safeListener
             lastSequence?.let {
                 for (placeInfo in it) {
                     if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
@@ -214,7 +214,7 @@ internal object Scaffold : Module(
             for (placeInfo in it) {
                 if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
                 if (isTowering() && player.posY - placeInfo.placedPos.y <= towerPlaceHeight) return
-                if (rotation && !checkPlaceRotation(placeInfo)) return
+                if (Bypass.blockPlaceRotation && !checkPlaceRotation(placeInfo)) return
                 player.spoofSneak {
                     ghostSwitch(slot) {
                         placeBlock(placeInfo)

@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
@@ -48,7 +49,6 @@ internal object AutoTrap : Module(
     private val autoDisable by setting("Auto Disable", true)
     private val strictDirection by setting("Strict Direction", false)
     private val placeSpeed by setting("Places Per Tick", 4f, 0.25f..5f, 0.25f)
-    private val rotation by setting("Rotation", true)
 
     private var selfTrap = false
     private var job: Job? = null
@@ -65,7 +65,7 @@ internal object AutoTrap : Module(
         safeListener<TickEvent.Post> {
             if (!job.isActiveOrFalse && canRun()) job = runAutoTrap()
 
-            if (job.isActiveOrFalse && rotation) {
+            if (job.isActiveOrFalse && Bypass.blockPlaceRotation) {
                 sendPlayerPacket {
                     cancelAll()
                 }
@@ -177,7 +177,7 @@ internal object AutoTrap : Module(
         slot: HotbarSlot
     ) {
         val placePacket = placeInfo.toPlacePacket(EnumHand.MAIN_HAND)
-        val needRotation = this@AutoTrap.rotation
+        val needRotation = Bypass.blockPlaceRotation
 
         if (needRotation) {
             val rotation = getRotationTo(placeInfo.hitVec)

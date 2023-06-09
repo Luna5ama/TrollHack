@@ -15,6 +15,7 @@ import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
@@ -73,7 +74,6 @@ internal object AutoHoleFill : Module(
     private val fillDelay by setting("Fill Delay", 50, 0..1000, 10)
     private val fillTimeout by setting("Fill Timeout", 100, 0..1000, 10)
     private val fillRange by setting("Fill Range", 5.0f, 1.0f..6.0f, 0.1f)
-    private val rotation by setting("Rotation", true)
     private val targetColor by setting("Target Color", ColorRGB(32, 255, 32), false)
     private val otherColor by setting("Other Color", ColorRGB(255, 222, 32), false)
     private val filledColor by setting("Filled Color", ColorRGB(255, 32, 32), false)
@@ -136,7 +136,7 @@ internal object AutoHoleFill : Module(
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
-            if (rotation) {
+            if (Bypass.blockPlaceRotation) {
                 (nextHole ?: getRotationPos(holeInfos))?.let {
                     sendPlayerPacket {
                         rotate(getRotationTo(it.toVec3d(0.5, -0.5, 0.5)))
@@ -162,7 +162,7 @@ internal object AutoHoleFill : Module(
                 }
 
                 if (place) {
-                    getPos(newHoleInfo, rotation)?.let {
+                    getPos(newHoleInfo, Bypass.blockPlaceRotation)?.let {
                         nextHole = it
                         placeBlock(slot!!, it)
                     }

@@ -18,6 +18,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.module.modules.movement.AutoCenter
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.MovementUtils.isCentered
@@ -66,7 +67,6 @@ internal object Surround : Module(
     private val placeTimeout by setting("Place Timeout", 100, 0..1000, 10)
     private val strictDirection by setting("Strict Direction", false)
     private val autoCenter by setting("Auto Center", true)
-    private val rotation by setting("Rotation", true)
     private val autoDisable0 = setting("Auto Disable", AutoDisableMode.OUT_OF_HOLE)
     private val autoDisable by autoDisable0
     private val enableInHole0 = setting("Enable In Hole", false)
@@ -178,7 +178,7 @@ internal object Surround : Module(
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
-            if (rotation) {
+            if (Bypass.blockPlaceRotation) {
                 placing.runSynchronized {
                     for (list in values) {
                         for (placeInfo in list) {
@@ -455,7 +455,7 @@ internal object Surround : Module(
     }
 
     private fun SafeClientEvent.checkRotation(placeInfo: PlaceInfo): Boolean {
-        return !rotation || checkPlaceRotation(placeInfo)
+        return !Bypass.blockPlaceRotation || checkPlaceRotation(placeInfo)
     }
 
     private enum class SurroundOffset(val offset: BlockPos) {

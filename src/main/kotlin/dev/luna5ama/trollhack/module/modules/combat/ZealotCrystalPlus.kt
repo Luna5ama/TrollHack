@@ -123,20 +123,19 @@ internal object ZealotCrystalPlus : Module(
     private val animals by setting("Animals", false, { page == Page.GENERAL })
     private val maxTargets by setting("Max Targets", 4, 1..10, 1, { page == Page.GENERAL })
     private val targetRange by setting("Target Range", 16.0f, 0.0f..32.0f, 1.0f, { page == Page.GENERAL })
-    private val rotation by setting("Rotation", true, { page == Page.GENERAL })
-    private val yawSpeed by setting("Yaw Speed", 45.0f, 5.0f..180.0f, 5.0f, { page == Page.GENERAL && rotation })
+    private val yawSpeed by setting("Yaw Speed", 45.0f, 5.0f..180.0f, 5.0f, { page == Page.GENERAL })
     private val placeRotationRange by setting(
         "Place Rotation Range",
         0.0f,
         0.0f..180.0f,
         5.0f,
-        { page == Page.GENERAL && rotation })
+        { page == Page.GENERAL })
     private val breakRotationRange by setting(
         "Break Rotation Range",
         90.0f,
         0.0f..180.0f,
         5.0f,
-        { page == Page.GENERAL && rotation })
+        { page == Page.GENERAL })
     private val eatingPause by setting("Eating Pause", false, { page == Page.GENERAL })
     private val updateDelay by setting("Update Delay", 5, 0..250, 1, { page == Page.GENERAL })
     private val globalDelay by setting("Global Delay", 1_000_000, 1_000..10_000_000, 1_000, { page == Page.GENERAL })
@@ -343,12 +342,12 @@ internal object ZealotCrystalPlus : Module(
 
     private val placeInfo = CachedValueN(25L, PlaceInfo.INVALID) {
         runSafe {
-            calcPlaceInfo(rotation)
+            calcPlaceInfo(Bypass.crystalRotation)
         }
     }
 
     private val renderPlaceInfo: PlaceInfo?
-        get() = if (rotation) rotationInfo.getLazy() else placeInfo.getLazy()
+        get() = if (Bypass.crystalRotation) rotationInfo.getLazy() else placeInfo.getLazy()
 
     @JvmStatic
     val target: EntityLivingBase?
@@ -392,7 +391,7 @@ internal object ZealotCrystalPlus : Module(
                     updateTask = ConcurrentScope.launch {
                         try {
                             targets.get()
-                            if (rotation) rotationInfo.get(mc.timer.tickLength.toInt())
+                            if (Bypass.crystalRotation) rotationInfo.get(mc.timer.tickLength.toInt())
                             placeInfo.get(updateDelay)
 
                             if (explosionTimer.tickAndReset(250L)) {
@@ -542,7 +541,7 @@ internal object ZealotCrystalPlus : Module(
         safeListener<OnUpdateWalkingPlayerEvent.Pre>(114514) {
             if (paused()) return@safeListener
 
-            if (!rotation) return@safeListener
+            if (!Bypass.crystalRotation) return@safeListener
 
             var placing = System.currentTimeMillis() - lastActiveTime <= 250L
             rotationInfo.get(mc.timer.tickLength.toInt() * 2)?.let {
@@ -984,7 +983,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun SafeClientEvent.checkCrystalRotation(x: Double, y: Double, z: Double): Boolean {
-        if (!rotation) return true
+        if (!Bypass.crystalRotation) return true
 
         val eyePos = PlayerPacketManager.position.add(0.0, player.getEyeHeight().toDouble(), 0.0)
         val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
@@ -993,7 +992,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun checkCrystalRotation(box: AxisAlignedBB, eyePos: Vec3d, sight: Vec3d): Boolean {
-        return !rotation
+        return !Bypass.crystalRotation
             || box.calculateIntercept(eyePos, sight) != null
             || breakRotationRange != 0.0f && checkRotationDiff(getRotationTo(eyePos, box.center), breakRotationRange)
     }
