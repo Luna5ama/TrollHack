@@ -137,13 +137,14 @@ internal object PacketLogger : Module(
         val sideEnabled by setting("$side Enabled", false, { page == side })
         val sideStage by setting("$side Stage", LogStage.PRE, { page == side && sideEnabled })
         val logInChat by setting("$side Log In Chat", false, { page == side && sideEnabled })
-        val logCancelled by setting("$side Log Cancelled", false, { page == side && sideEnabled })
+        val logAll by setting("$side Log All", false, { page == side && sideEnabled })
+        val logCancelled by setting("$side Log Cancelled", false, { page == side && sideEnabled && !logAll })
 
-        private val unknownHandler = Handler(setting("$side Log Unknown", false, { page == side && sideEnabled })) { +"Unknown" }
+        private val unknownHandler = Handler(setting("$side Log Unknown", false, { page == side && sideEnabled && !logAll })) { +"Unknown" }
 
         private val handlers = mutableMapOf<Class<out Packet<*>>, Handler>().apply {
             handleFunc.associateTo(this) { (clazz, func) ->
-                clazz to Handler(setting(clazz.simpleName, false, { page == side && sideEnabled }), func)
+                clazz to Handler(setting(clazz.simpleName, false, { page == side && sideEnabled && !logAll }), func)
             }
         }
 
@@ -164,7 +165,7 @@ internal object PacketLogger : Module(
             val handleFunc: PacketLogBuilder<out Packet<*>>.() -> Unit
         ) {
             fun handle(event: PacketEvent) {
-                if (!setting.value) return
+                if (!logAll && !setting.value) return
                 PacketLogBuilder(event, event.packet).apply(handleFunc).build(logInChat)
             }
         }
