@@ -2,7 +2,7 @@ package dev.luna5ama.trollhack.command.commands
 
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.event.SafeExecuteEvent
-import dev.luna5ama.trollhack.util.items.itemPayload
+import dev.luna5ama.trollhack.util.inventory.itemPayload
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.item.ItemWritableBook
 import net.minecraft.nbt.NBTTagList

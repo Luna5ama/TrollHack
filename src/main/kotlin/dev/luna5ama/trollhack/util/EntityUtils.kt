@@ -4,7 +4,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.items.id
+import dev.luna5ama.trollhack.util.inventory.id
 import dev.luna5ama.trollhack.util.math.vector.toBlockPos
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP

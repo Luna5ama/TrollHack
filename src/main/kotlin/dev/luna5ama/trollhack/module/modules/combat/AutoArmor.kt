@@ -16,8 +16,8 @@ import dev.luna5ama.trollhack.util.inventory.operation.pickUp
 import dev.luna5ama.trollhack.util.inventory.operation.quickMove
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.durability
-import dev.luna5ama.trollhack.util.items.getEnchantmentLevel
+import dev.luna5ama.trollhack.util.inventory.durability
+import dev.luna5ama.trollhack.util.inventory.getEnchantmentLevel
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.init.Enchantments
 import net.minecraft.init.Items

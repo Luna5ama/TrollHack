@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util.world
 
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.items.blockBlacklist
+import dev.luna5ama.trollhack.util.inventory.blockBlacklist
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState

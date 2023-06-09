@@ -28,7 +28,7 @@ import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.pickUp
 import dev.luna5ama.trollhack.util.inventory.operation.quickMove
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.duraPercentage
+import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.runSafe

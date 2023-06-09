@@ -28,8 +28,8 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow
 import dev.luna5ama.trollhack.util.inventory.operation.*
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.block
-import dev.luna5ama.trollhack.util.items.id
+import dev.luna5ama.trollhack.util.inventory.block
+import dev.luna5ama.trollhack.util.inventory.id
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter

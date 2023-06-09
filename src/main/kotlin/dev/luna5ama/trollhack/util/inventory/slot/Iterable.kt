@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.util.inventory.slot
 
-import dev.luna5ama.trollhack.util.items.id
+import dev.luna5ama.trollhack.util.inventory.id
 import net.minecraft.block.Block
 import net.minecraft.inventory.Slot
 import net.minecraft.item.Item

@@ -3,9 +3,12 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.combat
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
+import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.util.inventory.ItemStackPredicate
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.countItem
+import dev.luna5ama.trollhack.util.threads.runSafeOrElse
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.init.Items
 import net.minecraft.item.ItemStack
@@ -15,28 +18,19 @@ internal object CombatItemCount : LabelHud(
     category = Category.COMBAT,
     description = "Counts combat items like gapples, crystal, etc"
 ) {
+    private val itemSettings = arrayOf(
+        ItemSetting("Arrow", ItemStackPredicate.byItem(Items.ARROW, Items.SPECTRAL_ARROW, Items.TIPPED_ARROW)),
+        ItemSetting("Bed", ItemStackPredicate.byItem(Items.BED)) { player.dimension != 0 },
+        ItemSetting("Crystal", ItemStackPredicate.byItem(Items.END_CRYSTAL)),
+        ItemSetting("Gapple", ItemStackPredicate.byItem(Items.GOLDEN_APPLE)),
+        ItemSetting("Totem", ItemStackPredicate.byItem(Items.TOTEM_OF_UNDYING)),
+        ItemSetting("Xp Bottle", ItemStackPredicate.byItem(Items.EXPERIENCE_BOTTLE)),
+        ItemSetting("Pearl", ItemStackPredicate.byItem(Items.ENDER_PEARL)),
+        ItemSetting("Chorus Fruit", ItemStackPredicate.byItem(Items.CHORUS_FRUIT))
+    )
 
-    private val arrow = setting("Arrow", true)
-    private val bed = setting("Bed", false)
-    private val crystal = setting("Crystal", true)
-    private val gapple = setting("Gapple", true)
-    private val totem = setting("Totem", true)
-    private val xpBottle = setting("Xp Bottle", true)
-    private val pearl = setting("Pearl", false)
-    private val chorusFruit = setting("Chorus Fruit", false)
     private val showIcon by setting("Show Icon", true)
     private val horizontal by setting("Horizontal", true, { showIcon })
-
-    private val itemSettings = linkedMapOf(
-        arrow to arrayOf(Items.ARROW, Items.SPECTRAL_ARROW, Items.TIPPED_ARROW),
-        bed to arrayOf(Items.BED),
-        crystal to arrayOf(Items.END_CRYSTAL),
-        gapple to arrayOf(Items.GOLDEN_APPLE),
-        totem to arrayOf(Items.TOTEM_OF_UNDYING),
-        xpBottle to arrayOf(Items.EXPERIENCE_BOTTLE),
-        pearl to arrayOf(Items.ENDER_PEARL),
-        chorusFruit to arrayOf(Items.CHORUS_FRUIT)
-    )
 
     private val itemStacks = arrayOf(
         ItemStack(Items.ARROW, -1),
@@ -51,7 +45,7 @@ internal object CombatItemCount : LabelHud(
 
     override val hudWidth: Float
         get() = if (showIcon) {
-            if (horizontal) 20.0f * itemSettings.keys.count { it.value }
+            if (horizontal) 20.0f * itemSettings.count { it.isEnabled() }
             else 20.0f
         } else {
             displayText.getWidth()
@@ -60,7 +54,7 @@ internal object CombatItemCount : LabelHud(
     override val hudHeight: Float
         get() = if (showIcon) {
             if (horizontal) 20.0f
-            else 20.0f * itemSettings.keys.count { it.value }
+            else 20.0f * itemSettings.count { it.isEnabled() }
         } else {
             displayText.getHeight(2)
         }
@@ -68,14 +62,19 @@ internal object CombatItemCount : LabelHud(
     override fun SafeClientEvent.updateText() {
         val slots = player.allSlots
 
-        for ((index, entry) in itemSettings.entries.withIndex()) {
-            val count = if (entry.key.value) entry.value.sumOf { slots.countItem(it) }
-            else -1
+        for ((index, entry) in itemSettings.withIndex()) {
+            val count = if (entry.isEnabled()) {
+                slots.asSequence()
+                    .filter { entry.predicate(it.stack) }
+                    .sumOf { it.stack.count }
+            } else {
+                -1
+            }
 
             if (showIcon) {
                 itemStacks[index].count = count + 1 // Weird way to get around Minecraft item count check
             } else if (count > -1) {
-                displayText.add(entry.key.nameAsString, GuiSetting.text)
+                displayText.add(entry.name, GuiSetting.text)
                 displayText.addLine("x$count", GuiSetting.primary)
             }
         }
@@ -98,4 +97,15 @@ internal object CombatItemCount : LabelHud(
         }
     }
 
+    private class ItemSetting(
+        val name: String,
+        val predicate: ItemStackPredicate,
+        private val enabled: (SafeClientEvent.() -> Boolean)? = null
+    ) {
+        private val setting = setting(name, true)
+
+        fun isEnabled(): Boolean {
+            return runSafeOrElse(false) { setting.value && (enabled?.invoke(this) ?: true) }
+        }
+    }
 }

@@ -6,8 +6,8 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.items.foodValue
-import dev.luna5ama.trollhack.util.items.saturation
+import dev.luna5ama.trollhack.util.inventory.foodValue
+import dev.luna5ama.trollhack.util.inventory.saturation
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.init.MobEffects

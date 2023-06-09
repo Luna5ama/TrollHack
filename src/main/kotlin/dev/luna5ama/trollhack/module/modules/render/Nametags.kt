@@ -22,7 +22,7 @@ import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.Style
 import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.items.originalName
+import dev.luna5ama.trollhack.util.inventory.originalName
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.lerp

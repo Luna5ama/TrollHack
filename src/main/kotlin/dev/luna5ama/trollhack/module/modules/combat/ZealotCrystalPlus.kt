@@ -47,8 +47,8 @@ import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.attackDamage
-import dev.luna5ama.trollhack.util.items.duraPercentage
+import dev.luna5ama.trollhack.util.inventory.attackDamage
+import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils.toViewVec

@@ -19,7 +19,7 @@ fun ClientExecuteEvent.toSafe() =
     else null
 
 @OptIn(ExperimentalContracts::class)
-inline fun <R> runSafeOrElse(block: SafeClientEvent.() -> R, defaultValue: R): R {
+inline fun <R> runSafeOrElse(defaultValue: R, block: SafeClientEvent.() -> R): R {
     contract {
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
     }

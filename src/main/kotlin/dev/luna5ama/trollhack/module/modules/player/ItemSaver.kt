@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.util.inventory.confirmedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.id
+import dev.luna5ama.trollhack.util.inventory.id
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 

@@ -9,7 +9,7 @@ import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.collections.EnumSet
 import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
-import dev.luna5ama.trollhack.util.items.blockBlacklist
+import dev.luna5ama.trollhack.util.inventory.blockBlacklist
 import dev.luna5ama.trollhack.util.math.isInSight
 import dev.luna5ama.trollhack.util.math.vector.Vec3f
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo

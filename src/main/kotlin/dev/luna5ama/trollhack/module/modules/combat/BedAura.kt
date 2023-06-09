@@ -40,7 +40,7 @@ import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.blockBlacklist
+import dev.luna5ama.trollhack.util.inventory.blockBlacklist
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils

@@ -17,7 +17,7 @@ import dev.luna5ama.trollhack.util.combat.CombatUtils.equipBestWeapon
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
-import dev.luna5ama.trollhack.util.items.isWeapon
+import dev.luna5ama.trollhack.util.inventory.isWeapon
 import dev.luna5ama.trollhack.util.math.RotationUtils.faceEntityClosest
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationToEntityClosest
 import dev.luna5ama.trollhack.util.math.isInSight

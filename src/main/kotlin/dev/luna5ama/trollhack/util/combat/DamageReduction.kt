@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util.combat
 
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
-import dev.luna5ama.trollhack.util.items.getEnchantmentLevel
+import dev.luna5ama.trollhack.util.inventory.getEnchantmentLevel
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.init.Enchantments

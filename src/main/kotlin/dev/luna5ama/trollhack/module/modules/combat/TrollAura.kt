@@ -42,7 +42,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.countItem
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
-import dev.luna5ama.trollhack.util.items.duraPercentage
+import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd

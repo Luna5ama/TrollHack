@@ -36,7 +36,7 @@ import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.currentHotbarSlot
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
-import dev.luna5ama.trollhack.util.items.isTool
+import dev.luna5ama.trollhack.util.inventory.isTool
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.isInSight
 import dev.luna5ama.trollhack.util.math.scale

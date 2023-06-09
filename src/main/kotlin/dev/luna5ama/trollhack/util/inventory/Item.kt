@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.util.items
+package dev.luna5ama.trollhack.util.inventory
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.util.accessor.attackDamage

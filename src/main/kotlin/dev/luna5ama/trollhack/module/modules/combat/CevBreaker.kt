@@ -32,7 +32,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
-import dev.luna5ama.trollhack.util.items.isHolding
+import dev.luna5ama.trollhack.util.inventory.isHolding
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.world.*
 import net.minecraft.init.Blocks

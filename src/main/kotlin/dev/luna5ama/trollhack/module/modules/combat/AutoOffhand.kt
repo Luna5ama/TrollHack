@@ -31,7 +31,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.craftingSlots
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.inventory.slot.inventorySlots
 import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
-import dev.luna5ama.trollhack.util.items.isWeapon
+import dev.luna5ama.trollhack.util.inventory.isWeapon
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage

@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.command.commands
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.util.extension.max
 import dev.luna5ama.trollhack.util.extension.remove
-import dev.luna5ama.trollhack.util.items.itemPayload
+import dev.luna5ama.trollhack.util.inventory.itemPayload
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import net.minecraft.item.ItemWritableBook

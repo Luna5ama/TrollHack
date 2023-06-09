@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.util.items
+package dev.luna5ama.trollhack.util.inventory
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.block.Block
