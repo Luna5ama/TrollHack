@@ -67,10 +67,14 @@ internal object BedCity : Module(
 
         val diffX = target.posX - (targetPos.x + 0.5)
         val diffZ = target.posZ - (targetPos.z + 0.5)
-        facings.sortByDescending {
-            val directionVec = it.directionVec
-            diffX * directionVec.x + diffZ * directionVec.z
-        }
+        facings.sortWith(
+            compareByDescending<EnumFacing> {
+                lastMinePos == minePos.setAndAdd(targetPos, it)
+            }.thenBy {
+                val directionVec = it.directionVec
+                diffX * directionVec.x + diffZ * directionVec.z
+            }
+        )
 
         fun checkEmpty(pos: BlockPos): Boolean {
             return if (ignoreNonFullBox) !world.getBlockState(pos).isFullBox else world.isAir(pos)
