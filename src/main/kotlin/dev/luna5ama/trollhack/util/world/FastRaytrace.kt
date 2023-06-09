@@ -79,6 +79,46 @@ fun World.fastRaytrace(
     return fastRaytrace(start, end, maxAttempt, mutableBlockPos, function)
 }
 
+fun World.fastRaytraceCorners(
+    x: Double,
+    y: Double,
+    z: Double,
+    blockX: Int,
+    blockY: Int,
+    blockZ: Int,
+    mutableBlockPos: BlockPos.MutableBlockPos
+): Boolean {
+    return fastRaytraceCorners(x, y, z, blockX, blockY, blockZ, 50, mutableBlockPos)
+}
+
+fun World.fastRaytraceCorners(
+    x: Double,
+    y: Double,
+    z: Double,
+    blockX: Int,
+    blockY: Int,
+    blockZ: Int,
+    maxAttempt: Int,
+    mutableBlockPos: BlockPos.MutableBlockPos
+): Boolean {
+    val minX = blockX + 0.05
+    val minY = blockY + 0.05
+    val minZ = blockZ + 0.05
+
+    val maxX = minX + 0.95
+    val maxY = minY + 0.95
+    val maxZ = minZ + 0.95
+
+    return fastRaytrace(x, y, z, minX, minY, minZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, maxX, minY, minZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, minX, minY, maxZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, maxX, minY, maxZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, minX, maxY, minZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, maxX, maxY, minZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, minX, maxY, maxZ, maxAttempt, mutableBlockPos, function)
+        || fastRaytrace(x, y, z, maxX, maxY, maxZ, maxAttempt, mutableBlockPos, function)
+}
+
 inline fun World.fastRaytrace(
     start: Vec3d,
     end: Vec3d,

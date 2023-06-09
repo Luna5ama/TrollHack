@@ -7,14 +7,12 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.EntityManager
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.items.block
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.runIf
 import dev.luna5ama.trollhack.util.world.getBlock
@@ -49,22 +47,15 @@ internal object AntiRegear : Module(
         }
 
         safeListener<PacketEvent.PostSend> {
-            if (it.packet !is CPacketPlayerTryUseItemOnBlock) return@safeListener
-            if (player.serverSideItem.item.block !is BlockShulkerBox) return@safeListener
-
-            addSelfPlaced(it.packet.pos.offset(it.packet.direction))
+            if (it.packet is CPacketPlayerTryUseItemOnBlock) {
+                addSelfPlaced(it.packet.pos.offset(it.packet.direction))
+            }
         }
 
         safeParallelListener<TickEvent.Post> {
             if (PacketMine.isDisabled) {
                 if (!silentNotification) Notification.send("You must have PacketMine enabled for AntiRegear to work")
                 return@safeParallelListener
-            }
-
-            synchronized(selfPlaced) {
-                selfPlaced.removeIf {
-                    world.getBlock(it) !is BlockShulkerBox
-                }
             }
 
             val mineRangeSq = mineRange.sq
@@ -137,7 +128,7 @@ internal object AntiRegear : Module(
 
     private fun addSelfPlaced(pos: BlockPos) {
         synchronized(selfPlaced) {
-            if (selfPlaced.size > 10) selfPlaced.removeLast()
+            if (selfPlaced.size > 100) selfPlaced.removeLast()
             selfPlaced.addAndMoveToFirst(pos)
         }
     }

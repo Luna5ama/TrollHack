@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.util.Wrapper
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
+import net.minecraft.inventory.ContainerPlayer
 import net.minecraft.inventory.Slot
 
 val EntityPlayer.allSlots: List<Slot>
@@ -66,7 +67,6 @@ fun Container.getSlots(range: IntRange): List<Slot> =
     inventorySlots.subList(range.first, range.last + 1)
 
 fun Container.getContainerSlotSize(): Int {
-    if (Wrapper.minecraft.currentScreen !is GuiContainer) return 0
-    return this.inventorySlots.size - 36
+    return if (this is ContainerPlayer) 0 else this.inventorySlots.size - 36
 }
 

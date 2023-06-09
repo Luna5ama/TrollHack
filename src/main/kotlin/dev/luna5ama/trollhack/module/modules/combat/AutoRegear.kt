@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.BlockPosUtil
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -38,14 +39,15 @@ import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.runSynchronized
 import dev.luna5ama.trollhack.util.world.PlaceInfo.Companion.newPlaceInfo
+import dev.luna5ama.trollhack.util.world.fastRaytraceCorners
 import dev.luna5ama.trollhack.util.world.isAir
 import dev.luna5ama.trollhack.util.world.isReplaceable
 import dev.luna5ama.trollhack.util.world.placeBlock
-import dev.luna5ama.trollhack.util.world.rayTraceVisible
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import kotlinx.coroutines.launch
 import net.minecraft.block.BlockShulkerBox
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.ContainerShulkerBox
 import net.minecraft.inventory.Slot
@@ -64,27 +66,36 @@ internal object AutoRegear : Module(
     description = "Automatically regear using container",
     category = Category.COMBAT
 ) {
-    private val placeShulkerKey by setting("Place Shulker Key", Bind(), { placeShulker = true })
+    private val placeShulkerKey by setting("Place Shulker Key", Bind(), { if (it) placeShulker = true })
     private val placeRange by setting("Place Range", 4.0f, 1.0f..6.0f, 0.1f)
+    private val regearOpenKey by setting("Regear Open Key", Bind())
     private val shulkearBoxOnly by setting("Shulker Box Only", true)
+    private val hideInventory by setting("Hide Inventory", false)
+    private val closeInventory by setting("Close Inventory", false)
     private val takeArmor by setting("Take Armor", true)
+    private val regearTimeout by setting("Regear Timeout", 500, 0..5000, 10)
     private val clickDelayMs by setting("Click Delay ms", 10, 0..1000, 1)
     private val postDelayMs by setting("Post Delay ms", 50, 0..1000, 1)
     private val moveTimeoutMs by setting("Move Timeout ms", 100, 0..1000, 1)
 
+    private val directions = EnumFacing.values()
+
     private val armorTimer = TickTimer()
     private val timeoutTimer = TickTimer()
-    private var lastContainer: Container? = null
-    private var lastTask: InventoryTask? = null
+
     private val moveTimeMap = Int2LongOpenHashMap().apply {
         defaultReturnValue(Long.MIN_VALUE)
     }
     private val explosionPosMap = Long2LongOpenHashMap().synchronized().apply {
         defaultReturnValue(Long.MIN_VALUE)
     }
-    private val directions = EnumFacing.values()
+
+    private var lastContainer: Container? = null
+    private var lastTask: InventoryTask? = null
 
     private var placeShulker = false
+    private var closeAfterRegear = false
+    private var regearing = false
 
     override fun getHudInfo(): String {
         return Kit.kitName
@@ -92,14 +103,11 @@ internal object AutoRegear : Module(
 
     init {
         onDisable {
-            lastContainer = null
-            lastTask?.cancel()
-            lastTask = null
-            moveTimeMap.clear()
+            reset()
         }
 
         onEnable {
-            placeShulker = false
+            reset()
         }
 
         safeListener<CrystalSetDeadEvent> {
@@ -107,21 +115,54 @@ internal object AutoRegear : Module(
         }
 
         safeListener<RunGameLoopEvent.Tick> {
-            if (!lastTask.executedOrTrue) return@safeListener
-
+            val currentScreen = mc.currentScreen
             val openContainer = player.openContainer
-            if (openContainer === player.inventoryContainer
-                && (!shulkearBoxOnly || openContainer !is ContainerShulkerBox)
-            ) {
-                lastTask?.cancel()
-                return@safeListener
+
+            if (!regearing) {
+                if (openContainer === player.inventoryContainer || shulkearBoxOnly && openContainer !is ContainerShulkerBox) {
+                    reset()
+                    return@safeListener
+                }
+
+                if (currentScreen !is GuiContainer) {
+                    reset()
+                    return@safeListener
+                }
+
+                if (!regearOpenKey.isEmpty) {
+                    if (!regearOpenKey.isDown()) {
+                        reset()
+                        return@safeListener
+                    } else {
+                        closeAfterRegear = true
+                    }
+                }
             }
+
+            regearing = true
+
+            if (hideInventory && closeAfterRegear && currentScreen != null) {
+                mc.currentScreen = null
+                mc.displayGuiScreen(null)
+            }
+
+            if (!lastTask.executedOrTrue) return@safeListener
 
             if (openContainer !== lastContainer) {
                 moveTimeMap.clear()
                 timeoutTimer.time = Long.MAX_VALUE
                 lastContainer = openContainer
-            } else if (timeoutTimer.tick(500)) {
+            } else if (timeoutTimer.tick(regearTimeout)) {
+                if (closeInventory && closeAfterRegear) {
+                    if (currentScreen == null) {
+                        player.closeScreen()
+                    } else {
+                        mc.displayGuiScreen(null)
+                    }
+                    player.openContainer = player.inventoryContainer
+                }
+                closeAfterRegear = false
+                regearing = false
                 return@safeListener
             }
 
@@ -155,6 +196,13 @@ internal object AutoRegear : Module(
                     }
                 }
 
+                val playerRange = (16).sq
+                val playerList = EntityManager.players.asSequence()
+                    .filterNot { it.isSelf }
+                    .filterNot { it.isFriend }
+                    .filter { player.getDistanceSq(it) <= playerRange }
+                    .toList()
+
                 val rangeSq = placeRange * placeRange
                 val mutable = BlockPos.MutableBlockPos()
 
@@ -163,7 +211,11 @@ internal object AutoRegear : Module(
                     .flatMap { pos ->
                         directions.asSequence().filter {
                             val directionVec = it.directionVec
-                            player.distanceSqTo(pos.x + 0.5 + directionVec.x, pos.y + 0.5 + directionVec.y, pos.z + 0.5 + directionVec.z) < rangeSq
+                            player.distanceSqTo(
+                                pos.x + 0.5 + directionVec.x * 1.5,
+                                pos.y + 0.5 + directionVec.y * 1.5,
+                                pos.z + 0.5 + directionVec.z * 1.5
+                            ) < rangeSq
                         }.filter {
                             world.getBlockState(mutable.setAndAdd(pos, it)).isReplaceable
                                 && world.checkNoEntityCollision(AxisAlignedBB(mutable), null)
@@ -175,29 +227,26 @@ internal object AutoRegear : Module(
                         compareBy<Pair<BlockPos, EnumFacing>> { (pos, direction) ->
                             val placedPos = mutable.setAndAdd(pos, direction)
                             explosionPos.none {
-                                world.rayTraceVisible(
+                                world.fastRaytraceCorners(
                                     placedPos.x + 0.5,
                                     placedPos.y + 0.5,
                                     placedPos.z + 0.5,
-                                    BlockPosUtil.xFromLong(it) + 0.5,
-                                    BlockPosUtil.yFromLong(it) + 0.5,
-                                    BlockPosUtil.zFromLong(it) + 0.5,
+                                    BlockPosUtil.xFromLong(it),
+                                    BlockPosUtil.yFromLong(it),
+                                    BlockPosUtil.zFromLong(it),
                                     mutable
                                 )
                             }
                         }.thenBy { (pos, _) ->
-                            EntityManager.players.asSequence()
-                                .filterNot { it.isSelf }
-                                .filterNot { it.isFriend }
-                                .maxOfOrNull { it.distanceSqTo(pos) } ?: 0.0
-                        }.thenBy { (pos, _) ->
+                            playerList.maxOfOrNull { it.distanceSqTo(pos) } ?: 0.0
+                        }.thenByDescending { (pos, _) ->
                             player.distanceSqTo(pos)
                         }
                     )?.let {
+                        closeAfterRegear = true
+                        regearing = true
+
                         val placeInfo = newPlaceInfo(it.first, it.second)
-                        println(placeInfo.pos)
-                        println(placeInfo.direction)
-                        println(placeInfo.placedPos)
                         if (Bypass.blockPlaceRotation) {
                             val rotationTo = getRotationTo(placeInfo.hitVec)
                             connection.sendPacket(CPacketPlayer.Rotation(rotationTo.x, rotationTo.y, player.onGround))
@@ -208,14 +257,16 @@ internal object AutoRegear : Module(
                             }
                         }
                         player.spoofUnSneak {
-                            connection.sendPacket(CPacketPlayerTryUseItemOnBlock(
-                                placeInfo.placedPos,
-                                placeInfo.direction,
-                                EnumHand.MAIN_HAND,
-                                placeInfo.hitVecOffset.x,
-                                placeInfo.hitVecOffset.y,
-                                placeInfo.hitVecOffset.z
-                            ))
+                            connection.sendPacket(
+                                CPacketPlayerTryUseItemOnBlock(
+                                    placeInfo.placedPos,
+                                    placeInfo.direction,
+                                    EnumHand.MAIN_HAND,
+                                    placeInfo.hitVecOffset.x,
+                                    placeInfo.hitVecOffset.y,
+                                    placeInfo.hitVecOffset.z
+                                )
+                            )
                         }
                     }
             }
@@ -334,5 +385,21 @@ internal object AutoRegear : Module(
         }
 
         return false
+    }
+
+    private fun reset() {
+        armorTimer.reset(-69420L)
+        timeoutTimer.reset(-69420L)
+
+        moveTimeMap.clear()
+        explosionPosMap.clear()
+
+        lastContainer = null
+        lastTask?.cancel()
+        lastTask = null
+
+        placeShulker = false
+        regearing = false
+        closeAfterRegear = false
     }
 }
