@@ -17,6 +17,7 @@ import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
@@ -214,8 +215,10 @@ internal object Scaffold : Module(
                 if (pendingPlace.containsKey(placeInfo.placedPos.toLong())) continue
                 if (isTowering() && player.posY - placeInfo.placedPos.y <= towerPlaceHeight) return
                 if (rotation && !checkPlaceRotation(placeInfo)) return
-                ghostSwitch(slot) {
-                    placeBlock(placeInfo)
+                player.spoofSneak {
+                    ghostSwitch(slot) {
+                        placeBlock(placeInfo)
+                    }
                 }
                 pendingPlace.put(placeInfo.placedPos.toLong(), System.currentTimeMillis() + placeTimeout)
                 placeTimer.reset()
