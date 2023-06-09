@@ -15,7 +15,6 @@ import dev.luna5ama.trollhack.util.world.isFullBox
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 
-@CombatManager.CombatModule
 internal object BedCity : Module(
     name = "Bed City",
     category = Category.COMBAT,
@@ -33,6 +32,10 @@ internal object BedCity : Module(
         EnumFacing.EAST,
         EnumFacing.SOUTH
     )
+
+    override fun isActive(): Boolean {
+        return isEnabled && lastMinePos != null
+    }
 
     init {
         onEnable {
