@@ -93,10 +93,14 @@ internal object AutoOffhand : Module(
     private val offhandGapple by offhandGapple0
     private val checkAuraG by setting("Check Aura G", true, type.atValue(Type.GAPPLE) and offhandGapple0.atTrue())
     private val checkWeaponG by setting("Check Weapon G", false, type.atValue(Type.GAPPLE) and offhandGapple0.atTrue())
-    private val checkCAGapple by setting(
+    private val checkCA by setting(
         "Check CrystalAura G",
         true,
         type.atValue(Type.GAPPLE) and offhandGapple0.atTrue() and { !offhandCrystal })
+    private val checkBedAuraG by setting(
+        "Check BedAura G",
+        true,
+        type.atValue(Type.GAPPLE) and offhandGapple0.atTrue() and { !offhandBed })
 
     // Strength
     private val offhandStrength0 = setting("Offhand Strength", true, type.atValue(Type.STRENGTH))
@@ -124,9 +128,8 @@ internal object AutoOffhand : Module(
     // Bed
     private val offhandBed0 = setting("Offhand Bed", true, type.atValue(Type.BED))
     private val offhandBed by offhandBed0
-    private val checkBedAuraB by setting("Check BedAura B", true, type.atValue(Type.BED))
+    private val checkBedAuraB by setting("Check BedAura B", true, type.atValue(Type.BED) and offhandBed0.atTrue())
 
-    @Suppress("UnusedEquals")
     enum class Type(override val displayName: CharSequence, val filter: (ItemStack) -> Boolean) : DisplayEnum {
         TOTEM("Totem", { it.item == Items.TOTEM_OF_UNDYING }),
         GAPPLE("Gapple", { it.item == Items.GOLDEN_APPLE }),
@@ -207,7 +210,8 @@ internal object AutoOffhand : Module(
     private fun SafeClientEvent.checkGapple() = offhandGapple
         && (checkAuraG && CombatManager.isActiveAndTopPriority(KillAura)
         || checkWeaponG && player.heldItemMainhand.item.isWeapon
-        || (checkCAGapple && !offhandCrystal) && CombatManager.isOnTopPriority(TrollAura))
+        || checkCA && !offhandCrystal && (CombatManager.isOnTopPriority(TrollAura) || CombatManager.isOnTopPriority(ZealotCrystalPlus))
+        || checkBedAuraG && !offhandBed && CombatManager.isOnTopPriority(BedAura))
 
     private fun checkBed(): Boolean {
         return offhandBed

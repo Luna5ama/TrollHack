@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
+import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
@@ -23,6 +24,7 @@ internal object BedCity : Module(
 ) {
     private val ignoreNonFullBox by setting("Ignore Non-Full Box", true)
 
+    private var lastSurrounded = false
     private var lastTargetPos: BlockPos? = null
     private var lastMinePos: BlockPos? = null
 
@@ -43,6 +45,8 @@ internal object BedCity : Module(
         }
 
         onDisable {
+            lastSurrounded = false
+            lastTargetPos = null
             lastMinePos = null
             PacketMine.reset(this)
         }
@@ -57,14 +61,13 @@ internal object BedCity : Module(
         val targetPos = target.betterPosition
         val minePos = BlockPos.MutableBlockPos()
 
-        val surrounded = !world.isAir(minePos.setAndAdd(targetPos, 1, 0, 0))
-            && !world.isAir(minePos.setAndAdd(targetPos, -1, 0, 0))
-            && !world.isAir(minePos.setAndAdd(targetPos, 0, 0, 1))
-            && !world.isAir(minePos.setAndAdd(targetPos, 0, 0, -1))
+        val currentSurrounded = HoleManager.getHoleInfo(targetPos).isHole
+        val surrounded = currentSurrounded && lastSurrounded
+        lastSurrounded = currentSurrounded
 
-        val diffX = player.posX - target.posX
-        val diffZ = player.posZ - target.posZ
-        facings.sortBy {
+        val diffX = target.posX - (targetPos.x + 0.5)
+        val diffZ = target.posZ - (targetPos.z + 0.5)
+        facings.sortByDescending {
             val directionVec = it.directionVec
             diffX * directionVec.x + diffZ * directionVec.z
         }
@@ -76,6 +79,9 @@ internal object BedCity : Module(
         fun minePos(minePos: BlockPos?): Boolean {
             if (minePos == null) return false
             PacketMine.mineBlock(BedCity, minePos, if (checkEmpty(targetPos)) -100 else modulePriority)
+            if (lastMinePos != minePos) {
+                println("WTF: $minePos")
+            }
             lastTargetPos = targetPos
             lastMinePos = minePos
             return true
@@ -98,7 +104,7 @@ internal object BedCity : Module(
 
         fun tryHeadMineSurround(pos: BlockPos): Boolean {
             if (checkEmpty(pos)) return false
-            if (surrounded && !world.checkBlockCollision(pos, target.entityBoundingBox)) return false
+            if (!world.checkBlockCollision(pos, target.entityBoundingBox)) return false
 
             minePos(pos)
             return true
