@@ -11,6 +11,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.EntityUtils.viewEntity
 import dev.luna5ama.trollhack.util.KeyboardUtils
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -89,7 +90,7 @@ internal object FakePlayer : Module(
                 Keyboard.isKeyDown(Keyboard.KEY_RSHIFT),
                 Keyboard.isKeyDown(Keyboard.KEY_RCONTROL),
             )
-            val moveYaw = MovementUtils.calcMoveYaw(player.rotationYaw, movementInput.z, movementInput.x)
+            val moveYaw = MovementUtils.calcMoveYaw(viewEntity.rotationYaw, movementInput.z, movementInput.x)
             val xzMotion = if (movementInput.x == 0.0f && movementInput.z == 0.0f) 0.0f else arrowMoveSpeed
             val yMotion = if (movementInput.y == 0.0f) 0.0f else arrowMoveSpeed
 
