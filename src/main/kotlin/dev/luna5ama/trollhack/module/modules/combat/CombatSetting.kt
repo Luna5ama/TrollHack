@@ -149,13 +149,13 @@ internal object CombatSetting : Module(
     ).apply { listeners.add(ExposureSample::resetSamplePoints) }
     val backSideSampling by setting("Back Side Sampling", true, page.atValue(Page.CALCULATION))
 
-    val bedrockHole by setting("Bedrock Hole", true, page.atValue(Page.CALCULATION))
-    val obsidianHole by setting("Obsidian Hole", true, page.atValue(Page.CALCULATION))
-    val twoBlocksHole by setting("2 Blocks Hole", true, page.atValue(Page.CALCULATION))
-    val fourBlocksHole by setting("4 Blocks Hole", true, page.atValue(Page.CALCULATION))
-    val ignoreReplaceableFilling by setting("Ignore Replaceable Filling", true, page.atValue(Page.CALCULATION))
-    val ignoreNonFullCubeFilling by setting("Ignore Non-Full Cube Filling", false, page.atValue(Page.CALCULATION))
-    val ignoreNonCollidingFilling by setting("Ignore Non-Colliding Filling", true, page.atValue(Page.CALCULATION) and {!ignoreNonFullCubeFilling})
+    val bedrockHole by setting("Bedrock Hole", true, page.atValue(Page.HOLE_DETECTION))
+    val obsidianHole by setting("Obsidian Hole", true, page.atValue(Page.HOLE_DETECTION))
+    val twoBlocksHole by setting("2 Blocks Hole", true, page.atValue(Page.HOLE_DETECTION))
+    val fourBlocksHole by setting("4 Blocks Hole", true, page.atValue(Page.HOLE_DETECTION))
+    val ignoreReplaceableFilling by setting("Ignore Replaceable Filling", true, page.atValue(Page.HOLE_DETECTION))
+    val ignoreNonFullCubeFilling by setting("Ignore Non-Full Cube Filling", false, page.atValue(Page.HOLE_DETECTION))
+    val ignoreNonCollidingFilling by setting("Ignore Non-Colliding Filling", true, page.atValue(Page.HOLE_DETECTION) and {!ignoreNonFullCubeFilling})
 
     /* Render */
     private val renderPrediction =
