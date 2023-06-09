@@ -296,14 +296,6 @@ internal object BedAura : Module(
             reset()
         }
 
-        safeListener<WorldEvent.ClientBlockUpdate> { event ->
-            placeInfo?.let {
-                if (event.pos == it.basePos) {
-                    it.updateBlacklisted(event.newState.block)
-                }
-            }
-        }
-
         safeListener<PacketEvent.Receive>(114514) {
             val target = CombatManager.target ?: return@safeListener
             when (val packet = it.packet) {
@@ -372,9 +364,6 @@ internal object BedAura : Module(
         safeListener<TickEvent.Post> {
             inactiveTicks++
             update()
-            placeInfo?.let {
-                it.updateBlacklisted(world.getBlock(it.basePos))
-            }
             runLoop()
         }
 
@@ -517,7 +506,7 @@ internal object BedAura : Module(
     }
 
     private fun SafeClientEvent.placeBed(placeInfo: PlaceInfo) {
-        val shouldSneak = !player.isSneaking && placeInfo.blackListed
+        val shouldSneak = !player.isSneaking
         if (shouldSneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
         val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, handMode, 0.5f, 1.0f, 0.5f)
 
@@ -844,11 +833,5 @@ internal object BedAura : Module(
         val boxHead: AxisAlignedBB,
         val center: Vec3d,
         val string: String
-    ) {
-        var blackListed = mc.world?.let { blockBlacklist.contains(it.getBlock(basePos)) } ?: false; private set
-
-        fun updateBlacklisted(block: Block) {
-            blackListed = blockBlacklist.contains(block)
-        }
-    }
+    )
 }
