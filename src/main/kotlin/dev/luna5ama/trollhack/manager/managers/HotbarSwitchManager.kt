@@ -7,9 +7,12 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
+import dev.luna5ama.trollhack.util.inventory.slot.hotbarIndex
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
+import dev.luna5ama.trollhack.util.inventory.slot.isHotbarSlot
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.inventory.ClickType
+import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.CPacketClickWindow
 import net.minecraft.network.play.client.CPacketHeldItemChange
@@ -47,13 +50,9 @@ object HotbarSwitchManager : Manager() {
         ghostSwitch(Override.DEFAULT, slot, block)
     }
 
-    fun SafeClientEvent.ghostSwitch(override: Override, slot: HotbarSlot, block: () -> Unit) {
-        ghostSwitch(override, slot.hotbarSlot, block)
-    }
-
-    fun SafeClientEvent.ghostSwitch(override: Override, slot: Int, block: () -> Unit) {
+    fun SafeClientEvent.ghostSwitch(override: Override, slot: Slot, block: () -> Unit) {
         synchronized(InventoryTaskManager) {
-            if (slot != serverSideHotbar) {
+            if (slot.hotbarIndex != serverSideHotbar) {
                 override.mode.run {
                     switch(slot, block)
                 }
@@ -64,27 +63,38 @@ object HotbarSwitchManager : Manager() {
         block.invoke()
     }
 
+    fun SafeClientEvent.ghostSwitch(override: Override, slot: Int, block: () -> Unit) {
+        ghostSwitch(override, player.hotbarSlots[slot], block)
+    }
+
     enum class BypassMode {
         NONE {
-            override fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit) {
+            override fun SafeClientEvent.switch(targetSlot: Slot, block: () -> Unit) {
+                if (!targetSlot.isHotbarSlot) {
+                    SWAP.run {
+                        switch(targetSlot, block)
+                        return
+                    }
+                }
+
                 val prevSlot = serverSideHotbar
-                connection.sendPacket(CPacketHeldItemChange(targetSlot))
+                connection.sendPacket(CPacketHeldItemChange(targetSlot.slotNumber - 36))
                 block.invoke()
                 connection.sendPacket(CPacketHeldItemChange(prevSlot))
             }
         },
         MOVE {
-            override fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit) {
+            override fun SafeClientEvent.switch(targetSlot: Slot, block: () -> Unit) {
                 val hotbarSlots = player.hotbarSlots
                 val inventory = player.inventory
                 val inventoryContainer = player.inventoryContainer
                 val heldItem = player.serverSideItem
-                val targetItem = inventory.mainInventory[targetSlot]
+                val targetItem = targetSlot.stack
 
                 connection.sendPacket(
                     CPacketClickWindow(
                         0,
-                        hotbarSlots[targetSlot].slotNumber,
+                        targetSlot.slotNumber,
                         0,
                         ClickType.PICKUP,
                         targetItem,
@@ -117,7 +127,7 @@ object HotbarSwitchManager : Manager() {
                 connection.sendPacket(
                     CPacketClickWindow(
                         0,
-                        hotbarSlots[targetSlot].slotNumber,
+                        targetSlot.slotNumber,
                         0,
                         ClickType.PICKUP,
                         ItemStack.EMPTY,
@@ -127,12 +137,11 @@ object HotbarSwitchManager : Manager() {
             }
         },
         SWAP {
-            override fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit) {
-                val targetSlotNumber = player.hotbarSlots[targetSlot].slotNumber
+            override fun SafeClientEvent.switch(targetSlot: Slot, block: () -> Unit) {
                 connection.sendPacket(
                     CPacketClickWindow(
                         0,
-                        targetSlotNumber,
+                        targetSlot.slotNumber,
                         serverSideHotbar,
                         ClickType.SWAP,
                         ItemStack.EMPTY,
@@ -143,7 +152,7 @@ object HotbarSwitchManager : Manager() {
                 connection.sendPacket(
                     CPacketClickWindow(
                         0,
-                        targetSlotNumber,
+                        targetSlot.slotNumber,
                         serverSideHotbar,
                         ClickType.SWAP,
                         ItemStack.EMPTY,
@@ -153,14 +162,21 @@ object HotbarSwitchManager : Manager() {
             }
         },
         PICK {
-            override fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit) {
-                playerController.pickItem(targetSlot)
+            override fun SafeClientEvent.switch(targetSlot: Slot, block: () -> Unit) {
+                if (targetSlot.slotNumber == 45 || targetSlot.slotNumber < 9) {
+                    SWAP.run {
+                        switch(targetSlot, block)
+                        return
+                    }
+                }
+                val number = targetSlot.slotNumber % 36
+                playerController.pickItem(number)
                 block.invoke()
-                playerController.pickItem(targetSlot)
+                playerController.pickItem(number)
             }
         };
 
-        abstract fun SafeClientEvent.switch(targetSlot: Int, block: () -> Unit)
+        abstract fun SafeClientEvent.switch(targetSlot: Slot, block: () -> Unit)
     }
 
     enum class Override {

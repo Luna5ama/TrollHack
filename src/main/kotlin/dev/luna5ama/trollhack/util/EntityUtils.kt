@@ -21,6 +21,8 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 object EntityUtils {
     private val mc = Minecraft.getMinecraft()
@@ -157,11 +159,10 @@ object EntityUtils {
             ?.positionVector
             ?.toBlockPos()
 
-    //    @OptIn(ExperimentalContracts::class)
     inline fun EntityPlayerSP.spoofSneak(block: () -> Unit) {
-//        contract {
-//            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-//        }
+        contract {
+            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        }
 
         if (!this.isSneaking) {
             connection.sendPacket(CPacketEntityAction(this, CPacketEntityAction.Action.START_SNEAKING))
@@ -172,11 +173,10 @@ object EntityUtils {
         }
     }
 
-    //    @OptIn(ExperimentalContracts::class)
     inline fun EntityPlayerSP.spoofUnSneak(block: () -> Unit) {
-//        contract {
-//            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-//        }
+        contract {
+            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        }
 
         if (this.isSneaking) {
             connection.sendPacket(CPacketEntityAction(this, CPacketEntityAction.Action.STOP_SNEAKING))

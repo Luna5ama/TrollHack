@@ -2,6 +2,7 @@
 
 package dev.luna5ama.trollhack.util.extension
 
+import it.unimi.dsi.fastutil.longs.LongCollection
 import java.util.*
 
 inline fun <E : Any> MutableCollection<E>.add(e: E?) {
@@ -37,17 +38,24 @@ inline fun CharSequence.sumOfFloat(selector: (Char) -> Float): Float {
     return sum
 }
 
-inline fun <E> MutableCollection<E>.synchronized(): MutableCollection<E> =
+fun <E> MutableCollection<E>.synchronized(): MutableCollection<E> =
     Collections.synchronizedCollection(this)
 
-inline fun <E> MutableList<E>.synchronized(): MutableList<E> =
+fun <E> MutableList<E>.synchronized(): MutableList<E> =
     Collections.synchronizedList(this)
 
-inline fun <E> MutableSet<E>.synchronized(): MutableSet<E> =
+fun <E> MutableSet<E>.synchronized(): MutableSet<E> =
     Collections.synchronizedSet(this)
 
-inline fun <E> SortedSet<E>.synchronized(): SortedSet<E> =
+fun <E> SortedSet<E>.synchronized(): SortedSet<E> =
     Collections.synchronizedSortedSet(this)
 
-inline fun <E> NavigableSet<E>.synchronized(): NavigableSet<E> =
+fun <E> NavigableSet<E>.synchronized(): NavigableSet<E> =
     Collections.synchronizedNavigableSet(this)
+
+inline fun LongCollection.forEach(action: (Long) -> Unit) {
+    val it = this.iterator()
+    while (it.hasNext()) {
+        action(it.nextLong())
+    }
+}

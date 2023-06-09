@@ -421,7 +421,7 @@ internal object Surround : Module(
             val blockState = Blocks.OBSIDIAN.getStateForPlacement(
                 world,
                 placeInfo.pos,
-                placeInfo.side,
+                placeInfo.direction,
                 placeInfo.hitVecOffset.x,
                 placeInfo.hitVecOffset.y,
                 placeInfo.hitVecOffset.z,

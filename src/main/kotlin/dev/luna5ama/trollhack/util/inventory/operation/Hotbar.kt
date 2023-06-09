@@ -88,7 +88,7 @@ fun SafeClientEvent.swapToItemOrMove(
  * Try to swap selected hotbar slot to [B] that matches with [predicate]
  */
 inline fun <reified B : Block> SafeClientEvent.swapToBlock(predicate: Predicate<ItemStack>? = null): Boolean {
-    return player.hotbarSlots.firstBlock<B, HotbarSlot>(predicate)?.let {
+    return player.hotbarSlots.firstBlock<B>(predicate)?.let {
         swapToSlot(it)
         true
     } ?: false

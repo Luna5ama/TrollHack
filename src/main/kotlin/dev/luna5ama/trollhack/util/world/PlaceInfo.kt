@@ -9,7 +9,7 @@ import net.minecraft.util.math.Vec3d
 
 class PlaceInfo(
     val pos: BlockPos,
-    val side: EnumFacing,
+    val direction: EnumFacing,
     val dist: Double,
     val hitVecOffset: Vec3f,
     val hitVec: Vec3d,

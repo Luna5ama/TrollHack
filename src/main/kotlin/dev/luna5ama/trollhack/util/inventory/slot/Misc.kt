@@ -25,10 +25,11 @@ fun EntityPlayer.anyHotbarSlot() =
         ?: this.firstHotbarSlot
 
 
-fun Slot.isHotbarSlot(): Boolean {
-    return this.slotNumber in 36..44 && this.inventory == Wrapper.player?.inventory
-}
+val Slot.isHotbarSlot: Boolean
+    get() = this.slotNumber in 36..44 && this.inventory == Wrapper.player?.inventory
+
+val Slot.hotbarIndex get() = if (isHotbarSlot) this.slotNumber - 36 else -1
 
 fun Slot.toHotbarSlotOrNull() =
-    if (isHotbarSlot()) HotbarSlot(this)
+    if (isHotbarSlot) HotbarSlot(this)
     else null

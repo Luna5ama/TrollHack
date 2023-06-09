@@ -31,6 +31,29 @@ fun World.rayTraceVisible(
     startZ: Double,
     endX: Double,
     endY: Double,
+    endZ: Double
+): Boolean {
+    return !fastRaytrace(startX, startY, startZ, endX, endY, endZ, 50, BlockPos.MutableBlockPos(), function)
+}
+
+fun World.rayTraceVisible(
+    startX: Double,
+    startY: Double,
+    startZ: Double,
+    endX: Double,
+    endY: Double,
+    endZ: Double,
+    mutableBlockPos: BlockPos.MutableBlockPos
+): Boolean {
+    return !fastRaytrace(startX, startY, startZ, endX, endY, endZ, 50, mutableBlockPos, function)
+}
+
+fun World.rayTraceVisible(
+    startX: Double,
+    startY: Double,
+    startZ: Double,
+    endX: Double,
+    endY: Double,
     endZ: Double,
     maxAttempt: Int = 50,
     mutableBlockPos: BlockPos.MutableBlockPos

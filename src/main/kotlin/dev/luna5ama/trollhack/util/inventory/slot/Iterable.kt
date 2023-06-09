@@ -72,7 +72,12 @@ fun <T : Slot> Iterable<T>.firstEmpty() =
         it.isEmpty
     }
 
-inline fun <reified B : Block, T : Slot> Iterable<T>.firstBlock(predicate: Predicate<ItemStack>? = null) =
+inline fun <reified B : Block> Iterable<HotbarSlot>.firstBlock(predicate: Predicate<ItemStack>? = null) =
+    firstByStack { itemStack ->
+        itemStack.item.let { it is ItemBlock && it.block is B } && (predicate == null || predicate.test(itemStack))
+    }
+
+inline fun <reified B : Block> Iterable<Slot>.firstBlock(predicate: Predicate<ItemStack>? = null) =
     firstByStack { itemStack ->
         itemStack.item.let { it is ItemBlock && it.block is B } && (predicate == null || predicate.test(itemStack))
     }

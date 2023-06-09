@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.util.extension
 
+import it.unimi.dsi.fastutil.longs.Long2LongMap
+import it.unimi.dsi.fastutil.longs.Long2LongMaps
 import java.util.*
 
 fun <K, V> SortedMap<K, V>.firstKeyOrNull(): K? =
@@ -29,3 +31,6 @@ fun <K, V> SortedMap<K, V>.synchronized(): SortedMap<K, V> =
 
 fun <K, V> NavigableMap<K, V>.synchronized(): NavigableMap<K, V> =
     Collections.synchronizedNavigableMap(this)
+
+fun Long2LongMap.synchronized(): Long2LongMap =
+    Long2LongMaps.synchronize(this)

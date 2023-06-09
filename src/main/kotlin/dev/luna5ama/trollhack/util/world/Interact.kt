@@ -322,7 +322,7 @@ fun SafeClientEvent.placeBlock(
     val blockState = block.getStateForPlacement(
         world,
         placeInfo.pos,
-        placeInfo.side,
+        placeInfo.direction,
         placeInfo.hitVecOffset.x,
         placeInfo.hitVecOffset.y,
         placeInfo.hitVecOffset.z,
@@ -406,7 +406,7 @@ fun SafeClientEvent.placeBlock(
     val blockState = block.getStateForPlacement(
         world,
         placeInfo.pos,
-        placeInfo.side,
+        placeInfo.direction,
         placeInfo.hitVecOffset.x,
         placeInfo.hitVecOffset.y,
         placeInfo.hitVecOffset.z,
@@ -426,4 +426,4 @@ fun SafeClientEvent.placeBlock(
 }
 
 fun PlaceInfo.toPlacePacket(hand: EnumHand) =
-    CPacketPlayerTryUseItemOnBlock(this.pos, this.side, hand, hitVecOffset.x, hitVecOffset.y, hitVecOffset.z)
+    CPacketPlayerTryUseItemOnBlock(this.pos, this.direction, hand, hitVecOffset.x, hitVecOffset.y, hitVecOffset.z)

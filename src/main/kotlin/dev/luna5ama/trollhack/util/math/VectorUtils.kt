@@ -1,7 +1,10 @@
 package dev.luna5ama.trollhack.util.math
 
+import dev.fastmc.common.BlockPosUtil
+import dev.fastmc.common.fastFloor
 import dev.luna5ama.trollhack.util.extension.*
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import net.minecraft.entity.Entity
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -11,23 +14,24 @@ import kotlin.math.sin
 
 @Suppress("NOTHING_TO_INLINE")
 object VectorUtils {
-    /**
-     * Get all block positions inside a sphere with given [radius]
-     *
-     * @param center Center of the sphere
-     * @param radius Radius of the sphere
-     * @return block positions inside a sphere with given [radius]
-     */
-    fun getBlockPosInSphere(center: Vec3d, radius: Float): Sequence<BlockPos> {
+    fun getBlockPosInSphere(entity: Entity, radius: Float): Sequence<BlockPos> {
+        return getBlockPosInSphere(entity.posX, entity.posY, entity.posZ, radius)
+    }
+
+    fun getBlockPosInSphere(pos: Vec3d, radius: Float): Sequence<BlockPos> {
+        return getBlockPosInSphere(pos.x, pos.y, pos.z, radius)
+    }
+
+    fun getBlockPosInSphere(cx: Double, cy: Double, cz: Double, radius: Float): Sequence<BlockPos> {
         val squaredRadius = radius.sq
         val blockPos = BlockPos.MutableBlockPos()
 
         return sequence {
-            for (x in getAxisRange(center.x, radius)) {
-                for (y in getAxisRange(center.y, radius)) {
-                    for (z in getAxisRange(center.z, radius)) {
+            for (x in getAxisRange(cx, radius)) {
+                for (y in getAxisRange(cy, radius)) {
+                    for (z in getAxisRange(cz, radius)) {
                         blockPos.setPos(x, y, z)
-                        if (blockPos.distanceSqToCenter(center.x, center.y, center.z) > squaredRadius) continue
+                        if (blockPos.distanceSqToCenter(cx, cy, cz) > squaredRadius) continue
                         yield(blockPos.toImmutable())
                     }
                 }
@@ -81,6 +85,22 @@ object VectorUtils {
     fun BlockPos.MutableBlockPos.setAndAdd(set: BlockPos, side: EnumFacing, n: Int): BlockPos.MutableBlockPos {
         val dirVec = side.directionVec
         return this.setPos(set.x + dirVec.x * n, set.y + dirVec.y * n, set.z + dirVec.z * n)
+    }
+
+    fun toLong(blockPos: BlockPos): Long {
+        return BlockPosUtil.toLong(blockPos.x, blockPos.y, blockPos.z)
+    }
+
+    fun toLong(x: Int, y: Int, z: Int): Long {
+        return BlockPosUtil.toLong(x, y, z)
+    }
+
+    fun toLong(x: Double, y: Double, z: Double): Long {
+        return BlockPosUtil.toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())
+    }
+
+    fun fromLong(long: Long): BlockPos {
+        return BlockPos(BlockPosUtil.xFromLong(long), BlockPosUtil.yFromLong(long), BlockPosUtil.zFromLong(long))
     }
 }
 
