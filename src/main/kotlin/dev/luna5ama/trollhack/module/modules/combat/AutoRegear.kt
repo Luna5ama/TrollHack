@@ -12,7 +12,9 @@ import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
+import dev.luna5ama.trollhack.util.inventory.isStackable
 import dev.luna5ama.trollhack.util.inventory.operation.pickUp
+import dev.luna5ama.trollhack.util.inventory.operation.quickMove
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
@@ -88,7 +90,7 @@ internal object AutoRegear : Module(
     ): Boolean {
         if (!takeArmor) return false
 
-//        AutoArmor.enable()
+        AutoArmor.enable()
 
         val windowID = openContainer.windowId
         val currentTime = System.currentTimeMillis()
@@ -139,34 +141,51 @@ internal object AutoRegear : Module(
         val windowID = openContainer.windowId
         val currentTime = System.currentTimeMillis()
         val containerSlots = mutableListOf<Slot>()
-        openContainer.getContainerSlots().filterTo(containerSlots) { currentTime > moveTimeMap[it.slotNumber] }
+        openContainer.getContainerSlots().filterTo(containerSlots) { currentTime > moveTimeMap.get(it.slotNumber) }
 
         val playerSlot = openContainer.getPlayerSlots()
+        var hasEmptyBefore = false
 
-        for (index in playerSlot.indices) {
+        for (index in playerSlot.indices.reversed()) {
+            val slotTo = playerSlot[index]
+            val slotToStack = slotTo.stack
+            if (slotToStack.isEmpty) {
+                hasEmptyBefore = true
+            }
+
+            if (currentTime <= moveTimeMap.get(slotTo.slotNumber)) continue
+
             val targetItem = itemArray[index]
             if (targetItem is ItemShulkerBox) continue
 
-            val slotTo = playerSlot[index]
-            if (index in playerSlot.size - 9 until playerSlot.size
-                && slotTo.stack.item is ItemArmor
-            ) continue
+            val isHotbar = index in playerSlot.size - 9 until playerSlot.size
+
+            if (isHotbar && slotToStack.item is ItemArmor) continue
 
             val slotFrom = containerSlots.getMaxCompatibleStack(slotTo, targetItem) ?: continue
 
-            lastTask = inventoryTask {
-                pickUp(windowID, slotFrom)
-                pickUp(windowID, slotTo)
-                pickUp(windowID) {
-                    if (player.inventory.getCurrentItem().isEmpty) null else slotFrom
-                }
+            lastTask = if (!hasEmptyBefore && slotToStack.isStackable(slotFrom.stack)) {
+                inventoryTask {
+                    quickMove(windowID, slotFrom)
 
-                delay(clickDelayMs)
-                postDelay(postDelayMs)
-                runInGui()
+                    delay(clickDelayMs)
+                    postDelay(postDelayMs)
+                    runInGui()
+                }
+            } else {
+                inventoryTask {
+                    pickUp(windowID, slotFrom)
+                    pickUp(windowID, slotTo)
+                    pickUp(windowID) { if (player.inventory.getCurrentItem().isEmpty) null else slotFrom }
+
+                    delay(clickDelayMs)
+                    postDelay(postDelayMs)
+                    runInGui()
+                }
             }
 
-            moveTimeMap[slotFrom.slotNumber] = currentTime + moveTimeoutMs
+            moveTimeMap.put(slotTo.slotNumber, currentTime + moveTimeoutMs)
+            moveTimeMap.put(slotFrom.slotNumber, currentTime + moveTimeoutMs)
             timeoutTimer.time = Long.MAX_VALUE
             containerSlots.remove(slotFrom)
 

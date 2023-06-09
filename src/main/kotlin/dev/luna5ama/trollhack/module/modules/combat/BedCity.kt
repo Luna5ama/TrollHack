@@ -83,9 +83,6 @@ internal object BedCity : Module(
         fun minePos(minePos: BlockPos?): Boolean {
             if (minePos == null) return false
             PacketMine.mineBlock(BedCity, minePos, if (checkEmpty(targetPos)) -100 else modulePriority)
-            if (lastMinePos != minePos) {
-                println("WTF: $minePos")
-            }
             lastTargetPos = targetPos
             lastMinePos = minePos
             return true

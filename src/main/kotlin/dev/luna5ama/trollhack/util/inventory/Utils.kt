@@ -13,6 +13,7 @@ import net.minecraft.init.Items
 import net.minecraft.inventory.ClickType
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.Slot
+import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.CPacketClickWindow
 
 fun SafeClientEvent.equipBestTool(blockState: IBlockState) {
@@ -96,4 +97,12 @@ fun SafeClientEvent.clickSlot(windowID: Int, slot: Int, mouseButton: Int, type: 
 private fun SafeClientEvent.getContainerForID(windowID: Int): Container? {
     return if (windowID == 0) player.inventoryContainer
     else player.openContainer.takeIf { it.windowId == windowID }
+}
+
+fun ItemStack.isStackable(other: ItemStack): Boolean {
+    return this.count < this.maxStackSize && isCompatible(other)
+}
+
+fun ItemStack.isCompatible(other: ItemStack): Boolean {
+    return this.isEmpty || other.isEmpty || this.isItemEqual(other) && ItemStack.areItemStackTagsEqual(this, other)
 }
