@@ -35,7 +35,7 @@ internal object PacketLogger : Module(
     private val page by setting("Page", Page.GENERAL)
     private val showClientTicks by setting(
         "Show Client Ticks",
-        true,
+        false,
         { page == Page.GENERAL },
         description = "Show timestamps of client ticks."
     )
@@ -134,12 +134,12 @@ internal object PacketLogger : Module(
         side: Page,
         handleFunc: List<Pair<Class<out Packet<*>>, PacketLogBuilder<*>.() -> Unit>>
     ) {
-        val sideEnabled by setting("$side Enabled", true, { page == side })
+        val sideEnabled by setting("$side Enabled", false, { page == side })
         val sideStage by setting("$side Stage", LogStage.PRE, { page == side && sideEnabled })
         val logInChat by setting("$side Log In Chat", false, { page == side && sideEnabled })
-        val logCancelled by setting("$side Log Cancelled", true, { page == side && sideEnabled })
+        val logCancelled by setting("$side Log Cancelled", false, { page == side && sideEnabled })
 
-        private val unknownHandler = Handler(setting("$side Log Unknown", true, { page == side && sideEnabled })) { +"Unknown" }
+        private val unknownHandler = Handler(setting("$side Log Unknown", false, { page == side && sideEnabled })) { +"Unknown" }
 
         private val handlers = mutableMapOf<Class<out Packet<*>>, Handler>().apply {
             handleFunc.associateTo(this) { (clazz, func) ->
