@@ -40,6 +40,7 @@ import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
+import dev.luna5ama.trollhack.util.items.blockBlacklist
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils
@@ -705,7 +706,7 @@ internal object BedAura : Module(
         val block = state.block
         return block == Blocks.AIR
             || assumeInstantMine && PacketMine.isInstantMining(pos)
-            || ignoreNonFullBox && block != Blocks.BED && !state.isFullBox
+            || ignoreNonFullBox && !blockBlacklist.contains(block) && block != Blocks.BED && !state.isFullBox
     }
 
     private fun checkDamage(
