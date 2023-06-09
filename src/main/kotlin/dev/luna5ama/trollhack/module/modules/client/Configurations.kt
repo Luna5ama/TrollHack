@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.client
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -16,8 +18,6 @@ import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.setting.configs.IConfig
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.StringSetting
 import dev.luna5ama.trollhack.util.ConfigUtils
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.text.NoSpamMessage

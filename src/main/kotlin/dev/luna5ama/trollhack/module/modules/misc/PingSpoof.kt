@@ -1,13 +1,12 @@
 package dev.luna5ama.trollhack.module.modules.misc
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.threads.DefaultScope
-import dev.luna5ama.trollhack.util.threads.onMainThread
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

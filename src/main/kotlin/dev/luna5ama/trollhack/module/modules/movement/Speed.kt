@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
@@ -14,8 +15,8 @@ import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.manager.managers.TimerManager.resetTimer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.module.modules.combat.HoleSnap
+import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isInOrAboveLiquid

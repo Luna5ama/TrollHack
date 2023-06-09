@@ -1,12 +1,12 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.client
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.TickTimer
 import org.lwjgl.opengl.Display
 import java.lang.reflect.Field
 import java.lang.reflect.Method

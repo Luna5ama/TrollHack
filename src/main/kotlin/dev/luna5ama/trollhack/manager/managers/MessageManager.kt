@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.manager.managers
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
@@ -7,7 +8,6 @@ import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.modules.client.ChatSetting
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.accessor.packetMessage
 import dev.luna5ama.trollhack.util.extension.synchronized
 import net.minecraft.network.play.client.CPacketChatMessage

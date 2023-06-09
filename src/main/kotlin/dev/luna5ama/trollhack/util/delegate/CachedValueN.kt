@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.util.delegate
 
-import dev.luna5ama.trollhack.util.TickTimer
+import dev.fastmc.common.TickTimer
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 

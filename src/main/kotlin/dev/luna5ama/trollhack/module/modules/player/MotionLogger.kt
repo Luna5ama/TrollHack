@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -8,8 +10,6 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

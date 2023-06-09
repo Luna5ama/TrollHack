@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.BlockPosUtil
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -21,7 +22,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.EntityUtils.spoofUnSneak
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
@@ -35,7 +35,6 @@ import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.runSynchronized
 import dev.luna5ama.trollhack.util.world.PlaceInfo.Companion.newPlaceInfo

@@ -3,10 +3,10 @@ package dev.luna5ama.trollhack.process
 import baritone.api.process.IBaritoneProcess
 import baritone.api.process.PathingCommand
 import baritone.api.process.PathingCommandType
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.util.BaritoneUtils
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 
 object PauseProcess : IBaritoneProcess {
 

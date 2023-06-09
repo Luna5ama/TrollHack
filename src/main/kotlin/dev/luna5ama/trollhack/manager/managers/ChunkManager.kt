@@ -1,15 +1,14 @@
 package dev.luna5ama.trollhack.manager.managers
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import io.netty.util.internal.ConcurrentSet
 import kotlinx.coroutines.launch
 import net.minecraft.network.play.server.SPacketChunkData

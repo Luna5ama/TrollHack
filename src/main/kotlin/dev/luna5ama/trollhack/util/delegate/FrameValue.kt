@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.util.delegate
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import kotlin.reflect.KProperty
 
 class FrameValue<T>(private val block: () -> T) {

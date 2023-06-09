@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.module.modules.render
 
 import dev.fastmc.common.ConcurrentObjectPool
 import dev.fastmc.common.DoubleBuffered
+import dev.fastmc.common.TickTimer
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.fastmc.common.isCompletedOrNull
 import dev.fastmc.common.sort.ObjectIntrosort
@@ -14,7 +15,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.setting.settings.impl.collection.CollectionSetting
 import dev.luna5ama.trollhack.util.BOOLEAN_SUPPLIER_FALSE
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.accessor.palette
 import dev.luna5ama.trollhack.util.accessor.storage
 import dev.luna5ama.trollhack.util.atTrue
@@ -32,9 +32,12 @@ import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import net.minecraft.block.Block
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.renderer.GlStateManager

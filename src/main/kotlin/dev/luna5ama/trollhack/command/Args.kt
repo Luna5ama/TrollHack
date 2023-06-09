@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.command
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.command.args.AbstractArg
 import dev.luna5ama.trollhack.command.args.AutoComplete
 import dev.luna5ama.trollhack.command.args.DynamicPrefixMatch
@@ -11,7 +12,6 @@ import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.util.BaritoneUtils
 import dev.luna5ama.trollhack.util.PlayerProfile
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.delegate.CachedValueN

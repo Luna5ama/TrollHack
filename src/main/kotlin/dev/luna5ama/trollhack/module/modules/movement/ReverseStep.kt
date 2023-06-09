@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerTravelEvent
@@ -8,7 +9,6 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.isInOrAboveLiquid
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.world.getGroundLevel
 import net.minecraft.network.play.server.SPacketPlayerPosLook
 

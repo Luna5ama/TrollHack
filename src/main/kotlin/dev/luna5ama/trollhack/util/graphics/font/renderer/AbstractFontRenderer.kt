@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.util.graphics.font.renderer
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.module.modules.client.CustomFont
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.MatrixUtils

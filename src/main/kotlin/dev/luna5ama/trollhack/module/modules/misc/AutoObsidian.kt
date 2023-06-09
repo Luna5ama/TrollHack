@@ -2,6 +2,8 @@ package dev.luna5ama.trollhack.module.modules.misc
 
 import baritone.api.pathing.goals.Goal
 import baritone.api.pathing.goals.GoalNear
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.BlockBreakEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent

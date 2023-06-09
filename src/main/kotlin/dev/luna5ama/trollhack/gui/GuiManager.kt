@@ -1,13 +1,12 @@
 package dev.luna5ama.trollhack.gui
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.AsyncLoader
-import dev.luna5ama.trollhack.AsyncLoader.Companion
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.gui.clickgui.TrollClickGui
 import dev.luna5ama.trollhack.gui.hudgui.AbstractHudElement
 import dev.luna5ama.trollhack.gui.hudgui.TrollHudGui
 import dev.luna5ama.trollhack.util.ClassUtils.instance
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.collections.AliasSet
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import kotlinx.coroutines.Deferred

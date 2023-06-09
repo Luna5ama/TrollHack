@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.module.modules.client
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.graphics.font.GlyphCache

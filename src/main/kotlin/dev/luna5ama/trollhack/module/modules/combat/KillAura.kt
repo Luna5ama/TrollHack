@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -166,7 +167,7 @@ internal object KillAura : Module(
         return when (mode) {
             Mode.COOLDOWN -> {
                 val adjustTicks = if (!tpsSync) 0.0f
-                else TpsCalculator.adjustTicks
+                else TpsCalculator.tickRate - 20.0f
                 player.getCooledAttackStrength(adjustTicks) > 0.9f
             }
             Mode.TICKS -> {

@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.util.delegate
 
-import dev.luna5ama.trollhack.util.TimeUnit
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

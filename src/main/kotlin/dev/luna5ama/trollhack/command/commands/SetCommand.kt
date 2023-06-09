@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.command.commands
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.gui.GuiManager
@@ -9,7 +10,6 @@ import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.setting.settings.AbstractSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.BooleanSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.EnumSetting
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.remove
 import dev.luna5ama.trollhack.util.text.NoSpamMessage

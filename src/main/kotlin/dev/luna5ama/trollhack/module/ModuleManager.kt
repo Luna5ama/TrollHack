@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.module
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.AsyncLoader
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.util.ClassUtils.instance
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.collections.AliasSet
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.rootName

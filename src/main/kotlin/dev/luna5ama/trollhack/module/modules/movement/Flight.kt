@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
@@ -9,8 +11,6 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import net.minecraft.util.math.Vec3d
 import kotlin.math.cos
 import kotlin.math.sin

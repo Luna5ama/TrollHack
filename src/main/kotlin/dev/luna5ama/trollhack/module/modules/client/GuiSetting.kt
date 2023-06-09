@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.module.modules.client
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.delegate.FrameValue
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import kotlin.math.round

@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
@@ -7,7 +8,6 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.mixins.accessor.network.AccessorCPacketClickWindow
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.extension.synchronized
 import it.unimi.dsi.fastutil.shorts.ShortLinkedOpenHashSet
 import net.minecraft.init.Blocks

@@ -1,11 +1,11 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.gui.AbstractTrollGui
 import dev.luna5ama.trollhack.gui.rgui.Component
 import dev.luna5ama.trollhack.gui.rgui.InteractiveComponent
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.render.AntiAlias
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.sumOfFloat

@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.ICancellable
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
@@ -11,8 +13,6 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.BooleanSetting
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.accessor.*
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.text.MessageSendUtils

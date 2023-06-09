@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.combat.CrystalSpawnEvent
@@ -9,10 +11,12 @@ import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.accessor.potion
+import dev.luna5ama.trollhack.util.and
+import dev.luna5ama.trollhack.util.atTrue
+import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.combat.CombatUtils.calcDamageFromMob
 import dev.luna5ama.trollhack.util.combat.CombatUtils.calcDamageFromPlayer
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth

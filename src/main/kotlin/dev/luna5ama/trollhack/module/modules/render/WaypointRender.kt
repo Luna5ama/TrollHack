@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WaypointUpdateEvent
@@ -11,13 +13,16 @@ import dev.luna5ama.trollhack.manager.managers.WaypointManager
 import dev.luna5ama.trollhack.manager.managers.WaypointManager.Waypoint
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.*
+import dev.luna5ama.trollhack.util.and
+import dev.luna5ama.trollhack.util.atTrue
+import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.graphics.*
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
+import dev.luna5ama.trollhack.util.or
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
@@ -80,8 +85,7 @@ internal object WaypointRender : Module(
     private val lockObject = Any()
 
     override fun getHudInfo(): String {
-        return waypointMap.size.toString()
-    }
+        return waypointMap.size.toString()    }
 
     init {
         listener<Render3DEvent> {

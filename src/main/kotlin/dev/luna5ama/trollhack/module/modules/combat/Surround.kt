@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
@@ -23,8 +25,6 @@ import dev.luna5ama.trollhack.module.modules.movement.AutoCenter
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.MovementUtils.isCentered
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.collections.EnumMap
 import dev.luna5ama.trollhack.util.combat.CrystalUtils

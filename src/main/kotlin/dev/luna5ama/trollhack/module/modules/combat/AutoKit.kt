@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.EntityEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -7,7 +8,6 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 

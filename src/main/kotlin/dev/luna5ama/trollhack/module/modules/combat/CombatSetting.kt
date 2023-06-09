@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -12,7 +14,6 @@ import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.module.modules.combat.HolePathFinder.setting
 import dev.luna5ama.trollhack.module.modules.player.AutoEat
 import dev.luna5ama.trollhack.process.PauseProcess
 import dev.luna5ama.trollhack.process.PauseProcess.pauseBaritone

@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -22,8 +24,6 @@ import dev.luna5ama.trollhack.util.MovementUtils.applySpeedPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.realMotionY
 import dev.luna5ama.trollhack.util.MovementUtils.resetMove
 import dev.luna5ama.trollhack.util.PathFinder
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.combat.HoleInfo
 import dev.luna5ama.trollhack.util.combat.HoleType
 import dev.luna5ama.trollhack.util.extension.floorToInt
@@ -33,7 +33,6 @@ import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.getGroundPos
@@ -51,12 +50,6 @@ import net.minecraft.util.MovementInputFromOptions
 import net.minecraft.util.math.BlockPos
 import org.lwjgl.opengl.GL11.*
 import java.util.*
-import kotlin.collections.IndexedValue
-import kotlin.collections.asSequence
-import kotlin.collections.forEachIndexed
-import kotlin.collections.isNotEmpty
-import kotlin.collections.lastOrNull
-import kotlin.collections.minByOrNull
 import kotlin.math.hypot
 
 internal object HolePathFinder : Module(

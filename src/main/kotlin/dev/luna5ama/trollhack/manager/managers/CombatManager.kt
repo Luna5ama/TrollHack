@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.manager.managers
 
 import com.google.common.collect.MapMaker
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.*
 import dev.luna5ama.trollhack.event.events.*
 import dev.luna5ama.trollhack.event.events.combat.CombatEvent
@@ -15,7 +16,6 @@ import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.accessor.entityID
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CrystalDamage

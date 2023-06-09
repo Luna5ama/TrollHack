@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.module.modules.misc
 
 import baritone.api.pathing.goals.GoalXZ
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.InputEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
@@ -13,8 +15,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.BooleanSetting
 import dev.luna5ama.trollhack.util.BaritoneUtils
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage

@@ -1,12 +1,12 @@
 package dev.luna5ama.trollhack.command.commands
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.command.ClientCommand
 import dev.luna5ama.trollhack.command.execute.IExecuteEvent
 import dev.luna5ama.trollhack.event.SafeExecuteEvent
 import dev.luna5ama.trollhack.module.modules.client.Configurations
 import dev.luna5ama.trollhack.util.ConfigUtils
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
 import dev.luna5ama.trollhack.util.threads.DefaultScope

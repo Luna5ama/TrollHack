@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.module.modules.misc
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import net.minecraft.entity.player.EnumPlayerModelParts
 import java.util.*

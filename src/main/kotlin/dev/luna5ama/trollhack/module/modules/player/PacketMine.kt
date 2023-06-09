@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.*
 import dev.luna5ama.trollhack.event.events.player.HotbarUpdateEvent
@@ -19,7 +20,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.SwingMode
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.extension.ceilToInt
 import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.sq

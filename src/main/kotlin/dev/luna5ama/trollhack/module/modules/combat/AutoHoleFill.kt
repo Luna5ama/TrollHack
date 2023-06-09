@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -20,7 +21,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.combat.HoleType
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer

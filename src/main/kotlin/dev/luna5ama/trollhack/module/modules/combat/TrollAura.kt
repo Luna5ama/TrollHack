@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.*
 import dev.luna5ama.trollhack.event.events.combat.CrystalSetDeadEvent
@@ -11,8 +12,8 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.*
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module

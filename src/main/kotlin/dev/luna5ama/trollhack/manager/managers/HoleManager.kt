@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.manager.managers
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -9,7 +10,6 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.combat.HoleInfo
 import dev.luna5ama.trollhack.util.combat.HoleUtils.checkHoleM
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo

@@ -1,7 +1,11 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
-import dev.luna5ama.trollhack.event.events.*
+import dev.luna5ama.trollhack.event.events.EntityEvent
+import dev.luna5ama.trollhack.event.events.PacketEvent
+import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
+import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.combat.CombatEvent
 import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent
@@ -19,7 +23,6 @@ import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.spoofUnSneak
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.collections.CircularArray
@@ -37,11 +40,13 @@ import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.items.blockBlacklist
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils
-import dev.luna5ama.trollhack.util.math.vector.*
+import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.toVec3d
+import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -51,7 +56,6 @@ import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.launch
-import net.minecraft.block.Block
 import net.minecraft.block.BlockBed
 import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks

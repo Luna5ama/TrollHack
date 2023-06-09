@@ -1,10 +1,11 @@
 package dev.luna5ama.trollhack.module.modules.misc
 
+import dev.fastmc.common.TickTimer
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeConcurrentListener
-import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.UUIDManager
@@ -13,8 +14,6 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
-import dev.luna5ama.trollhack.util.TickTimer
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.CoordinateConverter.asString
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage

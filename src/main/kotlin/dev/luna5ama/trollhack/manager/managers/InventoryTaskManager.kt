@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.manager.managers
 
+import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
@@ -7,7 +8,6 @@ import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
-import dev.luna5ama.trollhack.util.TickTimer
 import dev.luna5ama.trollhack.util.TpsCalculator
 import dev.luna5ama.trollhack.util.inventory.ClickFuture
 import dev.luna5ama.trollhack.util.inventory.InventoryTask

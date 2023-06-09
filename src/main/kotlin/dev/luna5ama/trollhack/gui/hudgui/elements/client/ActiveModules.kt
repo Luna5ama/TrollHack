@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.client
 
 import dev.fastmc.common.DoubleBuffered
+import dev.fastmc.common.TimeUnit
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
@@ -8,7 +9,6 @@ import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.collections.ArrayMap
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue

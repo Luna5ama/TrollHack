@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.util.collections.CircularArray
 import dev.luna5ama.trollhack.util.collections.CircularArray.Companion.average
 import net.minecraft.network.play.server.SPacketTimeUpdate
+import kotlin.math.max
 
 object TpsCalculator : AlwaysListening {
     // Circular Buffer lasting ~60 seconds for tick storage
@@ -15,10 +16,7 @@ object TpsCalculator : AlwaysListening {
     private var timeLastTimeUpdate = -1L
 
     val tickRate: Float
-        get() = tickRates.average()
-
-    val adjustTicks: Float
-        get() = tickRates.average() - 20.0f
+        get() = max(tickRates.average(), 1.0f)
 
     val multiplier: Float
         get() = 20.0f / tickRate

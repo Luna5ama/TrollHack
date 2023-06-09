@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.util.inventory
 
+import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.module.AbstractModule
-import dev.luna5ama.trollhack.util.TimeUnit
 import dev.luna5ama.trollhack.util.delegate.ComputeFlag
 import dev.luna5ama.trollhack.util.interfaces.Helper
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
