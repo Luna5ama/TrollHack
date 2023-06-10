@@ -12,6 +12,8 @@ import net.minecraft.init.Enchantments
 import net.minecraft.item.*
 import net.minecraft.network.PacketBuffer
 import net.minecraft.network.play.client.CPacketCustomPayload
+import net.minecraft.potion.Potion
+import net.minecraft.potion.PotionUtils
 import net.minecraft.util.EnumHand
 
 val ItemStack.originalName: String get() = item.getItemStackDisplayName(this)
@@ -66,4 +68,8 @@ fun EntityLivingBase.isHolding(hand: EnumHand, item: Item): Boolean {
 
 fun EntityLivingBase.isHolding(hand: EnumHand, block: Block): Boolean {
     return this.getHeldItem(hand).item.block == block
+}
+
+fun ItemStack.hasPotion(potion: Potion): Boolean {
+    return PotionUtils.getEffectsFromStack(this).any { it.potion == potion }
 }
