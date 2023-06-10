@@ -31,6 +31,7 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.HoleType
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
+import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
@@ -44,6 +45,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSets
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.init.Blocks
+import net.minecraft.inventory.Slot
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketUseEntity
@@ -443,11 +445,11 @@ internal object Surround : Module(
         pendingPlacing[placeInfo.placedPos.toLong()] = System.currentTimeMillis() + placeTimeout
     }
 
-    private fun SafeClientEvent.getSlot(): HotbarSlot? {
-        val slot = player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
+    private fun SafeClientEvent.getSlot(): Slot? {
+        val slot = player.allSlots.firstBlock(Blocks.OBSIDIAN)
 
         return if (slot == null) {
-            NoSpamMessage.sendMessage("$chatName No obsidian in hotbar!")
+            NoSpamMessage.sendMessage("$chatName No obsidian in inventory!")
             null
         } else {
             slot
