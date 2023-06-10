@@ -13,6 +13,7 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
@@ -90,6 +91,7 @@ internal object BedAura : Module(
     private val page = setting("Page", Page.GENERAL)
 
     private val handMode by setting("Hand Mode", EnumHand.OFF_HAND, page.atValue(Page.GENERAL))
+    private val ghostSwitchBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.Override.NONE, page.atValue(Page.GENERAL) and ::handMode.atValue(EnumHand.MAIN_HAND))
     private val bedSlot by setting(
         "Bed Slot",
         3,
@@ -510,7 +512,7 @@ internal object BedAura : Module(
         val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, handMode, 0.5f, 1.0f, 0.5f)
 
         if (handMode == EnumHand.MAIN_HAND) {
-            ghostSwitch(bedSlot - 1) {
+            ghostSwitch(ghostSwitchBypass, bedSlot - 1) {
                 connection.sendPacket(placePacket)
             }
         } else {

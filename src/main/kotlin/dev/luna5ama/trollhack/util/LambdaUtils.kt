@@ -38,6 +38,25 @@ fun AbstractSetting<Boolean>.atFalse(): () -> Boolean {
     }
 }
 
+fun (() -> Boolean).atTrue(): () -> Boolean {
+    return {
+        this.invoke()
+    }
+}
+
+fun (() -> Boolean).atFalse(): () -> Boolean {
+    return {
+        !this.invoke()
+    }
+}
+
+fun <T : Any> (() -> T).atValue(value: T): () -> Boolean {
+    return {
+        this.invoke() == value
+    }
+}
+
+
 infix fun (() -> Boolean).or(block: (() -> Boolean)): () -> Boolean {
     return {
         this.invoke() || block.invoke()
