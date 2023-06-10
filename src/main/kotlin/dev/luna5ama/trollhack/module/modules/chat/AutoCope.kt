@@ -157,6 +157,10 @@ internal object AutoCope : Module(
         "shit",
         "gay",
         "aid",
+        "dont like",
+        "don't like",
+        "hate",
+        "noob"
     )
 
     private fun SafeClientEvent.targeting(message: String): Boolean {
