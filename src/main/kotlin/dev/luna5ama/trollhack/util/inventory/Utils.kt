@@ -25,7 +25,7 @@ fun SafeClientEvent.findBestTool(blockState: IBlockState): Slot? {
     var maxSpeed = 0.0f
     var bestSlot: Slot? = null
 
-    for (slot in player.allSlots.asReversed()) {
+    for (slot in player.allSlotsPrioritized) {
         val stack = slot.stack
 
         if (stack.isEmpty || !stack.item.isTool) {

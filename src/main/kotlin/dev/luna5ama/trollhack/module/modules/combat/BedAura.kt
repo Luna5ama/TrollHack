@@ -550,7 +550,7 @@ internal object BedAura : Module(
     }
 
     private fun SafeClientEvent.update() {
-        if (player.dimension == 0 || !player.allSlots.hasItem(Items.BED)) {
+        if (player.dimension == 0 || !player.allSlotsPrioritized.hasItem(Items.BED)) {
             reset()
         } else if (updateTimer.tickAndReset(updateDelay)) {
             ConcurrentScope.launch {

@@ -1,7 +1,6 @@
 package dev.luna5ama.trollhack.util.inventory.slot
 
-import dev.luna5ama.trollhack.util.Wrapper
-import net.minecraft.client.gui.inventory.GuiContainer
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.ContainerPlayer
@@ -9,6 +8,17 @@ import net.minecraft.inventory.Slot
 
 val EntityPlayer.allSlots: List<Slot>
     get() = inventoryContainer.getSlots(1..45)
+
+val EntityPlayer.allSlotsPrioritized: List<Slot>
+    get() = mutableListOf(offhandSlot).apply {
+        val hotbarSlots = hotbarSlots
+        val current = HotbarSwitchManager.serverSideHotbar
+        add(hotbarSlots[current])
+        for (i in hotbarSlots.indices) {
+            if (i != current) add(hotbarSlots[i])
+        }
+        addAll(inventoryContainer.getSlots(1..35))
+    }
 
 val EntityPlayer.armorSlots: List<Slot>
     get() = inventoryContainer.getSlots(5..8)

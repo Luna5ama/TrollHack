@@ -184,7 +184,7 @@ internal object AutoRegear : Module(
             if (!placeShulker) return@safeParallelListener
             placeShulker = false
 
-            val shulkerSlot = player.allSlots.firstBlock<BlockShulkerBox>() ?: return@safeParallelListener
+            val shulkerSlot = player.allSlotsPrioritized.firstBlock<BlockShulkerBox>() ?: return@safeParallelListener
 
             ConcurrentScope.launch {
                 val explosionPos = explosionPosMap.runSynchronized {
