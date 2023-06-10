@@ -21,11 +21,11 @@ fun SafeClientEvent.equipBestTool(blockState: IBlockState) {
     }
 }
 
-fun SafeClientEvent.findBestTool(blockState: IBlockState): HotbarSlot? {
+fun SafeClientEvent.findBestTool(blockState: IBlockState): Slot? {
     var maxSpeed = 0.0f
-    var bestSlot: HotbarSlot? = null
+    var bestSlot: Slot? = null
 
-    for (slot in player.hotbarSlots) {
+    for (slot in player.allSlots.asReversed()) {
         val stack = slot.stack
 
         if (stack.isEmpty || !stack.item.isTool) {

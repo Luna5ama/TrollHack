@@ -125,10 +125,17 @@ fun SafeClientEvent.swapToItem(item: Item, predicate: Predicate<ItemStack>? = nu
 }
 
 /**
- * Swap the selected hotbar slot to [hotbarSlot]
+ * Swap the selected hotbar slot to [slot]
  */
-fun SafeClientEvent.swapToSlot(hotbarSlot: HotbarSlot) {
-    swapToSlot(hotbarSlot.hotbarSlot)
+fun SafeClientEvent.swapToSlot(slot: Slot) {
+    if (slot.isHotbarSlot) {
+        swapToSlot(slot.hotbarIndex)
+    } else {
+        val slotTo = player.anyHotbarSlot()
+        inventoryTaskNow {
+            swapWith(slot, slotTo)
+        }
+    }
 }
 
 /**
