@@ -2,26 +2,37 @@ package dev.luna5ama.trollhack.util.threads
 
 import dev.fastmc.common.ParallelUtils
 import kotlinx.coroutines.*
+import net.minecraft.client.Minecraft
+import net.minecraft.crash.CrashReport
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import kotlin.math.max
 
-/**
- * Single thread scope to use in Troll Hack
- */
-@OptIn(DelicateCoroutinesApi::class)
-val mainScope = CoroutineScope(newSingleThreadContext("Troll Hack Main"))
+private val defaultContext =
+    CoroutineName("Troll Hack Default") +
+        Dispatchers.Default +
+        SupervisorJob() +
+        CoroutineExceptionHandler { _, throwable ->
+            Minecraft.getMinecraft().crashed(CrashReport.makeCrashReport(throwable, "Troll Hack Default Scope"))
+        }
 
 /**
  * Common scope with [Dispatchers.Default]
  */
-object DefaultScope : CoroutineScope by CoroutineScope(Dispatchers.Default) {
-    val context = Dispatchers.Default
+object DefaultScope : CoroutineScope by CoroutineScope(defaultContext) {
+    val context = defaultContext
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private val concurrentContext = Dispatchers.Default.limitedParallelism(max(ParallelUtils.CPU_THREADS / 2, 1))
+private val concurrentContext =
+    CoroutineName("Troll Hack Concurrent") +
+        Dispatchers.Default.limitedParallelism(max(ParallelUtils.CPU_THREADS / 2, 1)) +
+        SupervisorJob() +
+        CoroutineExceptionHandler { _, throwable ->
+            Minecraft.getMinecraft().crashed(CrashReport.makeCrashReport(throwable, "Troll Hack Concurrent Scope"))
+        }
 
-object ConcurrentScope : CoroutineScope by CoroutineScope(concurrentContext) {
+object ConcurrentScope :
+    CoroutineScope by CoroutineScope(concurrentContext) {
     val context = concurrentContext
 }
 
@@ -42,7 +53,13 @@ private val backgroundPool = ScheduledThreadPoolExecutor(
     }
 )
 
-private val backgroundContext = backgroundPool.asCoroutineDispatcher()
+private val backgroundContext =
+    CoroutineName("Troll Hack Background") +
+        backgroundPool.asCoroutineDispatcher() +
+        SupervisorJob() +
+        CoroutineExceptionHandler { _, throwable ->
+            Minecraft.getMinecraft().crashed(CrashReport.makeCrashReport(throwable, "Troll Hack Background Scope"))
+        }
 
 object BackgroundScope : CoroutineScope by CoroutineScope(backgroundContext) {
     val pool = backgroundPool

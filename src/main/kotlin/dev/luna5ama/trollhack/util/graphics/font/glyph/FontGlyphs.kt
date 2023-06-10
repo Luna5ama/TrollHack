@@ -10,6 +10,7 @@ import dev.luna5ama.trollhack.util.graphics.texture.BC4Compression
 import dev.luna5ama.trollhack.util.graphics.texture.Mipmaps
 import dev.luna5ama.trollhack.util.graphics.texture.RawImage
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -43,7 +44,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
         val glyphChunk: GlyphChunk
 
         val cache = runBlocking {
-            withContext(Dispatchers.Default) {
+            withContext(DefaultScope.context) {
                 GlyphCache.get(font, 0) ?: createNewGlyph(0)
             }
         }

@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.gui.mc
 
 import dev.luna5ama.trollhack.module.modules.combat.AutoLog
-import dev.luna5ama.trollhack.util.threads.mainScope
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiButton
@@ -50,7 +50,7 @@ class TrollGuiDisconnected(
     }
 
     private fun disable() {
-        mainScope.launch {
+        ConcurrentScope.launch {
             delay(250L)
             AutoLog.disable()
         }

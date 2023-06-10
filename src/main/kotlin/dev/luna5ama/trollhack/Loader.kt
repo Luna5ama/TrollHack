@@ -5,10 +5,8 @@ import dev.luna5ama.trollhack.gui.GuiManager
 import dev.luna5ama.trollhack.manager.ManagerLoader
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.util.ClassUtils
-import dev.luna5ama.trollhack.util.threads.mainScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import dev.luna5ama.trollhack.util.threads.DefaultScope
+import kotlinx.coroutines.*
 import kotlin.system.measureTimeMillis
 
 internal object LoaderWrapper {
@@ -42,7 +40,7 @@ internal interface AsyncLoader<T> {
     }
 
     private fun preLoadAsync(): Deferred<T> {
-        return mainScope.async { preLoad0() }
+        return DefaultScope.async(singleContext) { preLoad0() }
     }
 
     suspend fun load() {
@@ -53,7 +51,10 @@ internal interface AsyncLoader<T> {
     suspend fun load0(input: T)
 
     companion object {
-        val classes = mainScope.async {
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private val singleContext = Dispatchers.Default.limitedParallelism(1)
+
+        val classes = DefaultScope.async(singleContext) {
             val list: List<Class<*>>
             val time = measureTimeMillis {
                 list = ClassUtils.findClasses("dev.luna5ama.trollhack") {

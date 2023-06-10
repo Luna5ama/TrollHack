@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.util.accessor.renderPosX
 import dev.luna5ama.trollhack.util.accessor.renderPosY
 import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.graphics.fastrender.tileentity.*
+import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
@@ -134,7 +135,7 @@ internal object FastRender : Module(
             if (tileEntities.isEmpty()) {
                 updateRenderer(null)
             } else {
-                scope.launch(Dispatchers.Default) {
+                scope.launch(DefaultScope.context) {
                     val builder = newBuilder.invoke()
 
                     tileEntities.forEach {
