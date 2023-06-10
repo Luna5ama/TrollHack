@@ -140,22 +140,27 @@ internal object AutoCope : Module(
         }
     )
 
+    private val targetKeyWords = listOf(
+        "fuck",
+        "bro is",
+        "iq",
+        "skill",
+        "brain",
+        "fag",
+        "lel",
+        "bad",
+        "suck",
+        "ass",
+        "retard",
+        "imagine",
+        "lol",
+        "shit",
+        "gay",
+        "aid",
+    )
+
     private fun SafeClientEvent.targeting(message: String): Boolean {
         return message.contains(player.name, true)
-            || message.contains("fuck", true)
-            || message.contains("bro is", true)
-            || message.contains("iq", true)
-            || message.contains("skill", true)
-            || message.contains("brain", true)
-            || message.contains("fag", true)
-            || message.contains("lel", true)
-            || message.contains("bad", true)
-            || message.contains("suck", true)
-            || message.contains("ass", true)
-            || message.contains("retard", true)
-            || message.contains("imagine", true)
-            || message.contains("lol", true)
-            || message.contains("shit", true)
-            || message.contains("gay", true)
+            || targetKeyWords.any { message.contains(it, true)}
     }
 }
