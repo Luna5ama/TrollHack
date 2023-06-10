@@ -79,6 +79,7 @@ internal object PacketMine : Module(
     private val packetDelay by setting("Packet Delay", 100, 0..1000, 5)
     private val breakTimeMultiplier by setting("Break Time Multiplier", 0.8f, 0.5f..2.0f, 0.01f)
     private val breakTimeBias by setting("Break Time Bias", 0, -5000..5000, 50)
+    private val miningTaskTimeout by setting("Mining Task Timeout", 3000, 0..10000, 50)
     private val range by setting("Range", 8.0f, 0.0f..10.0f, 0.25f)
 
     private val clickTimer = TickTimer()
@@ -136,6 +137,8 @@ internal object PacketMine : Module(
             val miningInfo = miningInfo0 ?: return@safeListener
 
             if (event.packet is SPacketBlockChange && event.packet.blockPosition == miningInfo.pos) {
+                miningInfo.miningTimeout = System.currentTimeMillis()
+
                 val newBlockState = event.packet.blockState
                 val currentState = world.getBlockState(miningInfo.pos)
                 val current = currentState.block
@@ -152,7 +155,7 @@ internal object PacketMine : Module(
                             miningInfo.updateLength(this)
                             if (System.currentTimeMillis() < miningInfo.endTime) {
                                 reset(PacketMine)
-                                mineBlock(miningInfo.module, miningInfo.pos, miningInfo.module.modulePriority)
+                                mineBlock(miningInfo.owner, miningInfo.pos, miningInfo.owner.modulePriority)
                             }
                         }
                     }
@@ -211,7 +214,7 @@ internal object PacketMine : Module(
 
                 if (!miningMode.continous) {
                     reset()
-                    miningQueue.remove(miningInfo.module)
+                    miningQueue.remove(miningInfo.owner)
                 } else if (miningMode.continous) {
                     if (!breakConfirm.instantMineable) {
                         miningInfo.updateLength(this)
@@ -262,9 +265,9 @@ internal object PacketMine : Module(
                 if (packetTimer.tick(packetDelay)) {
                     if (finishMining(blockState, miningInfo)) {
                         if (!miningMode.continous) {
-                            reset(miningInfo.module)
+                            reset(miningInfo.owner)
                             if (miningMode == MiningMode.NORMAL_RETRY) {
-                                mineBlock(miningInfo.module, miningInfo.pos, miningInfo.module.modulePriority)
+                                mineBlock(miningInfo.owner, miningInfo.pos, miningInfo.owner.modulePriority)
                             }
                         }
                     }
@@ -316,6 +319,15 @@ internal object PacketMine : Module(
 
     private fun SafeClientEvent.updateMining() {
         var maxPriorityTask: MiningTask? = null
+
+        miningInfo0?.let {
+            val currentTime = System.currentTimeMillis()
+            if (!world.isAir(it.pos)) {
+                it.miningTimeout = currentTime
+            } else if (currentTime > it.miningTimeout) {
+                miningQueue.remove(it.owner)
+            }
+        }
 
         synchronized(miningQueue) {
             if (miningQueue.isEmpty()) return@synchronized
@@ -491,15 +503,24 @@ internal object PacketMine : Module(
 
     private class MiningInfo(
         event: SafeClientEvent,
-        val module: AbstractModule,
+        val owner: AbstractModule,
         override val pos: BlockPos,
         override val side: EnumFacing,
     ) : IMiningInfo {
         var length = event.calcBreakTime(pos); private set
         var startTime = System.currentTimeMillis()
+            set(value) {
+                field = value
+                miningTimeout = value
+            }
         val endTime get() = startTime + length
         var isAir = false
         var mined = false
+
+        var miningTimeout = startTime
+            set(value) {
+                field = value + miningTaskTimeout
+            }
 
         fun updateLength(event: SafeClientEvent) {
             length = event.calcBreakTime(pos)
