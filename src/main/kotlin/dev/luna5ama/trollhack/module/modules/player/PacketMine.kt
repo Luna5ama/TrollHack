@@ -81,6 +81,7 @@ internal object PacketMine : Module(
     private val breakTimeBias by setting("Break Time Bias", 0, -5000..5000, 50)
     private val miningTaskTimeout by setting("Mining Task Timeout", 3000, 0..10000, 50)
     private val range by setting("Range", 8.0f, 0.0f..10.0f, 0.25f)
+    private val removeOutOfRange by setting("Remove Out Of Range", false)
 
     private val clickTimer = TickTimer()
     private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
@@ -337,7 +338,14 @@ internal object PacketMine : Module(
             val rangeSq = range * range
 
             for (task in sorted) {
-                if (player.getDistanceSqToCenter(task.pos) > rangeSq) continue // Ignore tasks out of range
+                if (player.getDistanceSqToCenter(task.pos) > rangeSq) {
+                    if (removeOutOfRange) {
+                        miningQueue.remove(task.owner)
+                    } else {
+                        continue
+                    }
+                }
+
                 if (!world.canBreakBlock(task.pos)) {
                     miningQueue.remove(task.owner) // Remove invalid tasks
                     continue
