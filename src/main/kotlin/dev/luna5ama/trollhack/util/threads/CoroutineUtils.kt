@@ -10,7 +10,6 @@ import kotlin.math.max
 private val defaultContext =
     CoroutineName("Troll Hack Default") +
         Dispatchers.Default +
-        SupervisorJob() +
         CoroutineExceptionHandler { _, throwable ->
             Minecraft.getMinecraft().crashed(CrashReport.makeCrashReport(throwable, "Troll Hack Default Scope"))
         }
@@ -26,7 +25,6 @@ object DefaultScope : CoroutineScope by CoroutineScope(defaultContext) {
 private val concurrentContext =
     CoroutineName("Troll Hack Concurrent") +
         Dispatchers.Default.limitedParallelism(max(ParallelUtils.CPU_THREADS / 2, 1)) +
-        SupervisorJob() +
         CoroutineExceptionHandler { _, throwable ->
             Minecraft.getMinecraft().crashed(CrashReport.makeCrashReport(throwable, "Troll Hack Concurrent Scope"))
         }
@@ -56,7 +54,6 @@ private val backgroundPool = ScheduledThreadPoolExecutor(
 private val backgroundContext =
     CoroutineName("Troll Hack Background") +
         backgroundPool.asCoroutineDispatcher() +
-        SupervisorJob() +
         CoroutineExceptionHandler { _, throwable ->
             Minecraft.getMinecraft().crashed(CrashReport.makeCrashReport(throwable, "Troll Hack Background Scope"))
         }
