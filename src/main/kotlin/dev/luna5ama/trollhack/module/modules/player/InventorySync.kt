@@ -10,8 +10,11 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.extension.synchronized
 import it.unimi.dsi.fastutil.shorts.ShortLinkedOpenHashSet
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.init.Blocks
+import net.minecraft.init.Items
 import net.minecraft.inventory.ClickType
+import net.minecraft.inventory.ContainerPlayer
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.CPacketClickWindow
@@ -37,6 +40,8 @@ internal object InventorySync : Module(
     private val sendTimer = TickTimer()
     private var sent = false
 
+    private val craftingItems = Array(5) { Items.AIR }
+
     private val illegalStack = ItemStack(Item.getItemFromBlock(Blocks.BARRIER))
     private val randomActionID = ShortLinkedOpenHashSet().synchronized()
 
@@ -50,6 +55,7 @@ internal object InventorySync : Module(
 
         onDisable {
             randomActionID.clear()
+            craftingItems.fill(Items.AIR)
         }
 
         safeListener<PacketEvent.PostSend> {
@@ -73,6 +79,23 @@ internal object InventorySync : Module(
         }
 
         safeParallelListener<TickEvent.Post> {
+            for (i in 1 until craftingItems.size) {
+                val prev = craftingItems[i]
+                val curr = player.inventoryContainer.getSlot(i).stack.item
+                if (prev != curr) {
+                    craftingItems[0] = Items.AIR
+                }
+                craftingItems[i] = curr
+            }
+            if (mc.currentScreen is GuiContainer && player.openContainer is ContainerPlayer) {
+                val craftOutput = player.openContainer.getSlot(0).stack.item
+                if (craftOutput != Items.AIR) {
+                    craftingItems[0] = craftOutput
+                }
+            }
+
+            if (craftingItems[0] != Items.AIR) return@safeParallelListener
+
             if (!firstPacketTimer.tick(startDelay)) {
                 if (forceConfirm && cancelExtraConfirm) randomActionID.clear()
                 return@safeParallelListener
