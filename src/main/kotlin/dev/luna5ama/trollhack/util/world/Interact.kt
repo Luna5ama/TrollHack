@@ -119,6 +119,9 @@ fun SafeClientEvent.getPlacementSequence(
 
     loop@ while (!queue.isEmpty) {
         val data = queue.dequeue()
+        if (world.isOutsideBuildHeight(data.placedPos)) continue@loop
+        if (!world.worldBorder.contains(data.placedPos)) continue@loop
+
         for (option in options) {
             if (option == null) continue
             if (!option.run { check(data.pos, data.side, data.placedPos) }) continue@loop
