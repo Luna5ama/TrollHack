@@ -58,7 +58,8 @@ import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.*
 import dev.luna5ama.trollhack.util.world.FastRayTraceAction
-import dev.luna5ama.trollhack.util.world.fastRaytrace
+import dev.luna5ama.trollhack.util.world.FastRayTraceFunction
+import dev.luna5ama.trollhack.util.world.fastRayTrace
 import dev.luna5ama.trollhack.util.world.rayTraceVisible
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
@@ -100,7 +101,6 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.EnumDifficulty
-import net.minecraft.world.World
 import org.lwjgl.opengl.GL11.*
 import java.util.*
 import kotlin.math.abs
@@ -1705,7 +1705,7 @@ internal object ZealotCrystalPlus : Module(
         return ((factor * factor + factor) * DAMAGE_FACTOR + 1.0f)
     }
 
-    private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { pos, blockState ->
+    private val function = FastRayTraceFunction { pos, blockState ->
         if (checkResistant(pos, blockState)) {
             FastRayTraceAction.CALC
         } else {
@@ -1750,7 +1750,7 @@ internal object ZealotCrystalPlus : Module(
                     val z = gridXZ * zIndex + xzOffset + entityBox.minZ
 
                     total++
-                    if (!world.fastRaytrace(x, y, z, posX, posY, posZ, 20, mutableBlockPos, function)) {
+                    if (!world.fastRayTrace(x, y, z, posX, posY, posZ, 20, mutableBlockPos, function)) {
                         count++
                     }
                 }

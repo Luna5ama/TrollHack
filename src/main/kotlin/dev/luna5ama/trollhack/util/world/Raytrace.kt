@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util.world
 
+import dev.fastmc.common.distanceSq
 import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.math.vector.distanceSq
 import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.util.EnumFacing
@@ -10,8 +10,54 @@ import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 
+fun interface RayTraceFunction {
+    operator fun World.invoke(
+        pos: BlockPos,
+        state: IBlockState
+    ): RayTraceAction
+
+    companion object {
+        @JvmField
+        val DEFAULT = RayTraceFunction { _, blockState ->
+            if (blockState.block != Blocks.AIR) {
+                RayTraceAction.Calc
+            } else {
+                RayTraceAction.Skip
+            }
+        }
+    }
+}
+
+private operator fun RayTraceFunction.invoke(
+    world: World,
+    pos: BlockPos,
+    state: IBlockState
+) = world.invoke(pos, state)
+
+sealed class RayTraceAction {
+    object Skip : RayTraceAction()
+    object Null : RayTraceAction()
+    object Calc : RayTraceAction()
+    class Result(val rayTraceResult: RayTraceResult) : RayTraceAction()
+}
+
 fun rayTrace(
     world: World,
+    start: Vec3d,
+    end: Vec3d,
+    stopOnLiquid: Boolean,
+    ignoreBlockWithoutBoundingBox: Boolean,
+    returnLastUncollidableBlock: Boolean,
+) = world.rayTrace(
+    start,
+    end,
+    stopOnLiquid,
+    ignoreBlockWithoutBoundingBox,
+    returnLastUncollidableBlock
+)
+
+@JvmName("rayTraceImpl")
+fun World.rayTrace(
     start: Vec3d,
     end: Vec3d,
     stopOnLiquid: Boolean,
@@ -29,18 +75,17 @@ fun rayTrace(
 
     // Raytrace start block
     val blockPos = BlockPos.MutableBlockPos(currentBlockX, currentBlockY, currentBlockZ)
-    val startBlockState = world.getBlockState(blockPos)
+    val startBlockState = getBlockState(blockPos)
 
     val endX = end.x
     val endY = end.y
     val endZ = end.z
 
     if ((!ignoreBlockWithoutBoundingBox
-            || startBlockState.getCollisionBoundingBox(world, blockPos) != null)
+            || startBlockState.getCollisionBoundingBox(this, blockPos) != null)
         && startBlockState.block.canCollideCheck(startBlockState, stopOnLiquid)
     ) {
-
-        startBlockState.collisionRayTrace(world, blockPos, Vec3d(currentX, currentY, currentZ), end).let { return it }
+        startBlockState.rayTrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ).let { return it }
     }
 
     // Int end position
@@ -117,14 +162,13 @@ fun rayTrace(
         }
 
         blockPos.setPos(currentBlockX, currentBlockY, currentBlockZ)
-        val blockState = world.getBlockState(blockPos)
+        val blockState = getBlockState(blockPos)
 
         if ((!ignoreBlockWithoutBoundingBox
-                || blockState.getCollisionBoundingBox(world, blockPos) != null)
+                || blockState.getCollisionBoundingBox(this, blockPos) != null)
             && blockState.block.canCollideCheck(blockState, stopOnLiquid)
         ) {
-            @Suppress("UNNECESSARY_SAFE_CALL")
-            startBlockState.collisionRayTrace(world, blockPos, Vec3d(currentX, currentY, currentZ), end)?.let { return it }
+            blockState.rayTrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)?.let { return it }
         }
     }
 
@@ -154,22 +198,8 @@ fun rayTrace(
 fun World.rayTrace(
     start: Vec3d,
     end: Vec3d,
-    maxAttempt: Int = 50
-): RayTraceResult? {
-    return rayTrace(start, end, maxAttempt) { _, blockState ->
-        if (blockState.block != Blocks.AIR) {
-            RayTraceAction.Calc
-        } else {
-            RayTraceAction.Skip
-        }
-    }
-}
-
-fun World.rayTrace(
-    start: Vec3d,
-    end: Vec3d,
     maxAttempt: Int = 50,
-    function: (BlockPos, IBlockState) -> RayTraceAction
+    function: RayTraceFunction = RayTraceFunction.DEFAULT
 ): RayTraceResult? {
     var currentX = start.x
     var currentY = start.y
@@ -188,10 +218,9 @@ fun World.rayTrace(
     val endY = end.y
     val endZ = end.z
 
-    @Suppress("UNNECESSARY_SAFE_CALL")
-    when (val action = function.invoke(blockPos, startBlockState)) {
+    when (val action = function.invoke(this, blockPos, startBlockState)) {
         RayTraceAction.Null -> return null
-        RayTraceAction.Calc -> startBlockState.raytrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)
+        RayTraceAction.Calc -> startBlockState.rayTrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)
             ?.let { return it }
         is RayTraceAction.Result -> return action.rayTraceResult
         else -> {}
@@ -273,10 +302,9 @@ fun World.rayTrace(
         blockPos.setPos(currentBlockX, currentBlockY, currentBlockZ)
         val blockState = getBlockState(blockPos)
 
-        when (val action = function.invoke(blockPos, blockState)) {
+        when (val action = function.invoke(this, blockPos, blockState)) {
             RayTraceAction.Null -> return null
-            RayTraceAction.Calc -> blockState.raytrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)
-                ?.let { return it }
+            RayTraceAction.Calc -> blockState.rayTrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)?.let { return it }
             is RayTraceAction.Result -> return action.rayTraceResult
             else -> {}
         }
@@ -285,7 +313,7 @@ fun World.rayTrace(
     return null
 }
 
-private fun IBlockState.raytrace(
+private fun IBlockState.rayTrace(
     world: World,
     blockPos: BlockPos.MutableBlockPos,
     x1: Double,
@@ -299,199 +327,153 @@ private fun IBlockState.raytrace(
     val y1f = (y1 - blockPos.y).toFloat()
     val z1f = (z1 - blockPos.z).toFloat()
 
+    val x2f = (x2 - blockPos.x).toFloat()
+    val y2f = (y2 - blockPos.y).toFloat()
+    val z2f = (z2 - blockPos.z).toFloat()
+    
+    val diffX = x2f - x1f
+    val diffY = y2f - y1f
+    val diffZ = z2f - z1f
+
     val box = this.getBoundingBox(world, blockPos)
 
     val minX = box.minX.toFloat()
-    val minY = box.minY.toFloat()
-    val minZ = box.minZ.toFloat()
     val maxX = box.maxX.toFloat()
+    val minY = box.minY.toFloat()
     val maxY = box.maxY.toFloat()
+    val minZ = box.minZ.toFloat()
     val maxZ = box.maxZ.toFloat()
-
-    val xDiff = (x2 - blockPos.x).toFloat() - x1f
-    val yDiff = (y2 - blockPos.y).toFloat() - y1f
-    val zDiff = (z2 - blockPos.z).toFloat() - z1f
-
-    var hitVecX = Float.NaN
-    var hitVecY = Float.NaN
-    var hitVecZ = Float.NaN
-    var side = EnumFacing.WEST
-    var none = true
-
-    if (xDiff * xDiff >= 1.0E-7f) {
-        val factorMin = (minX - x1f) / xDiff
+    
+    var hitX = 0.0f
+    var hitY = 0.0f
+    var hitZ = 0.0f
+    var lastDist = 0.0f
+    var hitDirection: EnumFacing? = null
+    
+    if (diffX * diffX >= 1.0E-7) {
+        val factorMin = (minX - x1f) / diffX
         if (factorMin in 0.0..1.0) {
-            val newY = y1f + yDiff * factorMin
-            val newZ = z1f + zDiff * factorMin
+            val resultX = x1f + diffX * factorMin
+            val resultY = y1f + diffY * factorMin
+            val resultZ = z1f + diffZ * factorMin
 
-            if (newY in minY..maxY && newZ in minZ..maxZ) {
-                val newX = x1f + xDiff * factorMin
-
-                if (none || distanceSq(x1f, y1f, z1f, newX, newY, newZ) < distanceSq(
-                        x1f,
-                        y1f,
-                        z1f,
-                        hitVecX,
-                        hitVecY,
-                        hitVecZ
-                    )
-                ) {
-                    hitVecX = newX
-                    hitVecY = newY
-                    hitVecZ = newZ
-                    side = EnumFacing.WEST
-                    none = false
-                }
+            if (resultY in minY..maxY && resultZ in minZ..maxZ) {
+                hitX = resultX
+                hitY = resultY
+                hitZ = resultZ
+                hitDirection = EnumFacing.WEST
+                lastDist = distanceSq(x1f, y1f, z1f, resultX, resultY, resultZ)
             }
-        } else {
-            val factorMax = (maxX - x1f) / xDiff
-            if (factorMax in 0.0..1.0) {
-                val newY = y1f + yDiff * factorMax
-                val newZ = z1f + zDiff * factorMax
+        }
 
-                if (newY in minY..maxY && newZ in minZ..maxZ) {
-                    val newX = x1f + xDiff * factorMax
+        val factorMax = (maxX - x1f) / diffX
+        if (factorMax in 0.0..1.0) {
+            val resultX = x1f + diffX * factorMax
+            val resultY = y1f + diffY * factorMax
+            val resultZ = z1f + diffZ * factorMax
 
-                    if (none || distanceSq(x1f, y1f, z1f, newX, newY, newZ) < distanceSq(
-                            x1f,
-                            y1f,
-                            z1f,
-                            hitVecX,
-                            hitVecY,
-                            hitVecZ
-                        )
-                    ) {
-                        hitVecX = newX
-                        hitVecY = newY
-                        hitVecZ = newZ
-                        side = EnumFacing.EAST
-                        none = false
-                    }
+            if (resultY in minY..maxY && resultZ in minZ..maxZ) {
+                val dist = distanceSq(x1f, y1f, z1f, resultX, resultY, resultZ)
+                if (hitDirection == null || dist < lastDist) {
+                    hitX = resultX
+                    hitY = resultY
+                    hitZ = resultZ
+                    hitDirection = EnumFacing.EAST
+                    lastDist = dist
                 }
             }
         }
     }
 
-    if (yDiff * yDiff >= 1.0E-7f) {
-        val factorMin = (minY - y1f) / yDiff
-        if (factorMin in 0.0f..1.0f) {
-            val newX = x1f + xDiff * factorMin
-            val newZ = z1f + zDiff * factorMin
 
-            if (newX in minX..maxX && newZ in minZ..maxZ) {
-                val newY = y1f + yDiff * factorMin
+    if (diffY * diffY >= 1.0E-7) {
+        val factorMin = (minY - y1f) / diffY
+        if (factorMin in 0.0..1.0) {
+            val resultX = x1f + diffX * factorMin
+            val resultY = y1f + diffY * factorMin
+            val resultZ = z1f + diffZ * factorMin
 
-                if (none || distanceSq(x1f, y1f, z1f, newX, newY, newZ) < distanceSq(
-                        x1f,
-                        y1f,
-                        z1f,
-                        hitVecX,
-                        hitVecY,
-                        hitVecZ
-                    )
-                ) {
-                    hitVecX = newX
-                    hitVecY = newY
-                    hitVecZ = newZ
-                    side = EnumFacing.DOWN
-                    none = false
+            if (resultX in minX..maxX && resultZ in minZ..maxZ) {
+                val dist = distanceSq(x1f, y1f, z1f, resultX, resultY, resultZ)
+                if (hitDirection == null || dist < lastDist) {
+                    hitX = resultX
+                    hitY = resultY
+                    hitZ = resultZ
+                    hitDirection = EnumFacing.DOWN
+                    lastDist = dist
                 }
             }
-        } else {
-            val factorMax = (maxY - y1f) / yDiff
-            if (factorMax in 0.0f..1.0f) {
-                val newX = x1f + xDiff * factorMax
-                val newZ = z1f + zDiff * factorMax
+        }
 
-                if (newX in minX..maxX && newZ in minZ..maxZ) {
-                    val newY = y1f + yDiff * factorMax
+        val factorMax = (maxY - y1f) / diffY
+        if (factorMax in 0.0..1.0) {
+            val resultX = x1f + diffX * factorMax
+            val resultY = y1f + diffY * factorMax
+            val resultZ = z1f + diffZ * factorMax
 
-                    if (none || distanceSq(x1f, y1f, z1f, newX, newY, newZ) < distanceSq(
-                            x1f,
-                            y1f,
-                            z1f,
-                            hitVecX,
-                            hitVecY,
-                            hitVecZ
-                        )
-                    ) {
-                        hitVecX = newX
-                        hitVecY = newY
-                        hitVecZ = newZ
-                        side = EnumFacing.UP
-                        none = false
-                    }
+            if (resultX in minX..maxX && resultZ in minZ..maxZ) {
+                val dist = distanceSq(x1f, y1f, z1f, resultX, resultY, resultZ)
+                if (hitDirection == null || dist < lastDist) {
+                    hitX = resultX
+                    hitY = resultY
+                    hitZ = resultZ
+                    hitDirection = EnumFacing.UP
+                    lastDist = dist
+                }
+            }
+        }
+    }
+    
+    if (diffZ * diffZ >= 1.0E-7) {
+        val factorMin = (minZ - z1f) / diffZ
+        if (factorMin in 0.0..1.0) {
+            val resultX = x1f + diffX * factorMin
+            val resultY = y1f + diffY * factorMin
+            val resultZ = z1f + diffZ * factorMin
+
+            if (resultX in minX..maxX && resultY in minY..maxY) {
+                val dist = distanceSq(x1f, y1f, z1f, resultX, resultY, resultZ)
+                if (hitDirection == null || dist < lastDist) {
+                    hitX = resultX
+                    hitY = resultY
+                    hitZ = resultZ
+                    hitDirection = EnumFacing.NORTH
+                    lastDist = dist
+                }
+            }
+        }
+        
+        val factorMax = (maxZ - z1f) / diffZ
+        if (factorMax in 0.0..1.0) {
+            val resultX = x1f + diffX * factorMax
+            val resultY = y1f + diffY * factorMax
+            val resultZ = z1f + diffZ * factorMax
+
+            if (resultX in minX..maxX && resultY in minY..maxY) {
+                val dist = distanceSq(x1f, y1f, z1f, resultX, resultY, resultZ)
+                if (hitDirection == null || dist < lastDist) {
+                    hitX = resultX
+                    hitY = resultY
+                    hitZ = resultZ
+                    hitDirection = EnumFacing.SOUTH
                 }
             }
         }
     }
 
-    if (zDiff * zDiff >= 1.0E-7) {
-        val factorMin = (minZ - z1f) / zDiff
-        if (factorMin in 0.0f..1.0f) {
-            val newX = x1f + xDiff * factorMin
-            val newY = y1f + yDiff * factorMin
-
-            if (newX in minX..maxX && newY in minY..maxY) {
-                val newZ = z1f + zDiff * factorMin
-
-                if (none || distanceSq(x1f, y1f, z1f, newX, newY, newZ) < distanceSq(
-                        x1f,
-                        y1f,
-                        z1f,
-                        hitVecX,
-                        hitVecY,
-                        hitVecZ
-                    )
-                ) {
-                    hitVecX = newX
-                    hitVecY = newY
-                    hitVecZ = newZ
-                    side = EnumFacing.NORTH
-                    none = false
-                }
-            }
-        } else {
-            val factorMax = (maxZ - z1f) / zDiff
-            if (factorMax in 0.0f..1.0f) {
-                val newX = x1f + xDiff * factorMax
-                val newY = y1f + yDiff * factorMax
-
-                if (newX in minX..maxX && newY in minY..maxY) {
-                    val newZ = z1f + zDiff * factorMax
-
-                    if (none || distanceSq(x1f, y1f, z1f, newX, newY, newZ) < distanceSq(
-                            x1f,
-                            y1f,
-                            z1f,
-                            hitVecX,
-                            hitVecY,
-                            hitVecZ
-                        )
-                    ) {
-                        hitVecX = newX
-                        hitVecY = newY
-                        hitVecZ = newZ
-                        side = EnumFacing.SOUTH
-                        none = false
-                    }
-                }
-            }
-        }
-    }
-
-    return if (!none) {
-        val hitVec =
-            Vec3d(hitVecX.toDouble() + blockPos.x, hitVecY.toDouble() + blockPos.y, hitVecZ.toDouble() + blockPos.z)
-        RayTraceResult(hitVec, side, blockPos.toImmutable())
+    return if (hitDirection != null) {
+        RayTraceResult(
+            Vec3d(
+                blockPos.x.toDouble()+ hitX,
+                blockPos.y.toDouble()+ hitY,
+                blockPos.z.toDouble()+ hitZ
+            ),
+            hitDirection,
+            blockPos
+        )
     } else {
         null
     }
 }
 
-sealed class RayTraceAction {
-    object Skip : RayTraceAction()
-    object Null : RayTraceAction()
-    object Calc : RayTraceAction()
-    class Result(val rayTraceResult: RayTraceResult) : RayTraceAction()
-}
+

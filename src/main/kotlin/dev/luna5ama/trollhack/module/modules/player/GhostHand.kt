@@ -7,11 +7,10 @@ import dev.luna5ama.trollhack.util.BOOLEAN_SUPPLIER_FALSE
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.math.vector.toBlockPos
 import dev.luna5ama.trollhack.util.world.RayTraceAction
+import dev.luna5ama.trollhack.util.world.RayTraceFunction
 import dev.luna5ama.trollhack.util.world.rayTrace
-import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
@@ -27,15 +26,13 @@ internal object GhostHand : Module(
     private val ignoreListed by setting("Ignore Listed", true)
     val blockList = setting(CollectionSetting("Block List", defaultVisibleList, BOOLEAN_SUPPLIER_FALSE))
 
-    private val function: (BlockPos, IBlockState) -> RayTraceAction = { _, blockState ->
+    private val function = RayTraceFunction { _, blockState ->
         val block = blockState.block
         if (block == Blocks.AIR) {
             RayTraceAction.Skip
         } else {
-            if (block.canCollideCheck(
-                    blockState,
-                    false
-                ) && ignoreListed != blockList.contains(block.registryName.toString())
+            if (block.canCollideCheck(blockState, false)
+                && ignoreListed != blockList.contains(block.registryName.toString())
             ) {
                 RayTraceAction.Calc
             } else {

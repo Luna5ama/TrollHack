@@ -216,7 +216,7 @@ internal object CrystalBasePlace : Module(
         pos: BlockPos,
         mutableBlockPos: BlockPos.MutableBlockPos
     ): CrystalDamage {
-        val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { rayTracePos, blockState ->
+        val function = FastRayTraceFunction { rayTracePos, blockState ->
             when {
                 rayTracePos == pos -> {
                     FastRayTraceAction.HIT

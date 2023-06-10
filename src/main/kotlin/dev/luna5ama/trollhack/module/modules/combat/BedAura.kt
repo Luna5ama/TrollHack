@@ -275,7 +275,7 @@ internal object BedAura : Module(
 
     private val bedAABB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 0.5625, 1.0)
 
-    private val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { pos, blockState ->
+    private val function = FastRayTraceFunction { pos, blockState ->
         val block = blockState.block
         if (block == Blocks.AIR
             || block == Blocks.BED

@@ -5,101 +5,100 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
+import kotlin.math.max
+import kotlin.math.min
 
-val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { pos, blockState ->
-    if (blockState.getCollisionBoundingBox(this, pos) != null) {
-        FastRayTraceAction.CALC
-    } else {
-        FastRayTraceAction.SKIP
+fun interface FastRayTraceFunction {
+    operator fun World.invoke(
+        pos: BlockPos,
+        state: IBlockState
+    ): FastRayTraceAction
+
+    companion object {
+        @JvmField
+        val DEFAULT = FastRayTraceFunction { pos, state ->
+            if (state.getCollisionBoundingBox(this, pos) != null) {
+                FastRayTraceAction.CALC
+            } else {
+                FastRayTraceAction.SKIP
+            }
+        }
     }
 }
 
-fun World.rayTraceVisible(
-    start: Vec3d,
-    endX: Double,
-    endY: Double,
-    endZ: Double,
-    maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean {
-    return !fastRaytrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, function)
-}
-
-fun World.rayTraceVisible(
-    startX: Double,
-    startY: Double,
-    startZ: Double,
-    endX: Double,
-    endY: Double,
-    endZ: Double
-): Boolean {
-    return !fastRaytrace(startX, startY, startZ, endX, endY, endZ, 50, BlockPos.MutableBlockPos(), function)
-}
-
-fun World.rayTraceVisible(
-    startX: Double,
-    startY: Double,
-    startZ: Double,
-    endX: Double,
-    endY: Double,
-    endZ: Double,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean {
-    return !fastRaytrace(startX, startY, startZ, endX, endY, endZ, 50, mutableBlockPos, function)
-}
-
-fun World.rayTraceVisible(
-    startX: Double,
-    startY: Double,
-    startZ: Double,
-    endX: Double,
-    endY: Double,
-    endZ: Double,
-    maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean {
-    return !fastRaytrace(startX, startY, startZ, endX, endY, endZ, maxAttempt, mutableBlockPos, function)
-}
+private operator fun FastRayTraceFunction.invoke(
+    world: World,
+    pos: BlockPos,
+    state: IBlockState
+) = world.invoke(pos, state)
 
 fun World.rayTraceVisible(
     start: Vec3d,
     end: Vec3d,
     maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean {
-    return !fastRaytrace(start, end, maxAttempt, mutableBlockPos, function)
-}
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
+): Boolean = !fastRayTrace(start, end, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
 
-fun World.fastRaytrace(
-    start: Vec3d,
+fun World.rayTraceVisible(
+    startX: Double,
+    startY: Double,
+    startZ: Double,
     end: Vec3d,
     maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean {
-    return fastRaytrace(start, end, maxAttempt, mutableBlockPos, function)
-}
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
+): Boolean = !fastRayTrace(startX, startY, startZ, end, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
 
-fun World.fastRaytraceCorners(
+
+fun World.rayTraceVisible(
+    start: Vec3d,
+    endX: Double,
+    endY: Double,
+    endZ: Double,
+    maxAttempt: Int = 50,
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
+): Boolean = !fastRayTrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+
+fun World.rayTraceVisible(
+    startX: Double,
+    startY: Double,
+    startZ: Double,
+    endX: Double,
+    endY: Double,
+    endZ: Double,
+    maxAttempt: Int = 50,
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos(),
+): Boolean = !fastRayTrace(
+    startX,
+    startY,
+    startZ,
+    endX,
+    endY,
+    endZ,
+    maxAttempt,
+    mutableBlockPos,
+    FastRayTraceFunction.DEFAULT
+)
+
+fun World.rayTraceCornersVisible(
     x: Double,
     y: Double,
     z: Double,
     blockX: Int,
     blockY: Int,
     blockZ: Int,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean {
-    return fastRaytraceCorners(x, y, z, blockX, blockY, blockZ, 50, mutableBlockPos)
-}
+    maxAttempt: Int = 50,
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
+) = !fastRayTraceCorners(x, y, z, blockX, blockY, blockZ, maxAttempt, mutableBlockPos)
 
-fun World.fastRaytraceCorners(
+fun World.fastRayTraceCorners(
     x: Double,
     y: Double,
     z: Double,
     blockX: Int,
     blockY: Int,
     blockZ: Int,
-    maxAttempt: Int,
-    mutableBlockPos: BlockPos.MutableBlockPos
+    maxAttempt: Int = 50,
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
 ): Boolean {
     val minX = blockX + 0.05
     val minY = blockY + 0.05
@@ -109,44 +108,57 @@ fun World.fastRaytraceCorners(
     val maxY = minY + 0.95
     val maxZ = minZ + 0.95
 
-    return fastRaytrace(x, y, z, minX, minY, minZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, maxX, minY, minZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, minX, minY, maxZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, maxX, minY, maxZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, minX, maxY, minZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, maxX, maxY, minZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, minX, maxY, maxZ, maxAttempt, mutableBlockPos, function)
-        || fastRaytrace(x, y, z, maxX, maxY, maxZ, maxAttempt, mutableBlockPos, function)
+    return fastRayTrace(x, y, z, minX, minY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, maxX, minY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, minX, minY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, maxX, minY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, minX, maxY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, maxX, maxY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, minX, maxY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+        || fastRayTrace(x, y, z, maxX, maxY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
 }
 
-inline fun World.fastRaytrace(
+/**
+ * @return true if hit a block
+ */
+fun World.fastRayTrace(
     start: Vec3d,
     end: Vec3d,
     maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos,
-    function: World.(BlockPos, IBlockState) -> FastRayTraceAction
-): Boolean = fastRaytrace(start.x, start.y, start.z, end.x, end.y, end.z, maxAttempt, mutableBlockPos, function)
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos(),
+    function: FastRayTraceFunction = FastRayTraceFunction.DEFAULT
+): Boolean = fastRayTrace(start.x, start.y, start.z, end.x, end.y, end.z, maxAttempt, mutableBlockPos, function)
 
-fun World.fastRaytrace(
+/**
+ * @return true if hit a block
+ */
+fun World.fastRayTrace(
+    startX: Double,
+    startY: Double,
+    startZ: Double,
+    end: Vec3d,
+    maxAttempt: Int = 50,
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos(),
+    function: FastRayTraceFunction = FastRayTraceFunction.DEFAULT
+): Boolean = fastRayTrace(startX, startY, startZ, end.x, end.y, end.z, maxAttempt, mutableBlockPos, function)
+
+/**
+ * @return true if hit a block
+ */
+fun World.fastRayTrace(
     start: Vec3d,
     endX: Double,
     endY: Double,
     endZ: Double,
     maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos
-): Boolean = fastRaytrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, function)
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos(),
+    function: FastRayTraceFunction = FastRayTraceFunction.DEFAULT
+): Boolean = fastRayTrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, function)
 
-inline fun World.fastRaytrace(
-    start: Vec3d,
-    endX: Double,
-    endY: Double,
-    endZ: Double,
-    maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos,
-    function: World.(BlockPos, IBlockState) -> FastRayTraceAction
-): Boolean = fastRaytrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, function)
-
-inline fun World.fastRaytrace(
+/**
+ * @return true if hit a block
+ */
+fun World.fastRayTrace(
     startX: Double,
     startY: Double,
     startZ: Double,
@@ -154,8 +166,8 @@ inline fun World.fastRaytrace(
     endY: Double,
     endZ: Double,
     maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos,
-    function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos(),
+    function: FastRayTraceFunction = FastRayTraceFunction.DEFAULT
 ): Boolean {
     var currentX = startX
     var currentY = startY
@@ -166,13 +178,13 @@ inline fun World.fastRaytrace(
     var currentBlockY = currentY.fastFloor()
     var currentBlockZ = currentZ.fastFloor()
 
-    // Raytrace start block
+    // Ray trace start block
     mutableBlockPos.setPos(currentBlockX, currentBlockY, currentBlockZ)
     val startBlockState = getBlockState(mutableBlockPos)
 
-    when (function.invoke(this, mutableBlockPos, startBlockState)) {
+    when (function(this, mutableBlockPos, startBlockState)) {
         FastRayTraceAction.MISS -> return false
-        FastRayTraceAction.CALC -> if (startBlockState.fastRaytrace(
+        FastRayTraceAction.CALC -> if (startBlockState.rayTraceBlock(
                 this,
                 mutableBlockPos,
                 currentX,
@@ -267,9 +279,9 @@ inline fun World.fastRaytrace(
 
         val blockState = getBlockState(mutableBlockPos)
 
-        when (function.invoke(this, mutableBlockPos, blockState)) {
+        when (function(this, mutableBlockPos, blockState)) {
             FastRayTraceAction.MISS -> return false
-            FastRayTraceAction.CALC -> if (blockState.fastRaytrace(
+            FastRayTraceAction.CALC -> if (blockState.rayTraceBlock(
                     this,
                     mutableBlockPos,
                     currentX,
@@ -290,7 +302,7 @@ inline fun World.fastRaytrace(
     return false
 }
 
-fun IBlockState.fastRaytrace(
+private fun IBlockState.rayTraceBlock(
     world: World,
     blockPos: BlockPos.MutableBlockPos,
     x1: Double,
@@ -300,51 +312,10 @@ fun IBlockState.fastRaytrace(
     y2: Double,
     z2: Double
 ): Boolean {
-    val x1f = (x1 - blockPos.x).toFloat()
-    val y1f = (y1 - blockPos.y).toFloat()
-    val z1f = (z1 - blockPos.z).toFloat()
-
     val box = this.getBoundingBox(world, blockPos)
-
-    val minX = box.minX.toFloat()
-    val minY = box.minY.toFloat()
-    val minZ = box.minZ.toFloat()
-    val maxX = box.maxX.toFloat()
-    val maxY = box.maxY.toFloat()
-    val maxZ = box.maxZ.toFloat()
-
-    val xDiff = (x2 - blockPos.x).toFloat() - x1f
-    val yDiff = (y2 - blockPos.y).toFloat() - y1f
-    val zDiff = (z2 - blockPos.z).toFloat() - z1f
-
-    if (xDiff * xDiff >= 1.0E-7f) {
-        var factor = (minX - x1f) / xDiff
-        if (factor !in 0.0f..1.0f) factor = (maxX - x1f) / xDiff
-
-        if (factor in 0.0f..1.0f && y1f + yDiff * factor in minY..maxY && z1f + zDiff * factor in minZ..maxZ) {
-            return true
-        }
-    }
-
-    if (yDiff * yDiff >= 1.0E-7f) {
-        var factor = (minY - y1f) / yDiff
-        if (factor !in 0.0f..1.0f) factor = (maxY - y1f) / yDiff
-
-        if (factor in 0.0f..1.0f && x1f + xDiff * factor in minX..maxX && z1f + zDiff * factor in minZ..maxZ) {
-            return true
-        }
-    }
-
-    if (zDiff * zDiff >= 1.0E-7) {
-        var factor = (minZ - z1f) / zDiff
-        if (factor !in 0.0f..1.0f) factor = (maxZ - z1f) / zDiff
-
-        if (factor in 0.0f..1.0f && x1f + xDiff * factor in minX..maxX && y1f + yDiff * factor in minY..maxY) {
-            return true
-        }
-    }
-
-    return false
+    return (box.minX + blockPos.x) < max(x1, x2) && (box.maxX + blockPos.x) > min(x1, x1)
+        && (box.minY + blockPos.y) < max(y1, y2) && (box.maxY + blockPos.y) > min(y1, y2)
+        && (box.minZ + blockPos.z) < max(z1, z2) && (box.maxZ + blockPos.z) > min(z1, z2)
 }
 
 enum class FastRayTraceAction {

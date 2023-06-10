@@ -914,7 +914,7 @@ internal object TrollAura : Module(
         if (!canPlaceCrystalOn(pos)) return null
         if (!CrystalUtils.isValidMaterial(world.getBlockState(pos.up(2)))) return null
 
-        val function: World.(BlockPos, IBlockState) -> FastRayTraceAction = { rayTracePos, blockState ->
+        val function = FastRayTraceFunction { rayTracePos, blockState ->
             if (rayTracePos != surroundPos && blockState.block != Blocks.AIR && CrystalUtils.isResistant(blockState)) {
                 FastRayTraceAction.CALC
             } else {

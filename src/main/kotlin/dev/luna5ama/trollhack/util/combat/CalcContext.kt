@@ -6,8 +6,8 @@ import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.world.FastRayTraceAction
-import dev.luna5ama.trollhack.util.world.fastRaytrace
-import net.minecraft.block.state.IBlockState
+import dev.luna5ama.trollhack.util.world.FastRayTraceFunction
+import dev.luna5ama.trollhack.util.world.fastRayTrace
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -15,7 +15,6 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.EnumDifficulty
-import net.minecraft.world.World
 import kotlin.math.floor
 import kotlin.math.min
 
@@ -89,7 +88,7 @@ class CalcContext(
         pos: Vec3d,
         predict: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ) = calcDamage(pos, predict, 6.0f, mutableBlockPos, function)
 
     fun calcDamage(
@@ -97,7 +96,7 @@ class CalcContext(
         predict: Boolean,
         size: Float,
         mutableBlockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ) = calcDamage(pos.x, pos.y, pos.z, predict, size, mutableBlockPos, function)
 
     fun calcDamage(
@@ -107,7 +106,7 @@ class CalcContext(
         predict: Boolean,
         size: Float,
         mutableBlockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ): Float {
         if (difficulty == EnumDifficulty.PEACEFUL) return 0.0f
 
@@ -159,7 +158,7 @@ class CalcContext(
         size: Float,
         predict: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ): Float {
         val entityPos = if (predict) predictPos else currentPos
         val doubleSize = size * 2.0f
@@ -177,7 +176,7 @@ class CalcContext(
         crystalZ: Double,
         predict: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ): Float {
         val box = if (predict) predictBox else currentBox
         if (!clipped && box.isInside(crystalX, crystalY, crystalZ)) return 1.0f
@@ -196,13 +195,13 @@ class CalcContext(
         crystalY: Double,
         crystalZ: Double,
         blockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ): Float {
         var count = 0
 
         for (i in samplePoints.indices) {
             val samplePoint = samplePoints[i]
-            if (!world.fastRaytrace(samplePoint, crystalX, crystalY, crystalZ, 20, blockPos, function)) {
+            if (!world.fastRayTrace(samplePoint, crystalX, crystalY, crystalZ, 20, blockPos, function)) {
                 count++
             }
         }
@@ -217,7 +216,7 @@ class CalcContext(
         crystalY: Double,
         crystalZ: Double,
         mutableBlockPos: BlockPos.MutableBlockPos,
-        function: World.(BlockPos, IBlockState) -> FastRayTraceAction
+        function: FastRayTraceFunction
     ): Float {
         var count = 0
         var total = 0
@@ -231,7 +230,7 @@ class CalcContext(
 
             total++
             val samplePoint = samplePoints[i]
-            if (!world.fastRaytrace(samplePoint, crystalX, crystalY, crystalZ, 20, mutableBlockPos, function)) {
+            if (!world.fastRayTrace(samplePoint, crystalX, crystalY, crystalZ, 20, mutableBlockPos, function)) {
                 count++
             }
         }

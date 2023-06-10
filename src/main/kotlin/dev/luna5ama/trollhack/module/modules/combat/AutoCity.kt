@@ -31,7 +31,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.world.FastRayTraceAction
-import dev.luna5ama.trollhack.util.world.fastRaytrace
+import dev.luna5ama.trollhack.util.world.fastRayTrace
 import dev.luna5ama.trollhack.util.world.getBlock
 import dev.luna5ama.trollhack.util.world.isReplaceable
 import net.minecraft.init.Blocks
@@ -304,7 +304,7 @@ internal object AutoCity : Module(
                 val dist = playerPos.distanceSq(crystalPos)
                 dist <= rangeSq
                     && (dist <= wallRangeSq
-                    || !world.fastRaytrace(
+                    || !world.fastRayTrace(
                     eyePos,
                     crystalPos.x + 0.5,
                     crystalPos.y + 2.7,
@@ -345,7 +345,7 @@ internal object AutoCity : Module(
                 val dist = playerPos.distanceSq(crystalPos)
                 dist <= rangeSq
                     && (dist <= wallRangeSq
-                    || !world.fastRaytrace(
+                    || !world.fastRayTrace(
                     eyePos,
                     crystalPos.x + 0.5,
                     crystalPos.y + 2.7,
