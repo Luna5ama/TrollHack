@@ -141,7 +141,7 @@ internal object AutoCope : Module(
     )
 
     private fun SafeClientEvent.targeting(message: String): Boolean {
-        return (message.contains(player.name, true)
+        return message.contains(player.name, true)
             || message.contains("fuck", true)
             || message.contains("bro is", true)
             || message.contains("iq", true)
@@ -155,6 +155,7 @@ internal object AutoCope : Module(
             || message.contains("retard", true)
             || message.contains("imagine", true)
             || message.contains("lol", true)
-            || message.contains("shit", true))
+            || message.contains("shit", true)
+            || message.contains("gay", true)
     }
 }

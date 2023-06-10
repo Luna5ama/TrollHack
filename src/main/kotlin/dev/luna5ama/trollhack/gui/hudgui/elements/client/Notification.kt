@@ -28,6 +28,8 @@ internal object Notification : HudElement(
     enabledByDefault = true
 ) {
     private val moduleToggle by setting("Module Toggle", true)
+    private val moduleToggleMessageTimeout by setting("Module Toggle Message Timeout", 3000, 0..10000, 100, { moduleToggle })
+    private val defaultTimeout by setting("Default Timeout", 5000, 0..10000, 100)
     private val nvidia by setting("Nvidia Theme", false)
     private val backgroundAlpha by setting("Background Alpha", 180, 0..255, 1, { nvidia })
 
@@ -46,7 +48,7 @@ internal object Notification : HudElement(
                 val message = it.module.nameAsString +
                     if (it.module.isEnabled) TextFormatting.RED format " disabled"
                     else TextFormatting.GREEN format " enabled"
-                send(Notification.hashCode() * 31 + it.module.hashCode(), message, 1500L)
+                send(Notification.hashCode() * 31 + it.module.hashCode(), message, moduleToggleMessageTimeout.toLong())
             }
         }
     }
@@ -92,15 +94,15 @@ internal object Notification : HudElement(
         GlStateUtils.popMatrixAll()
     }
 
-    fun send(message: String, length: Long = 3000L) {
+    fun send(message: String, length: Long = defaultTimeout.toLong()) {
         send(message.hashCode(), message, length)
     }
 
-    fun send(identifier: Any, message: String, length: Long = 3000L) {
+    fun send(identifier: Any, message: String, length: Long = defaultTimeout.toLong()) {
         send(identifier.hashCode().toLong(), message, length)
     }
 
-    fun send(id: Long, message: String, length: Long = 3000L) {
+    fun send(id: Long, message: String, length: Long = defaultTimeout.toLong()) {
         synchronized(map) {
             val existing = map[id]
             if (existing != null && !existing.isTimeout) {
