@@ -5,8 +5,6 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
-import kotlin.math.max
-import kotlin.math.min
 
 fun interface FastRayTraceFunction {
     operator fun World.invoke(
@@ -318,10 +316,55 @@ private fun IBlockState.rayTraceBlock(
     y2: Double,
     z2: Double
 ): Boolean {
+    val x1f = (x1 - blockPos.x).toFloat()
+    val y1f = (y1 - blockPos.y).toFloat()
+    val z1f = (z1 - blockPos.z).toFloat()
+
+    val x2f = (x2 - blockPos.x).toFloat()
+    val y2f = (y2 - blockPos.y).toFloat()
+    val z2f = (z2 - blockPos.z).toFloat()
+
     val box = this.getBoundingBox(world, blockPos)
-    return (box.minX + blockPos.x) < max(x1, x2) && (box.maxX + blockPos.x) > min(x1, x1)
-        && (box.minY + blockPos.y) < max(y1, y2) && (box.maxY + blockPos.y) > min(y1, y2)
-        && (box.minZ + blockPos.z) < max(z1, z2) && (box.maxZ + blockPos.z) > min(z1, z2)
+
+    val minX = box.minX.toFloat()
+    val minY = box.minY.toFloat()
+    val minZ = box.minZ.toFloat()
+    val maxX = box.maxX.toFloat()
+    val maxY = box.maxY.toFloat()
+    val maxZ = box.maxZ.toFloat()
+
+    val xDiff = x2f - x1f
+    val yDiff = y2f - y1f
+    val zDiff = z2f - z1f
+
+    if (xDiff * xDiff >= 1.0E-7f) {
+        var factor = (minX - x1f) / xDiff
+        if (factor !in 0.0f..1.0f) factor = (maxX - x1f) / xDiff
+
+        if (factor in 0.0f..1.0f && y1f + yDiff * factor in minY..maxY && z1f + zDiff * factor in minZ..maxZ) {
+            return true
+        }
+    }
+
+    if (yDiff * yDiff >= 1.0E-7f) {
+        var factor = (minY - y1f) / yDiff
+        if (factor !in 0.0f..1.0f) factor = (maxY - y1f) / yDiff
+
+        if (factor in 0.0f..1.0f && x1f + xDiff * factor in minX..maxX && z1f + zDiff * factor in minZ..maxZ) {
+            return true
+        }
+    }
+
+    if (zDiff * zDiff >= 1.0E-7) {
+        var factor = (minZ - z1f) / zDiff
+        if (factor !in 0.0f..1.0f) factor = (maxZ - z1f) / zDiff
+
+        if (factor in 0.0f..1.0f && x1f + xDiff * factor in minX..maxX && y1f + yDiff * factor in minY..maxY) {
+            return true
+        }
+    }
+
+    return false
 }
 
 enum class FastRayTraceAction {
