@@ -23,6 +23,9 @@ import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.spoofUnSneak
+import dev.luna5ama.trollhack.util.accessor.renderPosX
+import dev.luna5ama.trollhack.util.accessor.renderPosY
+import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.collections.CircularArray
@@ -30,17 +33,17 @@ import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.util.graphics.*
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
+import dev.luna5ama.trollhack.util.inventory.blockBlacklist
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.inventory.blockBlacklist
+import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils
@@ -73,7 +76,7 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.World
+import org.lwjgl.opengl.GL11.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
@@ -241,6 +244,9 @@ internal object BedAura : Module(
         false,
         page.atValue(Page.RENDER) and ::renderBase
     )
+    private val rotateLength by setting("Rotate Length", 250, 0..1000, 50, page.atValue(Page.RENDER))
+    private val movingLength by setting("Moving Length", 500, 0..1000, 50, page.atValue(Page.RENDER))
+    private val fadeLength by setting("Fade Length", 250, 0..1000, 50, page.atValue(Page.RENDER))
 
     private enum class Page {
         GENERAL, TIMING, FORCE_PLACE, MOTION_DETECT, RENDER
@@ -252,7 +258,6 @@ internal object BedAura : Module(
 
     private val updateTimer = TickTimer()
     private val timer = TickTimer()
-    private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
     private val blockerExists = AtomicBoolean(true)
     private val blockerSwitch = AtomicBoolean(false)
     private val blockerTimer = TickTimer()
@@ -272,8 +277,6 @@ internal object BedAura : Module(
 
     private var inactiveTicks = 10
     var needOffhandBed = false; private set
-
-    private val bedAABB = AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 0.5625, 1.0)
 
     private val function = FastRayTraceFunction { pos, blockState ->
         val block = blockState.block
@@ -323,20 +326,11 @@ internal object BedAura : Module(
         }
 
         listener<Render3DEvent> {
-            renderer.render(false)
+            Renderer.onRender3D()
         }
 
-        listener<Render2DEvent.Absolute> {
-            if (!renderDamage) return@listener
-            val placeInfo = placeInfo ?: return@listener
-
-            val pos = ProjectionUtils.toAbsoluteScreenPos(placeInfo.center)
-            val halfWidth = MainFontRenderer.getWidth(placeInfo.string, 2.0f) * 0.5f
-            val halfHeight = MainFontRenderer.getHeight(2.0f) * 0.5f
-            val x = (pos.x + -halfWidth).toFloat()
-            val y = (pos.y + -halfHeight).toFloat()
-
-            MainFontRenderer.drawString(placeInfo.string, x, y, scale = 2.0f)
+        safeListener<Render2DEvent.Absolute> {
+            Renderer.onRender2D()
         }
 
         listener<EntityEvent.UpdateHealth> {
@@ -357,7 +351,7 @@ internal object BedAura : Module(
                 val rotation = if (Bypass.blockPlaceRotation) {
                     getRotationTo(it.hitVec)
                 } else {
-                    Vec2f(it.side.yaw, 0.0f)
+                    Vec2f(it.direction.yaw, 0.0f)
                 }
 
                 sendPlayerPacket {
@@ -560,29 +554,7 @@ internal object BedAura : Module(
             reset()
         } else if (updateTimer.tickAndReset(updateDelay)) {
             ConcurrentScope.launch {
-                val info = calcDamage()
-                val list = ArrayList<ESPRenderer.Info>()
-
-                if (info != null) {
-                    if (renderBase) list.add(ESPRenderer.Info(info.boxBase, baseColor))
-                    if (renderFoot) list.add(
-                        ESPRenderer.Info(
-                            info.boxFoot,
-                            footColor,
-                            EnumFacingMask.ALL xor EnumFacingMask.getMaskForSide(info.side)
-                        )
-                    )
-                    if (renderHead) list.add(
-                        ESPRenderer.Info(
-                            info.boxHead,
-                            headColor,
-                            EnumFacingMask.ALL xor EnumFacingMask.getMaskForSide(info.side.opposite)
-                        )
-                    )
-                }
-
-                renderer.replaceAll(list)
-                placeInfo = info
+                placeInfo = calcPlaceInfo()
             }
         }
 
@@ -601,7 +573,7 @@ internal object BedAura : Module(
         }
     }
 
-    private fun SafeClientEvent.calcDamage(): PlaceInfo? {
+    private fun SafeClientEvent.calcPlaceInfo(): PlaceInfo? {
         val contextSelf = CombatManager.contextSelf ?: return null
         val contextTarget = CombatManager.contextTarget ?: return null
         val eyePos = player.eyePosition
@@ -763,12 +735,11 @@ internal object BedAura : Module(
 
     private fun DamageInfo.toPlaceInfo(): PlaceInfo {
         val directionVec = side.directionVec
-        val boxBase = AxisAlignedBB(
-            basePos.x.toDouble(), basePos.y + 0.4375, basePos.z.toDouble(),
-            basePos.x + 1.0, basePos.y + 1.0, basePos.z + 1.0,
-        ).expand(directionVec.x.toDouble(), directionVec.y.toDouble(), directionVec.z.toDouble())
-        val boxFoot = bedAABB.offset(bedPosFoot)
-        val boxHead = bedAABB.offset(bedPosHead)
+        val center = Vec3d(
+            bedPosFoot.x + 0.5 + directionVec.x * 0.5,
+            bedPosFoot.y.toDouble(),
+            bedPosFoot.z + 0.5 + directionVec.z * 0.5
+        )
 
         return PlaceInfo(
             side,
@@ -778,10 +749,7 @@ internal object BedAura : Module(
             bedPosHead,
             targetDamage,
             selfDamage,
-            boxBase,
-            boxFoot,
-            boxHead,
-            boxHead.center,
+            center,
             "${"%.1f".format(targetDamage)}/${"%.1f".format(selfDamage)}"
         )
     }
@@ -791,7 +759,6 @@ internal object BedAura : Module(
 
         updateTimer.reset(-69420L)
         timer.reset(-69420L)
-        renderer.clear()
 
         switchPlacing = false
         placeInfo = null
@@ -804,6 +771,8 @@ internal object BedAura : Module(
 
         inactiveTicks = 10
         needOffhandBed = false
+
+        Renderer.reset()
     }
 
     private class CalcInfo(
@@ -826,17 +795,185 @@ internal object BedAura : Module(
     )
 
     private class PlaceInfo(
-        val side: EnumFacing,
+        val direction: EnumFacing,
         val hitVec: Vec3d,
         val basePos: BlockPos,
         val bedPosFoot: BlockPos,
         val bedPosHead: BlockPos,
         val targetDamage: Float,
         val selfDamage: Float,
-        val boxBase: AxisAlignedBB,
-        val boxFoot: AxisAlignedBB,
-        val boxHead: AxisAlignedBB,
         val center: Vec3d,
         val string: String
     )
+
+    private object Renderer {
+        var lastBedPlacement: Pair<BlockPos, EnumFacing>? = null
+
+        var lastRotation = Float.NaN
+        var currentRotation = Float.NaN
+
+        var lastPos: Vec3d? = null
+        var currentPos: Vec3d? = null
+
+        var lastRenderRotation = Float.NaN
+        var lastRenderPos: Vec3d? = null
+
+        var lastUpdateTime = 0L
+        var startTime = 0L
+        var scale = 0.0f
+        var lastDamageString = ""
+
+        val boxBase = AxisAlignedBB(
+            -0.5, -0.4375, -1.0,
+            0.5, 0.0, 1.0,
+        )
+        val boxFoot = AxisAlignedBB(
+            -0.5, 0.0, -1.0,
+            0.5, 0.5625, 0.0,
+        )
+        val boxHead = AxisAlignedBB(
+            -0.5, 0.0, 0.0,
+            0.5, 0.5625, 1.0,
+        )
+
+        fun reset() {
+            lastBedPlacement = null
+
+            lastRotation = Float.NaN
+            currentRotation = Float.NaN
+
+            lastPos = null
+            currentPos = null
+
+            lastRenderRotation = Float.NaN
+            lastRenderPos = null
+
+            lastUpdateTime = 0L
+            startTime = 0L
+            scale = 0.0f
+            lastDamageString = ""
+        }
+
+        fun onRender3D() {
+            val flag = renderBase || renderDamage
+            if (flag || renderDamage) {
+                val placeInfo = BedAura.placeInfo
+                update(placeInfo)
+
+                if (flag) {
+                    val lastPos = lastPos ?: return
+                    val currentPos = currentPos ?: return
+                    val lastRotation = lastRotation
+                    val currentRotation = currentRotation
+                    if (lastRotation.isNaN() || currentRotation.isNaN()) return
+
+                    val rotateMul = Easing.OUT_CUBIC.inc(Easing.toDelta(lastUpdateTime, rotateLength))
+                    val renderRotation = lastRotation + (currentRotation - lastRotation) * rotateMul
+                    lastRenderRotation = renderRotation
+
+                    val movingMul = Easing.OUT_QUINT.inc(Easing.toDelta(lastUpdateTime, movingLength))
+                    val renderPos = lastPos.add(currentPos.subtract(lastPos).scale(movingMul.toDouble()))
+                    lastRenderPos = renderPos
+
+                    scale = if (placeInfo != null) {
+                        Easing.OUT_CUBIC.inc(Easing.toDelta(startTime, fadeLength))
+                    } else {
+                        Easing.IN_CUBIC.dec(Easing.toDelta(startTime, fadeLength))
+                    }
+
+                    glPushMatrix()
+                    glTranslatef(
+                        (renderPos.x - mc.renderManager.renderPosX).toFloat(),
+                        (renderPos.y - mc.renderManager.renderPosY).toFloat(),
+                        (renderPos.z - mc.renderManager.renderPosZ).toFloat()
+                    )
+                    glRotatef(
+                        renderRotation,
+                        0.0f,
+                        1.0f,
+                        0.0f
+                    )
+
+                    val renderer = ESPRenderer()
+                    renderer.aFilled = (32.0f * scale).toInt()
+                    renderer.aOutline = (233.0f * scale).toInt()
+
+                    if (renderBase) {
+                        renderer.add(boxBase, baseColor)
+                    }
+                    if (renderFoot) {
+                        renderer.add(boxFoot, footColor, EnumFacingMask.ALL xor EnumFacingMask.SOUTH)
+                    }
+                    if (renderHead) {
+                        renderer.add(boxHead, headColor, EnumFacingMask.ALL xor EnumFacingMask.NORTH)
+                    }
+
+                    RenderUtils3D.resetTranslation()
+                    renderer.render(false, cull = false)
+                    RenderUtils3D.setTranslation(
+                        -mc.renderManager.renderPosX,
+                        -mc.renderManager.renderPosY,
+                        -mc.renderManager.renderPosZ
+                    )
+
+                    glPopMatrix()
+                }
+            }
+        }
+
+        fun onRender2D() {
+            if (scale != 0.0f && renderDamage) {
+                lastRenderPos?.let {
+                    val screenPos = ProjectionUtils.toAbsoluteScreenPos(it)
+                    val alpha = (255.0f * scale).toInt()
+                    val color = if (scale == 1.0f) ColorRGB(255, 255, 255) else ColorRGB(255, 255, 255, alpha)
+
+                    MainFontRenderer.drawString(
+                        lastDamageString,
+                        screenPos.x.toFloat() - MainFontRenderer.getWidth(lastDamageString, 2.0f) * 0.5f,
+                        screenPos.y.toFloat() - MainFontRenderer.getHeight(2.0f) * 0.5f,
+                        color,
+                        2.0f
+                    )
+                }
+            }
+        }
+
+        private fun update(placeInfo: PlaceInfo?) {
+            val lastBedPlacement = lastBedPlacement
+            val newBedPlacement = placeInfo?.let { it.basePos to it.direction }
+
+            if (newBedPlacement != lastBedPlacement) {
+                if (placeInfo != null) {
+                    currentPos = placeInfo.center
+                    lastPos = lastRenderPos ?: currentPos
+
+                    if (currentRotation.isNaN()) {
+                        currentRotation = placeInfo.direction.horizontalAngle
+                    } else {
+                        val newAngle = placeInfo.direction.horizontalAngle
+                        val lastAngle = lastBedPlacement?.second?.horizontalAngle ?: 0.0f
+                        val deltaAngle = RotationUtils.normalizeAngle(newAngle - lastAngle)
+                        currentRotation += deltaAngle
+                    }
+
+                    lastRotation = if (!lastRenderRotation.isNaN()) lastRenderRotation else currentRotation
+
+                    lastUpdateTime = System.currentTimeMillis()
+                    if (lastBedPlacement == null) {
+                        startTime = System.currentTimeMillis()
+                    }
+                } else {
+                    lastUpdateTime = System.currentTimeMillis()
+                        startTime = System.currentTimeMillis()
+                }
+
+                Renderer.lastBedPlacement = newBedPlacement
+            }
+
+            if (placeInfo != null) {
+                lastDamageString = placeInfo.string
+            }
+        }
+    }
 }

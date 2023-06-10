@@ -73,17 +73,19 @@ class ESPRenderer {
         toRender0.clear()
     }
 
-    fun render(clear: Boolean) {
+    fun render(clear: Boolean, cull: Boolean = true) {
         val filled = aFilled != 0
         val outline = aOutline != 0
         val tracer = aTracer != 0
         if (toRender0.isEmpty() || (!filled && !outline && !tracer)) return
 
-        frustumCamera.setPosition(
-            Wrapper.minecraft.renderManager.renderPosX,
-            Wrapper.minecraft.renderManager.renderPosY,
-            Wrapper.minecraft.renderManager.renderPosZ
-        )
+        if (cull) {
+            frustumCamera.setPosition(
+                Wrapper.minecraft.renderManager.renderPosX,
+                Wrapper.minecraft.renderManager.renderPosY,
+                Wrapper.minecraft.renderManager.renderPosZ
+            )
+        }
 
         if (through) GlStateManager.disableDepth()
         GlStateManager.glLineWidth(thickness)
