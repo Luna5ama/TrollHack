@@ -10,6 +10,10 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.ConfigUtils
 import dev.luna5ama.trollhack.util.text.MessageSendUtils
+import dev.luna5ama.trollhack.util.threads.ConcurrentScope
+import dev.luna5ama.trollhack.util.threads.delay
+import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
+import kotlinx.coroutines.launch
 import java.io.File
 
 object MacroManager : Manager() {
@@ -70,11 +74,16 @@ object MacroManager : Manager() {
      */
     private fun sendMacro(keyCode: Int) {
         val macros = getMacros(keyCode)
-        for (macro in macros) {
-            if (macro.startsWith(CommandManager.prefix)) { // this is done instead of just sending a chat packet so it doesn't add to the chat history
-                MessageSendUtils.sendTrollCommand(macro) // ie, the false here
-            } else {
-                MessageManager.sendMessageDirect(macro)
+        ConcurrentScope.launch {
+            for (macro in macros) {
+                delay(5)
+                onMainThreadSafe {
+                    if (macro.startsWith(CommandManager.prefix)) { // this is done instead of just sending a chat packet so it doesn't add to the chat history
+                        MessageSendUtils.sendTrollCommand(macro) // ie, the false here
+                    } else {
+                        MessageManager.sendMessageDirect(macro)
+                    }
+                }.await()
             }
         }
     }
