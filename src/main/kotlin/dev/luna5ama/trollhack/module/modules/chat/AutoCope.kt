@@ -86,7 +86,8 @@ internal object AutoCope : Module(
                 is SPacketChat -> {
                     val message = event.packet.chatComponent.unformatted
                     val playerName = MessageDetection.Message.OTHER.playerName(message) ?: return@safeConcurrentListener
-                    if (copeReplyList.any { it.setting.value && it.run { detect(message) } }) {
+                    val messageWithoutName = message.replace(playerName, "")
+                    if (copeReplyList.any { it.setting.value && it.run { detect(messageWithoutName) } }) {
                         AutoCope.sendServerMessage(copeReply.replace(NAME, playerName))
                     }
                 }
