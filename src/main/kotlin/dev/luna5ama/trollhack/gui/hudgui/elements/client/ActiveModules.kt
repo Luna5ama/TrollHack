@@ -73,24 +73,29 @@ internal object ActiveModules : HudElement(
     private val cachedList = DoubleBuffered { FastObjectArrayList<AbstractModule>() }
 
     private val sortedModuleList by AsyncCachedValue(5L) {
-        val modules = ModuleManager.modules
-        val list = cachedList.swap().front
+        synchronized(ActiveModules) {
+            val modules = ModuleManager.modules
+            val list = cachedList.swap().front
 
-        if (modules.size != lastSorted.size) {
-            lastSorted = makeKeyPair(modules)
-            list.clear()
-        } else {
-            for (i in lastSorted.indices) {
-                lastSorted[i].update()
+            var lastSortedLocal = lastSorted
+
+            if (modules.size != lastSortedLocal.size) {
+                lastSortedLocal = makeKeyPair(modules)
+                list.clear()
+            } else {
+                for (i in lastSortedLocal.indices) {
+                    lastSortedLocal[i].update()
+                }
             }
-        }
 
-        lastSorted.sort()
-        list.clearFast()
-        for (i in lastSorted.indices) {
-            list.add(lastSorted[i].module)
+            lastSortedLocal.sort()
+            list.clearFast()
+            for (i in lastSortedLocal.indices) {
+                list.add(lastSortedLocal[i].module)
+            }
+            lastSorted = lastSortedLocal
+            list
         }
-        list
     }
 
     private data class SortingPair(val module: AbstractModule, var key: Comparable<*> = sortingMode.keySelector(module)) : Comparable<SortingPair> {
