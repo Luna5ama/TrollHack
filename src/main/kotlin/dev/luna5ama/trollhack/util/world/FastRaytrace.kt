@@ -56,7 +56,17 @@ fun World.rayTraceVisible(
     endZ: Double,
     maxAttempt: Int = 50,
     mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
-): Boolean = !fastRayTrace(start.x, start.y, start.z, endX, endY, endZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+): Boolean = !fastRayTrace(
+    start.x,
+    start.y,
+    start.z,
+    endX,
+    endY,
+    endZ,
+    maxAttempt,
+    mutableBlockPos,
+    FastRayTraceFunction.DEFAULT
+)
 
 fun World.rayTraceVisible(
     startX: Double,
@@ -79,17 +89,9 @@ fun World.rayTraceVisible(
     FastRayTraceFunction.DEFAULT
 )
 
-fun World.rayTraceCornersVisible(
-    x: Double,
-    y: Double,
-    z: Double,
-    blockX: Int,
-    blockY: Int,
-    blockZ: Int,
-    maxAttempt: Int = 50,
-    mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
-) = !fastRayTraceCorners(x, y, z, blockX, blockY, blockZ, maxAttempt, mutableBlockPos)
-
+/**
+ * @return number of rays from corners that hit a block
+ */
 fun World.fastRayTraceCorners(
     x: Double,
     y: Double,
@@ -99,23 +101,27 @@ fun World.fastRayTraceCorners(
     blockZ: Int,
     maxAttempt: Int = 50,
     mutableBlockPos: BlockPos.MutableBlockPos = BlockPos.MutableBlockPos()
-): Boolean {
+): Int {
     val minX = blockX + 0.05
     val minY = blockY + 0.05
     val minZ = blockZ + 0.05
 
-    val maxX = minX + 0.95
-    val maxY = minY + 0.95
-    val maxZ = minZ + 0.95
+    val maxX = blockX + 0.95
+    val maxY = blockY + 0.95
+    val maxZ = blockZ + 0.95
 
-    return fastRayTrace(x, y, z, minX, minY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, maxX, minY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, minX, minY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, maxX, minY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, minX, maxY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, maxX, maxY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, minX, maxY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
-        || fastRayTrace(x, y, z, maxX, maxY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)
+    var count = 0
+
+    if (fastRayTrace(x, y, z, minX, minY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, maxX, minY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, minX, minY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, maxX, minY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, minX, maxY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, maxX, maxY, minZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, minX, maxY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+    if (fastRayTrace(x, y, z, maxX, maxY, maxZ, maxAttempt, mutableBlockPos, FastRayTraceFunction.DEFAULT)) count++
+
+    return count
 }
 
 /**

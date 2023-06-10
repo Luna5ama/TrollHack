@@ -38,11 +38,8 @@ import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.runSynchronized
+import dev.luna5ama.trollhack.util.world.*
 import dev.luna5ama.trollhack.util.world.PlaceInfo.Companion.newPlaceInfo
-import dev.luna5ama.trollhack.util.world.isAir
-import dev.luna5ama.trollhack.util.world.isReplaceable
-import dev.luna5ama.trollhack.util.world.placeBlock
-import dev.luna5ama.trollhack.util.world.rayTraceCornersVisible
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import kotlinx.coroutines.launch
@@ -104,6 +101,7 @@ internal object AutoRegear : Module(
     init {
         onDisable {
             reset()
+            explosionPosMap.clear()
         }
 
         onEnable {
@@ -226,15 +224,16 @@ internal object AutoRegear : Module(
                     }.maxWithOrNull(
                         compareBy<Pair<BlockPos, EnumFacing>> { (pos, direction) ->
                             val placedPos = mutable.setAndAdd(pos, direction)
-                            explosionPos.none {
-                                world.rayTraceCornersVisible(
-                                    placedPos.x + 0.5,
-                                    placedPos.y + 0.5,
-                                    placedPos.z + 0.5,
-                                    BlockPosUtil.xFromLong(it),
-                                    BlockPosUtil.yFromLong(it),
-                                    BlockPosUtil.zFromLong(it),
-                                    mutableBlockPos = mutable
+                            explosionPos.sumOf {
+                                world.fastRayTraceCorners(
+                                    BlockPosUtil.xFromLong(it) + 0.5,
+                                    BlockPosUtil.yFromLong(it) + 0.5,
+                                    BlockPosUtil.zFromLong(it) + 0.5,
+                                    placedPos.x,
+                                    placedPos.y,
+                                    placedPos.z,
+                                    200,
+                                    mutable
                                 )
                             }
                         }.thenBy { (pos, _) ->
@@ -392,7 +391,6 @@ internal object AutoRegear : Module(
         timeoutTimer.reset(-69420L)
 
         moveTimeMap.clear()
-        explosionPosMap.clear()
 
         lastContainer = null
         lastTask?.cancel()
