@@ -15,8 +15,8 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 object MessageManager : Manager() {
-    private val messageQueue = TreeSet<QueuedMessage>()
-    private val packetSet = HashSet<CPacketChatMessage>()
+    private val messageQueue = TreeSet<QueuedMessage>().synchronized()
+    private val packetSet = HashSet<CPacketChatMessage>().synchronized()
     private val timer = TickTimer()
     var lastPlayerMessage = ""
 

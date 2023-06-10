@@ -5,23 +5,29 @@ import dev.fastmc.common.TimeUnit
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
-import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.text.MessageDetection
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
+import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.init.Items
+import net.minecraft.network.play.server.SPacketChat
 import net.minecraft.network.play.server.SPacketUpdateHealth
 import net.minecraft.util.EnumHand
 import java.io.File
 
-internal object AutoExcuse : Module(
-    name = "Auto Excuse",
-    description = "Makes an excuse for you when you die",
+internal object AutoCope : Module(
+    name = "Auto Cope",
+    description = "Automatically sends excuses when you die",
     category = Category.CHAT,
     modulePriority = 500
 ) {
+    private const val NAME = "\$NAME"
+
     private val mode by setting("Mode", Mode.INTERNAL)
+    private val copeReply by setting("Cope Reply", "cope $NAME")
 
     private enum class Mode {
         INTERNAL, EXTERNAL
@@ -59,6 +65,8 @@ internal object AutoExcuse : Module(
 
     private val clients = arrayOf(
         "Future",
+        "Lambda",
+        "EarthHack",
         "Salhack",
         "Pyro",
         "Impact"
@@ -67,10 +75,21 @@ internal object AutoExcuse : Module(
     private val timer = TickTimer(TimeUnit.SECONDS)
 
     init {
-        safeListener<PacketEvent.Receive> {
-            if (loadedExcuses.isEmpty() || it.packet !is SPacketUpdateHealth) return@safeListener
-            if (it.packet.health <= 0.0f && !isHoldingTotem && timer.tickAndReset(3L)) {
-                AutoExcuse.sendServerMessage(getExcuse())
+        safeConcurrentListener<PacketEvent.Receive> { event ->
+            when (event.packet) {
+                is SPacketUpdateHealth -> {
+                    if (loadedExcuses.isEmpty()) return@safeConcurrentListener
+                    if (event.packet.health <= 0.0f && !isHoldingTotem && timer.tickAndReset(3L)) {
+                        AutoCope.sendServerMessage(getExcuse())
+                    }
+                }
+                is SPacketChat -> {
+                    val message = event.packet.chatComponent.unformatted
+                    val playerName = MessageDetection.Message.OTHER.playerName(message) ?: return@safeConcurrentListener
+                    if (copeReplyList.any { it.setting.value && it.run { detect(message) } }) {
+                        AutoCope.sendServerMessage(copeReply.replace(NAME, playerName))
+                    }
+                }
             }
         }
 
@@ -103,4 +122,38 @@ internal object AutoExcuse : Module(
         get() = EnumHand.values().any { player.getHeldItem(it).item == Items.TOTEM_OF_UNDYING }
 
     private fun getExcuse() = loadedExcuses.random().replace(CLIENT_NAME, clients.random())
+
+    private class CopeReply(settingName: String, val detect: SafeClientEvent.(String) -> Boolean) {
+        val setting = setting(settingName, false)
+    }
+
+    private val copeReplyList = listOf(
+        CopeReply("Face Place Cope") {
+            (it.contains("faceplace", true) || it.contains("face place", true)) && targeting(it)
+        },
+        CopeReply("Robot Cope") {
+            (it.contains("ai", true) || it.contains("robot", true)) && targeting(it)
+        },
+        CopeReply("Bed Cope") {
+            it.contains("bed", true) && targeting(it)
+        }
+    )
+
+    private fun SafeClientEvent.targeting(message: String): Boolean {
+        return (message.contains(player.name, true)
+            || message.contains("fuck", true)
+            || message.contains("bro is", true)
+            || message.contains("iq", true)
+            || message.contains("skill", true)
+            || message.contains("brain", true)
+            || message.contains("fag", true)
+            || message.contains("lel", true)
+            || message.contains("bad", true)
+            || message.contains("suck", true)
+            || message.contains("ass", true)
+            || message.contains("retard", true)
+            || message.contains("imagine", true)
+            || message.contains("lol", true)
+            || message.contains("shit", true))
+    }
 }
