@@ -80,7 +80,7 @@ internal object PacketMine : Module(
     private val breakTimeMultiplier by setting("Break Time Multiplier", 0.8f, 0.5f..2.0f, 0.01f)
     private val breakTimeBias by setting("Break Time Bias", 0, -5000..5000, 50)
     private val miningTaskTimeout by setting("Mining Task Timeout", 3000, 0..10000, 50)
-    private val range by setting("Range", 8.0f, 0.0f..10.0f, 0.25f)
+    private val range by setting("Range", 4.5f, 0.0f..10.0f, 0.1f)
     private val removeOutOfRange by setting("Remove Out Of Range", false)
 
     private val clickTimer = TickTimer()

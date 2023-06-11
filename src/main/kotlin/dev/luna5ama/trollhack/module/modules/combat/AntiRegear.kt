@@ -31,8 +31,8 @@ internal object AntiRegear : Module(
     private val ignoreSelfPlaced by setting("Ignore Self Placed", true)
     private val selfRange by setting("Self Range", 1.0f, 0.0f..10.0f, 0.1f)
     private val friendRange by setting("Friend Range", 1.0f, 0.0f..10.0f, 0.1f)
-    private val otherPlayerRange by setting("Other Player Range", 6.0f, 0.0f..10.0f, 0.1f)
-    private val mineRange by setting("Mine Range", 5.5f, 1.0f..10.0f, 0.1f)
+    private val otherPlayerRange by setting("Other Player Range", 5.0f, 0.0f..10.0f, 0.1f)
+    private val mineRange by setting("Mine Range", 4.5f, 1.0f..10.0f, 0.1f)
     private val silentNotification by setting("Silent Notification", false)
 
     private val selfPlaced = ObjectLinkedOpenHashSet<BlockPos>()
