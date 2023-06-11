@@ -128,7 +128,7 @@ object GlyphCache {
     private fun Font.hashName(): String {
         val transforms = DoubleArray(6)
         transform.getMatrix(transforms)
-        val str = "$name:${transforms.contentToString()}"
+        val str = "$name:$size:${transforms.contentToString()}"
         val hash = MessageDigest.getInstance("MD5").digest(str.toByteArray())
         return hash.joinToString("") { "%02x".format(it) }
     }

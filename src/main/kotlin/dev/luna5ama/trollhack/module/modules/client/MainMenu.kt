@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.module.modules.client
 
 import dev.luna5ama.trollhack.event.events.GuiEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.gui.rgui.InteractiveComponent
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.modules.render.AntiAlias
@@ -11,6 +12,7 @@ import dev.luna5ama.trollhack.translation.TranslationKey
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.extension.mapEach
 import dev.luna5ama.trollhack.util.extension.normalizeCase
+import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -28,7 +30,6 @@ import org.lwjgl.opengl.GL11.*
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
 import java.awt.Font
 import java.util.*
-import kotlin.math.max
 import kotlin.math.min
 
 internal object MainMenu : AbstractModule(
@@ -41,13 +42,13 @@ internal object MainMenu : AbstractModule(
 ) {
     private val title by setting("Title", Title.TROLL_HACK)
     private val mode by setting("Mode", Mode.SET)
-    private val background by setting("Background", ShaderEnum.PLANET, { mode == Mode.SET })
+    private val backgroundShader by setting("Background Shader", ShaderEnum.GALAXY, { mode == Mode.SET })
     private val fpsLimit by setting("Fps Limit", 60, 10..240, 10)
 
     @Suppress("unused")
-    enum class Title(override val displayName: CharSequence) : DisplayEnum {
-        TROLL_HACK("Troll Hack"),
-        MINECRAFT("Minecraft")
+    enum class Title(override val displayName: CharSequence, val titleName: String) : DisplayEnum {
+        TROLL_HACK("Troll Hack", "TROLL HACK"),
+        MINECRAFT("Minecraft", "MINCERAFT"),
     }
 
     private enum class Mode {
@@ -56,6 +57,7 @@ internal object MainMenu : AbstractModule(
 
     @Suppress("UNUSED")
     private enum class ShaderEnum {
+        GALAXY,
         PLANET,
         BLACK_HOLE,
         BLUE_GRID,
@@ -74,7 +76,7 @@ internal object MainMenu : AbstractModule(
 
         val path = name
             .mapEach('_') { it.normalizeCase() }
-            .joinToString("", "/assets/trollhack/shaders/menu/", ".fsh")
+            .joinToString("", "/assets/trollhack/shaders/menu/", ".frag.glsl")
     }
 
     private val shaderCache = EnumMap<ShaderEnum, GLSLSandbox>(ShaderEnum::class.java)
@@ -114,7 +116,7 @@ internal object MainMenu : AbstractModule(
         val shader = if (mode == Mode.RANDOM) {
             ShaderEnum.values().random()
         } else {
-            background
+            backgroundShader
         }
 
         return shaderCache.getOrPut(shader) {
@@ -159,10 +161,12 @@ internal object MainMenu : AbstractModule(
             GlStateUtils.blend(true)
             GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
 
-            val posX = min(max(mc.displayWidth / 2.0f - TitleFontRender.getWidth(title.displayName), 100.0f), 200.0f)
-            val posY = 100.0f * (posX / 200.0f)
+            val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 3600.0f).coerceIn(0.5f, 1.0f)
 
-            TitleFontRender.drawString(title.displayName, posX, posY)
+            val posX = mc.displayWidth / 12.0f
+            val posY = posX / 2.0f
+
+            TitleFontRender.drawString(title.titleName, posX, posY, scale = scale)
 
             buttons.forEach {
                 it.onRender()
@@ -171,7 +175,7 @@ internal object MainMenu : AbstractModule(
 
         override fun handleMouseInput() {
             val mouseX = Mouse.getEventX() - 1.0f
-            val mouseY = Wrapper.minecraft.displayHeight - Mouse.getEventY() - 1.0f
+            val mouseY = mc.displayHeight - Mouse.getEventY() - 1.0f
             val button = Mouse.getEventButton()
             val state = Mouse.getEventButtonState()
 
@@ -198,8 +202,8 @@ internal object MainMenu : AbstractModule(
         }
 
         companion object {
-            private val singlePlayer = TranslateType.SPECIFIC key ("singlePlayer" to "Single Player")
-            private val multiPlayer = TranslateType.SPECIFIC key ("multiPlayer" to "Multi Player")
+            private val singlePlayer = TranslateType.SPECIFIC key ("singlePlayer" to "Singleplayer")
+            private val multiPlayer = TranslateType.SPECIFIC key ("multiPlayer" to "Multiplayer")
             private val options = TranslateType.SPECIFIC key ("options" to "Options")
             private val exit = TranslateType.SPECIFIC key ("exit" to "Exit")
         }
@@ -213,8 +217,16 @@ internal object MainMenu : AbstractModule(
 
             private val quad = Box(0.0f, 0.0f, 0.0f, 0.0f)
 
-            private var hovered = false
-            private var clicked = false
+            private var lastUpdateTime = System.currentTimeMillis()
+            private var prevState = InteractiveComponent.MouseState.NONE
+            private var mouseState = InteractiveComponent.MouseState.NONE
+                set(value) {
+                    if (field != value) {
+                        prevState = field
+                        field = value
+                        lastUpdateTime = System.currentTimeMillis()
+                    }
+                }
 
             fun isOnButton(x: Float, y: Float): Boolean {
                 return quad.contains(x, y)
@@ -230,68 +242,68 @@ internal object MainMenu : AbstractModule(
                 quad.y2 = posY + buttonHeight
             }
 
-            fun onRender() {
-                val lineColor = when {
-                    clicked -> ColorRGB(172, 97, 32)
-                    hovered -> ColorRGB(215, 121, 39)
+            private fun getStateColor(state: InteractiveComponent.MouseState): ColorRGB {
+                return when (state) {
+                    InteractiveComponent.MouseState.HOVER -> ColorRGB(215, 121, 39)
+                    InteractiveComponent.MouseState.CLICK -> ColorRGB(172, 97, 32)
                     else -> ColorRGB(183, 183, 183)
                 }
+            }
+
+            fun onRender() {
+                val lineColor = getStateColor(prevState).mix(
+                    getStateColor(mouseState),
+                    Easing.OUT_CUBIC.inc(Easing.toDelta(lastUpdateTime, 300.0f))
+                )
+
+                val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 2000.0f + 0.25f).coerceIn(1.5f, 3.0f)
 
                 RenderUtils2D.drawRectFilled(
                     posX + 1.0f,
                     posY + 1.0f,
-                    posX + buttonWidth + 1.0f,
-                    posY + 3.0f + 1.0f,
-                    ColorRGB(64, 64, 64, 200)
+                    posX + buttonWidth + 2.0f,
+                    posY + scale * 1.5f + 2.0f,
+                    ColorRGB(64, 64, 64, 160)
                 )
-                RenderUtils2D.drawRectFilled(posX, posY, posX + buttonWidth, posY + 3.0f, lineColor)
+                RenderUtils2D.drawRectFilled(posX, posY, posX + buttonWidth, posY + scale * 1.5f, lineColor)
 
-                if (Language.settingLanguage.startsWith("en")) {
-                    val scale = 0.5f
-                    ButtonFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42), scale = scale)
-                    ButtonFontRenderer.drawString(
-                        text2,
-                        posX + ButtonFontRenderer.getWidth(text1, scale = scale),
-                        posY + 5.0f,
-                        scale = scale
-                    )
-                } else {
-                    val scale = 2.0f
-                    MainFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42), scale = scale)
-                    MainFontRenderer.drawString(
-                        text2,
-                        posX + MainFontRenderer.getWidth(text1, scale = scale),
-                        posY + 5.0f,
-                        scale = scale
-                    )
-                }
+                MainFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42), scale = scale)
+                MainFontRenderer.drawString(
+                    text2,
+                    posX + MainFontRenderer.getWidth(text1, scale = scale),
+                    posY + 5.0f,
+                    scale = scale
+                )
             }
 
             fun onHover() {
-                hovered = true
+                if (mouseState == InteractiveComponent.MouseState.NONE) {
+                    mouseState = InteractiveComponent.MouseState.HOVER
+                }
             }
 
             fun onClick() {
-                clicked = true
+                mouseState = InteractiveComponent.MouseState.CLICK
             }
 
             fun onRelease() {
-                val prev = clicked
-                clicked = false
-                mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F))
-                if (prev) action.invoke()
+                val prev = mouseState
+                mouseState = InteractiveComponent.MouseState.NONE
+                if (prev == InteractiveComponent.MouseState.CLICK) {
+                    mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F))
+                    action.invoke()
+                }
             }
 
             fun onLeave() {
-                hovered = false
-                clicked = false
+                mouseState = InteractiveComponent.MouseState.NONE
             }
 
             private companion object {
-                const val bottomPadding = 150.0f
+                val bottomPadding get() = min(mc.displayHeight / 5.0f, 150.0f)
                 const val itemPadding = 10.0f
 
-                const val buttonWidth = 200.0f
+                val buttonWidth get() = min(mc.displayWidth / 6.0f, 300.0f)
                 const val buttonHeight = 30.0f
             }
         }
@@ -300,17 +312,12 @@ internal object MainMenu : AbstractModule(
     private object TitleFontRender : FontRenderer(
         Font.createFont(
             Font.TRUETYPE_FONT,
-            this::class.java.getResourceAsStream("/assets/trollhack/fonts/Orbitron-Regular.ttf")
-        ), 80.0f, 2048
+            this::class.java.getResourceAsStream("/assets/trollhack/fonts/Jura-Light.ttf")
+        ), 128.0f, 4096
     ) {
+        override val charGap: Float
+            get() = 20.0f
         override val shadowDist: Float
             get() = 4.0f
     }
-
-    private object ButtonFontRenderer : FontRenderer(
-        Font.createFont(
-            Font.TRUETYPE_FONT,
-            this::class.java.getResourceAsStream("/assets/trollhack/fonts/GOTHIC.TTF")
-        ), 36.0f, 1024
-    )
 }

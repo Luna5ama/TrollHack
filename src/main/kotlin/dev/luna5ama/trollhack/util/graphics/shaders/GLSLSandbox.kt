@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11.GL_QUADS
 import org.lwjgl.opengl.GL20.*
 
 open class GLSLSandbox(fragShaderPath: String) :
-    Shader("/assets/trollhack/shaders/menu/DefaultVertex.vsh", fragShaderPath) {
+    Shader("/assets/trollhack/shaders/menu/DefaultVertex.vert.glsl", fragShaderPath) {
     private val timeUniform = glGetUniformLocation(id, "time")
     private val mouseUniform = glGetUniformLocation(id, "mouse")
     private val resolutionUniform = glGetUniformLocation(id, "resolution")
