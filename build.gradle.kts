@@ -5,7 +5,7 @@ import net.minecraftforge.gradle.userdev.UserDevExtension
 import kotlin.math.max
 
 group = "dev.luna5ama"
-version = "1.1.2"
+version = "1.2.0"
 
 buildscript {
     repositories {
