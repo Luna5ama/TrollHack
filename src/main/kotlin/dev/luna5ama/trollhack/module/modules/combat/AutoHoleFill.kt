@@ -21,6 +21,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
+import dev.luna5ama.trollhack.util.collections.asSequenceFast
 import dev.luna5ama.trollhack.util.combat.HoleType
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
@@ -254,7 +255,7 @@ internal object AutoHoleFill : Module(
             it.preventEntitySpawning && it.isEntityAlive
         }
 
-        return HoleManager.holeInfos.asSequence()
+        return HoleManager.holeInfos.asSequenceFast()
             .filterNot {
                 it.isFullyTrapped
             }

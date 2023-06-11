@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.util.graphics.font
 
 import dev.fastmc.memutil.MemoryArray
+import dev.luna5ama.trollhack.util.collections.forEachFast
 import dev.luna5ama.trollhack.util.graphics.GLDataType
 import dev.luna5ama.trollhack.util.graphics.buildAttribute
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -102,7 +103,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
         Shader.bind()
         Shader.preRender(modelView, color)
 
-        renderInfoList.forEach {
+        renderInfoList.forEachFast {
             it.render(drawShadow, lodBias)
         }
 
@@ -120,7 +121,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
     }
 
     fun destroy() {
-        renderInfoList.forEach {
+        renderInfoList.forEachFast {
             it.destroy()
         }
         renderInfoList.clear()
