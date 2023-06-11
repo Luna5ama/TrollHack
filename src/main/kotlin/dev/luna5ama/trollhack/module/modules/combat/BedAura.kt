@@ -91,6 +91,7 @@ internal object BedAura : Module(
     private val page = setting("Page", Page.GENERAL)
 
     private val handMode by setting("Hand Mode", EnumHand.OFF_HAND, page.atValue(Page.GENERAL))
+    private val rotationPitch by setting("Rotation Pitch", 90, -90..90, 1, page.atValue(Page.GENERAL))
     private val ghostSwitchBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.Override.NONE, page.atValue(Page.GENERAL) and ::handMode.atValue(EnumHand.MAIN_HAND))
     private val bedSlot by setting(
         "Bed Slot",
@@ -353,7 +354,7 @@ internal object BedAura : Module(
                 val rotation = if (Bypass.blockPlaceRotation) {
                     getRotationTo(it.hitVec)
                 } else {
-                    Vec2f(it.direction.yaw, 0.0f)
+                    Vec2f(it.direction.yaw, rotationPitch.toFloat())
                 }
 
                 sendPlayerPacket {
