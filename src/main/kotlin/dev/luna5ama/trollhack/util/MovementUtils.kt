@@ -16,27 +16,26 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
 
-@Suppress("NOTHING_TO_INLINE")
 object MovementUtils {
     private val mc = Minecraft.getMinecraft()
 
-    inline val isInputtingAny: Boolean
+    val isInputtingAny: Boolean
         get() = Wrapper.player?.movementInput?.let {
             it.moveForward != 0.0f || it.moveStrafe != 0.0f || it.jump || it.sneak
         } ?: false
 
-    inline val isInputting
+    val isInputting
         get() = Wrapper.player?.movementInput?.let {
             it.moveForward != 0.0f || it.moveStrafe != 0.0f
         } ?: false
 
-    inline val Entity.isMoving get() = speed > 0.0001
-    inline val Entity.speed get() = hypot(motionX, motionZ)
-    inline val Entity.realSpeed get() = hypot(posX - prevPosX, posZ - prevPosZ)
+    val Entity.isMoving get() = speed > 0.0001
+    val Entity.speed get() = hypot(motionX, motionZ)
+    val Entity.realSpeed get() = hypot(posX - prevPosX, posZ - prevPosZ)
 
-    inline val Entity.realMotionX get() = posX - prevPosX
-    inline val Entity.realMotionY get() = posY - prevPosY
-    inline val Entity.realMotionZ get() = posZ - prevPosZ
+    val Entity.realMotionX get() = posX - prevPosX
+    val Entity.realMotionY get() = posY - prevPosY
+    val Entity.realMotionZ get() = posZ - prevPosZ
 
     /* totally not taken from elytrafly */
     fun EntityPlayerSP.calcMoveYaw(): Double {
@@ -81,7 +80,7 @@ object MovementUtils {
         return Vec3f(moveStrafing, moveVertical, moveForward)
     }
 
-    inline fun EntityLivingBase.applySpeedPotionEffects(speed: Double): Double {
+    fun EntityLivingBase.applySpeedPotionEffects(speed: Double): Double {
         var result = speed
 
         this.getActivePotionEffect(MobEffects.SPEED)?.let {
@@ -95,7 +94,7 @@ object MovementUtils {
         return result
     }
 
-    inline val EntityLivingBase.speedEffectMultiplier: Double
+    val EntityLivingBase.speedEffectMultiplier: Double
         get() {
             var result = 1.0
 

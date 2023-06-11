@@ -61,6 +61,6 @@ internal object Coordinate : LabelHud(
         return "%$separatorFormat.${decimalPlaces}f".format(input)
     }
 
-    private fun StringBuilder.appendWithComma(string: String) = append(if (length > 0) ", $string" else string)
+    private fun StringBuilder.appendWithComma(string: String) = append(if (isNotEmpty()) ", $string" else string)
 
 }

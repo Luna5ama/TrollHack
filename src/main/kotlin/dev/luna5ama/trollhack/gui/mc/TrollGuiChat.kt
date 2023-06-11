@@ -11,7 +11,6 @@ import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiChat
 import org.lwjgl.input.Keyboard

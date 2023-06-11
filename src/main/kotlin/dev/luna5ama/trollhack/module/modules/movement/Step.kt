@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
-import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
@@ -18,7 +17,6 @@ import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
-import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 
@@ -344,7 +342,7 @@ internal object Step : Module(
     private val step10 = doubleArrayOf(0.42499, 0.75752)
     private val step12 = doubleArrayOf(0.42499, 0.82721, 1.13981)
     private val step13 = doubleArrayOf(0.42499, 0.82108, 1.13367, 1.32728)
-    private val step15  =doubleArrayOf(0.42499, 0.76, 1.01, 1.093, 1.015)
+    private val step15 = doubleArrayOf(0.42499, 0.76, 1.01, 1.093, 1.015)
     private val step20 = doubleArrayOf(0.42499, 0.78, 0.63, 0.51, 0.90, 1.21, 1.45, 1.43)
     private val step25 = doubleArrayOf(0.42499, 0.821, 0.699, 0.599, 1.022, 1.372, 1.652, 1.869, 2.019, 1.907)
 

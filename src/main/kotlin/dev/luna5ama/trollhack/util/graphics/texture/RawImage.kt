@@ -8,9 +8,7 @@ data class RawImage(val data: ByteArray, val width: Int, val height: Int, val ch
         if (!data.contentEquals(other.data)) return false
         if (width != other.width) return false
         if (height != other.height) return false
-        if (channels != other.channels) return false
-
-        return true
+        return channels == other.channels
     }
 
     override fun hashCode(): Int {

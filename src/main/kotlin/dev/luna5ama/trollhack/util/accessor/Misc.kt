@@ -9,8 +9,10 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.projectile.EntityTippedArrow
 import net.minecraft.item.ItemTool
 import net.minecraft.potion.PotionType
+import net.minecraft.util.BitArray
 import net.minecraft.util.Timer
 import net.minecraft.world.chunk.BlockStateContainer
+import net.minecraft.world.chunk.IBlockStatePalette
 
 val Entity.isInWeb: Boolean get() = (this as AccessorEntity).`troll$getIsInWeb`()
 
@@ -50,6 +52,6 @@ var Timer.tickLength: Float
 fun KeyBinding.unpressKey() =
     (this as AccessorKeyBinding).`troll$invoke$unpressKey`()
 
-val BlockStateContainer.storage get() = (this as AccessorBlockStateContainer).trollGetStorage()
+val BlockStateContainer.storage: BitArray get() = (this as AccessorBlockStateContainer).trollGetStorage()
 
-val BlockStateContainer.palette get() = (this as AccessorBlockStateContainer).trollGetPalette()
+val BlockStateContainer.palette: IBlockStatePalette get() = (this as AccessorBlockStateContainer).trollGetPalette()

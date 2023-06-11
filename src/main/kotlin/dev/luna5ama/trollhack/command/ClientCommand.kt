@@ -10,7 +10,6 @@ import dev.luna5ama.trollhack.module.modules.client.CommandSetting
 import dev.luna5ama.trollhack.util.PlayerProfile
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.toSafe
 import kotlinx.coroutines.launch
 import net.minecraft.block.Block

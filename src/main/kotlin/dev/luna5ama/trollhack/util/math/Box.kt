@@ -7,6 +7,6 @@ class Box(
     var y2: Float
 ) {
     fun contains(x: Float, y: Float): Boolean {
-        return x >= x1 && x <= x2 && y >= y1 && y <= y2
+        return x in x1..x2 && y in y1..y2
     }
 }

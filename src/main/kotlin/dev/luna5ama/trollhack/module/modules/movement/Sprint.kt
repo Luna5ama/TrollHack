@@ -14,7 +14,7 @@ import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketUseEntity
 
 /**
- * @see dev.luna5ama.trollhack.mixins.client.player.MixinEntityPlayerSP.setSprinting
+ * @see dev.luna5ama.trollhack.mixins.core.player.MixinEntityPlayerSP.setSprinting
  */
 internal object Sprint : Module(
     name = "Sprint",

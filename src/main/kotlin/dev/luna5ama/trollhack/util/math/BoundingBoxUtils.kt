@@ -2,7 +2,6 @@ package dev.luna5ama.trollhack.util.math
 
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.module.modules.exploit.Bypass
-import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.math.VectorUtils.plus
 import dev.luna5ama.trollhack.util.math.VectorUtils.times
 import dev.luna5ama.trollhack.util.math.VectorUtils.toViewVec
@@ -11,23 +10,22 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.Vec3d
 import kotlin.math.min
 
-inline val AxisAlignedBB.xCenter get() = minX + xLength * 0.5
+val AxisAlignedBB.xCenter get() = minX + xLength * 0.5
 
-inline val AxisAlignedBB.yCenter get() = minY + yLength * 0.5
+val AxisAlignedBB.yCenter get() = minY + yLength * 0.5
 
-inline val AxisAlignedBB.zCenter get() = minZ + zLength * 0.5
+val AxisAlignedBB.zCenter get() = minZ + zLength * 0.5
 
-inline val AxisAlignedBB.xLength get() = maxX - minX
+val AxisAlignedBB.xLength get() = maxX - minX
 
-inline val AxisAlignedBB.yLength get() = maxY - minY
+val AxisAlignedBB.yLength get() = maxY - minY
 
-inline val AxisAlignedBB.zLength get() = maxY - minY
+val AxisAlignedBB.zLength get() = maxY - minY
 
-inline val AxisAlignedBB.lengths get() = Vec3d(xLength, yLength, zLength)
+val AxisAlignedBB.lengths get() = Vec3d(xLength, yLength, zLength)
 
 fun AxisAlignedBB.corners(scale: Double): Array<Vec3d> {
     val growSizes = lengths * (scale - 1.0)

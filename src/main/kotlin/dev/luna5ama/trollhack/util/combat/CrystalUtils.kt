@@ -199,14 +199,12 @@ object CrystalUtils {
             && abs(crystal2Z - crystal1Z) < 2.0
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun Double.withIn(a: Double, b: Double): Boolean {
+    private fun Double.withIn(a: Double, b: Double): Boolean {
         return this > a && this < b
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun Int.withIn(a: Int, b: Int): Boolean {
-        return this >= a && this <= b
+    private fun Int.withIn(a: Int, b: Int): Boolean {
+        return this in a..b
     }
 
     /** Checks colliding with All Entities */

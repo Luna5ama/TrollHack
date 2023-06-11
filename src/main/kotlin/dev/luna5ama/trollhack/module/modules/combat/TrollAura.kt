@@ -37,12 +37,12 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.extension.sq
+import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.countItem
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
-import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
@@ -64,7 +64,6 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import kotlinx.coroutines.launch
-import net.minecraft.block.state.IBlockState
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.entity.player.EntityPlayer
@@ -82,7 +81,6 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.World
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs

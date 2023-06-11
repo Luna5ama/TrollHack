@@ -1,18 +1,16 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package dev.luna5ama.trollhack.util.extension
 
 import it.unimi.dsi.fastutil.longs.LongCollection
 import java.util.*
 
-inline fun <E : Any> MutableCollection<E>.add(e: E?) {
+fun <E : Any> MutableCollection<E>.add(e: E?) {
     if (e != null) this.add(e)
 }
 
 /**
  * Returns the sum of all values produced by [selector] function applied to each element in the collection.
  */
-inline fun <T> Iterable<T>.sumOfFloat(selector: (T) -> Float): Float {
+fun <T> Iterable<T>.sumOfFloat(selector: (T) -> Float): Float {
     var sum = 0.0f
     for (element in this) {
         sum += selector(element)

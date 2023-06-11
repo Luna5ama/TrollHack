@@ -13,7 +13,6 @@ import dev.luna5ama.trollhack.translation.ITranslateSrc
 import dev.luna5ama.trollhack.translation.TranslateSrc
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.Bind
-import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.Alias

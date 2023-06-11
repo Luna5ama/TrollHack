@@ -1,5 +1,3 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package dev.luna5ama.trollhack.util.extension
 
 /**
@@ -10,7 +8,7 @@ fun String.max(max: Int) = this.substring(0, this.length.coerceAtMost(max))
 /**
  * Limit the length to this string [max] with [suffix] appended
  */
-inline fun String.max(max: Int, suffix: String): String {
+fun String.max(max: Int, suffix: String): String {
     return if (this.length > max) {
         this.max(max - suffix.length) + suffix
     } else {
@@ -18,20 +16,20 @@ inline fun String.max(max: Int, suffix: String): String {
     }
 }
 
-inline fun String.surroundedBy(prefix: CharSequence, suffix: CharSequence, ignoreCase: Boolean = false) =
+fun String.surroundedBy(prefix: CharSequence, suffix: CharSequence, ignoreCase: Boolean = false) =
     this.startsWith(prefix, ignoreCase) && this.endsWith(suffix, ignoreCase)
 
-inline fun String.surroundedBy(prefix: Char, suffix: Char, ignoreCase: Boolean = false) =
+fun String.surroundedBy(prefix: Char, suffix: Char, ignoreCase: Boolean = false) =
     this.startsWith(prefix, ignoreCase) && this.endsWith(suffix, ignoreCase)
 
 inline fun String.mapEach(vararg delimiters: Char, transformer: (String) -> String) =
     split(*delimiters).map(transformer)
 
-inline fun String.capitalize(): String {
+fun String.capitalize(): String {
     return this.replaceFirstChar { if (it.isLowerCase()) it.titlecaseChar() else it }
 }
 
-inline fun String.normalizeCase(): String {
+fun String.normalizeCase(): String {
     return this.mapIndexed { (i, char) ->
         if (i == 0) {
             char.titlecaseChar()
@@ -61,7 +59,7 @@ inline fun String.map(transformer: (Char) -> Char): String {
     return String(charArray)
 }
 
-inline fun String.remove(char: Char): String {
+fun String.remove(char: Char): String {
     return buildString {
         for (c in this@remove) {
             if (c != char) {
@@ -71,7 +69,7 @@ inline fun String.remove(char: Char): String {
     }
 }
 
-inline fun String.remove(vararg chars: Char): String {
+fun String.remove(vararg chars: Char): String {
     return buildString {
         for (c in this@remove) {
             if (!chars.contains(c)) {
@@ -81,7 +79,7 @@ inline fun String.remove(vararg chars: Char): String {
     }
 }
 
-inline fun String.remove(charSequence: CharSequence): String {
+fun String.remove(charSequence: CharSequence): String {
     return buildString {
         val first = charSequence.first()
         val l = charSequence.length
@@ -102,7 +100,7 @@ inline fun String.remove(charSequence: CharSequence): String {
     }
 }
 
-inline fun String.remove(vararg charSequences: CharSequence): String {
+fun String.remove(vararg charSequences: CharSequence): String {
     return buildString {
         var i = 0
 

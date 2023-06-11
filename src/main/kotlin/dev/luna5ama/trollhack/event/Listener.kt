@@ -3,7 +3,6 @@ package dev.luna5ama.trollhack.event
 import dev.luna5ama.trollhack.util.ClassUtils.instance
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
-import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.threads.runSafeSuspend
 import kotlinx.coroutines.launch
@@ -128,7 +127,8 @@ fun <E : Event> concurrentListener(
     function: suspend (E) -> Unit
 ) {
     val eventBus = getEventBus(eventClass)
-    val listener = Listener(owner, eventBus.busID, Int.MAX_VALUE) { ConcurrentScope.launch { function.invoke(it as E) } }
+    val listener =
+        Listener(owner, eventBus.busID, Int.MAX_VALUE) { ConcurrentScope.launch { function.invoke(it as E) } }
 
     if (alwaysListening) eventBus.subscribe(listener)
     else owner.register(listener)

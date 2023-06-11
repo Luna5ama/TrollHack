@@ -572,7 +572,7 @@ internal object ElytraFlight : Module(
         if (!isStandingStillH || moveUp) {
             if ((moveUp || hoverState) && (currentSpeed >= 0.8 || player.motionY > 1.0)) {
                 upwardFlight(currentSpeed, getYaw())
-            } else if (!isStandingStillH || moveUp) { /* Runs when pressing wasd */
+            } else { /* Runs when pressing wasd */
                 packetPitch = forwardPitch.toFloat()
                 player.motionY = -fallSpeedControl.toDouble()
                 setSpeed(getYaw(), moveUp)

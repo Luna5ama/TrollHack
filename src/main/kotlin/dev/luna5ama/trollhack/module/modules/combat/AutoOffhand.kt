@@ -139,7 +139,7 @@ internal object AutoOffhand : Module(
         GAPPLE("Gapple", { it.item == Items.GOLDEN_APPLE }),
         STRENGTH(
             "Strength",
-            { it.item is ItemPotion && PotionUtils.getEffectsFromStack(it).any { it.potion == MobEffects.STRENGTH } }),
+            { stack -> stack.item is ItemPotion && PotionUtils.getEffectsFromStack(stack).any { it.potion == MobEffects.STRENGTH } }),
         CRYSTAL("Crystal", { it.item == Items.END_CRYSTAL }),
         BED("Bed", { it.item == Items.BED })
     }

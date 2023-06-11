@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage
 import java.awt.image.DataBuffer
 import javax.imageio.ImageIO
 
-@Suppress("NOTHING_TO_INLINE")
 object TextureUtils {
     private val buffer = GLAllocation.createDirectByteBuffer(0x4000000)
     private val intBuffer = buffer.asIntBuffer()
@@ -123,12 +122,12 @@ object TextureUtils {
     }
 
     @JvmStatic
-    inline fun ResourceLocation.readImage(): BufferedImage {
+    fun ResourceLocation.readImage(): BufferedImage {
         return Wrapper.minecraft.resourceManager.getResource(this).readImage()
     }
 
     @JvmStatic
-    inline fun IResource.readImage(): BufferedImage {
+    fun IResource.readImage(): BufferedImage {
         return this.inputStream.use {
             ImageIO.read(it)
         }

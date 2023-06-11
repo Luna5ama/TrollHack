@@ -95,6 +95,6 @@ object ClassUtils {
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline val <T> Class<out T>.instance
+    val <T> Class<out T>.instance
         get() = this.getDeclaredField("INSTANCE")[null] as T
 }

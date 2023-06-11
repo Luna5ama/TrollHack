@@ -1,5 +1,3 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package dev.luna5ama.trollhack.util.world
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
@@ -18,7 +16,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import kotlin.math.max
 
-inline fun World.canBreakBlock(pos: BlockPos): Boolean {
+fun World.canBreakBlock(pos: BlockPos): Boolean {
     val blockState = this.getBlockState(pos)
     return blockState.block == Blocks.AIR || blockState.getBlockHardness(this, pos) != -1.0f
 }

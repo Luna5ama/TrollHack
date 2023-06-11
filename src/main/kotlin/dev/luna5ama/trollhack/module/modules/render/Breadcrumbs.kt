@@ -140,7 +140,7 @@ internal object Breadcrumbs : Module(
             posList.add(currentPos)
         }
 
-        val returningList = LinkedList<Vec3d>(posList) /* Makes a copy of the list */
+        val returningList = LinkedList(posList) /* Makes a copy of the list */
         returningList.add(currentPos) /* Adds current position to the copied list */
         return returningList
     }

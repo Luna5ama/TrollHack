@@ -72,7 +72,7 @@ internal object StashLogger : Module(
         }
     }
 
-    private suspend fun notification() {
+    private fun notification() {
         var found = false
 
         for (chunkStats in chunkData.values) {

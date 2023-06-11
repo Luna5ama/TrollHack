@@ -604,9 +604,9 @@ internal object AutoObsidian : Module(
                                 pos,
                                 side,
                                 EnumHand.MAIN_HAND,
-                                hitVecOffset.x.toFloat(),
-                                hitVecOffset.y.toFloat(),
-                                hitVecOffset.z.toFloat()
+                                hitVecOffset.x,
+                                hitVecOffset.y,
+                                hitVecOffset.z
                             )
                         )
                         player.swingArm(EnumHand.MAIN_HAND)

@@ -53,6 +53,7 @@ object BC4Compression {
         val r2 = (y + 2) * width
         val r3 = (y + 3) * width
 
+        @Suppress("UnnecessaryVariable")
         val c0 = x
         val c1 = x + 1
         val c2 = x + 2

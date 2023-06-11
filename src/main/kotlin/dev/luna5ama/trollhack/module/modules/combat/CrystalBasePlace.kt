@@ -36,13 +36,11 @@ import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import net.minecraft.world.World
 import java.util.*
 import kotlin.math.max
 

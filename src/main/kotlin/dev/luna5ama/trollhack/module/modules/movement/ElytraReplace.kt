@@ -54,7 +54,7 @@ internal object ElytraReplace : Module(
                 var shouldSwap = isCurrentElytraBroken()
                 if (autoChest.value) {
                     shouldSwap =
-                        shouldSwap || !(player.inventory.armorInventory[2].item === Items.ELYTRA) // if current elytra broken or no elytra found in chest area
+                        shouldSwap || player.inventory.armorInventory[2].item != Items.ELYTRA // if current elytra broken or no elytra found in chest area
                 }
 
                 if (shouldSwap) {

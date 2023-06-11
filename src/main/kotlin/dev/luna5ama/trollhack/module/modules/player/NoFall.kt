@@ -3,7 +3,6 @@ package dev.luna5ama.trollhack.module.modules.player
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
-import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
@@ -51,6 +50,8 @@ internal object NoFall : Module(
     }
 
     private fun SafeClientEvent.fallDistCheck(): Boolean {
-        return !voidOnly.value && player.fallDistance >= distance.value || player.posY < 1 && world.getGroundLevel(player) == Double.MIN_VALUE
+        return !voidOnly.value && player.fallDistance >= distance.value || player.posY < 1 && world.getGroundLevel(
+            player
+        ) == Double.MIN_VALUE
     }
 }

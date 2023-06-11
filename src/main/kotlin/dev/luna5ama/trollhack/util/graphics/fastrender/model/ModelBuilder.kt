@@ -36,7 +36,6 @@ open class ModelBuilder(val id: Int, val textureSizeX: Int, val textureSizeY: In
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
 class ChildModelBuilder(parent: ModelBuilder, private val textureOffsetX: Float, private val textureOffsetY: Float) :
     ModelBuilder(parent.idCounter++, parent.textureSizeX, parent.textureSizeY) {
     override var idCounter: Int by parent::idCounter
@@ -267,24 +266,24 @@ class ChildModelBuilder(parent: ModelBuilder, private val textureOffsetX: Float,
             vboBuffer.putID()
         }
 
-        private inline fun ByteBuffer.putPos(x: Float, y: Float, z: Float) {
+        private fun ByteBuffer.putPos(x: Float, y: Float, z: Float) {
             this.putFloat(x / 16.0f)
             this.putFloat(y / 16.0f)
             this.putFloat(z / 16.0f)
         }
 
-        private inline fun ByteBuffer.putUV(u: Float, v: Float) {
+        private fun ByteBuffer.putUV(u: Float, v: Float) {
             this.putShort(((u + textureOffsetX) / textureSizeX * 65535.0f).toInt().toShort())
             this.putShort(((v + textureOffsetY) / textureSizeY * 65535.0f).toInt().toShort())
         }
 
-        private inline fun ByteBuffer.putNormal(x: Byte, y: Byte, z: Byte) {
+        private fun ByteBuffer.putNormal(x: Byte, y: Byte, z: Byte) {
             this.put(x)
             this.put(y)
             this.put(z)
         }
 
-        private inline fun ByteBuffer.putID() {
+        private fun ByteBuffer.putID() {
             this.put(id.toByte())
         }
     }

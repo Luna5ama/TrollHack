@@ -1,7 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.misc
 
 import dev.luna5ama.trollhack.command.CommandManager
-import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.baritone.BaritoneCommandEvent
@@ -40,7 +39,7 @@ internal object AutoMine : Module(
         }
     }
 
-    private fun SafeClientEvent.run() {
+    private fun run() {
         if (isDisabled || manual) return
 
         val blocks = ArrayList<String>()

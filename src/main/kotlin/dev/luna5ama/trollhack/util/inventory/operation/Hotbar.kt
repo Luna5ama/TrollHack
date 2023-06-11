@@ -1,7 +1,6 @@
 package dev.luna5ama.trollhack.util.inventory.operation
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
 import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow

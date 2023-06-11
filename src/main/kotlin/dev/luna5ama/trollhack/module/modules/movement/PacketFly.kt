@@ -339,7 +339,7 @@ internal object PacketFly : Module(
         val nextBox = box.offset(-sin(yaw) * 0.05, 0.0, cos(yaw) * 0.05)
 
         val colliedBoxList = world.getCollisionBoxes(null, nextBox)
-        colliedBoxList.removeAll(world.getCollisionBoxes(null, box))
+        colliedBoxList.removeAll(world.getCollisionBoxes(null, box).toSet())
         return colliedBoxList.isNotEmpty()
     }
 

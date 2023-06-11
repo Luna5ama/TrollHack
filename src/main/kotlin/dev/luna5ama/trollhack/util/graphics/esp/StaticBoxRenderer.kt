@@ -26,7 +26,6 @@ import org.lwjgl.opengl.GL30.glGenVertexArrays
 import java.nio.ByteBuffer
 import java.nio.ShortBuffer
 
-@Suppress("NOTHING_TO_INLINE")
 class StaticBoxRenderer : AbstractIndexedRenderer() {
     private var filledSize = 0
     private var outlineSize = 0

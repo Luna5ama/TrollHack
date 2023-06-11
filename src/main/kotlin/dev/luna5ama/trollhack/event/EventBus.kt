@@ -3,7 +3,6 @@ package dev.luna5ama.trollhack.event
 import dev.luna5ama.trollhack.util.collections.ArrayMap
 import dev.luna5ama.trollhack.util.interfaces.Helper
 import dev.luna5ama.trollhack.util.threads.DefaultScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CopyOnWriteArrayList

@@ -363,7 +363,7 @@ internal object AutoMend : Module(
             xpDiff = 0
 
             lastBottlePacket = System.currentTimeMillis()
-        } else if (thrown && !confirmed && System.currentTimeMillis() - lastBottlePacket > 100L) {
+        } else if (thrown && System.currentTimeMillis() - lastBottlePacket > 100L) {
             throwAmount = 0
             confirmedAmount = 0
         }

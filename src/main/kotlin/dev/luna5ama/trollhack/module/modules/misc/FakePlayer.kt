@@ -7,12 +7,10 @@ import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.GuiEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
-import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.viewEntity
-import dev.luna5ama.trollhack.util.KeyboardUtils
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue

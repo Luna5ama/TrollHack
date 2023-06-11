@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.threads.runSafe
@@ -144,9 +145,7 @@ internal object NoRender : Module(
                 is EntityTNTPrimed -> tnt.handleRenderEvent(it)
                 is EntityEnderCrystal -> crystal.handleRenderEvent(it)
 
-                is EntityArrow,
-                is EntityTippedArrow,
-                is EntitySpectralArrow -> arrow.handleRenderEvent(it)
+                is EntityArrow -> arrow.handleRenderEvent(it)
 
                 is EntityFallingBlock -> fallingBlock.handleRenderEvent(it)
                 is EntityItemFrame -> itemFrame.handleRenderEvent(it)
@@ -159,19 +158,12 @@ internal object NoRender : Module(
                 is EntityEgg,
                 is EntitySmallFireball,
                 is EntityFireball,
-                is EntityLargeFireball,
-                is EntityWitherSkull,
                 is EntityShulkerBullet,
-                is EntityLlamaSpit,
-                is EntityDragonFireball -> projectile.handleRenderEvent(it)
+                is EntityLlamaSpit, -> projectile.handleRenderEvent(it)
 
-                is IAnimals -> animal.handleRenderEvent(it)
                 is EntityMob -> mob.handleRenderEvent(it)
-                is EntityPlayer -> {
-                    if (entity != mc.player && entity != mc.renderViewEntity) {
-                        player.handleRenderEvent(it)
-                    }
-                }
+                is IAnimals -> animal.handleRenderEvent(it)
+                is EntityPlayer -> if (!entity.isSelf) player.handleRenderEvent(it)
             }
         }
     }

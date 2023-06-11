@@ -43,7 +43,7 @@ object EnchantmentUtils {
         return enchantmentMap[enchantment]
     }
 
-    private val enchantmentMap = EnumEnchantments.values().map { it.enchantment to it }.toMap()
+    private val enchantmentMap = EnumEnchantments.values().associateBy { it.enchantment }
 
     class LeveledEnchantment(val enchantment: Enchantment, val level: Short) {
         val isSingleLevel = enchantment.maxLevel == 1

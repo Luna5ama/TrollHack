@@ -4,7 +4,6 @@ import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
-import dev.luna5ama.trollhack.mixins.accessor.entity.AccessorEntityLivingBase
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import net.minecraft.network.play.client.CPacketAnimation

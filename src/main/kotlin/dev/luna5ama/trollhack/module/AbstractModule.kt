@@ -108,18 +108,18 @@ open class AbstractModule(
         return ""
     }
 
-    protected fun onEnable(block: (Boolean) -> Unit) {
+    protected fun onEnable(block: () -> Unit) {
         enabled.valueListeners.add { _, input ->
             if (input) {
-                block(input)
+                block()
             }
         }
     }
 
-    protected fun onDisable(block: (Boolean) -> Unit) {
+    protected fun onDisable(block: () -> Unit) {
         enabled.valueListeners.add { _, input ->
             if (!input) {
-                block(input)
+                block()
             }
         }
     }

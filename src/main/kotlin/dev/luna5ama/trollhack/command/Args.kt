@@ -59,7 +59,7 @@ class HudElementArg(
             GuiManager.hudElements.asSequence()
                 .flatMap {
                     sequence {
-                        yield(it.internalName.toString())
+                        yield(it.internalName)
                         it.alias.forEach {
                             yield(it.toString())
                         }

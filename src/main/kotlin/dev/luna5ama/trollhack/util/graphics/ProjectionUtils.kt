@@ -14,8 +14,8 @@ object ProjectionUtils {
     private val projectionMatrix = Matrix4f()
 
     var resolution = ScaledResolution(mc); private set
-    var projectPos = Vec3d.ZERO; private set
-    var camPos = Vec3d.ZERO; private set
+    var projectPos: Vec3d = Vec3d.ZERO; private set
+    var camPos: Vec3d = Vec3d.ZERO; private set
 
 
     fun distToCamera(pos: Vec3d): Double {

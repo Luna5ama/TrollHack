@@ -23,7 +23,7 @@ class CalcContext(
     val entity: EntityLivingBase,
     val predictPos: Vec3d
 ) {
-    val currentPos = entity.positionVector
+    val currentPos: Vec3d = entity.positionVector
     val currentBox = getBoundingBox(entity, currentPos)
     val predictBox = getBoundingBox(entity, predictPos)
     val clipped = event.world.checkBlockCollision(currentBox)

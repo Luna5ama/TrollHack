@@ -38,10 +38,10 @@ repositories {
     maven("https://impactdevelopment.github.io/maven/")
 }
 
-val jarLibImplementation by configurations.creating {
+val jarLibImplementation: Configuration by configurations.creating {
     configurations["implementation"].extendsFrom(this)
 }
-val jarLib by configurations.creating {
+val jarLib: Configuration by configurations.creating {
     extendsFrom(jarLibImplementation)
 }
 

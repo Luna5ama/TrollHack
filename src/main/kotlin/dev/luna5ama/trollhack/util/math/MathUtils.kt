@@ -2,10 +2,9 @@ package dev.luna5ama.trollhack.util.math
 
 import kotlin.math.*
 
-@Suppress("NOTHING_TO_INLINE")
 object MathUtils {
     @JvmStatic
-    inline fun ceilToPOT(valueIn: Int): Int {
+    fun ceilToPOT(valueIn: Int): Int {
         // Magical bit shifting
         var i = valueIn
         i--
@@ -19,35 +18,35 @@ object MathUtils {
     }
 
     @JvmStatic
-    inline fun round(value: Float, places: Int): Float {
+    fun round(value: Float, places: Int): Float {
         val scale = 10.0f.pow(places)
         return round(value * scale) / scale
     }
 
     @JvmStatic
-    inline fun round(value: Double, places: Int): Double {
+    fun round(value: Double, places: Int): Double {
         val scale = 10.0.pow(places)
         return round(value * scale) / scale
     }
 
     @JvmStatic
-    inline fun decimalPlaces(value: Double) = value.toString().split('.').getOrElse(1) { "0" }.length
+    fun decimalPlaces(value: Double) = value.toString().split('.').getOrElse(1) { "0" }.length
 
     @JvmStatic
-    inline fun decimalPlaces(value: Float) = value.toString().split('.').getOrElse(1) { "0" }.length
+    fun decimalPlaces(value: Float) = value.toString().split('.').getOrElse(1) { "0" }.length
 
     @JvmStatic
-    inline fun isNumberEven(i: Int): Boolean {
+    fun isNumberEven(i: Int): Boolean {
         return i and 1 == 0
     }
 
     @JvmStatic
-    inline fun reverseNumber(num: Int, min: Int, max: Int): Int {
+    fun reverseNumber(num: Int, min: Int, max: Int): Int {
         return max + min - num
     }
 
     @JvmStatic
-    inline fun convertRange(valueIn: Int, minIn: Int, maxIn: Int, minOut: Int, maxOut: Int): Int {
+    fun convertRange(valueIn: Int, minIn: Int, maxIn: Int, minOut: Int, maxOut: Int): Int {
         return convertRange(
             valueIn.toDouble(),
             minIn.toDouble(),
@@ -58,7 +57,7 @@ object MathUtils {
     }
 
     @JvmStatic
-    inline fun convertRange(valueIn: Float, minIn: Float, maxIn: Float, minOut: Float, maxOut: Float): Float {
+    fun convertRange(valueIn: Float, minIn: Float, maxIn: Float, minOut: Float, maxOut: Float): Float {
         return convertRange(
             valueIn.toDouble(),
             minIn.toDouble(),
@@ -69,7 +68,7 @@ object MathUtils {
     }
 
     @JvmStatic
-    inline fun convertRange(valueIn: Double, minIn: Double, maxIn: Double, minOut: Double, maxOut: Double): Double {
+    fun convertRange(valueIn: Double, minIn: Double, maxIn: Double, minOut: Double, maxOut: Double): Double {
         val rangeIn = maxIn - minIn
         val rangeOut = maxOut - minOut
         val convertedIn = (valueIn - minIn) * (rangeOut / rangeIn) + minOut
@@ -79,12 +78,12 @@ object MathUtils {
     }
 
     @JvmStatic
-    inline fun lerp(from: Double, to: Double, delta: Double): Double {
+    fun lerp(from: Double, to: Double, delta: Double): Double {
         return from + (to - from) * delta
     }
 
     @JvmStatic
-    inline fun lerp(from: Float, to: Float, delta: Float): Float {
+    fun lerp(from: Float, to: Float, delta: Float): Float {
         return from + (to - from) * delta
     }
 

@@ -1,4 +1,3 @@
-@file:Suppress("NOTHING_TO_INLINE") // Looks like inlining stuff here reduced the size of compiled code
 package dev.luna5ama.trollhack.util.inventory.operation
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
@@ -7,90 +6,90 @@ import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
 import net.minecraft.inventory.ClickType
 import net.minecraft.inventory.Slot
 
-inline fun InventoryTask.Builder.pickUp(noinline slot: SafeClientEvent.() -> Slot?) {
+fun InventoryTask.Builder.pickUp(slot: SafeClientEvent.() -> Slot?) {
     pickUp(0, slot)
 }
 
-inline fun InventoryTask.Builder.pickUp(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?) {
+fun InventoryTask.Builder.pickUp(windowID: Int, slot: SafeClientEvent.() -> Slot?) {
     +Click(windowID, slot, 0, ClickType.PICKUP)
 }
 
-inline fun InventoryTask.Builder.pickUp(slot: Slot) {
+fun InventoryTask.Builder.pickUp(slot: Slot) {
     pickUp(0, slot)
 }
 
-inline fun InventoryTask.Builder.pickUp(windowID: Int, slot: Slot) {
+fun InventoryTask.Builder.pickUp(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.PICKUP)
 }
 
-inline fun InventoryTask.Builder.pickUpAll(noinline slot: SafeClientEvent.() -> Slot?) {
+fun InventoryTask.Builder.pickUpAll(slot: SafeClientEvent.() -> Slot?) {
     pickUpAll(0, slot)
 }
 
-inline fun InventoryTask.Builder.pickUpAll(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?) {
+fun InventoryTask.Builder.pickUpAll(windowID: Int, slot: SafeClientEvent.() -> Slot?) {
     +Click(windowID, slot, 0, ClickType.PICKUP_ALL)
 }
 
-inline fun InventoryTask.Builder.pickUpAll(slot: Slot) {
+fun InventoryTask.Builder.pickUpAll(slot: Slot) {
     pickUpAll(0, slot)
 }
 
-inline fun InventoryTask.Builder.pickUpAll(windowID: Int, slot: Slot) {
+fun InventoryTask.Builder.pickUpAll(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.PICKUP_ALL)
 }
 
-inline fun InventoryTask.Builder.quickMove(noinline slot: SafeClientEvent.() -> Slot?) {
+fun InventoryTask.Builder.quickMove(slot: SafeClientEvent.() -> Slot?) {
     quickMove(0, slot)
 }
 
-inline fun InventoryTask.Builder.quickMove(windowID: Int, noinline slot: SafeClientEvent.() -> Slot?) {
+fun InventoryTask.Builder.quickMove(windowID: Int, slot: SafeClientEvent.() -> Slot?) {
     +Click(windowID, slot, 0, ClickType.QUICK_MOVE)
 }
 
-inline fun InventoryTask.Builder.quickMove(slot: Slot) {
+fun InventoryTask.Builder.quickMove(slot: Slot) {
     quickMove(0, slot)
 }
 
-inline fun InventoryTask.Builder.quickMove(windowID: Int, slot: Slot) {
+fun InventoryTask.Builder.quickMove(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.QUICK_MOVE)
 }
 
-inline fun InventoryTask.Builder.swapWith(
-    noinline slot: SafeClientEvent.() -> Slot?,
-    noinline hotbarSlot: SafeClientEvent.() -> HotbarSlot?
+fun InventoryTask.Builder.swapWith(
+    slot: SafeClientEvent.() -> Slot?,
+    hotbarSlot: SafeClientEvent.() -> HotbarSlot?
 ) {
     swapWith(0, slot, hotbarSlot)
 }
 
-inline fun InventoryTask.Builder.swapWith(
+fun InventoryTask.Builder.swapWith(
     windowID: Int,
-    noinline slot: SafeClientEvent.() -> Slot?,
-    noinline hotbarSlot: SafeClientEvent.() -> HotbarSlot?
+    slot: SafeClientEvent.() -> Slot?,
+    hotbarSlot: SafeClientEvent.() -> HotbarSlot?
 ) {
     +Click(windowID, slot, { hotbarSlot.invoke(this)?.hotbarSlot }, ClickType.SWAP)
 }
 
-inline fun InventoryTask.Builder.swapWith(slot: Slot, hotbarSlot: HotbarSlot) {
+fun InventoryTask.Builder.swapWith(slot: Slot, hotbarSlot: HotbarSlot) {
     swapWith(0, slot, hotbarSlot)
 }
 
-inline fun InventoryTask.Builder.swapWith(windowID: Int, slot: Slot, hotbarSlot: HotbarSlot) {
+fun InventoryTask.Builder.swapWith(windowID: Int, slot: Slot, hotbarSlot: HotbarSlot) {
     +Click(windowID, slot, hotbarSlot.hotbarSlot, ClickType.SWAP)
 }
 
-inline fun InventoryTask.Builder.throwOne(slot: Slot) {
+fun InventoryTask.Builder.throwOne(slot: Slot) {
     throwOne(0, slot)
 }
 
-inline fun InventoryTask.Builder.throwOne(windowID: Int, slot: Slot) {
+fun InventoryTask.Builder.throwOne(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 0, ClickType.THROW)
 }
 
-inline fun InventoryTask.Builder.throwAll(slot: Slot) {
+fun InventoryTask.Builder.throwAll(slot: Slot) {
     throwAll(0, slot)
 }
 
-inline fun InventoryTask.Builder.throwAll(windowID: Int, slot: Slot) {
+fun InventoryTask.Builder.throwAll(windowID: Int, slot: Slot) {
     +Click(windowID, slot, 1, ClickType.THROW)
 }
 

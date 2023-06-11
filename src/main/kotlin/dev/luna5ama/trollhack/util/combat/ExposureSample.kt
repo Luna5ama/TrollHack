@@ -46,9 +46,9 @@ class ExposureSample(
                     var mask = 0x00
 
                     if (yIndex == 0) {
-                        mask = mask or EnumFacingMask.DOWN
+                        mask = EnumFacingMask.DOWN
                     } else if (yIndex == sizeY) {
-                        mask = mask or EnumFacingMask.UP
+                        mask = EnumFacingMask.UP
                     }
 
                     if (xIndex == 0) {

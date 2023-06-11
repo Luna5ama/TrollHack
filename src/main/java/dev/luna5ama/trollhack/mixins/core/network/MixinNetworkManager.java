@@ -41,7 +41,7 @@ public class MixinNetworkManager {
         }
     }
 
-    @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "channelRead0*", at = @At("HEAD"), cancellable = true)
     private void channelReadPre(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callbackInfo) {
         if (!isClient()) return;
 

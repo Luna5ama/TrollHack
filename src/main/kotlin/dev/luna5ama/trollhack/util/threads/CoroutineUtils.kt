@@ -37,7 +37,7 @@ object ConcurrentScope :
 /**
  * Return true if the job is active, or false is not active or null
  */
-inline val Job?.isActiveOrFalse get() = this?.isActive ?: false
+val Job?.isActiveOrFalse get() = this?.isActive ?: false
 
 suspend inline fun delay(timeMillis: Int) {
     delay(timeMillis.toLong())

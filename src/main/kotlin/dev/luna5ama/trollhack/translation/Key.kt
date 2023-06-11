@@ -65,7 +65,7 @@ class TranslationKey private constructor(
 
         val allKeys get() = translationKeyMap.values
 
-        fun getOrPut(type: TranslateType, keyString: String, rootString: String) =
+        fun getOrPut(type: TranslateType, keyString: String, rootString: String): TranslationKey =
             translationKeyMap.getOrPut(keyString) {
                 TranslationKey(type, keyString, rootString)
             }

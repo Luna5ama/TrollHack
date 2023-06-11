@@ -297,7 +297,7 @@ internal object NoteBot : Module(
                     val pos = noteBlocks.removeLast()
                     clickBlock(pos)
                     clickedBlocks.add(pos)
-                } else if (noteBlocks.isNotEmpty() && soundTimer.tick(5L)) {
+                } else if (soundTimer.tick(5L)) {
                     noteBlocks.addAll(clickedBlocks)
                     clickedBlocks.clear()
                 }

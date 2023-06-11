@@ -40,9 +40,7 @@ object EntityUtils {
         )
 
     val Entity.isPassive
-        get() = this is EntityAnimal
-            || this is EntityAgeable
-            || this is EntityTameable
+        get() = this is EntityAgeable
             || this is EntityAmbientCreature
             || this is EntitySquid
 

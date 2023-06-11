@@ -12,7 +12,6 @@ import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-@Suppress("NOTHING_TO_INLINE")
 object HoleUtils {
     private val holeOffset1 = arrayOf(
         BlockPos(0, 0, 0),
@@ -120,7 +119,7 @@ object HoleUtils {
             ?: HoleInfo.empty(pos.toImmutable())
     }
 
-    private inline fun SafeClientEvent.checkHole1(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
+    private fun SafeClientEvent.checkHole1(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
         if (!CombatSetting.obsidianHole && !CombatSetting.bedrockHole) return null
 
         if (!world.checkAirMultiple(holeOffsetCheck1, pos, mutablePos)) return null
@@ -159,7 +158,7 @@ object HoleUtils {
         )
     }
 
-    private inline fun SafeClientEvent.checkHole2(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
+    private fun SafeClientEvent.checkHole2(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
         if (!CombatSetting.twoBlocksHole) return null
 
         var x = true
@@ -220,7 +219,7 @@ object HoleUtils {
         )
     }
 
-    private inline fun SafeClientEvent.checkHole4(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
+    private fun SafeClientEvent.checkHole4(pos: BlockPos, mutablePos: BlockPos.MutableBlockPos): HoleInfo? {
         if (!CombatSetting.fourBlocksHole) return null
         if (!world.checkAirMultiple(holeOffsetCheck4, pos, mutablePos)) return null
 
@@ -258,7 +257,7 @@ object HoleUtils {
         )
     }
 
-    private inline fun World.checkAirMultiple(
+    private fun World.checkAirMultiple(
         array: Array<BlockPos>,
         pos: BlockPos,
         mutablePos: BlockPos.MutableBlockPos
@@ -268,7 +267,7 @@ object HoleUtils {
         }
     }
 
-    private inline fun World.checkAir(pos: BlockPos): Boolean {
+    private fun World.checkAir(pos: BlockPos): Boolean {
         val blockState = getBlockState(pos)
         if (blockState.block == Blocks.WEB) return false
         if (CombatSetting.ignoreReplaceableFilling && blockState.isReplaceable) return true
@@ -280,7 +279,7 @@ object HoleUtils {
         return blockState.isAir
     }
 
-    private inline fun Array<BlockPos>.offset(pos: BlockPos): ObjectSet<BlockPos> {
+    private fun Array<BlockPos>.offset(pos: BlockPos): ObjectSet<BlockPos> {
         val result = ObjectOpenHashSet<BlockPos>(size)
         for (blockPos in this) {
             result.add(pos.add(blockPos))
@@ -288,7 +287,7 @@ object HoleUtils {
         return result
     }
 
-    private inline fun SafeClientEvent.checkSurroundPos(
+    private fun SafeClientEvent.checkSurroundPos(
         pos: BlockPos,
         mutablePos: BlockPos.MutableBlockPos,
         surroundOffset: Array<BlockPos>,

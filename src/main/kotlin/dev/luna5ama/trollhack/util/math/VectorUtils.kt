@@ -12,7 +12,6 @@ import net.minecraft.util.math.Vec3i
 import kotlin.math.cos
 import kotlin.math.sin
 
-@Suppress("NOTHING_TO_INLINE")
 object VectorUtils {
     fun getBlockPosInSphere(entity: Entity, radius: Float): Sequence<BlockPos> {
         return getBlockPosInSphere(entity.posX, entity.posY, entity.posZ, radius)
@@ -39,7 +38,7 @@ object VectorUtils {
         }
     }
 
-    private inline fun getAxisRange(d1: Double, d2: Float): IntRange {
+    private fun getAxisRange(d1: Double, d2: Float): IntRange {
         return IntRange((d1 - d2).fastFloor(), (d1 + d2).fastCeil())
     }
 

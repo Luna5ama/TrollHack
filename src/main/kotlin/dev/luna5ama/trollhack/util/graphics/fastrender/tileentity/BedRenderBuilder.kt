@@ -207,14 +207,14 @@ class BedRenderBuilder(
         }
 
         private fun drawHead(graphics: Graphics2D, oldImage: BufferedImage, scale: Int, identity: AffineTransform) {
-            graphics.rotate(PI / -2.0, 0.0, 22.0 * scale)
+            graphics.rotate(PI / -2.0, 0.0, 22.0)
             graphics.drawImage(
                 oldImage,
-                0 * scale,
+                0,
                 22 * scale,
                 6 * scale,
                 38 * scale,
-                0 * scale,
+                0,
                 6 * scale,
                 6 * scale,
                 22 * scale,
@@ -222,22 +222,22 @@ class BedRenderBuilder(
             )
 
             graphics.transform = identity
-            graphics.rotate(-PI, 48.0 * scale, 16.0 * scale)
+            graphics.rotate(-PI, 48.0, 16.0)
             graphics.drawImage(
                 oldImage,
                 32 * scale,
-                10 * scale,
+                10,
                 48 * scale,
                 16 * scale,
                 6 * scale,
-                0 * scale,
+                0,
                 22 * scale,
                 6 * scale,
                 null
             )
 
             graphics.transform = identity
-            graphics.rotate(PI / 2.0, 48.0 * scale, 22.0 * scale)
+            graphics.rotate(PI / 2.0, 48.0, 22.0)
             graphics.drawImage(
                 oldImage,
                 42 * scale,
@@ -255,7 +255,7 @@ class BedRenderBuilder(
             graphics.drawImage(
                 oldImage,
                 16 * scale,
-                0 * scale,
+                0,
                 32 * scale,
                 16 * scale,
                 6 * scale,
@@ -268,7 +268,7 @@ class BedRenderBuilder(
             graphics.drawImage(
                 oldImage,
                 32 * scale,
-                0 * scale,
+                0,
                 48 * scale,
                 16 * scale,
                 28 * scale,
@@ -280,14 +280,14 @@ class BedRenderBuilder(
         }
 
         private fun drawFoot(graphics: Graphics2D, oldImage: BufferedImage, scale: Int, identity: AffineTransform) {
-            graphics.rotate(PI / -2.0, 0.0, 44.0 * scale)
+            graphics.rotate(PI / -2.0, 0.0, 44.0)
             graphics.drawImage(
                 oldImage,
-                0 * scale,
+                0,
                 44 * scale,
                 6 * scale,
-                60 * scale,
-                0 * scale,
+                60,
+                0,
                 28 * scale,
                 6 * scale,
                 44 * scale,
@@ -295,10 +295,10 @@ class BedRenderBuilder(
             )
 
             graphics.transform = identity
-            graphics.rotate(PI, 16.0 * scale, 38.0 * scale)
+            graphics.rotate(PI, 16.0, 38.0)
             graphics.drawImage(
                 oldImage,
-                0 * scale,
+                0,
                 32 * scale,
                 16 * scale,
                 38 * scale,
@@ -310,13 +310,13 @@ class BedRenderBuilder(
             )
 
             graphics.transform = identity
-            graphics.rotate(PI / 2.0, 48.0 * scale, 44.0 * scale)
+            graphics.rotate(PI / 2.0, 48.0, 44.0)
             graphics.drawImage(
                 oldImage,
                 42 * scale,
                 44 * scale,
                 48 * scale,
-                60 * scale,
+                60,
                 22 * scale,
                 28 * scale,
                 28 * scale,
@@ -360,7 +360,7 @@ class BedRenderBuilder(
                 9 * scale,
                 47 * scale,
                 53 * scale,
-                0 * scale,
+                0,
                 59 * scale,
                 3 * scale,
                 null
@@ -368,10 +368,10 @@ class BedRenderBuilder(
 
             graphics.drawImage(
                 oldImage,
-                0 * scale,
+                0,
                 47 * scale,
                 9 * scale,
-                50 * scale,
+                50,
                 53 * scale,
                 3 * scale,
                 62 * scale,
@@ -384,8 +384,8 @@ class BedRenderBuilder(
                 9 * scale,
                 47 * scale,
                 12 * scale,
-                50 * scale,
-                50 * scale,
+                50,
+                50,
                 3 * scale,
                 53 * scale,
                 6 * scale,
@@ -397,11 +397,11 @@ class BedRenderBuilder(
             graphics.drawImage(
                 oldImage,
                 3 * scale,
-                50 * scale,
+                50,
                 9 * scale,
                 53 * scale,
                 53 * scale,
-                0 * scale,
+                0,
                 59 * scale,
                 3 * scale,
                 null
@@ -409,7 +409,7 @@ class BedRenderBuilder(
 
             graphics.drawImage(
                 oldImage,
-                0 * scale,
+                0,
                 53 * scale,
                 6 * scale,
                 56 * scale,
@@ -426,7 +426,7 @@ class BedRenderBuilder(
                 53 * scale,
                 12 * scale,
                 56 * scale,
-                50 * scale,
+                50,
                 3 * scale,
                 56 * scale,
                 6 * scale,
@@ -442,7 +442,7 @@ class BedRenderBuilder(
                 21 * scale,
                 47 * scale,
                 53 * scale,
-                0 * scale,
+                0,
                 59 * scale,
                 3 * scale,
                 null
@@ -453,8 +453,8 @@ class BedRenderBuilder(
                 12 * scale,
                 47 * scale,
                 24 * scale,
-                50 * scale,
-                50 * scale,
+                50,
+                50,
                 3 * scale,
                 62 * scale,
                 6 * scale,
@@ -466,11 +466,11 @@ class BedRenderBuilder(
             graphics.drawImage(
                 oldImage,
                 15 * scale,
-                50 * scale,
+                50,
                 21 * scale,
                 53 * scale,
                 53 * scale,
-                0 * scale,
+                0,
                 59 * scale,
                 3 * scale,
                 null
@@ -495,7 +495,7 @@ class BedRenderBuilder(
                 53 * scale,
                 24 * scale,
                 56 * scale,
-                50 * scale,
+                50,
                 3 * scale,
                 59 * scale,
                 6 * scale,

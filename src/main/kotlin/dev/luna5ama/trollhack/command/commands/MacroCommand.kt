@@ -26,7 +26,7 @@ object MacroCommand : ClientCommand(
                     val macros = MacroManager.macros[key]
                     val formattedName = formatValue(KeyboardUtils.getDisplayName(key) ?: "Unknown")
 
-                    if (macros.isNullOrEmpty()) {
+                    if (macros.isEmpty()) {
                         NoSpamMessage.sendMessage("§cYou have no macros for the key $formattedName")
                     } else {
                         val stringBuilder = StringBuffer()

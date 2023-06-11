@@ -1,7 +1,6 @@
 package dev.luna5ama.trollhack.manager
 
 import dev.luna5ama.trollhack.AsyncLoader
-import dev.luna5ama.trollhack.AsyncLoader.Companion
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.util.ClassUtils.instance
 import kotlinx.coroutines.Deferred
