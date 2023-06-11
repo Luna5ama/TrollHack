@@ -27,7 +27,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.accessor.*
-import dev.luna5ama.trollhack.util.collections.CircularArray
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CombatUtils.totalHealth
 import dev.luna5ama.trollhack.util.combat.CrystalDamage

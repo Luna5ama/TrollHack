@@ -1,11 +1,11 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.collection.DynamicBitSet
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.collections.IntBitSet
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
@@ -27,7 +27,7 @@ internal object InventorySorter : Module(
     private val clickDelay by setting("Click Delay", 10, 0..1000, 1)
     private val postDelay by setting("Post Delay", 50, 0..1000, 1)
 
-    private val checkSet = IntBitSet()
+    private val checkSet = DynamicBitSet()
     private var itemArray: Array<Item>? = null
     private var lastTask: InventoryTask? = null
     private var lastIndex = 35

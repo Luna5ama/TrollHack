@@ -29,7 +29,7 @@ import dev.luna5ama.trollhack.util.accessor.renderPosY
 import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.collections.CircularArray
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CrystalUtils

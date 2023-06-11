@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.event
 
-import dev.luna5ama.trollhack.util.collections.ArrayMap
+import dev.fastmc.common.collection.FastIntMap
 import dev.luna5ama.trollhack.util.interfaces.Helper
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.launch
@@ -108,7 +108,7 @@ open class EventBus : EventPosting {
 
     companion object {
         private val id = AtomicInteger()
-        private val eventBusMap = ArrayMap<EventBus>()
+        private val eventBusMap = FastIntMap<EventBus>()
 
         operator fun get(busID: Int): EventBus {
             return eventBusMap[busID]!!

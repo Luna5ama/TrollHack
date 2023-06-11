@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.translation
 
-import dev.luna5ama.trollhack.util.collections.ArrayMap
+import dev.fastmc.common.collection.FastIntMap
 
 class TranslationMap private constructor(
     val language: String,
-    private val translations: ArrayMap<String>
+    private val translations: FastIntMap<String>
 ) {
 
     operator fun get(key: TranslationKey): String {
@@ -15,7 +15,7 @@ class TranslationMap private constructor(
         private val regex = "^(\\\$.+\\\$)=(.+)$".toRegex()
 
         fun fromString(language: String, input: String): TranslationMap {
-            val map = ArrayMap<String>()
+            val map = FastIntMap<String>()
 
             input.lines().forEach { line ->
                 val result = regex.matchEntire(line) ?: return@forEach

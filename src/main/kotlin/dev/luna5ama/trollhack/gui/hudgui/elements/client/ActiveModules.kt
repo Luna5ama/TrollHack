@@ -10,7 +10,7 @@ import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.atTrue
-import dev.luna5ama.trollhack.util.collections.ArrayMap
+import dev.fastmc.common.collection.FastIntMap
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
 import dev.luna5ama.trollhack.util.graphics.Easing
@@ -118,9 +118,9 @@ internal object ActiveModules : HudElement(
         }
     }
 
-    private var prevToggleMap = ArrayMap<ModuleToggleFlag>()
+    private var prevToggleMap = FastIntMap<ModuleToggleFlag>()
     private val toggleMap by AsyncCachedValue(1L, TimeUnit.SECONDS) {
-        ArrayMap<ModuleToggleFlag>().apply {
+        FastIntMap<ModuleToggleFlag>().apply {
             ModuleManager.modules.forEach {
                 this[it.id] = prevToggleMap[it.id] ?: ModuleToggleFlag(it)
             }

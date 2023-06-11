@@ -4,8 +4,8 @@ import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.listener
-import dev.luna5ama.trollhack.util.collections.CircularArray
-import dev.luna5ama.trollhack.util.collections.CircularArray.Companion.average
+import dev.fastmc.common.collection.CircularArray
+import dev.fastmc.common.collection.CircularArray.Companion.average
 import net.minecraft.network.play.server.SPacketTimeUpdate
 import kotlin.math.max
 

@@ -23,8 +23,8 @@ import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.accessor.id
 import dev.luna5ama.trollhack.util.accessor.packetAction
-import dev.luna5ama.trollhack.util.collections.CircularArray
-import dev.luna5ama.trollhack.util.collections.CircularArray.Companion.average
+import dev.fastmc.common.collection.CircularArray
+import dev.fastmc.common.collection.CircularArray.Companion.average
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.equipBestWeapon
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth

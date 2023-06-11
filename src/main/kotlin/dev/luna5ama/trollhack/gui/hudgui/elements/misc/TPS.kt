@@ -4,8 +4,8 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.TpsCalculator
-import dev.luna5ama.trollhack.util.collections.CircularArray
-import dev.luna5ama.trollhack.util.collections.CircularArray.Companion.average
+import dev.fastmc.common.collection.CircularArray
+import dev.fastmc.common.collection.CircularArray.Companion.average
 
 internal object TPS : LabelHud(
     name = "TPS",

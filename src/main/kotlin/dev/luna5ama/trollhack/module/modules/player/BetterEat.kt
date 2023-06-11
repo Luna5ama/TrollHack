@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.accessor.entityID
 import dev.luna5ama.trollhack.util.accessor.onItemUseFinish
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
-import dev.luna5ama.trollhack.util.collections.CircularArray
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.settings.KeyBinding
