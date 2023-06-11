@@ -18,13 +18,13 @@ object FriendManager : Manager() {
     val friends = HashMap<String, PlayerProfile>().synchronized()
 
     val empty get() = friends.isEmpty()
-    var enabled = friendFile.enabled
+    var enabled
+        get() = friendFile.enabled
         set(value) {
-            field = value
             friendFile.enabled = value
         }
 
-    fun isFriend(name: String) = friendFile.enabled && friends.contains(name.lowercase())
+    fun isFriend(name: String) = enabled && friends.contains(name.lowercase())
 
     fun addFriend(name: String) = UUIDManager.getByName(name)?.let {
         friendFile.friends.add(it)
