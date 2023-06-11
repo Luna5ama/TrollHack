@@ -67,7 +67,7 @@ internal object LogoutLogger : Module(
                 loggedPlayers.entries.removeIf { (player, pos) ->
                     @Suppress("SENSELESS_COMPARISON")
                     if (connection.getPlayerInfo(player.gameProfile.id) == null) {
-                         handleLogout(player, pos)
+                        handleLogout(player, pos)
                         true
                     } else {
                         false

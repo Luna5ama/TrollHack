@@ -12,11 +12,14 @@ import dev.luna5ama.trollhack.util.graphics.texture.RawImage
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.onMainThread
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import net.minecraft.client.renderer.OpenGlHelper.glBindBuffer
 import org.lwjgl.opengl.GL15.glDeleteBuffers
 import org.lwjgl.opengl.GL21.GL_PIXEL_UNPACK_BUFFER

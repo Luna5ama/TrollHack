@@ -57,7 +57,7 @@ sealed class PacketEvent(val packet: Packet<*>) : Event {
         }
     }
 
-    enum class Stage(override val displayName: CharSequence)  : DisplayEnum{
+    enum class Stage(override val displayName: CharSequence) : DisplayEnum {
         PRE("Pre"),
         POST("Post");
 

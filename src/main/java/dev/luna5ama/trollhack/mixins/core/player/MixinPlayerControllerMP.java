@@ -2,7 +2,6 @@ package dev.luna5ama.trollhack.mixins.core.player;
 
 import dev.luna5ama.trollhack.event.events.player.InteractEvent;
 import dev.luna5ama.trollhack.event.events.player.PlayerAttackEvent;
-import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager;
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager;
 import dev.luna5ama.trollhack.module.modules.player.BetterEat;
 import dev.luna5ama.trollhack.module.modules.player.FastBreak;

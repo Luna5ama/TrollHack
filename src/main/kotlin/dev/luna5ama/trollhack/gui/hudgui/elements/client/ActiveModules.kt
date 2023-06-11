@@ -98,7 +98,10 @@ internal object ActiveModules : HudElement(
         }
     }
 
-    private data class SortingPair(val module: AbstractModule, var key: Comparable<*> = sortingMode.keySelector(module)) : Comparable<SortingPair> {
+    private data class SortingPair(
+        val module: AbstractModule,
+        var key: Comparable<*> = sortingMode.keySelector(module)
+    ) : Comparable<SortingPair> {
         fun update() {
             key = sortingMode.keySelector(module)
         }

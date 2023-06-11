@@ -165,6 +165,6 @@ internal object AutoCope : Module(
 
     private fun SafeClientEvent.targeting(message: String): Boolean {
         return message.contains(player.name, true)
-            || targetKeyWords.any { message.contains(it, true)}
+            || targetKeyWords.any { message.contains(it, true) }
     }
 }

@@ -29,7 +29,19 @@ interface SettingRegister<T : Any> {
         description: CharSequence = "",
         fineStep: Int = step,
         isTransient: Boolean = false
-    ) = setting(IntegerSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep, isTransient))
+    ) = setting(
+        IntegerSetting(
+            settingName(name),
+            value,
+            range,
+            step,
+            visibility,
+            consumer,
+            description,
+            fineStep,
+            isTransient
+        )
+    )
 
     /** Double Setting */
     fun T.setting(
@@ -42,7 +54,19 @@ interface SettingRegister<T : Any> {
         description: CharSequence = "",
         fineStep: Double = step,
         isTransient: Boolean = false
-    ) = setting(DoubleSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep, isTransient))
+    ) = setting(
+        DoubleSetting(
+            settingName(name),
+            value,
+            range,
+            step,
+            visibility,
+            consumer,
+            description,
+            fineStep,
+            isTransient
+        )
+    )
 
     /** Float Setting */
     fun T.setting(
@@ -55,7 +79,19 @@ interface SettingRegister<T : Any> {
         description: CharSequence = "",
         fineStep: Float = step,
         isTransient: Boolean = false
-    ) = setting(FloatSetting(settingName(name), value, range, step, visibility, consumer, description, fineStep, isTransient))
+    ) = setting(
+        FloatSetting(
+            settingName(name),
+            value,
+            range,
+            step,
+            visibility,
+            consumer,
+            description,
+            fineStep,
+            isTransient
+        )
+    )
 
     /** Bind Setting */
     fun T.setting(

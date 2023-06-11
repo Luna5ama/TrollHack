@@ -2,7 +2,10 @@ package dev.luna5ama.trollhack.util.math
 
 import dev.fastmc.common.BlockPosUtil
 import dev.fastmc.common.fastFloor
-import dev.luna5ama.trollhack.util.extension.*
+import dev.luna5ama.trollhack.util.extension.PI_FLOAT
+import dev.luna5ama.trollhack.util.extension.fastCeil
+import dev.luna5ama.trollhack.util.extension.sq
+import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import net.minecraft.entity.Entity
 import net.minecraft.util.EnumFacing

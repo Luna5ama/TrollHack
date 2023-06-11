@@ -101,7 +101,7 @@ internal object InventorySync : Module(
                 return@safeParallelListener
             }
 
-            if (sent && packetTimer.tick(endTimeout))return@safeParallelListener
+            if (sent && packetTimer.tick(endTimeout)) return@safeParallelListener
             if (!sendTimer.tickAndReset(interval)) return@safeParallelListener
 
             var random = Random.nextInt().toShort()

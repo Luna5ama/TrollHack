@@ -8,16 +8,12 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.inventory.InventoryTask
-import dev.luna5ama.trollhack.util.inventory.executedOrTrue
-import dev.luna5ama.trollhack.util.inventory.inventoryTask
+import dev.luna5ama.trollhack.util.inventory.*
 import dev.luna5ama.trollhack.util.inventory.operation.action
 import dev.luna5ama.trollhack.util.inventory.operation.pickUp
 import dev.luna5ama.trollhack.util.inventory.operation.quickMove
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.inventory.durability
-import dev.luna5ama.trollhack.util.inventory.getEnchantmentLevel
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.init.Enchantments
 import net.minecraft.init.Items

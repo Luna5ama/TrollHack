@@ -30,7 +30,8 @@ import dev.luna5ama.trollhack.util.collections.EnumMap
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.HoleType
 import dev.luna5ama.trollhack.util.extension.synchronized
-import dev.luna5ama.trollhack.util.inventory.slot.*
+import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
+import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe

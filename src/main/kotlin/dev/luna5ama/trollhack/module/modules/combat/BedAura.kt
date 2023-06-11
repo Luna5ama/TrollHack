@@ -34,7 +34,10 @@ import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.graphics.*
+import dev.luna5ama.trollhack.util.graphics.ESPRenderer
+import dev.luna5ama.trollhack.util.graphics.Easing
+import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
@@ -92,7 +95,11 @@ internal object BedAura : Module(
 
     private val handMode by setting("Hand Mode", EnumHand.OFF_HAND, page.atValue(Page.GENERAL))
     private val rotationPitch by setting("Rotation Pitch", 90, -90..90, 1, page.atValue(Page.GENERAL))
-    private val ghostSwitchBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.Override.NONE, page.atValue(Page.GENERAL) and ::handMode.atValue(EnumHand.MAIN_HAND))
+    private val ghostSwitchBypass by setting(
+        "Ghost Switch Bypass",
+        HotbarSwitchManager.Override.NONE,
+        page.atValue(Page.GENERAL) and ::handMode.atValue(EnumHand.MAIN_HAND)
+    )
     private val bedSlot by setting(
         "Bed Slot",
         3,
@@ -101,7 +108,13 @@ internal object BedAura : Module(
         page.atValue(Page.GENERAL) and { handMode == EnumHand.MAIN_HAND })
     private val assumeInstantMine by setting("Assume Instant Mine", true, page.atValue(Page.GENERAL))
     private val antiBlocker by setting("Anti Blocker", true, page.atValue(Page.GENERAL))
-    private val antiBlockerSwitch by setting("Anti Blocker Switch", 200, 0..500, 10, page.atValue(Page.GENERAL) and ::antiBlocker)
+    private val antiBlockerSwitch by setting(
+        "Anti Blocker Switch",
+        200,
+        0..500,
+        10,
+        page.atValue(Page.GENERAL) and ::antiBlocker
+    )
     private val strictDirection by setting("Strict Direction", false, page.atValue(Page.GENERAL))
     private val newPlacement by setting("1.13 Placement", false, page.atValue(Page.GENERAL))
     private val smartDamage by setting("Smart Damage", true, page.atValue(Page.GENERAL))
@@ -670,7 +683,9 @@ internal object BedAura : Module(
 
         return (checkBedBlock(ignoreNonFullBox, calcInfo.bedPosFoot, footState) || footBlock == Blocks.BED)
             && (checkBedBlock(ignoreNonFullBox, calcInfo.bedPosHead, headState)
-            || headBlock == Blocks.BED && headState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD && headState.getValue(BlockBed.FACING) == calcInfo.side)
+            || headBlock == Blocks.BED
+            && headState.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD
+            && headState.getValue(BlockBed.FACING) == calcInfo.side)
     }
 
     private fun checkBedBlock(
@@ -968,7 +983,7 @@ internal object BedAura : Module(
                     }
                 } else {
                     lastUpdateTime = System.currentTimeMillis()
-                        startTime = System.currentTimeMillis()
+                    startTime = System.currentTimeMillis()
                 }
 
                 Renderer.lastBedPlacement = newBedPlacement

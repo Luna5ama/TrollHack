@@ -57,7 +57,12 @@ open class AbstractModule(
     }).also(::addSetting)
     private val onHold = EnumSetting(settingName("On Hold"), OnHold.OFF).also(::addSetting)
     private val visible = BooleanSetting(settingName("Visible"), visible).also(::addSetting)
-    private val default = BooleanSetting(settingName("Default"), false, { settingList.isNotEmpty() }, isTransient = true).also(::addSetting)
+    private val default = BooleanSetting(
+        settingName("Default"),
+        false,
+        { settingList.isNotEmpty() },
+        isTransient = true
+    ).also(::addSetting)
 
     private enum class OnHold(override val displayName: CharSequence) : DisplayEnum {
         OFF(TranslateType.COMMON commonKey "Off"),

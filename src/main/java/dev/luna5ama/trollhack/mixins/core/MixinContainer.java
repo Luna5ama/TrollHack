@@ -2,7 +2,6 @@ package dev.luna5ama.trollhack.mixins.core;
 
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager;
 import dev.luna5ama.trollhack.mixins.accessor.AccessorSlot;
-import dev.luna5ama.trollhack.module.modules.player.InventorySync;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
@@ -71,7 +70,8 @@ public abstract class MixinContainer {
         return 0;
     }
 
-    @Shadow public abstract boolean canDragIntoSlot(Slot slotIn);
+    @Shadow
+    public abstract boolean canDragIntoSlot(Slot slotIn);
 
     @Inject(method = "slotClick", at = @At("HEAD"), cancellable = true)
     public void Inject$slotClick$HEAD(

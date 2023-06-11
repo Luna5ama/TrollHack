@@ -37,8 +37,11 @@ import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.runSynchronized
-import dev.luna5ama.trollhack.util.world.*
 import dev.luna5ama.trollhack.util.world.PlaceInfo.Companion.newPlaceInfo
+import dev.luna5ama.trollhack.util.world.fastRayTraceCorners
+import dev.luna5ama.trollhack.util.world.isAir
+import dev.luna5ama.trollhack.util.world.isReplaceable
+import dev.luna5ama.trollhack.util.world.placeBlock
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import kotlinx.coroutines.launch

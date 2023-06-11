@@ -5,7 +5,9 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.module.modules.combat.*
+import dev.luna5ama.trollhack.module.modules.combat.HolePathFinder
+import dev.luna5ama.trollhack.module.modules.combat.HoleSnap
+import dev.luna5ama.trollhack.module.modules.combat.Surround
 import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.module.modules.exploit.WallClip
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition

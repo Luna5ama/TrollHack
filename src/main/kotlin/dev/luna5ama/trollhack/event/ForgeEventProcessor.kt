@@ -4,7 +4,8 @@ import dev.luna5ama.trollhack.command.CommandManager
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.InputEvent.*
 import dev.luna5ama.trollhack.event.events.TickEvent
-import dev.luna5ama.trollhack.event.events.WorldEvent.*
+import dev.luna5ama.trollhack.event.events.WorldEvent.Load
+import dev.luna5ama.trollhack.event.events.WorldEvent.Unload
 import dev.luna5ama.trollhack.event.events.baritone.BaritoneCommandEvent
 import dev.luna5ama.trollhack.event.events.player.InteractEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerPushOutOfBlockEvent

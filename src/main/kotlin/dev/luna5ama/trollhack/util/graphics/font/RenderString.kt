@@ -13,7 +13,8 @@ import dev.luna5ama.trollhack.util.graphics.shaders.DrawShader
 import dev.luna5ama.trollhack.util.graphics.use
 import net.minecraft.client.renderer.GlStateManager
 import org.joml.Matrix4f
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.GL_TRIANGLES
+import org.lwjgl.opengl.GL11.GL_UNSIGNED_SHORT
 import org.lwjgl.opengl.GL15.*
 import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30.glBindVertexArray

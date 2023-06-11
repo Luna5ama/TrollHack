@@ -111,7 +111,10 @@ object WaypointCommand : ClientCommand(
 
     private fun add(name: String, pos: BlockPos) {
         WaypointManager.add(pos, name)
-        NoSpamMessage.sendMessage(WaypointCommand, "Added waypoint at ${pos.asString()} in the ${InfoCalculator.dimension()} with name '§7$name§f'.")
+        NoSpamMessage.sendMessage(
+            WaypointCommand,
+            "Added waypoint at ${pos.asString()} in the ${InfoCalculator.dimension()} with name '§7$name§f'."
+        )
     }
 
     private fun delete(id: Int) {

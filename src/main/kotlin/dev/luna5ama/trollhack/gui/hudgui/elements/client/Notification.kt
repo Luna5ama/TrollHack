@@ -28,7 +28,12 @@ internal object Notification : HudElement(
     enabledByDefault = true
 ) {
     private val moduleToggle by setting("Module Toggle", true)
-    private val moduleToggleMessageTimeout by setting("Module Toggle Message Timeout", 3000, 0..10000, 100, { moduleToggle })
+    private val moduleToggleMessageTimeout by setting(
+        "Module Toggle Message Timeout",
+        3000,
+        0..10000,
+        100,
+        { moduleToggle })
     private val defaultTimeout by setting("Default Timeout", 5000, 0..10000, 100)
     private val nvidia by setting("Nvidia Theme", false)
     private val backgroundAlpha by setting("Background Alpha", 180, 0..255, 1, { nvidia })

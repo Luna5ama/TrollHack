@@ -304,7 +304,8 @@ fun World.rayTrace(
 
         when (val action = function.invoke(this, blockPos, blockState)) {
             RayTraceAction.Null -> return null
-            RayTraceAction.Calc -> blockState.rayTrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)?.let { return it }
+            RayTraceAction.Calc -> blockState.rayTrace(this, blockPos, currentX, currentY, currentZ, endX, endY, endZ)
+                ?.let { return it }
             is RayTraceAction.Result -> return action.rayTraceResult
             else -> {}
         }
@@ -330,7 +331,7 @@ private fun IBlockState.rayTrace(
     val x2f = (x2 - blockPos.x).toFloat()
     val y2f = (y2 - blockPos.y).toFloat()
     val z2f = (z2 - blockPos.z).toFloat()
-    
+
     val diffX = x2f - x1f
     val diffY = y2f - y1f
     val diffZ = z2f - z1f
@@ -343,13 +344,13 @@ private fun IBlockState.rayTrace(
     val maxY = box.maxY.toFloat()
     val minZ = box.minZ.toFloat()
     val maxZ = box.maxZ.toFloat()
-    
+
     var hitX = 0.0f
     var hitY = 0.0f
     var hitZ = 0.0f
     var lastDist = 0.0f
     var hitDirection: EnumFacing? = null
-    
+
     if (diffX * diffX >= 1.0E-7) {
         val factorMin = (minX - x1f) / diffX
         if (factorMin in 0.0..1.0) {
@@ -423,7 +424,7 @@ private fun IBlockState.rayTrace(
             }
         }
     }
-    
+
     if (diffZ * diffZ >= 1.0E-7) {
         val factorMin = (minZ - z1f) / diffZ
         if (factorMin in 0.0..1.0) {
@@ -442,7 +443,7 @@ private fun IBlockState.rayTrace(
                 }
             }
         }
-        
+
         val factorMax = (maxZ - z1f) / diffZ
         if (factorMax in 0.0..1.0) {
             val resultX = x1f + diffX * factorMax
@@ -464,9 +465,9 @@ private fun IBlockState.rayTrace(
     return if (hitDirection != null) {
         RayTraceResult(
             Vec3d(
-                blockPos.x.toDouble()+ hitX,
-                blockPos.y.toDouble()+ hitY,
-                blockPos.z.toDouble()+ hitZ
+                blockPos.x.toDouble() + hitX,
+                blockPos.y.toDouble() + hitY,
+                blockPos.z.toDouble() + hitZ
             ),
             hitDirection,
             blockPos

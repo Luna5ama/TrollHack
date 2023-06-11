@@ -25,11 +25,11 @@ import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
+import dev.luna5ama.trollhack.util.inventory.block
+import dev.luna5ama.trollhack.util.inventory.id
 import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow
 import dev.luna5ama.trollhack.util.inventory.operation.*
 import dev.luna5ama.trollhack.util.inventory.slot.*
-import dev.luna5ama.trollhack.util.inventory.block
-import dev.luna5ama.trollhack.util.inventory.id
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter

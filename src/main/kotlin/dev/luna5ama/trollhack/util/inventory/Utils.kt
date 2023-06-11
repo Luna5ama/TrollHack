@@ -3,7 +3,10 @@ package dev.luna5ama.trollhack.util.inventory
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
-import dev.luna5ama.trollhack.util.inventory.slot.*
+import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
+import dev.luna5ama.trollhack.util.inventory.slot.craftingSlots
+import dev.luna5ama.trollhack.util.inventory.slot.firstItem
+import dev.luna5ama.trollhack.util.inventory.slot.getSlots
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import net.minecraft.block.state.IBlockState
 import net.minecraft.enchantment.EnchantmentHelper

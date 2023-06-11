@@ -60,7 +60,7 @@ internal object PacketLogger : Module(
     }
 
     private class PacketLogBuilder<T : Packet<*>>(
-          event: PacketEvent,
+        event: PacketEvent,
         val packet: T
     ) {
         private val stringBuilder = StringBuilder()
@@ -140,7 +140,8 @@ internal object PacketLogger : Module(
         val logAll by setting("$side Log All", false, { page == side && sideEnabled })
         val logCancelled by setting("$side Log Cancelled", false, { page == side && sideEnabled && !logAll })
 
-        private val unknownHandler = Handler(setting("$side Log Unknown", false, { page == side && sideEnabled && !logAll })) { +"Unknown" }
+        private val unknownHandler =
+            Handler(setting("$side Log Unknown", false, { page == side && sideEnabled && !logAll })) { +"Unknown" }
 
         private val handlers = mutableMapOf<Class<out Packet<*>>, Handler>().apply {
             handleFunc.associateTo(this) { (clazz, func) ->

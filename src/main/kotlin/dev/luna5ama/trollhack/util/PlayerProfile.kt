@@ -19,7 +19,7 @@ class PlayerProfile(
     val isInvalid
         get() = this.uuid == INVALID.uuid
 
-    companion object  {
+    companion object {
         @JvmField
         val INVALID = PlayerProfile(UUID(0L, 0L), "Invalid")
     }

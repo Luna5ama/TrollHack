@@ -85,7 +85,8 @@ internal object WaypointRender : Module(
     private val lockObject = Any()
 
     override fun getHudInfo(): String {
-        return waypointMap.size.toString()    }
+        return waypointMap.size.toString()
+    }
 
     init {
         listener<Render3DEvent> {

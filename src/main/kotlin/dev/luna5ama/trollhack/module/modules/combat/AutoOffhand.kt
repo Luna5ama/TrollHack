@@ -25,13 +25,13 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.confirmedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow
+import dev.luna5ama.trollhack.util.inventory.isWeapon
 import dev.luna5ama.trollhack.util.inventory.operation.moveTo
 import dev.luna5ama.trollhack.util.inventory.operation.swapToItemOrMove
 import dev.luna5ama.trollhack.util.inventory.slot.craftingSlots
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.inventory.slot.inventorySlots
 import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
-import dev.luna5ama.trollhack.util.inventory.isWeapon
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -139,7 +139,10 @@ internal object AutoOffhand : Module(
         GAPPLE("Gapple", { it.item == Items.GOLDEN_APPLE }),
         STRENGTH(
             "Strength",
-            { stack -> stack.item is ItemPotion && PotionUtils.getEffectsFromStack(stack).any { it.potion == MobEffects.STRENGTH } }),
+            { stack ->
+                stack.item is ItemPotion && PotionUtils.getEffectsFromStack(stack)
+                    .any { it.potion == MobEffects.STRENGTH }
+            }),
         CRYSTAL("Crystal", { it.item == Items.END_CRYSTAL }),
         BED("Bed", { it.item == Items.BED })
     }
@@ -214,7 +217,8 @@ internal object AutoOffhand : Module(
     private fun SafeClientEvent.checkGapple() = offhandGapple
         && (checkAuraG && CombatManager.isActiveAndTopPriority(KillAura)
         || checkWeaponG && player.heldItemMainhand.item.isWeapon
-        || checkCA && !offhandCrystal && (CombatManager.isOnTopPriority(TrollAura) || CombatManager.isOnTopPriority(ZealotCrystalPlus))
+        || checkCA && !offhandCrystal
+        && (CombatManager.isOnTopPriority(TrollAura) || CombatManager.isOnTopPriority(ZealotCrystalPlus))
         || checkBedAuraG && !offhandBed && CombatManager.isOnTopPriority(BedAura))
 
     private fun checkBed(): Boolean {
