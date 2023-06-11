@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.world.isAir
+import dev.luna5ama.trollhack.util.world.isFullBox
 import dev.luna5ama.trollhack.util.world.isReplaceable
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
@@ -271,10 +272,12 @@ object HoleUtils {
         val blockState = getBlockState(pos)
         if (blockState.block == Blocks.WEB) return false
         if (CombatSetting.ignoreReplaceableFilling && blockState.isReplaceable) return true
-        if (CombatSetting.ignoreNonFullCubeFilling && !blockState.isFullCube) return true
-        if (CombatSetting.ignoreNonCollidingFilling
-            && blockState.getCollisionBoundingBox(this, pos)?.let { it.maxY <= 0.5 } != false
-        ) return true
+
+        val collisionBox = blockState.getCollisionBoundingBox(this, pos)
+        val lowCollisionBox = collisionBox == null || collisionBox.maxY <= 0.5
+
+        if (CombatSetting.ignoreNonFullBoxFilling && !blockState.isFullBox && lowCollisionBox) return true
+        if (CombatSetting.ignoreNonCollidingFilling && lowCollisionBox) return true
 
         return blockState.isAir
     }

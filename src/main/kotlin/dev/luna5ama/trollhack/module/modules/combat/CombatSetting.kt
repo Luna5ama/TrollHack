@@ -155,11 +155,11 @@ internal object CombatSetting : Module(
     val twoBlocksHole by setting("2 Blocks Hole", true, page.atValue(Page.HOLE_DETECTION))
     val fourBlocksHole by setting("4 Blocks Hole", true, page.atValue(Page.HOLE_DETECTION))
     val ignoreReplaceableFilling by setting("Ignore Replaceable Filling", true, page.atValue(Page.HOLE_DETECTION))
-    val ignoreNonFullCubeFilling by setting("Ignore Non-Full Cube Filling", false, page.atValue(Page.HOLE_DETECTION))
+    val ignoreNonFullBoxFilling by setting("Ignore Non-Full Cube Filling", false, page.atValue(Page.HOLE_DETECTION))
     val ignoreNonCollidingFilling by setting(
         "Ignore Non-Colliding Filling",
         true,
-        page.atValue(Page.HOLE_DETECTION) and { !ignoreNonFullCubeFilling })
+        page.atValue(Page.HOLE_DETECTION) and { !ignoreNonFullBoxFilling })
 
     /* Render */
     private val renderPrediction =
