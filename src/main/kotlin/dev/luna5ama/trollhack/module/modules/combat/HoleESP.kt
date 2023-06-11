@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
@@ -52,6 +53,7 @@ internal object HoleESP : Module(
     private val flatOutline by setting("Flat Outline", true, renderMode0.atValue(RenderMode.GLOW))
     private val width by setting("Width", 2.0f, 1.0f..8.0f, 0.1f, outline0.atTrue())
     private val range by setting("Range", 16, 4..32, 1)
+    private val verticleRange by setting("Vertical Range", 8, 4..16, 1)
 
     @Suppress("UNUSED")
     private enum class RenderMode {
@@ -165,12 +167,14 @@ internal object HoleESP : Module(
 
             val eyePos = player.eyePosition
             val rangeSq = range * range
+            val vRangeSq = verticleRange * verticleRange
             val cached = ArrayList<ESPRenderer.Info>()
             val side = if (renderMode != RenderMode.FLAT) EnumFacingMask.ALL
             else EnumFacingMask.DOWN
 
             for (holeInfo in HoleManager.holeInfos) {
                 if (eyePos.squareDistanceTo(holeInfo.center) > rangeSq) continue
+                if ((eyePos.y - holeInfo.center.y).sq > vRangeSq) continue
                 val color = getColor(holeInfo) ?: continue
                 val box = if (renderMode == RenderMode.BLOCK_FLOOR) holeInfo.boundingBox.offset(0.0, -1.0, 0.0)
                 else holeInfo.boundingBox
