@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
-import dev.fastmc.common.BlockPosUtil
 import dev.fastmc.common.TickTimer
 import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
@@ -226,9 +225,9 @@ internal object AutoRegear : Module(
                             val placedPos = mutable.setAndAdd(pos, direction)
                             explosionPos.sumOf {
                                 world.fastRayTraceCorners(
-                                    BlockPosUtil.xFromLong(it) + 0.5,
-                                    BlockPosUtil.yFromLong(it) + 0.5,
-                                    BlockPosUtil.zFromLong(it) + 0.5,
+                                    VectorUtils.xFromLong(it) + 0.5,
+                                    VectorUtils.yFromLong(it) + 0.5,
+                                    VectorUtils.zFromLong(it) + 0.5,
                                     placedPos.x,
                                     placedPos.y,
                                     placedPos.z,

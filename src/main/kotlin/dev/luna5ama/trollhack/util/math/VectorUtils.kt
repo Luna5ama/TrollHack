@@ -102,5 +102,17 @@ object VectorUtils {
     fun fromLong(long: Long): BlockPos {
         return BlockPos(BlockPosUtil.xFromLong(long), BlockPosUtil.yFromLong(long), BlockPosUtil.zFromLong(long))
     }
+
+    fun xFromLong(long: Long): Int {
+        return BlockPosUtil.xFromLong(long)
+    }
+
+    fun yFromLong(long: Long): Int {
+        return BlockPosUtil.yFromLong(long)
+    }
+
+    fun zFromLong(long: Long): Int {
+        return BlockPosUtil.zFromLong(long)
+    }
 }
 
