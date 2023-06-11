@@ -161,7 +161,7 @@ internal object MainMenu : AbstractModule(
             GlStateUtils.blend(true)
             GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
 
-            val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 3600.0f).coerceIn(0.5f, 1.0f)
+            val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 4000.0f).coerceIn(0.5f, 1.0f)
 
             val posX = mc.displayWidth / 12.0f
             val posY = posX / 2.0f
@@ -256,7 +256,7 @@ internal object MainMenu : AbstractModule(
                     Easing.OUT_CUBIC.inc(Easing.toDelta(lastUpdateTime, 300.0f))
                 )
 
-                val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 2000.0f + 0.25f).coerceIn(1.5f, 3.0f)
+                val scale = min((mc.displayWidth * 2 + mc.displayHeight) / 4000.0f + 1.25f, 3.0f)
 
                 RenderUtils2D.drawRectFilled(
                     posX + 1.0f,
@@ -300,7 +300,7 @@ internal object MainMenu : AbstractModule(
             }
 
             private companion object {
-                val bottomPadding get() = min(mc.displayHeight / 5.0f, 150.0f)
+                val bottomPadding get() = min((mc.displayWidth + mc.displayHeight * 2) / 25.0f, 150.0f)
                 const val itemPadding = 10.0f
 
                 val buttonWidth get() = min(mc.displayWidth / 6.0f, 300.0f)
