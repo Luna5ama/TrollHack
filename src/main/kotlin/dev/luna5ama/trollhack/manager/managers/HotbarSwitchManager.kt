@@ -42,7 +42,7 @@ object HotbarSwitchManager : Manager() {
         }
     }
 
-    fun SafeClientEvent.ghostSwitch(slot: HotbarSlot, block: () -> Unit) {
+    fun SafeClientEvent.ghostSwitch(slot: Slot, block: () -> Unit) {
         ghostSwitch(Override.DEFAULT, slot, block)
     }
 

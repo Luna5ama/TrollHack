@@ -26,9 +26,8 @@ import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
+import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
-import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.isInSight
 import dev.luna5ama.trollhack.util.math.vector.distance
@@ -46,6 +45,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
+import net.minecraft.inventory.Slot
 import net.minecraft.network.play.client.CPacketAnimation
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.util.EnumFacing
@@ -146,10 +146,10 @@ internal object AutoHoleFill : Module(
         }
 
         safeConcurrentListener<RunGameLoopEvent.Tick> {
-            val slot = player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
+            val slot = player.allSlotsPrioritized.firstBlock(Blocks.OBSIDIAN)
             val place = placeTimer.tick(fillDelay) && slot != null
 
-            if (place || updateTimer.tickAndReset(25L)) {
+            if (place || updateTimer.tickAndReset(5L)) {
                 val newHoleInfo = getHoleInfos()
                 holeInfos = newHoleInfo
 
@@ -323,7 +323,7 @@ internal object AutoHoleFill : Module(
         }
     }
 
-    private fun SafeClientEvent.placeBlock(slot: HotbarSlot, pos: BlockPos) {
+    private fun SafeClientEvent.placeBlock(slot: Slot, pos: BlockPos) {
         val target = pos.down()
 
         val packet = CPacketPlayerTryUseItemOnBlock(target, EnumFacing.UP, EnumHand.MAIN_HAND, 0.5f, 1.0f, 0.5f)
