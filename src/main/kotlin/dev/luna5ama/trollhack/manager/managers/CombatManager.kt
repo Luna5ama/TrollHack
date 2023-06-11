@@ -2,6 +2,8 @@ package dev.luna5ama.trollhack.manager.managers
 
 import com.google.common.collect.MapMaker
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.collection.FastObjectArrayList
+import dev.fastmc.common.sort.ObjectIntrosort
 import dev.luna5ama.trollhack.event.*
 import dev.luna5ama.trollhack.event.events.*
 import dev.luna5ama.trollhack.event.events.combat.CombatEvent
@@ -516,14 +518,19 @@ object CombatManager : Manager() {
     }
 
     private fun updatePlaceList() {
-        placeList = placeMap.values
-            .sortedByDescending { it.targetDamage }
+        val list = FastObjectArrayList.wrap(placeMap.values.toTypedArray())
+        ObjectIntrosort.sort(list.elements(), compareBy { it.targetDamage })
+        placeList = list.toList()
     }
 
     private fun updateCrystalList() {
-        crystalList = crystalMap.entries
-            .map { it.toPair() }
-            .sortedByDescending { it.second.targetDamage }
+        val entries = crystalMap.entries
+        val list = FastObjectArrayList.wrap(arrayOfNulls<Pair<EntityEnderCrystal, CrystalDamage>>(entries.size))
+        for ((crystal, crystalDamage) in entries) {
+            list.add(crystal to crystalDamage)
+        }
+        ObjectIntrosort.sort(list.elements(), compareBy { it.second.targetDamage })
+        crystalList = list.toList()
     }
 
     fun isActiveAndTopPriority(module: AbstractModule) = module.isActive() && isOnTopPriority(module)
