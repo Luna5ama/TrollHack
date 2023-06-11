@@ -519,7 +519,7 @@ object CombatManager : Manager() {
 
     private fun updatePlaceList() {
         val list = FastObjectArrayList.wrap(placeMap.values.toTypedArray())
-        ObjectIntrosort.sort(list.elements(), compareBy { it.targetDamage })
+        ObjectIntrosort.sort(list.elements(), 0, list.size, compareBy { it.targetDamage })
         placeList = list.toList()
     }
 
@@ -529,7 +529,7 @@ object CombatManager : Manager() {
         for ((crystal, crystalDamage) in entries) {
             list.add(crystal to crystalDamage)
         }
-        ObjectIntrosort.sort(list.elements(), compareBy { it.second.targetDamage })
+        ObjectIntrosort.sort(list.elements(), 0, list.size, compareBy { it.second.targetDamage })
         crystalList = list.toList()
     }
 
