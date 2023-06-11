@@ -19,6 +19,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.accessor.entityID
+import dev.luna5ama.trollhack.util.collections.compareFloatByDescending
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CrystalDamage
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.blockPos
@@ -519,18 +520,18 @@ object CombatManager : Manager() {
 
     private fun updatePlaceList() {
         val list = FastObjectArrayList.wrap(placeMap.values.toTypedArray())
-        ObjectIntrosort.sort(list.elements(), 0, list.size, compareBy { it.targetDamage })
-        placeList = list.toList()
+        ObjectIntrosort.sort(list.elements(), 0, list.size, compareFloatByDescending { it.targetDamage })
+        placeList = list
     }
 
     private fun updateCrystalList() {
         val entries = crystalMap.entries
-        val list = FastObjectArrayList.wrap(arrayOfNulls<Pair<EntityEnderCrystal, CrystalDamage>>(entries.size))
+        val list = FastObjectArrayList.wrap(arrayOfNulls<Pair<EntityEnderCrystal, CrystalDamage>>(entries.size), 0)
         for ((crystal, crystalDamage) in entries) {
             list.add(crystal to crystalDamage)
         }
-        ObjectIntrosort.sort(list.elements(), 0, list.size, compareBy { it.second.targetDamage })
-        crystalList = list.toList()
+        ObjectIntrosort.sort(list.elements(), 0, list.size, compareFloatByDescending { it.second.targetDamage })
+        crystalList = list
     }
 
     fun isActiveAndTopPriority(module: AbstractModule) = module.isActive() && isOnTopPriority(module)
