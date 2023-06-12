@@ -274,45 +274,6 @@ internal object ESP : Module(
         GlStateManager.glLineWidth(1.0f)
     }
 
-    private fun SafeClientEvent.drawEntities() {
-        val rangeSq = range.sq
-
-        GlStateUtils.texture2d(true)
-        GlStateUtils.alpha(true)
-        GlStateUtils.depth(true)
-        GlStateManager.depthMask(true)
-
-        val camera = Frustum()
-        val viewEntity = mc.renderViewEntity ?: player
-        val partialTicks = RenderUtils3D.partialTicks
-        val partialTicksD = RenderUtils3D.partialTicks.toDouble()
-        val x = MathUtils.lerp(viewEntity.lastTickPosX, viewEntity.posX, partialTicksD)
-        val y = MathUtils.lerp(viewEntity.lastTickPosY, viewEntity.posY, partialTicksD)
-        val z = MathUtils.lerp(viewEntity.lastTickPosZ, viewEntity.posZ, partialTicksD)
-
-        camera.setPosition(x, y, z)
-
-        // Draw the entities into the framebuffer
-        for (entity in EntityManager.entity) {
-            if (player.getDistanceSq(entity) > rangeSq) continue
-            if (!checkEntityType(entity)) continue
-
-            val renderer = mc.renderManager.getEntityRenderObject<Entity>(entity) ?: continue
-
-            if (!renderer.shouldRender(entity, camera, x, y, z)) continue
-
-            val yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks
-            val pos = EntityUtils.getInterpolatedPos(entity, partialTicks)
-                .subtract(mc.renderManager.renderPosX, mc.renderManager.renderPosY, mc.renderManager.renderPosZ)
-
-            renderer.setRenderOutlines(true)
-            renderer.doRender(entity, pos.x, pos.y, pos.z, yaw, partialTicks)
-        }
-
-        GlStateUtils.texture2d(false)
-        GlStateUtils.alpha(false)
-    }
-
     private fun drawShader() {
         val framebufferIn = mc.renderGlobal.entityOutlineFramebuffer
         framebufferIn.setFramebufferFilter(GL_NEAREST)
@@ -321,7 +282,6 @@ internal object ESP : Module(
         GlStateUtils.blend(true)
         GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE)
         GlStateUtils.depth(false)
-        GlStateUtils.alpha(true)
 
         Shader.use {
             updateUniforms()
@@ -336,6 +296,7 @@ internal object ESP : Module(
             glDrawArrays(GL_TRIANGLES, PersistentMappedVBO.drawOffset, RenderUtils2D.vertexSize)
             PersistentMappedVBO.end()
             glBindVertexArray(0)
+            RenderUtils2D.vertexSize = 0
         }
 
         GlStateUtils.depth(true)
