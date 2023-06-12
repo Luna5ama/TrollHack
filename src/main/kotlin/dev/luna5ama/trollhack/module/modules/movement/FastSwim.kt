@@ -104,11 +104,11 @@ internal object FastSwim : Module(
     private fun SafeClientEvent.lavaSwim() {
         ySwim(lavaVBoost, lavaUpSpeed, lavaDownSpeed)
 
-        if (MovementUtils.isInputtingAny) {
+        if (MovementUtils.isInputting(jump = true, sneak = true)) {
             modifyTimer(50.0f / timerBoost)
         }
 
-        if (MovementUtils.isInputting) {
+        if (MovementUtils.isInputting()) {
             val yaw = player.calcMoveYaw()
             moveSpeed = min(max(moveSpeed * lavaHBoost, 0.05), lavaHSpeed / 20.0)
             player.motionX = -sin(yaw) * moveSpeed
@@ -121,11 +121,11 @@ internal object FastSwim : Module(
     private fun SafeClientEvent.waterSwim() {
         ySwim(waterVBoost, waterUpSpeed, waterDownSpeed * 20.0f)
 
-        if (MovementUtils.isInputtingAny) {
+        if (MovementUtils.isInputting(jump = true, sneak = true)) {
             modifyTimer(50.0f / timerBoost)
         }
 
-        if (MovementUtils.isInputting) {
+        if (MovementUtils.isInputting()) {
             val yaw = player.calcMoveYaw()
             val multiplier = player.speedEffectMultiplier
 

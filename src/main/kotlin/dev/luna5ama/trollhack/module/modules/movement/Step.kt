@@ -121,7 +121,7 @@ internal object Step : Module(
             && !player.isInOrAboveLiquid
             && (mode == Mode.VANILLA || TimerManager.globalTicks > timeoutTick)
             && (!strictYMotion || y in -0.08..0.0 && player.lastTickPosY == player.posY)
-            && (MovementUtils.isInputting || HolePathFinder.isActive())
+            && (MovementUtils.isInputting() || HolePathFinder.isActive())
             && (x.sq + z.sq) > 0.001
     }
 

@@ -273,7 +273,7 @@ internal object PacketFly : Module(
 
             if (player.movementInput.jump xor player.movementInput.sneak) {
                 motionY = if (player.movementInput.jump) upSpeed else -downSpeed
-            } else if (MovementUtils.isInputting) {
+            } else if (MovementUtils.isInputting()) {
                 val yaw = player.calcMoveYaw()
                 motionX -= sin(yaw) * speed
                 motionZ += cos(yaw) * speed
@@ -326,7 +326,7 @@ internal object PacketFly : Module(
                 return
             }
 
-            if (MovementUtils.isInputting && player.collidedHorizontally && isPhasing()) {
+            if (MovementUtils.isInputting() && player.collidedHorizontally && isPhasing()) {
                 packetFlyingTicks = 5
                 return
             }

@@ -328,7 +328,7 @@ internal object Speed : Module(
             && !player.isInWeb
             && !player.isOnLadder
             && Flight.isDisabled
-            && MovementUtils.isInputting
+            && MovementUtils.isInputting()
             && !HoleSnap.isActive()
             && !BaritoneUtils.isPathing
     }

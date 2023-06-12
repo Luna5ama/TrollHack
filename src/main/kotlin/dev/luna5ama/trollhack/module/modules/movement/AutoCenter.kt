@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.luna5ama.trollhack.event.events.player.InputUpdateEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
@@ -57,6 +58,13 @@ internal object AutoCenter : Module(
 
             ticks = 0
             center = null
+        }
+
+        safeListener<InputUpdateEvent> {
+            it.movementInput.moveForward = 0.0f
+            it.movementInput.moveStrafe = 0.0f
+            it.movementInput.jump = false
+            it.movementInput.sneak = false
         }
 
         safeListener<PlayerMoveEvent.Pre>(-2000) {

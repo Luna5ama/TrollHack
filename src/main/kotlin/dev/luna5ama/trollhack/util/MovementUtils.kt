@@ -19,15 +19,17 @@ import kotlin.math.hypot
 object MovementUtils {
     private val mc = Minecraft.getMinecraft()
 
-    val isInputtingAny: Boolean
-        get() = Wrapper.player?.movementInput?.let {
-            it.moveForward != 0.0f || it.moveStrafe != 0.0f || it.jump || it.sneak
-        } ?: false
-
-    val isInputting
-        get() = Wrapper.player?.movementInput?.let {
-            it.moveForward != 0.0f || it.moveStrafe != 0.0f
-        } ?: false
+    fun isInputting(
+        movementInput: MovementInput? = Wrapper.player?.movementInput,
+        jump: Boolean = false,
+        sneak: Boolean = false
+    ): Boolean {
+        if (movementInput == null) return false
+        return movementInput.moveForward != 0.0f
+            || movementInput.moveStrafe != 0.0f
+            || jump && movementInput.jump
+            || sneak && movementInput.sneak
+    }
 
     val Entity.isMoving get() = speed > 0.0001
     val Entity.speed get() = hypot(motionX, motionZ)

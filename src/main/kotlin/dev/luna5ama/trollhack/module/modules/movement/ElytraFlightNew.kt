@@ -82,7 +82,7 @@ internal object ElytraFlightNew : Module(
     private fun SafeClientEvent.fly(event: PlayerMoveEvent.Pre) {
         player.motionY = 0.0
 
-        if (MovementUtils.isInputting) {
+        if (MovementUtils.isInputting()) {
             val yaw = player.calcMoveYaw()
             event.x = -sin(yaw) * speed
             event.z = cos(yaw) * speed
