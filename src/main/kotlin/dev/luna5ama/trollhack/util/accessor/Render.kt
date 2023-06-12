@@ -14,6 +14,8 @@ import net.minecraft.client.shader.ShaderGroup
 val DestroyBlockProgress.entityID: Int get() = (this as AccessorDestroyBlockProgress).trollGetEntityID()
 
 val RenderGlobal.entityOutlineShader: ShaderGroup get() = (this as AccessorRenderGlobal).entityOutlineShader
+val RenderGlobal.entityOutlineFramebuffer: Framebuffer get() = (this as AccessorRenderGlobal).trollGetEntityOutlineFramebuffer()
+
 val RenderGlobal.damagedBlocks: MutableMap<Int, DestroyBlockProgress> get() = (this as AccessorRenderGlobal).trollGetDamagedBlocks()
 var RenderGlobal.renderEntitiesStartupCounter: Int
     get() = (this as AccessorRenderGlobal).trollGetRenderEntitiesStartupCounter()

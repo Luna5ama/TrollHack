@@ -3,7 +3,6 @@ package dev.luna5ama.trollhack.module.modules.render
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
-import dev.luna5ama.trollhack.event.events.render.FogColorEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.safeListener
@@ -20,23 +19,30 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.accessor.*
 import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
+import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.ShaderHelper
+import dev.luna5ama.trollhack.util.graphics.buffer.PersistentMappedVBO
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.esp.DynamicBoxRenderer
+import dev.luna5ama.trollhack.util.graphics.shaders.DrawShader
+import dev.luna5ama.trollhack.util.graphics.use
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import kotlinx.coroutines.launch
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.culling.Frustum
-import net.minecraft.client.shader.Shader
+import net.minecraft.client.shader.ShaderGroup
+import net.minecraft.client.util.JsonBlendingMode
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
-import kotlin.math.pow
+import org.lwjgl.opengl.GL14.GL_FUNC_ADD
+import org.lwjgl.opengl.GL20.glUniform1f
+import org.lwjgl.opengl.GL20.glUniform2f
+import org.lwjgl.opengl.GL30.glBindVertexArray
 
 internal object ESP : Module(
     name = "ESP",
@@ -139,13 +145,6 @@ internal object ESP : Module(
         page.atValue(Page.RENDERING) and mode0.atValue(Mode.BOX, Mode.SHADER)
     )
     private val width by setting("Width", 2.0f, 1.0f..8.0f, 0.25f, page.atValue(Page.RENDERING))
-    private val ratio by setting(
-        "Ratio",
-        0.5f,
-        0.0f..1.0f,
-        0.05f,
-        page.atValue(Page.RENDERING) and mode0.atValue(Mode.SHADER)
-    )
 
     private enum class Page {
         ENTITY_TYPE, COLOR, RENDERING
@@ -155,11 +154,11 @@ internal object ESP : Module(
         BOX, GLOW, SHADER
     }
 
-    private val shaderHelper = ShaderHelper(ResourceLocation("shaders/post/esp_outline.json"))
-    private val frameBufferFinal = shaderHelper.getFrameBuffer("final")
+
     private val boxRenderer = DynamicBoxRenderer()
 
     private var dirty = false
+    val outlineESP get() = isEnabled && mode == Mode.SHADER
 
     init {
         onDisable {
@@ -189,12 +188,6 @@ internal object ESP : Module(
             }
         }
 
-        safeListener<FogColorEvent> { event ->
-            shaderHelper.shader?.listFrameBuffers?.forEach {
-                it.setFramebufferColor(event.red, event.green, event.blue, 0.0f)
-            }
-        }
-
         safeListener<Render3DEvent>(69420) {
             when (mode) {
                 Mode.BOX -> {
@@ -206,9 +199,6 @@ internal object ESP : Module(
                     renderBoxESP()
                 }
                 Mode.SHADER -> {
-                    GlStateUtils.useProgramForce(0)
-                    clearFrameBuffer()
-                    drawEntities()
                     drawShader()
                 }
                 else -> {
@@ -218,6 +208,19 @@ internal object ESP : Module(
         }
 
         safeParallelListener<TickEvent.Post> {
+            when (mode) {
+                Mode.GLOW, Mode.SHADER -> {
+                    boxRenderer.clear()
+                    val rangeSq = range.sq
+                    for (entity in EntityManager.entity) {
+                        entity.isGlowing = player.getDistanceSq(entity) <= rangeSq && checkEntityType(entity)
+                    }
+                }
+                Mode.BOX -> {
+                    updateBoxESP()
+                }
+            }
+
             if (mode == Mode.BOX) {
                 updateBoxESP()
             } else {
@@ -226,26 +229,14 @@ internal object ESP : Module(
         }
 
         safeListener<TickEvent.Post> {
-            when (mode) {
-                Mode.GLOW -> {
-                    for (shader in mc.renderGlobal.entityOutlineShader.listShaders) {
-                        shader.shaderManager.getShaderUniform("Radius")?.set(width)
-                    }
+            if (mode == Mode.GLOW) {
+                for (shader in mc.renderGlobal.entityOutlineShader.listShaders) {
+                    shader.shaderManager.getShaderUniform("Radius")?.set(width)
+                }
 
-                    val rangeSq = range.sq
-                    for (entity in EntityManager.entity) {
-                        entity.isGlowing = player.getDistanceSq(entity) <= rangeSq && checkEntityType(entity)
-                    }
-                }
-                Mode.SHADER -> {
-                    shaderHelper.shader?.let {
-                        for (shader in it.listShaders) {
-                            setShaderUniforms(shader)
-                        }
-                    }
-                }
-                else -> {
-                    // Box Mode
+                val rangeSq = range.sq
+                for (entity in EntityManager.entity) {
+                    entity.isGlowing = player.getDistanceSq(entity) <= rangeSq && checkEntityType(entity)
                 }
             }
         }
@@ -281,27 +272,6 @@ internal object ESP : Module(
 
         GlStateUtils.depth(true)
         GlStateManager.glLineWidth(1.0f)
-    }
-
-    private fun clearFrameBuffer() {
-        // Bind the frame buffer and clear it
-        frameBufferFinal!!.apply {
-            bindFramebuffer(true)
-            GlStateManager.clearColor(
-                framebufferColor[0],
-                framebufferColor[1],
-                framebufferColor[2],
-                framebufferColor[3]
-            )
-
-            var mask = 16384
-            if (useDepth) {
-                GlStateManager.clearDepth(1.0)
-                mask = mask or 256
-            }
-
-            GlStateManager.clear(mask)
-        }
     }
 
     private fun SafeClientEvent.drawEntities() {
@@ -344,40 +314,38 @@ internal object ESP : Module(
     }
 
     private fun drawShader() {
-        // Push matrix
-        GlStateUtils.pushMatrixAll()
+        val framebufferIn = mc.renderGlobal.entityOutlineFramebuffer
+        framebufferIn.setFramebufferFilter(GL_NEAREST)
+        framebufferIn.bindFramebufferTexture()
 
         GlStateUtils.blend(true)
-        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
-
-        shaderHelper.shader!!.render(RenderUtils3D.partialTicks)
-
-        // Re-enable blend because shader rendering will disable it at the end
-        GlStateUtils.blend(true)
+        GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE)
         GlStateUtils.depth(false)
+        GlStateUtils.alpha(true)
 
-        // Draw it on the main frame buffer
-        mc.framebuffer.bindFramebuffer(false)
-        frameBufferFinal!!.framebufferRenderExt(mc.displayWidth, mc.displayHeight, false)
+        Shader.use {
+            updateUniforms()
+            RenderUtils2D.putVertex(-1.0f, 1.0f, ColorRGB(0))
+            RenderUtils2D.putVertex(-1.0f, -1.0f, ColorRGB(0))
+            RenderUtils2D.putVertex(1.0f, 1.0f, ColorRGB(0))
+            RenderUtils2D.putVertex(1.0f, -1.0f, ColorRGB(0))
+            RenderUtils2D.putVertex(1.0f, 1.0f, ColorRGB(0))
+            RenderUtils2D.putVertex(-1.0f, -1.0f, ColorRGB(0))
 
-        // Revert states
-        GlStateUtils.blend(true)
+            glBindVertexArray(PersistentMappedVBO.POS2_COLOR)
+            glDrawArrays(GL_TRIANGLES, PersistentMappedVBO.drawOffset, RenderUtils2D.vertexSize)
+            PersistentMappedVBO.end()
+            glBindVertexArray(0)
+        }
+
         GlStateUtils.depth(true)
-        GlStateUtils.texture2d(false)
-        GlStateManager.depthMask(false)
 
-        // Revert matrix
-        GlStateUtils.popMatrixAll()
-    }
+        framebufferIn.unbindFramebufferTexture()
 
-    private fun setShaderUniforms(shader: Shader) {
-        val width = width + 2.0f
-
-        shader.shaderManager.getShaderUniform("outlineAlpha")?.set(if (outline) aOutline / 255.0f else 0.0f)
-        shader.shaderManager.getShaderUniform("filledAlpha")?.set(if (filled) aFilled / 255.0f else 0.0f)
-        shader.shaderManager.getShaderUniform("width")?.set(width)
-        shader.shaderManager.getShaderUniform("widthSq")?.set(width.pow(2))
-        shader.shaderManager.getShaderUniform("ratio")?.set((width - 1.0f) * ratio.pow(3) + 1.0f)
+        framebufferIn.framebufferColor[0]= 0.0f
+        framebufferIn.framebufferColor[1]= 0.0f
+        framebufferIn.framebufferColor[2]= 0.0f
+        framebufferIn.framebufferColor[3]= 0.0f
     }
 
     private fun checkEntityType(entity: Entity) =
@@ -417,13 +385,13 @@ internal object ESP : Module(
 
     init {
         onDisable {
-            if (mode == Mode.GLOW) {
+            if (mode == Mode.GLOW  || mode == Mode.SHADER) {
                 resetGlow()
             }
         }
 
         mode0.valueListeners.add { prev, _ ->
-            if (isEnabled && prev == Mode.GLOW) {
+            if (isEnabled && (prev == Mode.GLOW || prev == Mode.SHADER)) {
                 resetGlow()
             }
         }
@@ -438,6 +406,21 @@ internal object ESP : Module(
             for (entity in EntityManager.entity) {
                 entity.isGlowing = false
             }
+        }
+    }
+
+    private object Shader: DrawShader("/assets/trollhack/shaders/OutlineESP.vert.glsl", "/assets/trollhack/shaders/OutlineESP.frag.glsl") {
+        fun updateUniforms() {
+            glUniform2f(0, 1.0f/ (mc.displayWidth * AntiAlias.sampleLevel), 1.0f/ (mc.displayHeight * AntiAlias.sampleLevel))
+            glUniform1f(1, if (!outline) 0.0f else aOutline / 255.0f)
+            glUniform1f(2, if (!filled) 0.0f else aFilled / 255.0f)
+            glUniform1f(3, width / 2.0f)
+        }
+    }
+
+    object NoOpShaderGroup : ShaderGroup(mc.textureManager, mc.resourceManager, mc.framebuffer, ResourceLocation("shaders/post/noop.json")) {
+        override fun render(partialTicks: Float) {
+            // NO-OP
         }
     }
 }

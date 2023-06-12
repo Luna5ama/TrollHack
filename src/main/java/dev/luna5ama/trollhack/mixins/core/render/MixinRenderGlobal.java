@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.mixins.core.render;
 
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent;
 import dev.luna5ama.trollhack.module.modules.player.Freecam;
+import dev.luna5ama.trollhack.module.modules.render.ESP;
 import dev.luna5ama.trollhack.module.modules.render.FastRender;
 import dev.luna5ama.trollhack.module.modules.render.SelectionHighlight;
 import net.minecraft.block.state.IBlockState;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -26,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 
@@ -45,6 +48,9 @@ public abstract class MixinRenderGlobal {
 
     @Shadow
     protected abstract void postRenderDamagedBlocks();
+
+    @Shadow
+    private ShaderGroup entityOutlineShader;
 
     @Inject(method = "drawSelectionBox", at = @At("HEAD"), cancellable = true)
     public void drawSelectionBox(
@@ -129,6 +135,32 @@ public abstract class MixinRenderGlobal {
             this.mc.profiler.endSection();
 
             RenderEntityEvent.setRenderingEntities(false);
+        }
+    }
+
+    private ShaderGroup prevShaderGroup;
+
+    @Inject(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderHelper;enableStandardItemLighting()V", ordinal = 0, shift = At.Shift.BEFORE))
+    private void Inject$renderEntities$INVOKE$ShaderGroup$render$BEFORE(Entity renderViewEntity, ICamera camera, float partialTicks, CallbackInfo ci) {
+        if (ESP.INSTANCE.getOutlineESP()) {
+            prevShaderGroup = this.entityOutlineShader;
+            this.entityOutlineShader = ESP.NoOpShaderGroup.INSTANCE;
+        }
+    }
+
+    @Inject(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;enableColorMaterial()V", shift = At.Shift.AFTER))
+    private void Inject$renderEntities$INVOKE$ShaderGroup$render$AFTER(Entity renderViewEntity, ICamera camera, float partialTicks, CallbackInfo ci) {
+        ShaderGroup prev = prevShaderGroup;
+        prevShaderGroup = null;
+        if (prev != null) {
+            this.entityOutlineShader = prev;
+        }
+    }
+
+    @Inject(method = "renderEntityOutlineFramebuffer", at = @At("HEAD"), cancellable = true)
+    private void Inject$renderEntityOutlineFramebuffer(CallbackInfo ci) {
+        if (ESP.INSTANCE.getOutlineESP()) {
+            ci.cancel();
         }
     }
 }
