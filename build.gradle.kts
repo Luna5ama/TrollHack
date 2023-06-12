@@ -9,6 +9,7 @@ version = "1.2.0"
 
 buildscript {
     repositories {
+        mavenCentral()
         maven("https://files.minecraftforge.net/maven")
     }
 
