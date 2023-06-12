@@ -48,7 +48,7 @@ internal object MainMenu : AbstractModule(
     @Suppress("unused")
     enum class Title(override val displayName: CharSequence, val titleName: String) : DisplayEnum {
         TROLL_HACK("Troll Hack", "TROLL HACK"),
-        MINECRAFT("Minecraft", "MINCERAFT"),
+        MINECRAFT("Minecraft", "MINECRAFT"),
     }
 
     private enum class Mode {
@@ -161,9 +161,9 @@ internal object MainMenu : AbstractModule(
             GlStateUtils.blend(true)
             GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
 
-            val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 4000.0f).coerceIn(0.5f, 1.0f)
+            val scale = ((mc.displayWidth * 2 + mc.displayHeight) / 6000.0f + 0.1f).coerceIn(0.5f, 1.0f)
 
-            val posX = mc.displayWidth / 12.0f
+            val posX = mc.displayWidth / 15.0f
             val posY = posX / 2.0f
 
             TitleFontRender.drawString(title.titleName, posX, posY, scale = scale)
@@ -253,19 +253,19 @@ internal object MainMenu : AbstractModule(
             fun onRender() {
                 val lineColor = getStateColor(prevState).mix(
                     getStateColor(mouseState),
-                    Easing.OUT_CUBIC.inc(Easing.toDelta(lastUpdateTime, 300.0f))
+                    Easing.OUT_EXPO.inc(Easing.toDelta(lastUpdateTime, 300.0f))
                 )
 
-                val scale = min((mc.displayWidth * 2 + mc.displayHeight) / 4000.0f + 1.25f, 3.0f)
+                val scale = min((mc.displayWidth * 2 + mc.displayHeight) / 5000.0f + 1.25f, 3.0f)
 
                 RenderUtils2D.drawRectFilled(
                     posX + 1.0f,
                     posY + 1.0f,
                     posX + buttonWidth + 2.0f,
-                    posY + scale * 1.5f + 2.0f,
+                    posY + scale * 2.0f + 2.0f,
                     ColorRGB(64, 64, 64, 160)
                 )
-                RenderUtils2D.drawRectFilled(posX, posY, posX + buttonWidth, posY + scale * 1.5f, lineColor)
+                RenderUtils2D.drawRectFilled(posX, posY, posX + buttonWidth, posY + scale * 2.0f, lineColor)
 
                 MainFontRenderer.drawString(text1, posX, posY + 5.0f, ColorRGB(230, 158, 42), scale = scale)
                 MainFontRenderer.drawString(
@@ -316,7 +316,7 @@ internal object MainMenu : AbstractModule(
         ), 128.0f, 4096
     ) {
         override val charGap: Float
-            get() = 20.0f
+            get() = 16.0f
         override val shadowDist: Float
             get() = 4.0f
     }

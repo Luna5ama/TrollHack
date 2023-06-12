@@ -144,12 +144,12 @@ vec3 stars(vec3 ro, vec3 rd, vec2 sp, float hh) {
     vec3 col = vec3(0.0);
 
     const float m = LAYERS;
-    hh = tanh_approx(20.0*hh);
+    hh = tanh_approx(2000.0*hh);
 
     for (float i = 0.0; i < m; ++i) {
         vec2 pp = sp+0.5*i;
         float s = i/(m-1.0);
-        vec2 dim  = vec2(mix(0.05, 0.003, s)*PI);
+        vec2 dim  = vec2(mix(0.1, 0.003, s)*PI);
         vec2 np = mod2(pp, dim);
         vec2 h = hash2(np+127.0+i);
         vec2 o = -1.0+2.0*h;
@@ -162,9 +162,9 @@ vec3 stars(vec3 ro, vec3 rd, vec2 sp, float hh) {
         float h2 = fract(h.x*1887.0);
         float h3 = fract(h.x*2997.0);
 
-        vec3 scol = mix(8.0*h2, 0.25*h2*h2, s)*blackbody(mix(3000.0, 22000.0, h1*h1));
+        vec3 scol = mix(8.0*h2, 0.25*h2*h2, s)*blackbody(mix(300.0, 220000.0, h1*h1));
 
-        vec3 ccol = col + exp(-(mix(6000.0, 2000.0, hh)/mix(2.0, 0.25, s))*max(l-0.001, 0.0))*scol;
+        vec3 ccol = col + exp(-(10000.0/mix(2.0, 0.1, s))*max(l-0.0009, 0.0))*scol;
         col = h3 < y ? ccol : col;
     }
 
@@ -194,8 +194,8 @@ vec4 moon(vec3 ro, vec3 rd, vec2 sp, vec3 lp, vec4 md) {
     fre = pow(fre, 15.0);
     float dif = max(dot(ld, n), 0.0);
     float spe = pow(max(dot(ld, r), 0.0), 8.0);
-    float i = 0.5*tanh_approx(20.0*fre*spe+0.05*dif);
-    vec3 col = blackbody(1500.0)*i+hsv2rgb(vec3(0.6, mix(0.6, 0.0, i), i));
+    float i = 0.5*tanh_approx(20.0*fre*spe+0.25*dif);
+    vec3 col = blackbody(150.0)*i+hsv2rgb(vec3(0.6, mix(0.6, 0.0, i), i));
 
     float t = tanh_approx(0.25*(mi.y-mi.x));
 
@@ -220,12 +220,12 @@ vec3 galaxy(vec3 ro, vec3 rd, vec2 sp, out float sf) {
     float h1 = height(1.5*sp);
     float gcc = dot(gp, gp);
     float gcx = exp(-(abs(2.0*(gp.x))));
-    float gcy = exp(-abs(15.0*(gp.y)));
+    float gcy = exp(-abs(10.0*(gp.y)));
     float gh = gcy*gcx;
     float cf = smoothstep(0.1, -0.2, -h1);
     vec3 col = vec3(0.0);
-    col += blackbody(mix(500.0, 2000.0, gcx*gcy))*gcy*gcx;
-    col += hsv2rgb(vec3(0.6, 0.5, 0.00125/gcc));
+    col += blackbody(mix(1200.0, 3000.0, gcx*gcy))*gcy*gcx;
+    col += min(hsv2rgb(vec3(0.6, 0.2, 0.025/gcc)), 16.0) * 0.05;
     col *= mix(mix(0.15, 1.0, gcy*gcx), 1.0, cf);
     sf = gh*cf;
     return col;
