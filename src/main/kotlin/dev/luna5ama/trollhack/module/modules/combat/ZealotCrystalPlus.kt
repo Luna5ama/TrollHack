@@ -57,10 +57,7 @@ import dev.luna5ama.trollhack.util.pause.HandPause
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.*
-import dev.luna5ama.trollhack.util.world.FastRayTraceAction
-import dev.luna5ama.trollhack.util.world.FastRayTraceFunction
-import dev.luna5ama.trollhack.util.world.fastRayTrace
-import dev.luna5ama.trollhack.util.world.rayTraceVisible
+import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntArrayList
@@ -1589,11 +1586,11 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
-        val x = hitVec.x - eyePos.x
-        val y = hitVec.y - eyePos.y
-        val z = hitVec.z - eyePos.z
+        val x = eyePos.x - hitVec.x
+        val y = eyePos.y - hitVec.y
+        val z = eyePos.z - hitVec.z
 
-        return EnumFacing.HORIZONTALS.maxByOrNull {
+        return EnumFacing.VALUES.maxByOrNull {
             x * it.directionVec.x + y * it.directionVec.y + z * it.directionVec.z
         } ?: EnumFacing.NORTH
     }
@@ -1839,13 +1836,13 @@ internal object ZealotCrystalPlus : Module(
                             hitVec = Vec3d(blockPos.x + 0.5, blockPos.y.toDouble(), blockPos.z + 0.5)
                         }
                         PlaceBypass.CLOSEST -> {
-                            side = calcDirection(player.eyePosition, blockPos.toVec3dCenter())
+                            side = getMiningSide(blockPos) ?: calcDirection(player.eyePosition, blockPos.toVec3dCenter())
                             val directionVec = side.directionVec
                             val x = directionVec.x * 0.5f + 0.5f
                             val y = directionVec.y * 0.5f + 0.5f
                             val z = directionVec.z * 0.5f + 0.5f
                             hitVecOffset = Vec3f(x, y, z)
-                            hitVec = blockPos.toVec3dCenter(x.toDouble(), y.toDouble(), z.toDouble())
+                            hitVec = blockPos.toVec3d(x.toDouble(), y.toDouble(), z.toDouble())
                         }
                     }
                 }
