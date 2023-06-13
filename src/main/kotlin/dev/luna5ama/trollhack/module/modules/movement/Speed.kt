@@ -62,7 +62,7 @@ internal object Speed : Module(
     private val maxJumpSpeed by setting("Max Jump Speed", 0.548, 0.1..2.0, 0.01, page.atValue(Page.STRAFE))
     private val jumpDelay by setting("Jump Delay", 5, 0..10, 1, page.atValue(Page.STRAFE) and ::autoJump)
 
-    private val velocityBoost by setting("Velocity Boost", 0.5, 0.0..2.0, 0.01, page.atValue(Page.BOOST))
+    private val velocityBoost by setting("Velocity Boost", 0.0, 0.0..2.0, 0.01, page.atValue(Page.BOOST))
     private val minBoostSpeed by setting(
         "Min Boost Speed",
         0.2,
