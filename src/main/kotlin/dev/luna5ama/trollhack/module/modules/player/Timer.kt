@@ -6,6 +6,7 @@ import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.manager.managers.TimerManager.resetTimer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.atFalse
 import dev.luna5ama.trollhack.util.atTrue
 
@@ -15,6 +16,7 @@ internal object Timer : Module(
     description = "Changes your client tick speed",
     modulePriority = 500
 ) {
+    private val pauseOnMove by setting("Pause On Move", true)
     private val slow0 = setting("Slow Mode", false)
     private val slow by slow0
     private val tickNormal by setting("Tick N", 2.0f, 1f..10f, 0.1f, slow0.atFalse())
@@ -26,6 +28,11 @@ internal object Timer : Module(
         }
 
         listener<RunGameLoopEvent.Start> {
+            if (pauseOnMove && MovementUtils.isInputting(jump=true)) {
+                resetTimer()
+                return@listener
+            }
+
             val multiplier = if (!slow) tickNormal else tickSlow / 10.0f
             modifyTimer(50.0f / multiplier)
         }
