@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
+import dev.luna5ama.trollhack.util.extension.fastFloor
 import io.netty.util.internal.ConcurrentSet
 import net.minecraft.network.play.client.CPacketConfirmTeleport
 import net.minecraft.network.play.client.CPacketPlayer
@@ -28,6 +29,7 @@ internal object PacketFly : Module(
     private val page by setting("Page", Page.MOVEMENT)
 
     private val sprintFastMode by setting("Sprint Fast Mode", true, { page == Page.MOVEMENT })
+    private val phaseTicks by setting("Phase Ticks", 5, 1..20, 1, { page == Page.MOVEMENT })
     private val upSpeed by setting("Up Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val downSpeed by setting("Down Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val speed by setting("Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
@@ -326,21 +328,26 @@ internal object PacketFly : Module(
                 return
             }
 
-            if (MovementUtils.isInputting() && player.collidedHorizontally && isPhasing()) {
-                packetFlyingTicks = 5
+            if (MovementUtils.isInputting() && isPhasing()) {
+                packetFlyingTicks = phaseTicks
                 return
             }
         }
     }
 
     private fun SafeClientEvent.isPhasing(): Boolean {
-        val yaw = player.calcMoveYaw()
-        val box = player.entityBoundingBox.grow(-0.001, -0.001, -0.001)
-        val nextBox = box.offset(-sin(yaw) * 0.05, 0.0, cos(yaw) * 0.05)
-
-        val colliedBoxList = world.getCollisionBoxes(null, nextBox)
-        colliedBoxList.removeAll(world.getCollisionBoxes(null, box).toSet())
-        return colliedBoxList.isNotEmpty()
+        val playerX = player.posX.fastFloor()
+        val playerZ = player.posZ.fastFloor()
+        val box = player.entityBoundingBox
+        val eps = 0.01
+        val minXE = (box.minX - eps).fastFloor()
+        val maxXE = (box.maxX + eps).fastFloor()
+        val minZE = (box.minZ - eps).fastFloor()
+        val maxZE = (box.maxZ + eps).fastFloor()
+        return (box.minX + eps).fastFloor() != minXE && minXE != playerX
+            || (box.maxX - eps).fastFloor() != maxXE && maxXE != playerX
+            || (box.minZ + eps).fastFloor() != minZE && minZE != playerZ
+            || (box.maxZ - eps).fastFloor() != maxZE && maxZE != playerZ
     }
 
     private fun SafeClientEvent.sendPlayerPacket(packet: CPacketPlayer) {
