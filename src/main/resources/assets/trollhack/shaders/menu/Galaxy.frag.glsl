@@ -1,8 +1,5 @@
 // Original shader: https://www.shadertoy.com/view/stBcW1
-
-#extension GL_OES_standard_derivatives : enable
-
-precision highp float;
+#version 140
 
 uniform float time;
 uniform vec2 mouse;
