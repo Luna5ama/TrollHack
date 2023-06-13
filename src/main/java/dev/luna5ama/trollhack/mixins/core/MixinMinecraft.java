@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent;
 import dev.luna5ama.trollhack.mixins.accessor.player.AccessorEntityPlayerSP;
 import dev.luna5ama.trollhack.mixins.accessor.player.AccessorPlayerControllerMP;
 import dev.luna5ama.trollhack.module.modules.client.MainMenu;
+import dev.luna5ama.trollhack.module.modules.misc.UnfocusedFps;
 import dev.luna5ama.trollhack.module.modules.player.BlockInteraction;
 import dev.luna5ama.trollhack.module.modules.player.FastUse;
 import dev.luna5ama.trollhack.module.modules.player.PacketMine;
@@ -223,6 +224,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "getLimitFramerate", at = @At("HEAD"), cancellable = true)
     public void getLimitFramerate$Inject$HEAD(CallbackInfoReturnable<Integer> cir) {
         MainMenu.handleGetLimitFramerate(cir);
+        UnfocusedFps.handleGetLimitFramerate(cir);
     }
 
     @Inject(method = "rightClickMouse", at = @At(value = "RETURN", ordinal = 0))
