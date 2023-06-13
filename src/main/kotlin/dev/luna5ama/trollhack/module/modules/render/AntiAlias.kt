@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.module.modules.render
 
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.ResolutionUpdateEvent
+import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -20,14 +21,14 @@ internal object AntiAlias : Module(
     private var prevSampleLevel = 1.0f
 
     init {
-        onDisable {
+        onToggle {
             onMainThread {
                 mc.resize(mc.displayWidth, mc.displayHeight)
                 ResolutionUpdateEvent(mc.displayWidth, mc.displayHeight).post()
             }
         }
 
-        safeListener<TickEvent.Pre> {
+        listener<TickEvent.Pre> {
             val sampleLevel = sampleLevel
             if (sampleLevel != prevSampleLevel) {
                 prevSampleLevel = sampleLevel
