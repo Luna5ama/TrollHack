@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.command.args.GreedyStringArg
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.accessor.historyBuffer
 import dev.luna5ama.trollhack.util.accessor.sentHistoryCursor
+import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.shaders.WindowBlurShader
@@ -184,6 +185,8 @@ class TrollGuiChat(
             WindowBlurShader.render(2.0f, height - 14.0f, width - 2.0f, height - 2.0f)
         }
         RenderUtils2D.drawRectFilled(2.0f, height - 14.0f, width - 2.0f, height - 2.0f, ColorRGB(0, 0, 0, 128))
+
+        GlStateUtils.useProgramForce(0)
 
         // Draw predict string
         if (predictString.isNotBlank()) {
