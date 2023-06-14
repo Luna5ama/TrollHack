@@ -30,6 +30,7 @@ import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
 import dev.fastmc.common.collection.CircularArray
+import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
@@ -312,7 +313,7 @@ internal object BedAura : Module(
     }
 
     override fun getHudInfo(): String {
-        return "%.1f".format(explosionCountArray.average() * 4.0)
+        return "%.1f".format(explosionCountArray.averageOrZero() * 4.0)
     }
 
     init {

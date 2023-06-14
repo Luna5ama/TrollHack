@@ -28,6 +28,7 @@ import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.accessor.*
 import dev.fastmc.common.collection.CircularArray
+import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CombatUtils.totalHealth
 import dev.luna5ama.trollhack.util.combat.CrystalDamage
@@ -459,11 +460,11 @@ internal object ZealotCrystalPlus : Module(
     override fun getHudInfo(): String {
         return when (hudInfo) {
             HudInfo.OFF -> ""
-            HudInfo.SPEED -> "%.1f".format(explosionCountArray.average() * 4.0)
+            HudInfo.SPEED -> "%.1f".format(explosionCountArray.averageOrZero() * 4.0)
             HudInfo.DAMAGE -> renderPlaceInfo?.let { "%.1f/%.1f".format(it.targetDamage, it.selfDamage) }
                 ?: "0.0/0.0"
             HudInfo.TARGET -> target?.name ?: "None"
-            HudInfo.CALCULATION_TIME -> "%.2f ms".format(calculationTimes.average() / 1_000_000.0)
+            HudInfo.CALCULATION_TIME -> "%.2f ms".format(calculationTimes.averageOrZero() / 1_000_000.0)
         }
     }
 

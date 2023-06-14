@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.util.accessor.entityID
 import dev.luna5ama.trollhack.util.accessor.onItemUseFinish
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
 import dev.fastmc.common.collection.CircularArray
+import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.settings.KeyBinding
@@ -52,7 +53,7 @@ internal object BetterEat : Module(
     private var slot = -1
 
     override fun getHudInfo(): String {
-        return if (displayEatDelay) "${eatTimeArray.average().toInt()} ms"
+        return if (displayEatDelay) "${eatTimeArray.averageOrZero().toInt()} ms"
         else ""
     }
 

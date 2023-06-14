@@ -26,3 +26,84 @@ fun <T> List<T>.asSequenceFast(): Sequence<T> {
         }
     }
 }
+
+@JvmName("averageOrZeroOfByte")
+fun Iterable<Byte>.averageOrZero(): Double {
+    var sum: Double = 0.0
+    var count: Int = 0
+    for (element in this) {
+        sum += element
+        count++
+    }
+    return if (count == 0) 0.0 else sum / count
+}
+
+/**
+ * Returns an average value of elements in the collection.
+ */
+@JvmName("averageOrZeroOfShort")
+fun Iterable<Short>.averageOrZero(): Double {
+    var sum = 0.0
+    var count = 0
+    for (element in this) {
+        sum += element
+        count++
+    }
+    return if (count == 0) 0.0 else sum / count
+}
+
+/**
+ * Returns an average value of elements in the collection.
+ */
+@JvmName("averageOrZeroOfInt")
+fun Iterable<Int>.averageOrZero(): Double {
+    var sum = 0.0
+    var count = 0
+    for (element in this) {
+        sum += element
+        count++
+    }
+    return if (count == 0) 0.0 else sum / count
+}
+
+/**
+ * Returns an average value of elements in the collection.
+ */
+@JvmName("averageOrZeroOfLong")
+fun Iterable<Long>.averageOrZero(): Double {
+    var sum = 0.0
+    var count = 0
+    for (element in this) {
+        sum += element
+        count++
+    }
+    return if (count == 0) 0.0 else sum / count
+}
+
+/**
+ * Returns an average value of elements in the collection.
+ */
+@JvmName("averageOrZeroOfFloat")
+fun Iterable<Float>.averageOrZero(): Double {
+    var sum = 0.0
+    var count = 0
+    for (element in this) {
+        sum += element
+        count++
+    }
+    return if (count == 0) 0.0 else sum / count
+}
+
+/**
+ * Returns an average value of elements in the collection.
+ */
+@JvmName("averageOrZeroOfeDouble")
+fun Iterable<Double>.averageOrZero(): Double {
+    var sum = 0.0
+    var count = 0
+    for (element in this) {
+        sum += element
+        count++
+    }
+    return if (count == 0) 0.0 else sum / count
+}

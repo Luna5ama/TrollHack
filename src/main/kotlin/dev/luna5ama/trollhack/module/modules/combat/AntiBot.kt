@@ -22,8 +22,7 @@ import kotlin.math.abs
 internal object AntiBot : Module(
     name = "Anti Bot",
     description = "Avoid attacking fake players",
-    category = Category.COMBAT,
-    alwaysListening = true
+    category = Category.COMBAT
 ) {
     private val tabList by setting("Tab List", true)
     private val ping by setting("Ping", true)
