@@ -35,6 +35,7 @@ class FontRenderContext(override val fontRenderer: FontRenderer) : AbstractFontR
                     'c' -> color = 0xC
                     'd' -> color = 0xD
                     'e' -> color = 0xE
+                    'f' -> color = 0xF
                     'r' -> color = -1
                 }
             }
@@ -69,6 +70,7 @@ class ExtendedFontRenderContext(override val fontRenderer: ExtendedFontRenderer)
                     'c' -> color = 0xC
                     'd' -> color = 0xD
                     'e' -> color = 0xE
+                    'f' -> color = 0xF
                     'l' -> variant = fontRenderer.boldGlyph
                     'o' -> variant = fontRenderer.italicGlyph
                     'r' -> {
