@@ -23,6 +23,8 @@ internal object GuiSetting : Module(
     val titleBar by setting("Title Bar", false)
     private val windowBlur0 = setting("Window Blur", true)
     val windowBlur by windowBlur0
+    val xMargin by setting("X Margin", 4.0f, 0.0f..10.0f, 0.5f)
+    val yMargin by setting("Y Margin", 1.0f, 0.0f..10.0f, 0.5f)
     val darkness by setting("Darkness", 0.25f, 0.0f..1.0f, 0.05f)
     val fadeInTime by setting("Fade In Time", 0.4f, 0.0f..1.0f, 0.05f)
     val fadeOutTime by setting("Fade Out Time", 0.4f, 0.0f..1.0f, 0.05f)

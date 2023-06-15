@@ -34,11 +34,11 @@ internal object CustomFont : Module(
     private val lodBiasSetting = setting("Lod Bias", 0.0f, -10.0f..10.0f, 0.05f)
 
     val isDefaultFont get() = fontName.value.equals(DEFAULT_FONT_NAME, true)
-    val size get() = sizeSetting.value * 0.1425f
-    val charGap get() = charGapSetting.value * 0.5f - 2.05f
-    val lineSpace get() = size * (lineSpaceSetting.value * 0.05f + 0.77f)
+    val size get() = sizeSetting.value * 0.140625f
+    val charGap get() = charGapSetting.value * 0.5f - 1.0f
+    val lineSpace get() = size * (lineSpaceSetting.value * 0.05f + 0.75f)
     val lodBias get() = lodBiasSetting.value * 0.25f - 0.5375f
-    val baselineOffset get() = baselineOffsetSetting.value * 2.0f - 8.0f
+    val baselineOffset get() = baselineOffsetSetting.value * 2.0f - 9.5f
 
     init {
         listener<TickEvent.Post>(true) {

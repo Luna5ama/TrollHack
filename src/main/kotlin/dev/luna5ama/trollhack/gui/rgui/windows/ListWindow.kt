@@ -35,7 +35,9 @@ open class ListWindow(
     override val maxHeight get() = mc.displayHeight.toFloat()
     override val resizable: Boolean get() = hoveredChild == null
 
-    private val lineSpace = 3.0f
+    private val xMargin get() = GuiSetting.xMargin
+    private val yMargin get() = GuiSetting.yMargin
+
     var hoveredChild: Component? = null
         private set(value) {
             if (value == field) return
@@ -57,13 +59,13 @@ open class ListWindow(
     }
 
     private fun updateChild() {
-        var y = (if (draggableHeight != height) draggableHeight else 0.0f) + lineSpace
+        var y = (if (draggableHeight != height) draggableHeight else 0.0f) + yMargin
         for (child in children) {
             if (!child.visible) continue
-            child.posX = lineSpace * 1.618f
+            child.posX = xMargin
             child.posY = y
-            child.width = width - lineSpace * 3.236f
-            y += child.height + lineSpace
+            child.width = width - xMargin * 2.0f
+            y += child.height + yMargin
         }
     }
 
@@ -126,7 +128,7 @@ open class ListWindow(
 
         if (scrollTimer.tick(100L)) {
             val lastVisible = children.lastOrNull { it.visible }
-            val maxScrollProgress = lastVisible?.let { max(it.posY + it.height + lineSpace - height, 0.01f) }
+            val maxScrollProgress = lastVisible?.let { max(it.posY + it.height + yMargin - height, 0.01f) }
                 ?: draggableHeight
             if (scrollProgress < 0.0) {
                 scrollSpeed = scrollProgress * -0.4f
@@ -151,9 +153,9 @@ open class ListWindow(
         val sampleLevel = AntiAlias.sampleLevel
 
         GlStateUtils.scissor(
-            (((renderPosX + lineSpace * 1.618) * GuiSetting.scaleFactor - 0.5f) * sampleLevel).fastFloor(),
+            (((renderPosX + xMargin) * GuiSetting.scaleFactor - 0.5f) * sampleLevel).fastFloor(),
             (mc.displayHeight * sampleLevel - ((renderPosY * sampleLevel + renderHeight * sampleLevel) * GuiSetting.scaleFactor - 0.5f)).fastFloor(),
-            (((renderWidth - lineSpace * 3.236) * GuiSetting.scaleFactor + 1.0f) * sampleLevel).fastCeil(),
+            (((renderWidth - xMargin * 2.0f) * GuiSetting.scaleFactor + 1.0f) * sampleLevel).fastCeil(),
             (((renderHeight - draggableHeight) * GuiSetting.scaleFactor) * sampleLevel).fastCeil()
         )
         glEnable(GL_SCISSOR_TEST)
@@ -191,7 +193,7 @@ open class ListWindow(
 
     private fun updateHovered(relativeMousePos: Vec2f) {
         hoveredChild =
-            if (relativeMousePos.y < draggableHeight || relativeMousePos.x < lineSpace || relativeMousePos.x > renderWidth - lineSpace) null
+            if (relativeMousePos.y < draggableHeight || relativeMousePos.x < xMargin || relativeMousePos.x > renderWidth - xMargin) null
             else children.firstOrNull { it.visible && relativeMousePos.y + scrollProgress in it.posY..it.posY + it.height }
     }
 
@@ -247,8 +249,8 @@ open class ListWindow(
     }
 
     protected fun updateHeightToFit(forceHeight: Boolean) {
-        val sum = children.asSequence().filter(Component::visible).sumOfFloat { it.height + lineSpace }
-        val targetHeight = sum + draggableHeight + lineSpace
+        val sum = children.asSequence().filter(Component::visible).sumOfFloat { it.height + yMargin }
+        val targetHeight = sum + draggableHeight + yMargin
         if (!forceHeight && targetHeight < height) {
             return
         }

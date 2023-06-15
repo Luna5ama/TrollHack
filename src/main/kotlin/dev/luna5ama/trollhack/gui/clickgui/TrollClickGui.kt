@@ -27,7 +27,7 @@ object TrollClickGui : AbstractTrollGui<ModuleSettingWindow, AbstractModule>() {
         val screenWidth = mc.displayWidth / GuiSetting.scaleFactorFloat
 
         for ((category, buttons) in allButtons) {
-            val window = ListWindow(category, posX, posY, 90.0f, 300.0f, Component.SettingGroup.CLICK_GUI)
+            val window = ListWindow(category, posX, posY, 100.0f, 400.0f, Component.SettingGroup.CLICK_GUI)
 
             window.children.addAll(buttons)
             moduleWindows.add(window)
