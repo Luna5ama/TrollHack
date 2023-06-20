@@ -92,7 +92,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
 
         safeParallelListener<TickEvent.Pre> {
             blurShader.shader?.let {
-                val multiplier = GuiSetting.blur * fadeMultiplier
+                val multiplier = GuiSetting.backGroundBlur * fadeMultiplier
                 for (shader in it.listShaders) {
                     shader.shaderManager.getShaderUniform("multiplier")?.set(multiplier)
                 }
@@ -328,7 +328,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         GlStateManager.colorMask(true, true, true, true)
 
         // Blur effect
-        if (GuiSetting.blur > 0.0f) {
+        if (GuiSetting.backGroundBlur > 0.0f) {
             glPushMatrix()
             GlStateUtils.useProgramForce(0)
             blurShader.shader?.render(partialTicks)

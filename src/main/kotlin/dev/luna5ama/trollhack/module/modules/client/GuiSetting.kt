@@ -18,7 +18,7 @@ internal object GuiSetting : Module(
 ) {
     private val scaleSetting = setting("Scale", 100, 50..400, 5)
     val particle by setting("Particle", false)
-    val blur by setting("Blur", 0.25f, 0.0f..1.0f, 0.05f)
+    val backGroundBlur by setting("Background Blur", 0.0f, 0.0f..1.0f, 0.05f)
     val windowOutline by setting("Window Outline", true)
     val titleBar by setting("Title Bar", false)
     private val windowBlur0 = setting("Window Blur", true)
