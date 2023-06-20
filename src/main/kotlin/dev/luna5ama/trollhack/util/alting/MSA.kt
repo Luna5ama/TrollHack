@@ -376,7 +376,9 @@ class MSA {
             ImmutableMap.of("Authorization", "Bearer $mcToken")
         ).onSuccess { it: String? ->
             val respObj = Gson().fromJson(it, JsonObject::class.java)
-            ownsMc = respObj != null && !respObj.has("error")
+            ownsMc = respObj != null
+                && !respObj.has("error")
+                && respObj.has("name")
             if (ownsMc) {
                 profile = MinecraftProfile(
                     respObj["name"].asString,
