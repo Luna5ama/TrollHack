@@ -125,7 +125,6 @@ internal object AutoTrap : Module(
             }
 
             if (placeCount >= 4) {
-                delay(100L)
                 placeCount = 0
                 placed.clear()
             }
