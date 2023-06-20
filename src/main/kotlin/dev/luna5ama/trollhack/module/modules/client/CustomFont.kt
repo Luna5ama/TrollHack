@@ -35,7 +35,7 @@ internal object CustomFont : Module(
 
     val isDefaultFont get() = fontName.value.equals(DEFAULT_FONT_NAME, true)
     val size get() = sizeSetting.value * 0.140625f
-    val charGap get() = charGapSetting.value * 0.5f - 1.0f
+    val charGap get() = charGapSetting.value * 0.5f
     val lineSpace get() = size * (lineSpaceSetting.value * 0.05f + 0.75f)
     val lodBias get() = lodBiasSetting.value * 0.25f - 0.5375f
     val baselineOffset get() = baselineOffsetSetting.value * 2.0f - 9.5f
