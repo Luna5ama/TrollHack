@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.client
 
 import dev.fastmc.common.DoubleBuffered
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.collection.FastIntMap
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
@@ -10,8 +11,8 @@ import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.atTrue
-import dev.fastmc.common.collection.FastIntMap
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.HAlign
@@ -62,10 +63,17 @@ internal object ActiveModules : HudElement(
         CATEGORY("Category", { it.category.ordinal })
     }
 
-    private var cacheWidth = 20.0f
-    private var cacheHeight = 20.0f
-    override val hudWidth: Float get() = cacheWidth
-    override val hudHeight: Float get() = cacheHeight
+    override val hudWidth by FrameFloat {
+        sortedModuleList.maxOfOrNull {
+            if (toggleMap[it.id]?.value == true) it.textLine.getWidth() + 4.0f
+            else 20.0f
+        }?.let {
+            max(it, 20.0f)
+        } ?: 20.0f
+    }
+    override val hudHeight by FrameFloat {
+        max(toggleMap.values.sumOfFloat { it.displayHeight }, 20.0f)
+    }
 
     private val textLineMap = Int2ObjectOpenHashMap<TextComponent.TextLine>()
     private var lastSorted = makeKeyPair(ModuleManager.modules)
@@ -135,15 +143,6 @@ internal object ActiveModules : HudElement(
                 if (flag.progress <= 0.0f) continue
                 textLineMap[id] = flag.module.newTextLine()
             }
-
-            cacheWidth = sortedModuleList.maxOfOrNull {
-                if (toggleMap[it.id]?.value == true) it.textLine.getWidth() + 4.0f
-                else 20.0f
-            }?.let {
-                max(it, 20.0f)
-            } ?: 20.0f
-
-            cacheHeight = max(toggleMap.values.sumOfFloat { it.displayHeight }, 20.0f)
         }
     }
 

@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.FloatSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
@@ -13,7 +15,10 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.round
 
-class SettingSlider(val setting: NumberSetting<*>) : Slider(setting.name, setting.description, setting.visibility) {
+class SettingSlider(
+    screen: IGuiScreen,
+    val setting: NumberSetting<*>
+) : Slider(screen, setting.name, setting.description, setting.visibility) {
     private val range = setting.range.endInclusive.toDouble() - setting.range.start.toDouble()
     private val settingStep = if (setting.step.toDouble() > 0.0) setting.step else getDefaultStep()
     private val stepDouble = settingStep.toDouble()

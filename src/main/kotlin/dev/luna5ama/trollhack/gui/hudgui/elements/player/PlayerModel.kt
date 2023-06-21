@@ -17,8 +17,8 @@ internal object PlayerModel : HudElement(
     private val emulatePitch by setting("Emulate Pitch", true)
     private val emulateYaw by setting("Emulate Yaw", false)
 
-    override val hudWidth: Float get() = 50.0f
-    override val hudHeight: Float get() = 80.0f
+    override val hudWidth get() = 50.0f
+    override val hudHeight get() = 80.0f
 
     override val resizable: Boolean = true
 

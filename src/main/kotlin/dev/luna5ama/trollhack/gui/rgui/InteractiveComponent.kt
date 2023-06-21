@@ -1,22 +1,21 @@
 package dev.luna5ama.trollhack.gui.rgui
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.setting.GuiConfig
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 
 open class InteractiveComponent(
+    screen: IGuiScreen,
     name: CharSequence,
-    posX: Float,
-    posY: Float,
-    width: Float,
-    height: Float,
     settingGroup: SettingGroup,
     config: AbstractConfig<out Nameable> = GuiConfig
-) : Component(name, posX, posY, width, height, settingGroup, config) {
+) : Component(screen, name, settingGroup, config) {
 
     // Interactive info
     protected var lastMousePos = Vec2f.ZERO
+    protected var lastClickPos = Vec2f.ZERO
     var mouseState = MouseState.NONE
         private set(value) {
             prevState = field
@@ -51,22 +50,15 @@ open class InteractiveComponent(
     }
 
     open fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        mouseState = if (isInComponent(mousePos)) MouseState.HOVER
-        else MouseState.NONE
+        mouseState = MouseState.HOVER
     }
 
     open fun onDrag(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
         mouseState = MouseState.DRAG
+        lastClickPos = clickPos
     }
 
     open fun onKeyInput(keyCode: Int, keyState: Boolean) {
 
-    }
-
-    fun isInComponent(mousePos: Vec2f) = mousePos.x in 0.0f..width && mousePos.y in 0.0f..height
-
-    @Suppress("UNUSED")
-    enum class MouseState {
-        NONE, HOVER, CLICK, DRAG
     }
 }

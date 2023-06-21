@@ -119,7 +119,7 @@ object GlStateUtils {
 
     fun rescaleTroll() {
         val scale = GuiSetting.scaleFactor
-        rescale(Wrapper.minecraft.displayWidth / scale, Wrapper.minecraft.displayHeight / scale)
+        rescale(Wrapper.minecraft.displayWidth.toDouble() / scale, Wrapper.minecraft.displayHeight.toDouble() / scale)
     }
 
     fun rescaleMc() {

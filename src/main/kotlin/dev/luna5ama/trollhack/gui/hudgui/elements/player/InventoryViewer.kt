@@ -15,8 +15,8 @@ internal object InventoryViewer : HudElement(
     private val border by setting("Border", true)
     private val background by setting("Background", true)
 
-    override val hudWidth: Float = 162.0f
-    override val hudHeight: Float = 54.0f
+    override val hudWidth = 162.0f
+    override val hudHeight = 54.0f
 
     override fun renderHud() {
         super.renderHud()

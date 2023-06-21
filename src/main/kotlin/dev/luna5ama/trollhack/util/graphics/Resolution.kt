@@ -19,10 +19,10 @@ object Resolution : AlwaysListening, Helper {
         get() = mc.displayWidth.toFloat()
 
     val trollWidthF
-        get() = widthF / GuiSetting.scaleFactorFloat
+        get() = widthF / GuiSetting.scaleFactor
 
     val trollHeightF
-        get() = heightF / GuiSetting.scaleFactorFloat
+        get() = heightF / GuiSetting.scaleFactor
 
     val trollWidthI
         get() = trollWidthF.fastCeil()

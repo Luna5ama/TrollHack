@@ -1,8 +1,9 @@
 package dev.luna5ama.trollhack.gui.rgui
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.setting.GuiConfig.setting
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
-import dev.luna5ama.trollhack.util.delegate.FrameValue
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.graphics.AnimationFlag
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.HAlign
@@ -13,14 +14,11 @@ import kotlin.math.max
 import kotlin.math.min
 
 open class WindowComponent(
+    screen: IGuiScreen,
     name: CharSequence,
-    posX: Float,
-    posY: Float,
-    width: Float,
-    height: Float,
     settingGroup: SettingGroup,
     config: AbstractConfig<out Nameable>
-) : InteractiveComponent(name, posX, posY, width, height, settingGroup, config) {
+) : InteractiveComponent(screen, name, settingGroup, config) {
 
     // Basic info
     private val minimizedSetting = setting("Minimized", false,
@@ -29,6 +27,7 @@ open class WindowComponent(
     var minimized by minimizedSetting
 
     // Interactive info
+    open var keybordListening: InteractiveComponent? = null
     open val draggableHeight get() = height
     var lastActiveTime: Long = System.currentTimeMillis(); protected set
     var preDragMousePos = Vec2f.ZERO; private set
@@ -37,7 +36,7 @@ open class WindowComponent(
 
     // Render info
     private val renderMinimizeProgressFlag = AnimationFlag(Easing.OUT_QUART, 300.0f)
-    val renderMinimizeProgress by FrameValue(renderMinimizeProgressFlag::get)
+    val renderMinimizeProgress by FrameFloat(renderMinimizeProgressFlag::get)
 
     override val renderHeight: Float
         get() = (super.renderHeight - draggableHeight) * renderMinimizeProgress + draggableHeight
@@ -54,7 +53,14 @@ open class WindowComponent(
     open fun onResize() {}
     open fun onReposition() {}
 
+    override fun onTick() {
+        super.onTick()
+        if (mouseState != MouseState.DRAG) updatePreDrag(null)
+    }
+
     override fun onDisplayed() {
+        lastActiveTime = System.currentTimeMillis() + 1000L
+
         super.onDisplayed()
         if (!minimized) {
             minimized = true
@@ -187,11 +193,12 @@ open class WindowComponent(
     }
 
     fun isInWindow(mousePos: Vec2f): Boolean {
-        return visible && mousePos.x in preDragPos.x - 2.0f..preDragPos.x + preDragSize.x + 2.0f
-            && mousePos.y in preDragPos.y - 2.0f..preDragPos.y + max(
-            preDragSize.y * renderMinimizeProgress,
-            draggableHeight
-        ) + 2.0f
+        val xMin = preDragPos.x - 2.0f
+        val xMax = preDragPos.x + preDragSize.x + 2.0f
+        val yMin = preDragPos.y - 2.0f
+        val yMax = preDragPos.y + max(preDragSize.y * renderMinimizeProgress, draggableHeight) + 2.0f
+
+        return visible && mousePos.x in xMin..xMax && mousePos.y in yMin..yMax
     }
 
     init {
@@ -200,5 +207,4 @@ open class WindowComponent(
             dockingVSetting.listeners.add(this)
         }
     }
-
 }

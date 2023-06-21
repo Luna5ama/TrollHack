@@ -1,14 +1,12 @@
 package dev.luna5ama.trollhack.gui
 
-import dev.luna5ama.trollhack.event.IListenerOwner
-import dev.luna5ama.trollhack.event.ListenerOwner
+import dev.luna5ama.trollhack.event.*
+import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent
-import dev.luna5ama.trollhack.event.safeListener
-import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.gui.rgui.WindowComponent
-import dev.luna5ama.trollhack.gui.rgui.windows.ColorPicker
-import dev.luna5ama.trollhack.gui.rgui.windows.SettingWindow
+import dev.luna5ama.trollhack.gui.rgui.windows.ListWindow
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.accessor.listShaders
@@ -18,6 +16,7 @@ import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.graphics.shaders.ParticleShader
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.state.TimedFlag
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiScreen
@@ -28,24 +27,34 @@ import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP
-import kotlin.math.min
 
-abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IListenerOwner by ListenerOwner() {
+abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner(), IGuiScreen {
+    override val isVisible: Boolean get() = mc.currentScreen === this || displayed.value
+
+    override var mouseState: MouseState = MouseState.NONE
+    override val mousePos: Vec2f get() = Companion.mousePos
 
     open val alwaysTicking = false
 
     // Window
-    val windowList = LinkedHashSet<WindowComponent>()
-    private var lastClickedWindow: WindowComponent? = null
-    private var hoveredWindow: WindowComponent? = null
-        set(value) {
-            if (value == field) return
-            field?.onLeave(getRealMousePos())
-            value?.onHover(getRealMousePos())
-            field = value
+    override val windows = ObjectLinkedOpenHashSet<WindowComponent>()
+
+    override var lastClicked: WindowComponent? = null
+    override var hovered: WindowComponent? = null
+        get() {
+            if (mouseState != MouseState.NONE) {
+                return field
+            }
+
+            val value = windows.lastOrNull { it.isInWindow(mousePos) }
+            if (value != field) {
+                field?.onLeave(mousePos)
+                value?.onHover(mousePos)
+                field = value
+            }
+
+            return value
         }
-    private val settingMap = HashMap<E, S>()
-    protected var settingWindow: S? = null
 
     // Mouse
     private var lastEventButton = -1
@@ -85,10 +94,8 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
             }
         }
 
-
     init {
         mc = Wrapper.minecraft
-        windowList.add(ColorPicker)
 
         safeParallelListener<TickEvent.Pre> {
             blurShader.shader?.let {
@@ -100,7 +107,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
 
             if (displayed.value || alwaysTicking) {
                 coroutineScope {
-                    for (window in windowList) {
+                    for (window in windows) {
                         launch {
                             window.onTick()
                         }
@@ -116,38 +123,14 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         }
     }
 
-    fun displaySettingWindow(element: E) {
-        val mousePos = getRealMousePos()
-
-        settingMap.getOrPut(element) {
-            newSettingWindow(element, mousePos).apply { onGuiInit() }
-        }.apply {
-            lastClickedWindow = this
-            settingWindow = this
-            windowList.add(this)
-
-            val screenWidth = mc.displayWidth / GuiSetting.scaleFactorFloat
-            val screenHeight = mc.displayHeight / GuiSetting.scaleFactorFloat
-
-            posX = if (mousePos.x + this.width <= screenWidth) {
-                mousePos.x
-            } else {
-                mousePos.x - this.width
-            }
-
-            posY = min(mousePos.y, screenHeight - this.height)
-
-            onDisplayed()
-        }
-    }
-
-    abstract fun newSettingWindow(element: E, mousePos: Vec2f): S
-
     // Gui init
     open fun onDisplayed() {
+        typedString = ""
         displayed.value = true
 
-        for (window in windowList) window.onDisplayed()
+        for (window in windows) {
+            window.onGuiDisplayed()
+        }
     }
 
     override fun initGui() {
@@ -156,33 +139,27 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         val scaledResolution = ScaledResolution(mc)
         width = scaledResolution.scaledWidth + 16
         height = scaledResolution.scaledHeight + 16
-        typedString = ""
-
-        for (window in windowList) window.onGuiInit()
     }
 
     override fun onGuiClosed() {
-        lastClickedWindow = null
-        hoveredWindow = null
+        lastClicked = null
+        hovered = null
 
         typedString = ""
         lastTypedTime = 0L
 
         displayed.value = false
 
-        for (window in windowList) window.onClosed()
-        updateSettingWindow()
+        for (window in windows) {
+            window.onGuiClosed()
+        }
     }
     // End of gui init
 
 
     // Mouse input
     override fun handleMouseInput() {
-        val scaleFactor = GuiSetting.scaleFactorFloat
-        val mousePos = Vec2f(
-            Mouse.getEventX() / scaleFactor - 1.0f,
-            (Wrapper.minecraft.displayHeight - 1 - Mouse.getEventY()) / scaleFactor
-        )
+        Companion.mousePos = calcMousePos(Mouse.getEventX(), Mouse.getEventY())
         val eventButton = Mouse.getEventButton()
 
         when {
@@ -199,58 +176,41 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
             lastEventButton != -1 -> {
 
             }
-            // Move
-            else -> {
-                hoveredWindow = windowList.lastOrNull { it.isInWindow(mousePos) }
-            }
         }
 
-        hoveredWindow?.onMouseInput(mousePos)
+        hovered?.onMouseInput(mousePos)
         super.handleMouseInput()
-        updateSettingWindow()
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        with(hoveredWindow) {
-            this?.onClick(lastClickPos, mouseButton)
-            lastClickedWindow = this
+        mouseState = MouseState.CLICK
+
+        hovered?.onClick(lastClickPos, mouseButton)
+        lastClicked = hovered
+
+        lastClicked?.let {
+            windows.addAndMoveToLast(it)
         }
-        updateWindowOrder()
     }
 
     override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
-        val scaleFactor = GuiSetting.scaleFactorFloat
-        val mousePos = Vec2f(
-            Mouse.getEventX() / scaleFactor - 1.0f,
-            (Wrapper.minecraft.displayHeight - 1 - Mouse.getEventY()) / scaleFactor
-        )
-        hoveredWindow?.onRelease(mousePos, state)
-        updateWindowOrder()
-    }
+        hovered?.onRelease(mousePos, state)
 
-    override fun mouseClickMove(mouseX: Int, mouseY: Int, clickedMouseButton: Int, timeSinceLastClick: Long) {
-        val scaleFactor = GuiSetting.scaleFactorFloat
-        val mousePos = Vec2f(
-            Mouse.getEventX() / scaleFactor - 1.0f,
-            (Wrapper.minecraft.displayHeight - 1 - Mouse.getEventY()) / scaleFactor
-        )
-        hoveredWindow?.onDrag(mousePos, lastClickPos, clickedMouseButton)
-    }
+        mouseState = MouseState.NONE
 
-    private fun updateSettingWindow() {
-        settingWindow?.let {
-            if (lastClickedWindow != it && lastClickedWindow != ColorPicker) {
-                it.onClosed()
-                windowList.remove(it)
-                settingWindow = null
-            }
+        lastClicked?.let {
+            windows.addAndMoveToLast(it)
         }
     }
 
-    private fun updateWindowOrder() {
-        val cacheList = windowList.sortedBy { it.lastActiveTime }
-        windowList.clear()
-        windowList.addAll(cacheList)
+    override fun mouseClickMove(mouseX: Int, mouseY: Int, clickedMouseButton: Int, timeSinceLastClick: Long) {
+        mouseState = MouseState.DRAG
+
+        hovered?.onDrag(mousePos, lastClickPos, clickedMouseButton)
+
+        lastClicked?.let {
+            windows.addAndMoveToLast(it)
+        }
     }
     // End of mouse input
 
@@ -260,12 +220,13 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         val keyCode = Keyboard.getEventKey()
         val keyState = Keyboard.getEventKeyState()
 
-        hoveredWindow?.onKeyInput(keyCode, keyState)
-        if (settingWindow != hoveredWindow) settingWindow?.onKeyInput(keyCode, keyState)
+        lastClicked?.onKeyInput(keyCode, keyState)
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
-        if (settingWindow?.listeningChild != null) return
+        val lastClicked = lastClicked
+        if (lastClicked is ListWindow && lastClicked.keybordListening != null) return
+
         when {
             keyCode == Keyboard.KEY_BACK || keyCode == Keyboard.KEY_DELETE -> {
                 typedString = ""
@@ -294,7 +255,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         glEnable(GL_DEPTH_CLAMP)
         GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
 
-        val scale = GuiSetting.scaleFactorFloat
+        val scale = GuiSetting.scaleFactor
         val scaledResolution = ScaledResolution(mc)
         val multiplier = fadeMultiplier
 
@@ -365,7 +326,7 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
     }
 
     private inline fun drawEachWindow(renderBlock: (WindowComponent) -> Unit) {
-        for (window in windowList) {
+        for (window in windows) {
             if (!window.visible) continue
             glPushMatrix()
             glTranslatef(window.renderPosX, window.renderPosY, 0.0f)
@@ -390,12 +351,20 @@ abstract class AbstractTrollGui<S : SettingWindow<*>, E : Any> : GuiScreen(), IL
         return false
     }
 
-    companion object {
-        fun getRealMousePos(): Vec2f {
-            val scaleFactor = GuiSetting.scaleFactorFloat
+    private companion object : AlwaysListening {
+        var mousePos = calcMousePos(Mouse.getX(), Mouse.getY())
+
+        init {
+            listener<RunGameLoopEvent.Tick> {
+                mousePos = calcMousePos(Mouse.getX(), Mouse.getY())
+            }
+        }
+
+        fun calcMousePos(x: Int, y: Int): Vec2f {
+            val scaleFactor = GuiSetting.scaleFactor
             return Vec2f(
-                Mouse.getX() / scaleFactor - 1.0f,
-                (Wrapper.minecraft.displayHeight - 1 - Mouse.getY()) / scaleFactor
+                x / scaleFactor - 1.0f,
+                (Wrapper.minecraft.displayHeight - 1 - y) / scaleFactor
             )
         }
     }

@@ -1,11 +1,12 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
-import dev.luna5ama.trollhack.gui.AbstractTrollGui
+import dev.luna5ama.trollhack.gui.IGuiScreen
+import dev.luna5ama.trollhack.gui.rgui.WindowComponent
 import dev.luna5ama.trollhack.gui.rgui.component.Button
 import dev.luna5ama.trollhack.gui.rgui.component.SettingSlider
 import dev.luna5ama.trollhack.gui.rgui.component.Slider
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.setting.GuiConfig.setting
+import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.ColorSetting
 import dev.luna5ama.trollhack.util.graphics.*
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -13,22 +14,26 @@ import dev.luna5ama.trollhack.util.graphics.color.ColorUtils
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.opengl.GL11.*
-import java.awt.Color
 
-object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, SettingGroup.NONE) {
-
+class ColorPicker(
+    screen: IGuiScreen,
+    private val parent: WindowComponent,
+    private val setting: ColorSetting
+) : TitledWindow(
+    screen,
+    "Color Picker",
+    SettingGroup.NONE
+) {
     override val resizable: Boolean get() = false
     override val minimizable: Boolean get() = false
 
-    var setting: ColorSetting? = null
     private var hoveredChild: Slider? = null
         set(value) {
             if (value == field) return
-            field?.onLeave(AbstractTrollGui.getRealMousePos())
-            value?.onHover(AbstractTrollGui.getRealMousePos())
+            field?.onLeave(screen.mousePos)
+            value?.onHover(screen.mousePos)
             field = value
         }
-    private var listeningChild: Slider? = null
 
     // Positions
     private var fieldHeight = 0.0f
@@ -47,46 +52,41 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
     private var prevBrightness = 1.0f
 
     // Sliders
-    private val r = setting("Red", 255, 0..255, 1, description = "")
-    private val g = setting("Green", 255, 0..255, 1, description = "")
-    private val b = setting("Blue", 255, 0..255, 1, description = "")
-    private val a = setting("Alpha", 255, 0..255, 1, { setting?.hasAlpha ?: true }, description = "")
-    private val sliderR = SettingSlider(r)
-    private val sliderG = SettingSlider(g)
-    private val sliderB = SettingSlider(b)
-    private val sliderA = SettingSlider(a)
+    private val r = IntegerSetting("Red", setting.value.r, 0..255, 1)
+    private val g = IntegerSetting("Green", setting.value.g, 0..255, 1)
+    private val b = IntegerSetting("Blue", setting.value.b, 0..255, 1)
+    private val a = IntegerSetting("Alpha", setting.value.a, 0..255, 1, { setting.hasAlpha })
+    private val sliderR = SettingSlider(screen, r)
+    private val sliderG = SettingSlider(screen, g)
+    private val sliderB = SettingSlider(screen, b)
+    private val sliderA = SettingSlider(screen, a)
 
     // Buttons
-    private val buttonOkay = Button("Okay", { actionOk() })
-    private val buttonCancel = Button("Cancel", { actionCancel() })
+    private val buttonOkay = Button(screen, "Okay").action { _, _ -> actionOk() }
+    private val buttonCancel = Button(screen, "Cancel").action { _, _ -> actionCancel() }
 
     private val components = arrayOf(sliderR, sliderG, sliderB, sliderA, buttonOkay, buttonCancel)
 
     override fun onDisplayed() {
-        super.onDisplayed()
+        r.value = setting.value.r
+        g.value = setting.value.g
+        b.value = setting.value.b
+        a.value = setting.value.a
+
         updatePos()
-        setting?.let {
-            r.value = it.value.r
-            g.value = it.value.g
-            b.value = it.value.b
-            if (it.hasAlpha) a.value = it.value.a
-            sliderA.visible = it.hasAlpha
-            updateHSBFromRGB()
-        }
-        lastActiveTime = System.currentTimeMillis() + 1000L
+        updateHSBFromRGB()
+        super.onDisplayed()
         for (component in components) component.onDisplayed()
     }
 
     override fun onTick() {
         super.onTick()
-        if (visible) {
-            prevHue = hue
-            prevSaturation = saturation
-            prevBrightness = brightness
-            for (component in components) component.onTick()
-            if (hoveredChild != null) updateHSBFromRGB()
-            if (listeningChild?.listening == false) listeningChild = null
-        }
+        prevHue = hue
+        prevSaturation = saturation
+        prevBrightness = brightness
+        for (component in components) component.onTick()
+        if (hoveredChild != null) updateHSBFromRGB()
+        if ((keybordListening as? Slider?)?.listening == false) keybordListening = null
     }
 
     override fun onMouseInput(mousePos: Vec2f) {
@@ -118,7 +118,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
 
         hoveredChild?.let {
             it.onRelease(relativeMousePos.minus(it.posX, it.posY), buttonId)
-            if (it.listening) listeningChild = it
+            if (it.listening) keybordListening = it
         } ?: run {
             updateValues(relativeMousePos, relativeMousePos)
         }
@@ -130,7 +130,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         val relativeClickPos = clickPos.minus(posX, posY)
 
         hoveredChild?.let {
-            it.onDrag(relativeMousePos.minus(it.posX, it.posY), clickPos, buttonId)
+            it.onDrag(relativeMousePos.minus(it.posX, it.posY), relativeClickPos.minus(it.posX, it.posY), buttonId)
         } ?: run {
             updateValues(relativeMousePos, relativeClickPos)
         }
@@ -156,7 +156,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
 
     override fun onKeyInput(keyCode: Int, keyState: Boolean) {
         super.onKeyInput(keyCode, keyState)
-        listeningChild?.onKeyInput(keyCode, keyState)
+        keybordListening?.onKeyInput(keyCode, keyState)
     }
 
     override fun onRender(absolutePos: Vec2f) {
@@ -287,7 +287,7 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
         RenderUtils2D.prepareGL()
 
         // Previous color
-        val prevColor = setting?.value?.alpha(255) ?: ColorRGB(255, 255, 255)
+        val prevColor = setting.value.alpha(255)
         RenderUtils2D.drawRectFilled(
             prevColorPos.first.x,
             prevColorPos.first.y,
@@ -312,27 +312,28 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
     }
 
     private fun actionOk() {
-        setting?.value = ColorRGB(r.value, g.value, b.value, a.value)
-        actionCancel()
+        setting.value = ColorRGB(r.value, g.value, b.value, a.value)
+        screen.closeWindow(this)
+        screen.lastClicked = parent
     }
 
     private fun actionCancel() {
-        setting = null
-        visible = false
+        screen.closeWindow(this)
+        screen.lastClicked = parent
     }
 
     private fun updateRGBFromHSB() {
-        val color = Color.getHSBColor(hue, saturation, brightness)
-        r.value = color.red
-        g.value = color.green
-        b.value = color.blue
+        val color = ColorUtils.hsbToRGB(hue, saturation, brightness)
+        r.value = color.r
+        g.value = color.g
+        b.value = color.b
     }
 
     private fun updateHSBFromRGB() {
-        val floatArray = Color.RGBtoHSB(r.value, g.value, b.value, null)
-        hue = floatArray[0]
-        saturation = floatArray[1]
-        brightness = floatArray[2]
+        val color = ColorUtils.rgbToHSB(r.value, g.value, b.value, 0)
+        hue = color.h
+        saturation = color.s
+        brightness = color.b
     }
 
     private fun updatePos() {
@@ -398,10 +399,5 @@ object ColorPicker : TitledWindow("Color Picker", 0.0f, 0.0f, 200.0f, 200.0f, Se
             Vec2f(sliderR.posX + 35.0f + 4.0f, buttonOkay.posY),
             Vec2f(sliderR.posX + 35.0f + 4.0f + 35.0f, buttonCancel.posY - 4.0f)
         )
-    }
-
-    init {
-        visible = false
-        updatePos()
     }
 }

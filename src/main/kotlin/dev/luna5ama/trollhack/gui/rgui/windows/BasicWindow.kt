@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
@@ -12,14 +13,11 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
  * Window with rectangle rendering
  */
 open class BasicWindow(
+    screen: IGuiScreen,
     name: CharSequence,
-    posX: Float,
-    posY: Float,
-    width: Float,
-    height: Float,
     settingGroup: SettingGroup,
     config: AbstractConfig<out Nameable> = GuiConfig
-) : CleanWindow(name, posX, posY, width, height, settingGroup, config) {
+) : CleanWindow(name, screen, settingGroup, config) {
     override fun onRender(absolutePos: Vec2f) {
         super.onRender(absolutePos)
         if (GuiSetting.windowBlur) {
@@ -37,5 +35,4 @@ open class BasicWindow(
             RenderUtils2D.drawRectFilled(0.0f, 0.0f, renderWidth, draggableHeight, GuiSetting.primary)
         }
     }
-
 }

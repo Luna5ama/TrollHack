@@ -57,7 +57,7 @@ internal object LagNotifier : Module(
             if (text.isBlank()) return@listener
 
             val posX = Resolution.trollWidthF / 2.0f - MainFontRenderer.getWidth(text) / 2.0f
-            val posY = 80.0f / GuiSetting.scaleFactorFloat
+            val posY = 80.0f / GuiSetting.scaleFactor
 
             /* 80px down from the top edge of the screen */
             MainFontRenderer.drawString(text, posX, posY, color = ColorRGB(255, 33, 33))

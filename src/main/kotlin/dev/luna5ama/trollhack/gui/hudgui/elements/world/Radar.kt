@@ -80,8 +80,8 @@ internal object Radar : HudElement(
         ENTITY, CHUNK
     }
 
-    override val hudWidth: Float = 100.0f
-    override val hudHeight: Float = 100.0f
+    override val hudWidth = 100.0f
+    override val hudHeight = 100.0f
 
     private const val halfSize = 50.0
     private const val radius = 48.0f

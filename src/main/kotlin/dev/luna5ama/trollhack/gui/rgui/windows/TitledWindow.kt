@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
@@ -10,13 +11,10 @@ import net.minecraft.util.text.TextFormatting
  * Window with rectangle and title rendering
  */
 open class TitledWindow(
+    screen: IGuiScreen,
     name: CharSequence,
-    posX: Float,
-    posY: Float,
-    width: Float,
-    height: Float,
     settingGroup: SettingGroup
-) : BasicWindow(name, posX, posY, width, height, settingGroup) {
+) : BasicWindow(screen, name, settingGroup) {
     override val draggableHeight: Float get() = MainFontRenderer.getHeight() + 6.0f
 
     override val minimizable get() = true

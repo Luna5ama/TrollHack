@@ -63,7 +63,7 @@ internal object Configurations : AbstractModule(
 
     init {
         TimerScope.launchLooping("Config Auto Saving", 60000L) {
-            if (autoSaving && mc.currentScreen !is AbstractTrollGui<*, *> && timer.tickAndReset(savingInterval.toLong())) {
+            if (autoSaving && mc.currentScreen !is AbstractTrollGui && timer.tickAndReset(savingInterval.toLong())) {
                 if (savingFeedBack) NoSpamMessage.sendMessage(this@Configurations, "Auto saving settings...")
                 else TrollHackMod.logger.info("Auto saving settings...")
                 ConfigUtils.saveAll()

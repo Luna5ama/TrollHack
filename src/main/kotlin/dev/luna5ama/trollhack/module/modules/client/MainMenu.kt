@@ -2,14 +2,13 @@ package dev.luna5ama.trollhack.module.modules.client
 
 import dev.luna5ama.trollhack.event.events.GuiEvent
 import dev.luna5ama.trollhack.event.listener
-import dev.luna5ama.trollhack.gui.rgui.InteractiveComponent
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.modules.render.AntiAlias
 import dev.luna5ama.trollhack.setting.GenericConfig
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.translation.TranslationKey
-import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.extension.mapEach
 import dev.luna5ama.trollhack.util.extension.normalizeCase
 import dev.luna5ama.trollhack.util.graphics.Easing
@@ -218,8 +217,8 @@ internal object MainMenu : AbstractModule(
             private val quad = Box(0.0f, 0.0f, 0.0f, 0.0f)
 
             private var lastUpdateTime = System.currentTimeMillis()
-            private var prevState = InteractiveComponent.MouseState.NONE
-            private var mouseState = InteractiveComponent.MouseState.NONE
+            private var prevState = MouseState.NONE
+            private var mouseState = MouseState.NONE
                 set(value) {
                     if (field != value) {
                         prevState = field
@@ -242,10 +241,10 @@ internal object MainMenu : AbstractModule(
                 quad.y2 = posY + buttonHeight
             }
 
-            private fun getStateColor(state: InteractiveComponent.MouseState): ColorRGB {
+            private fun getStateColor(state: MouseState): ColorRGB {
                 return when (state) {
-                    InteractiveComponent.MouseState.HOVER -> ColorRGB(215, 121, 39)
-                    InteractiveComponent.MouseState.CLICK -> ColorRGB(172, 97, 32)
+                    MouseState.HOVER -> ColorRGB(215, 121, 39)
+                    MouseState.CLICK -> ColorRGB(172, 97, 32)
                     else -> ColorRGB(183, 183, 183)
                 }
             }
@@ -277,26 +276,26 @@ internal object MainMenu : AbstractModule(
             }
 
             fun onHover() {
-                if (mouseState == InteractiveComponent.MouseState.NONE) {
-                    mouseState = InteractiveComponent.MouseState.HOVER
+                if (mouseState == MouseState.NONE) {
+                    mouseState = MouseState.HOVER
                 }
             }
 
             fun onClick() {
-                mouseState = InteractiveComponent.MouseState.CLICK
+                mouseState = MouseState.CLICK
             }
 
             fun onRelease() {
                 val prev = mouseState
-                mouseState = InteractiveComponent.MouseState.NONE
-                if (prev == InteractiveComponent.MouseState.CLICK) {
+                mouseState = MouseState.NONE
+                if (prev == MouseState.CLICK) {
                     mc.soundHandler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F))
                     action.invoke()
                 }
             }
 
             fun onLeave() {
-                mouseState = InteractiveComponent.MouseState.NONE
+                mouseState = MouseState.NONE
             }
 
             private companion object {

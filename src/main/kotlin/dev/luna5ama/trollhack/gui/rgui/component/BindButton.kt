@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.BindSetting
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
@@ -7,8 +8,9 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
 
 class BindButton(
+    screen: IGuiScreen,
     private val setting: BindSetting
-) : Slider(setting.name, setting.description, setting.visibility) {
+) : Slider(screen, setting.name, setting.description, setting.visibility) {
     override fun onRelease(mousePos: Vec2f, buttonId: Int) {
         super.onRelease(mousePos, buttonId)
         if (listening) {

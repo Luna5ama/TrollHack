@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.gui.hudgui.TrollHudGui
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.delegate.FrameValue
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.HAlign
@@ -38,11 +38,9 @@ internal object Notification : HudElement(
     private val nvidia by setting("Nvidia Theme", false)
     private val backgroundAlpha by setting("Background Alpha", 180, 0..255, 1, { nvidia })
 
-    override val hudWidth: Float
-        get() = Message.minWidth
+    override val hudWidth by Message.Companion::minWidth
 
-    override val hudHeight: Float
-        get() = Message.height
+    override val hudHeight by Message.Companion::height
 
     private val notifications = CopyOnWriteArrayList<Message>()
     private val map = Long2ObjectMaps.synchronize(Long2ObjectOpenHashMap<Message>())
@@ -128,7 +126,7 @@ internal object Notification : HudElement(
         private val startTime by lazy { System.currentTimeMillis() }
         val isTimeout get() = System.currentTimeMillis() - startTime > length
 
-        private val width0 = FrameValue {
+        private val width0 = FrameFloat {
             max(minWidth, padding + padding + MainFontRenderer.getWidth(message) + padding)
         }
         private val width by width0

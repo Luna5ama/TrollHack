@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.delegate.FrameValue
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import kotlin.math.round
 
@@ -31,7 +31,7 @@ internal object GuiSetting : Module(
     private val primarySetting by setting("Primary Color", ColorRGB(255, 140, 180, 220))
     private val backgroundSetting by setting("Background Color", ColorRGB(40, 32, 36, 160))
     private val textSetting by setting("Text Color", ColorRGB(255, 250, 253, 255))
-    private val aHover by setting("Hover Alpha", 24, 0..255, 1)
+    private val aHover by setting("Hover Alpha", 32, 0..255, 1)
 
     val primary get() = primarySetting
     val idle get() = if (primary.lightness < 0.9f) ColorRGB(255, 255, 255, 0) else ColorRGB(0, 0, 0, 0)
@@ -50,8 +50,7 @@ internal object GuiSetting : Module(
         scale = 1.0f
     }
 
-    val scaleFactorFloat by FrameValue { (prevScale + (scale - prevScale) * mc.renderPartialTicks) * 2.0f }
-    val scaleFactor by FrameValue { (prevScale + (scale - prevScale) * mc.renderPartialTicks) * 2.0 }
+    val scaleFactor by FrameFloat { (prevScale + (scale - prevScale) * mc.renderPartialTicks) * 2.0f }
 
     private fun getRoundedScale(): Float {
         return round((scaleSetting.value / 100.0f) / 0.1f) * 0.1f

@@ -1,11 +1,13 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
 import dev.fastmc.common.TickTimer
-import dev.luna5ama.trollhack.gui.AbstractTrollGui
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.Component
 import dev.luna5ama.trollhack.gui.rgui.InteractiveComponent
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.render.AntiAlias
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
@@ -19,20 +21,19 @@ import kotlin.math.min
 import kotlin.math.pow
 
 open class ListWindow(
+    screen: IGuiScreen,
     name: CharSequence,
-    posX: Float,
-    posY: Float,
-    width: Float,
-    height: Float,
     saveToConfig: SettingGroup,
     vararg childrenIn: Component
-) : TitledWindow(name, posX, posY, width, height, saveToConfig) {
+) : TitledWindow(screen, name, saveToConfig) {
     val children = ArrayList<Component>()
 
-    override val minWidth = 80.0f
-    override val minHeight = 200.0f
-    override val maxWidth = 200.0f
+    override val minWidth get() = 80.0f
+    override val maxWidth get() = max(minWidth, 200.0f)
+
+    override val minHeight = 100.0f
     override val maxHeight get() = mc.displayHeight.toFloat()
+
     override val resizable: Boolean get() = hoveredChild == null
 
     private val xMargin get() = GuiSetting.xMargin
@@ -41,8 +42,8 @@ open class ListWindow(
     var hoveredChild: Component? = null
         private set(value) {
             if (value == field) return
-            (field as? InteractiveComponent)?.onLeave(AbstractTrollGui.getRealMousePos())
-            (value as? InteractiveComponent)?.onHover(AbstractTrollGui.getRealMousePos())
+            (field as? InteractiveComponent)?.onLeave(screen.mousePos)
+            (value as? InteractiveComponent)?.onHover(screen.mousePos)
             field = value
         }
 
@@ -53,29 +54,33 @@ open class ListWindow(
 
     private var doubleClickTime = -1L
 
+    private val optimalWidth0 = FrameFloat {
+        val result = children
+            .asSequence()
+            .filter { it.visible }
+            .maxOfOrNull { it.minWidth + xMargin * 2.0f } ?: 80.0f
+        max(result, 80.0f)
+    }
+    protected val optimalWidth by optimalWidth0
+
+    private val optimalHeight0 = FrameFloat {
+        val sum = children.asSequence().filter(Component::visible).sumOfFloat { it.height + yMargin }
+        sum + draggableHeight + 4.0f
+    }
+    protected val optimalHeight by optimalHeight0
+
     init {
         children.addAll(childrenIn)
-        updateChild()
-    }
-
-    private fun updateChild() {
-        var y = (if (draggableHeight != height) draggableHeight else 0.0f) + yMargin
-        for (child in children) {
-            if (!child.visible) continue
-            child.posX = xMargin
-            child.posY = y
-            child.width = width - xMargin * 2.0f
-            y += child.height + yMargin
-        }
+        updateChildPosSize()
     }
 
     override fun onDisplayed() {
         super.onDisplayed()
-        for (child in children) child.onDisplayed()
-        updateChild()
-        onTick()
         lastScrollSpeedUpdate = System.currentTimeMillis()
+
+        onTick()
         for (child in children) child.onDisplayed()
+        updateChildPosSize()
     }
 
     override fun onClosed() {
@@ -83,25 +88,21 @@ open class ListWindow(
         for (child in children) child.onClosed()
     }
 
-    override fun onGuiInit() {
-        super.onGuiInit()
-        for (child in children) child.onGuiInit()
-        updateChild()
-    }
-
     override fun onResize() {
         super.onResize()
-        updateChild()
+        updateChildPosSize()
     }
 
     override fun onTick() {
         super.onTick()
 
-        updateChild()
-        for (child in children) child.onTick()
+        for (child in children) {
+            child.onTick()
+        }
+        updateChildPosSize()
 
         if (mouseState != MouseState.DRAG) {
-            updateHovered(AbstractTrollGui.getRealMousePos().minus(posX, posY))
+            updateHovered(screen.mousePos.minus(posX, posY))
         }
     }
 
@@ -114,6 +115,21 @@ open class ListWindow(
                 it.onRender(absolutePos.plus(it.renderPosX, it.renderPosY - scrollProgress))
             }
         }
+    }
+
+    private fun updateChildPosSize() {
+        optimalWidth0.updateLazy()
+        optimalHeight0.updateLazy()
+        var y = (if (draggableHeight != height) draggableHeight else 0.0f) + yMargin
+        for (child in children) {
+            child.posX = xMargin
+            child.posY = y
+            child.width = width - xMargin * 2.0f
+            if (!child.visible) continue
+            y += child.height + yMargin
+        }
+        optimalWidth0.updateLazy()
+        optimalHeight0.updateLazy()
     }
 
     private fun updateScrollProgress() {
@@ -192,6 +208,11 @@ open class ListWindow(
     }
 
     private fun updateHovered(relativeMousePos: Vec2f) {
+        if (minimized || mouseState == MouseState.NONE) {
+            hoveredChild = null
+            return
+        }
+
         hoveredChild =
             if (relativeMousePos.y < draggableHeight || relativeMousePos.x < xMargin || relativeMousePos.x > renderWidth - xMargin) null
             else children.firstOrNull { it.visible && relativeMousePos.y + scrollProgress in it.posY..it.posY + it.height }
@@ -222,7 +243,7 @@ open class ListWindow(
     override fun onDrag(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
         super.onDrag(mousePos, clickPos, buttonId)
         if (!minimized) (hoveredChild as? InteractiveComponent)?.let {
-            it.onDrag(getRelativeMousePos(mousePos, it), clickPos, buttonId)
+            it.onDrag(getRelativeMousePos(mousePos, it), getRelativeMousePos(clickPos, it), buttonId)
         }
     }
 
@@ -242,22 +263,16 @@ open class ListWindow(
         doubleClickTime = if (currentTime - doubleClickTime > 500L) {
             currentTime
         } else {
-            updateHeightToFit(false)
+            if (optimalHeight < height) {
+                return
+            }
+            val maxHeight = scaledDisplayHeight - 2.0f
+
+            height = min(optimalHeight, scaledDisplayHeight - 2.0f)
+            posY = min(posY, maxHeight - optimalHeight)
 
             -1L
         }
-    }
-
-    protected fun updateHeightToFit(forceHeight: Boolean) {
-        val sum = children.asSequence().filter(Component::visible).sumOfFloat { it.height + yMargin }
-        val targetHeight = sum + draggableHeight + yMargin
-        if (!forceHeight && targetHeight < height) {
-            return
-        }
-        val maxHeight = scaledDisplayHeight - 2.0f
-
-        height = min(targetHeight, scaledDisplayHeight - 2.0f)
-        posY = min(posY, maxHeight - targetHeight)
     }
 
     private fun getRelativeMousePos(mousePos: Vec2f, component: InteractiveComponent): Vec2f {
