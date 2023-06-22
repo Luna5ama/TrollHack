@@ -82,8 +82,8 @@ abstract class SettingWindow<T : Any>(
         forcePosY = min(mousePos.y, screenHeight - height)
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         (hoveredChild as? Slider)?.let {
             if (it != keybordListening) {
                 (keybordListening as? Slider?)?.onStopListening(false)

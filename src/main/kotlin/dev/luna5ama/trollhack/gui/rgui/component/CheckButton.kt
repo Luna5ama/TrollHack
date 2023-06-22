@@ -26,8 +26,8 @@ open class CheckButton(
             return Float.NaN
         }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
 
         if (prevState == MouseState.DRAG && abs(mousePos.x - lastClickPos.x) > 16.0f) {
             state = renderProgress.current > if (state) 0.7f else 0.3f

@@ -26,8 +26,8 @@ open class Button(
         state = true
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (state && prevState != MouseState.DRAG) {
             actions.forEach { it.invoke(mousePos, buttonId) }
         }

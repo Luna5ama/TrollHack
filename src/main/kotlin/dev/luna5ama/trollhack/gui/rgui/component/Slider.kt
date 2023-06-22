@@ -37,13 +37,15 @@ open class Slider(
         Easing.OUT_QUART.incOrDec(Easing.toDelta(time, 300.0f), prev.coerceIn(0.0f, 1.0f), current.coerceIn(0.0f, 1.0f))
     }
 
-    override val minWidth by FrameFloat {
-        MainFontRenderer.getWidth(name) + if (protectedWidth > 0.0f) 20.0f + protectedWidth else 4.0f
+    private val minWidth0 = FrameFloat {
+        MainFontRenderer.getWidth(name) + 20.0f + protectedWidth
     }
+    override val minWidth by minWidth0
 
-    override val maxHeight by FrameFloat {
+    private val maxHeight0 = FrameFloat {
         MainFontRenderer.getHeight() + 3.0f
     }
+    override val maxHeight by maxHeight0
 
     protected var protectedWidth = 0.0f
 
@@ -64,6 +66,9 @@ open class Slider(
         super.onDisplayed()
         renderProgress.forceUpdate(0.0f, 0.0f)
         setupDescription()
+
+        maxHeight0.updateLazy()
+        minWidth0.updateLazy()
     }
 
     open fun onStopListening(success: Boolean) {

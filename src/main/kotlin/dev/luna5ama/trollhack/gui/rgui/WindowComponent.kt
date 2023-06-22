@@ -84,8 +84,8 @@ open class WindowComponent(
         lastActiveTime = System.currentTimeMillis()
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         lastActiveTime = System.currentTimeMillis()
 
         if (minimizable
@@ -98,7 +98,7 @@ open class WindowComponent(
         }
 
         if (dockingOverlay in screen.windows) {
-            dockingOverlay.onRelease(mousePos, buttonId)
+            dockingOverlay.onRelease(mousePos, clickPos, buttonId)
         }
     }
 

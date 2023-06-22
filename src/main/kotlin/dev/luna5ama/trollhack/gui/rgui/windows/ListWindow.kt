@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
+import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
@@ -57,9 +58,8 @@ open class ListWindow(
     private val optimalWidth0 = FrameFloat {
         val result = children
             .asSequence()
-            .filter { it.visible }
             .maxOfOrNull { it.minWidth + xMargin * 2.0f } ?: 80.0f
-        max(result, 80.0f)
+        maxOf(result, MainFontRenderer.getWidth(name) + 20.0f, 80.0f)
     }
     protected val optimalWidth by optimalWidth0
 
@@ -81,6 +81,9 @@ open class ListWindow(
         onTick()
         for (child in children) child.onDisplayed()
         updateChildPosSize()
+
+        optimalWidth0.updateLazy()
+        optimalHeight0.updateLazy()
     }
 
     override fun onClosed() {
@@ -225,7 +228,9 @@ open class ListWindow(
 
     override fun onClick(mousePos: Vec2f, buttonId: Int) {
         super.onClick(mousePos, buttonId)
+        val relativeMousePos = mousePos.minus(posX, posY)
 
+        updateHovered(relativeMousePos)
         handleDoubleClick(mousePos, buttonId)
 
         if (!minimized) (hoveredChild as? InteractiveComponent)?.let {
@@ -233,10 +238,10 @@ open class ListWindow(
         }
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (!minimized) (hoveredChild as? InteractiveComponent)?.let {
-            it.onRelease(getRelativeMousePos(mousePos, it), buttonId)
+            it.onRelease(getRelativeMousePos(mousePos, it), clickPos, buttonId)
         }
     }
 

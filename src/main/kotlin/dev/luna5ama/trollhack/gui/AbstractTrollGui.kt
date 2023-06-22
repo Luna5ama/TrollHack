@@ -60,7 +60,12 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
     // Mouse
     private var lastEventButton = -1
-    private var lastClickPos = Vec2f(0.0f, 0.0f)
+    private var lastClickPos = Vec2f.ZERO
+        set(value) {
+            field = value
+            lastClickTime = System.currentTimeMillis()
+        }
+    private var lastClickTime = 0L
 
     // Searching
     open var searchString = ""
@@ -194,7 +199,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
     }
 
     override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
-        hovered?.onRelease(mousePos, state)
+        hovered?.onRelease(mousePos, lastClickPos, state)
 
         mouseState = MouseState.NONE
 
@@ -204,6 +209,8 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
     }
 
     override fun mouseClickMove(mouseX: Int, mouseY: Int, clickedMouseButton: Int, timeSinceLastClick: Long) {
+        if ((mousePos - lastClickPos).length() < 4.0f || System.currentTimeMillis() - lastClickTime < 50L) return
+
         mouseState = MouseState.DRAG
 
         hovered?.onDrag(mousePos, lastClickPos, clickedMouseButton)

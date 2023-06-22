@@ -30,8 +30,13 @@ class EnumSlider(
             }
         }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onDisplayed() {
+        protectedWidth = MainFontRenderer.getWidth(setting.value.readableName(), 0.75f)
+        super.onDisplayed()
+    }
+
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (prevState != MouseState.DRAG) setting.nextValue()
     }
 

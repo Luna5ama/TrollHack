@@ -11,8 +11,13 @@ class BindButton(
     screen: IGuiScreen,
     private val setting: BindSetting
 ) : Slider(screen, setting.name, setting.description, setting.visibility) {
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onDisplayed() {
+        protectedWidth = MainFontRenderer.getWidth(setting.value.toString(), 0.75f)
+        super.onDisplayed()
+    }
+
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (listening) {
             setting.value.apply {
                 if (buttonId > 1) setBind(-buttonId - 1)

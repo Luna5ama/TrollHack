@@ -112,12 +112,12 @@ class ColorPicker(
         }
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         val relativeMousePos = mousePos.minus(posX, posY)
 
         hoveredChild?.let {
-            it.onRelease(relativeMousePos.minus(it.posX, it.posY), buttonId)
+            it.onRelease(relativeMousePos.minus(it.posX, it.posY), clickPos, buttonId)
             if (it.listening) keybordListening = it
         } ?: run {
             updateValues(relativeMousePos, relativeMousePos)

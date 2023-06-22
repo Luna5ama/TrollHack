@@ -41,8 +41,8 @@ class DockingOverlay(screen: IGuiScreen, private val parent: WindowComponent) : 
         alphaMul.forceUpdate(0.0f, 1.0f)
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         closing = true
         alphaMul.update(0.0f)
 

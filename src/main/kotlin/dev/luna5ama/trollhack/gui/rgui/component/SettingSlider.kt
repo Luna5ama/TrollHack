@@ -56,6 +56,11 @@ class SettingSlider(
         else -> range / 20.0
     }
 
+    override fun onDisplayed() {
+        protectedWidth = MainFontRenderer.getWidth(setting.toString(), 0.75f)
+        super.onDisplayed()
+    }
+
     override fun onStopListening(success: Boolean) {
         if (success) {
             inputField.toDoubleOrNull()?.let { setting.setValue(it.toString()) }
@@ -73,8 +78,8 @@ class SettingSlider(
         }
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (buttonId == 1) {
             if (!listening) {
                 listening = true

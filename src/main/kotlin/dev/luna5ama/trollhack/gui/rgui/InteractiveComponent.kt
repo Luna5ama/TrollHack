@@ -49,7 +49,7 @@ open class InteractiveComponent(
         mouseState = MouseState.CLICK
     }
 
-    open fun onRelease(mousePos: Vec2f, buttonId: Int) {
+    open fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
         mouseState = MouseState.HOVER
     }
 
