@@ -14,16 +14,23 @@ interface IGuiScreen {
     val windows: ObjectLinkedOpenHashSet<WindowComponent>
     val mousePos: Vec2f
 
-    fun closeWindow(window: WindowComponent) {
+    fun closeWindow(window: WindowComponent): Boolean {
+        var closed = false
         if (windows.remove(window)) {
             window.onClosed()
+            closed = true
         }
         if (lastClicked === window) lastClicked = null
+
+        return closed
     }
 
-    fun displayWindow(window: WindowComponent) {
-        if (windows.addAndMoveToLast(window)) {
+    fun displayWindow(window: WindowComponent): Boolean {
+        return if (windows.addAndMoveToLast(window)) {
             window.onDisplayed()
+            true
+        } else {
+            false
         }
     }
 }

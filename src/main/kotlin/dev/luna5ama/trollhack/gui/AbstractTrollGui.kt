@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.gui
 
+import dev.fastmc.common.collection.FastObjectArrayList
 import dev.luna5ama.trollhack.event.*
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -38,6 +39,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
     // Window
     override val windows = ObjectLinkedOpenHashSet<WindowComponent>()
+    private val windowsCachedList = FastObjectArrayList<WindowComponent>()
 
     override var lastClicked: WindowComponent? = null
     override var hovered: WindowComponent? = null
@@ -107,11 +109,13 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
             if (displayed.value || alwaysTicking) {
                 coroutineScope {
-                    for (window in windows) {
+                    windowsCachedList.addAll(windows)
+                    for (window in windowsCachedList) {
                         launch {
                             window.onTick()
                         }
                     }
+                    windowsCachedList.clear()
                 }
             }
         }

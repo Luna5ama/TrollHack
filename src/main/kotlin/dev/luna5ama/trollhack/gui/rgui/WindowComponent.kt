@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.gui.rgui
 
 import dev.luna5ama.trollhack.gui.IGuiScreen
+import dev.luna5ama.trollhack.gui.rgui.windows.DockingOverlay
 import dev.luna5ama.trollhack.setting.GuiConfig.setting
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
@@ -50,12 +51,16 @@ open class WindowComponent(
         }
     }
 
+    private val dockingOverlay by lazy { DockingOverlay(screen, this) }
+
     open fun onResize() {}
     open fun onReposition() {}
 
     override fun onTick() {
         super.onTick()
-        if (mouseState != MouseState.DRAG) updatePreDrag(null)
+        if (mouseState != MouseState.DRAG) {
+            updatePreDrag(null)
+        }
     }
 
     override fun onDisplayed() {
@@ -82,8 +87,19 @@ open class WindowComponent(
     override fun onRelease(mousePos: Vec2f, buttonId: Int) {
         super.onRelease(mousePos, buttonId)
         lastActiveTime = System.currentTimeMillis()
-        if (minimizable && buttonId == 1 && mousePos.y - posY < draggableHeight) minimized = !minimized
-        if (mouseState != MouseState.DRAG) updatePreDrag(mousePos.minus(posX, posY))
+
+        if (minimizable
+            && prevState != MouseState.DRAG
+            && buttonId == 1
+            && mousePos.y - posY < draggableHeight) minimized = !minimized
+
+        if (mouseState != MouseState.DRAG) {
+            updatePreDrag(mousePos.minus(posX, posY))
+        }
+
+        if (dockingOverlay in screen.windows) {
+            dockingOverlay.onRelease(mousePos, buttonId)
+        }
     }
 
     private fun updatePreDrag(mousePos: Vec2f?) {
@@ -95,7 +111,17 @@ open class WindowComponent(
     override fun onDrag(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
         super.onDrag(mousePos, clickPos, buttonId)
 
-        val relativeClickPos = clickPos.minus(preDragPos)
+        when (buttonId) {
+            0 -> handleLeftClickDrag(clickPos, mousePos)
+            1 -> handleRightClickDrag(clickPos, mousePos)
+        }
+    }
+
+    private fun handleLeftClickDrag(
+        clickPos: Vec2f,
+        mousePos: Vec2f
+    ) {
+        val relativeClickPos = clickPos - preDragPos
         val centerSplitterH = min(10.0, preDragSize.x / 3.0)
         val centerSplitterV = min(10.0, preDragSize.y / 3.0)
 
@@ -106,8 +132,12 @@ open class WindowComponent(
             else -> null
         }
 
-        val centerSplitterVCenter =
-            if (draggableHeight != height && horizontalSide == HAlign.CENTER) 2.5 else min(15.0, preDragSize.x / 3.0)
+        val centerSplitterVCenter = if (draggableHeight != height && horizontalSide == HAlign.CENTER) {
+            2.5
+        } else {
+            min(15.0, preDragSize.x / 3.0)
+        }
+
         val verticalSide = when (relativeClickPos.y) {
             in -2.0..centerSplitterVCenter -> VAlign.TOP
             in centerSplitterVCenter..preDragSize.y - centerSplitterV -> VAlign.CENTER
@@ -115,25 +145,34 @@ open class WindowComponent(
             else -> null
         }
 
+        if (horizontalSide == null || verticalSide == null) return
         val draggedDist = mousePos.minus(clickPos)
 
-        if (horizontalSide != null && verticalSide != null) {
-            if (resizable && !minimized && (horizontalSide != HAlign.CENTER || verticalSide != VAlign.CENTER)) {
-                handleResizeX(horizontalSide, draggedDist)
-                handleResizeY(verticalSide, draggedDist)
+        if (resizable && !minimized && (horizontalSide != HAlign.CENTER || verticalSide != VAlign.CENTER)) {
+            handleResizeX(horizontalSide, draggedDist)
+            handleResizeY(verticalSide, draggedDist)
 
-                onResize()
-            } else if (draggableHeight == height || relativeClickPos.y <= draggableHeight) {
-                val x = (preDragPos.x + draggedDist.x).coerceIn(0.0f, mc.displayWidth - width - 1.0f)
-                val y = (preDragPos.y + draggedDist.y).coerceIn(0.0f, mc.displayHeight - height - 1.0f)
-                posX = x
-                posY = y
+            onResize()
+        } else if (draggableHeight == height || relativeClickPos.y <= draggableHeight) {
+            val x = (preDragPos.x + draggedDist.x).coerceIn(0.0f, mc.displayWidth - width - 1.0f)
+            val y = (preDragPos.y + draggedDist.y).coerceIn(0.0f, mc.displayHeight - height - 1.0f)
+            posX = x
+            posY = y
 
-                onReposition()
-            } else {
-                // TODO
-            }
+            onReposition()
+        } else {
+            // TODO
         }
+    }
+
+    private fun handleRightClickDrag(
+        clickPos: Vec2f,
+        mousePos: Vec2f
+    ) {
+        val relativeClickPos = clickPos.minus(preDragPos)
+        if (relativeClickPos.y > draggableHeight) return
+
+        screen.displayWindow(dockingOverlay)
     }
 
     private fun handleResizeX(horizontalSide: HAlign, draggedDist: Vec2f) {
@@ -192,7 +231,7 @@ open class WindowComponent(
         }
     }
 
-    fun isInWindow(mousePos: Vec2f): Boolean {
+    open fun isInWindow(mousePos: Vec2f): Boolean {
         val xMin = preDragPos.x - 2.0f
         val xMax = preDragPos.x + preDragSize.x + 2.0f
         val yMin = preDragPos.y - 2.0f
