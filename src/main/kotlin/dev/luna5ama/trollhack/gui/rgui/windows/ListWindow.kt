@@ -65,7 +65,7 @@ open class ListWindow(
 
     private val optimalHeight0 = FrameFloat {
         val sum = children.asSequence().filter(Component::visible).sumOfFloat { it.height + yMargin }
-        sum + draggableHeight + 4.0f
+        sum + draggableHeight + max(GuiSetting.xMargin, GuiSetting.yMargin)
     }
     protected val optimalHeight by optimalHeight0
 
