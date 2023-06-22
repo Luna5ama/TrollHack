@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.util.graphics
 
-import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.Quad
 import dev.luna5ama.trollhack.util.Wrapper
 import net.minecraft.client.gui.ScaledResolution
@@ -118,8 +117,7 @@ object GlStateUtils {
     }
 
     fun rescaleTroll() {
-        val scale = GuiSetting.scaleFactor
-        rescale(Wrapper.minecraft.displayWidth.toDouble() / scale, Wrapper.minecraft.displayHeight.toDouble() / scale)
+        rescale(Resolution.trollWidthF.toDouble(), Resolution.trollHeightF.toDouble())
     }
 
     fun rescaleMc() {

@@ -6,6 +6,7 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
+import dev.luna5ama.trollhack.util.graphics.Resolution
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import kotlin.math.round
 

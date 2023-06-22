@@ -6,7 +6,6 @@ import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 
@@ -25,11 +24,11 @@ class DockingOverlay(screen: IGuiScreen, private val parent: WindowComponent) : 
         set(_) {}
 
     override var width: Float
-        get() = mc.displayWidth / GuiSetting.scaleFactor
+        get() = Resolution.trollWidthF
         set(_) {}
 
     override var height: Float
-        get() = mc.displayHeight / GuiSetting.scaleFactor
+        get() = Resolution.trollHeightF
         set(_) {}
 
     private val alphaMul = AnimationFlag(Easing.OUT_QUART, 300.0f)

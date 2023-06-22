@@ -30,7 +30,7 @@ abstract class AbstractLabelHud(
         safeParallelListener<TickEvent.Post> {
             displayText.clear()
             updateText()
-            if (displayText.isEmpty()) {
+            if (displayText.isEmpty() && screen.isVisible) {
                 displayText.add(TextFormatting.ITALIC format nameAsString)
             }
         }

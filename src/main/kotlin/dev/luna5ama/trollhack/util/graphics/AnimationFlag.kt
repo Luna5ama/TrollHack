@@ -10,6 +10,10 @@ class AnimationFlag(private val interpolation: InterpolateFunction) {
     var current = 0.0f; private set
     var time = System.currentTimeMillis(); private set
 
+    fun forceUpdate(value: Float) {
+        forceUpdate(value, value)
+    }
+
     fun forceUpdate(prev: Float, current: Float) {
         if (prev.isNaN() || current.isNaN()) return
 

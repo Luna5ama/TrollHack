@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.translation.TranslateSrc
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
+import dev.luna5ama.trollhack.util.extension.rootName
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.Alias
@@ -73,6 +74,13 @@ abstract class AbstractHudElement(
 
     final override fun onTick() {
         super.onTick()
+    }
+
+    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, buttonId)
+        if (buttonId == 2) {
+            TrollHudGui.searchString = this.nameAsString
+        }
     }
 
     final override fun onRender(absolutePos: Vec2f) {

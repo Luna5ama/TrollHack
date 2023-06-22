@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.graphics.AnimationFlag
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.util.graphics.Resolution
 import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
@@ -162,9 +163,7 @@ open class Slider(
         val textWidth = displayDescription.getWidth()
         val textHeight = displayDescription.getHeight(2)
 
-        val relativeCorner =
-            Vec2f(mc.displayWidth.toFloat(), mc.displayHeight.toFloat()).div(GuiSetting.scaleFactor)
-                .minus(absolutePos)
+        val relativeCorner = Vec2f(Resolution.trollWidthF, Resolution.trollHeightF) - absolutePos
 
         val posX = descriptionPosX.coerceIn(-absolutePos.x, (relativeCorner.x - textWidth - 10.0f))
         val posY = (renderHeight + 4.0f).coerceIn(-absolutePos.y, (relativeCorner.y - textHeight - 10.0f))

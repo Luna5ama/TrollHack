@@ -63,18 +63,14 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
     private var lastClickPos = Vec2f(0.0f, 0.0f)
 
     // Searching
-    protected var typedString = ""
-    protected var lastTypedTime = 0L
-    protected var prevStringWidth = 0.0f
-    protected var stringWidth = 0.0f
+    open var searchString = ""
         set(value) {
-            prevStringWidth = renderStringPosX
+            renderStringPosX.update(MainFontRenderer.getWidth(value, 2.0f))
             field = value
         }
-    private val renderStringPosX
-        get() = Easing.OUT_CUBIC.incOrDec(Easing.toDelta(lastTypedTime, 250.0f), prevStringWidth, stringWidth)
+    private val renderStringPosX = AnimationFlag(Easing.OUT_CUBIC, 250.0f)
     val searching
-        get() = typedString.isNotEmpty()
+        get() = searchString.isNotEmpty()
 
     // Shader
     private val blurShader = ShaderHelper(ResourceLocation("shaders/post/kawase_blur_6.json"))
@@ -129,7 +125,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
     // Gui init
     open fun onDisplayed() {
-        typedString = ""
+        searchString = ""
         displayed.value = true
 
         for (window in windows) {
@@ -149,8 +145,8 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         lastClicked = null
         hovered = null
 
-        typedString = ""
-        lastTypedTime = 0L
+        searchString = ""
+        renderStringPosX.forceUpdate(0.0f)
 
         displayed.value = false
 
@@ -233,15 +229,10 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
         when {
             keyCode == Keyboard.KEY_BACK || keyCode == Keyboard.KEY_DELETE -> {
-                typedString = ""
-                lastTypedTime = 0L
-                stringWidth = 0.0f
-                prevStringWidth = 0.0f
+                searchString = ""
             }
             typedChar.isLetter() || typedChar == ' ' -> {
-                typedString += typedChar
-                stringWidth = MainFontRenderer.getWidth(typedString, 2.0f)
-                lastTypedTime = System.currentTimeMillis()
+                searchString += typedChar
             }
         }
     }
@@ -259,7 +250,6 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         glEnable(GL_DEPTH_CLAMP)
         GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
 
-        val scale = GuiSetting.scaleFactor
         val scaledResolution = ScaledResolution(mc)
         val multiplier = fadeMultiplier
 
@@ -269,13 +259,13 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
         mc.profiler.endStartSection("windows")
         GlStateUtils.rescaleTroll()
-        glTranslatef(0.0f, -(mc.displayHeight / scale * (1.0f - multiplier)), 0.0f)
+        glTranslatef(0.0f, -(Resolution.trollHeightF * (1.0f - multiplier)), 0.0f)
         drawWindows()
+        drawTypedString()
 
         mc.profiler.endStartSection("post")
         GlStateUtils.rescaleMc()
         glTranslatef(0.0f, -(scaledResolution.scaledHeight * (1.0f - multiplier)), 0.0f)
-        drawTypedString()
 
         glDisable(GL_DEPTH_CLAMP)
         GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
@@ -340,13 +330,12 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
     }
 
     private fun drawTypedString() {
-        if (typedString.isNotBlank() && System.currentTimeMillis() - lastTypedTime <= 5000L) {
-            val scaledResolution = ScaledResolution(mc)
-            val posX = scaledResolution.scaledWidth / 2.0f - renderStringPosX / 2.0f
-            val posY = scaledResolution.scaledHeight / 2.0f - MainFontRenderer.getHeight(2.0f) / 2.0f
+        if (searchString.isNotBlank() && System.currentTimeMillis() - renderStringPosX.time <= 5000L) {
+            val posX = Resolution.trollWidthF / 2.0f - renderStringPosX.get() / 2.0f
+            val posY = Resolution.trollHeightF / 2.0f - MainFontRenderer.getHeight(2.0f) / 2.0f
             var color = GuiSetting.text
-            color = color.alpha(Easing.IN_CUBIC.dec(Easing.toDelta(lastTypedTime, 5000.0f), 0.0f, 255.0f).toInt())
-            MainFontRenderer.drawString(typedString, posX, posY, color, 2.0f)
+            color = color.alpha(Easing.IN_CUBIC.dec(Easing.toDelta(renderStringPosX.time, 5000.0f), 0.0f, 255.0f).toInt())
+            MainFontRenderer.drawString(searchString, posX, posY, color, 2.0f)
         }
     }
     // End of rendering
