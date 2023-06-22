@@ -30,6 +30,9 @@ abstract class AbstractLabelHud(
         safeParallelListener<TickEvent.Post> {
             displayText.clear()
             updateText()
+            if (displayText.isEmpty()) {
+                displayText.add(TextFormatting.ITALIC format nameAsString)
+            }
         }
     }
 
@@ -41,12 +44,6 @@ abstract class AbstractLabelHud(
         val textPosX = width * dockingH.multiplier / scale - dockingH.offset
         val textPosY = height * dockingV.multiplier / scale
 
-        if (displayText.isEmpty()) {
-            if (screen.isVisible) {
-                MainFontRenderer.drawString(TextFormatting.ITALIC format nameAsString, textPosX, textPosY)
-            }
-            return
-        }
         displayText.draw(
             Vec2d(textPosX.toDouble(), textPosY.toDouble()),
             horizontalAlign = dockingH,
