@@ -1,7 +1,7 @@
 pluginManagement {
     repositories {
+        maven("https://maven.luna5ama.dev/")
         gradlePluginPortal()
-        maven("https://maven.fastmc.dev/")
     }
 
     val kotlinVersion: String by settings
@@ -11,6 +11,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "TrollHack"
-
-includeBuild("structs")
+rootProject.name = "structs"

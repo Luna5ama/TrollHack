@@ -2,8 +2,8 @@ package dev.luna5ama.trollhack.util.graphics
 
 import dev.fastmc.common.DIRECT_BYTE_BUFFER_CLASS
 import dev.fastmc.common.allocateInt
-import dev.fastmc.memutil.MemoryArray
-import dev.fastmc.memutil.MemoryPointer
+import dev.luna5ama.kmogus.Ptr
+import dev.luna5ama.kmogus.Arr
 import org.lwjgl.opengl.*
 import sun.misc.Unsafe
 import java.lang.invoke.MethodHandles
@@ -52,7 +52,7 @@ private val nglNamedBufferSubData = trustedLookUp.findStatic(
 
 private val glNamedBufferSubDataFunctionPointer = getFunctionAddress("glNamedBufferSubData")
 
-fun glNamedBufferSubData(buffer: Int, offset: Long, dataSize: Long, pointer: MemoryPointer) {
+fun glNamedBufferSubData(buffer: Int, offset: Long, dataSize: Long, pointer: Ptr) {
     nglNamedBufferSubData.invokeExact(
         buffer,
         offset,
@@ -81,7 +81,7 @@ private val nglNamedBufferData = trustedLookUp.findStatic(
 
 private val glNamedBufferDataFunctionPointer = getFunctionAddress("glNamedBufferData")
 
-fun glNamedBufferData(buffer: Int, dataSize: Long, pointer: MemoryPointer, usage: Int) {
+fun glNamedBufferData(buffer: Int, dataSize: Long, pointer: Ptr, usage: Int) {
     nglNamedBufferData.invokeExact(buffer, dataSize, pointer.address, usage, glNamedBufferDataFunctionPointer)
 }
 
@@ -104,7 +104,7 @@ private val nglNamedBufferStorage = trustedLookUp.findStatic(
 
 private val glNamedBufferStorageFunctionPointer = getFunctionAddress("glNamedBufferStorage")
 
-fun glNamedBufferStorage(buffer: Int, dataSize: Long, pointer: MemoryPointer, flags: Int) {
+fun glNamedBufferStorage(buffer: Int, dataSize: Long, pointer: Ptr, flags: Int) {
     nglNamedBufferStorage.invokeExact(
         buffer,
         dataSize,
@@ -154,7 +154,7 @@ private val nglMapNamedBufferRange = trustedLookUp.findStatic(
 private val glMapNamedBufferRangeFunctionPointer = getFunctionAddress("glMapNamedBufferRange")
 private val dummyBuffer = unsafe.allocateInstance(DIRECT_BYTE_BUFFER_CLASS) as ByteBuffer
 
-fun glMapNamedBufferRange(buffer: Int, offset: Long, length: Long, access: Int): MemoryArray {
+fun glMapNamedBufferRange(buffer: Int, offset: Long, length: Long, access: Int): Arr {
     val byteBuffer = nglMapNamedBufferRange.invokeExact(
         buffer,
         offset,
@@ -164,7 +164,7 @@ fun glMapNamedBufferRange(buffer: Int, offset: Long, length: Long, access: Int):
         glMapNamedBufferRangeFunctionPointer
     ) as ByteBuffer
 
-    return MemoryArray.wrap(byteBuffer)
+    return Arr.wrap(byteBuffer)
 }
 
 private val glSyncInstance = unsafe.allocateInstance(GLSync::class.java) as GLSync
@@ -249,7 +249,7 @@ fun glCompressedTextureSubImage2D(
     height: Int,
     format: Int,
     imageSize: Int,
-    data: MemoryPointer
+    data: Ptr
 ) {
     nglCompressedTextureSubImage2D.invokeExact(
         texture,

@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.util.graphics.buffer
 
+import dev.luna5ama.kmogus.asMutable
 import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
@@ -27,26 +28,26 @@ object PersistentMappedVBO : AlwaysListening {
         0,
         64L * 1024L * 1024L,
         GL_MAP_WRITE_BIT or GL_MAP_PERSISTENT_BIT or GL_MAP_COHERENT_BIT or GL_MAP_UNSYNCHRONIZED_BIT
-    )
+    ).asMutable()
     var drawOffset = 0
 
     private var sync = 0L
 
     fun end() {
-        drawOffset = (array.pointer / 16L).toInt()
+        drawOffset = (array.offset / 16L).toInt()
     }
 
     init {
         listener<RunGameLoopEvent.End> {
             if (sync == 0L) {
-                if (array.pointer >= array.length / 2) {
+                if (array.offset >= array.length / 2) {
                     @Suppress("RemoveRedundantQualifierName", "RedundantSuppression")
                     sync = dev.luna5ama.trollhack.util.graphics.glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0)
                 }
             } else if (glGetSynciv(sync, GL_SYNC_STATUS) == GL_SIGNALED) {
                 glDeleteSync(sync)
                 sync = 0L
-                array.pointer = 0L
+                array.offset = 0L
                 drawOffset = 0
             }
         }

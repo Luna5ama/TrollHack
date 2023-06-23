@@ -33,6 +33,7 @@ apply {
 
 repositories {
     mavenCentral()
+    maven("https://maven.luna5ama.dev/")
     maven("https://maven.fastmc.dev/")
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://jitpack.io/")
@@ -72,7 +73,10 @@ dependencies {
 
     jarLibImplementation("org.joml:joml:1.10.5")
     jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
-    jarLibImplementation("dev.fastmc:mem-util:1.0-SNAPSHOT")
+
+    jarLibImplementation("dev.luna5ama:kmogus-core:1.0.0-SNAPSHOT")
+    jarLibImplementation("dev.luna5ama:kmogus-struct-api:1.0.0-SNAPSHOT")
+    jarLibImplementation("dev.luna5ama:structs")
 
     implementation("com.github.cabaletta:baritone:1.2.14")
     jarLib("cabaletta:baritone-api:1.2")

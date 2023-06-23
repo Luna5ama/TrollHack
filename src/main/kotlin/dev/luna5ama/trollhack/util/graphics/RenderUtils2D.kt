@@ -1,6 +1,9 @@
 package dev.luna5ama.trollhack.util.graphics
 
 import dev.fastmc.common.toRadians
+import dev.luna5ama.trollhack.structs.Pos2Color
+import dev.luna5ama.trollhack.structs.Pos3Color
+import dev.luna5ama.trollhack.structs.sizeof
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.graphics.buffer.PersistentMappedVBO
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -206,10 +209,11 @@ object RenderUtils2D {
 
     fun putVertex(posX: Float, posY: Float, color: ColorRGB) {
         val array = PersistentMappedVBO.array
-        array.pushFloat(posX)
-        array.pushFloat(posY)
-        array.pushInt(color.rgba)
-        array.pointer += 4
+        val struct = Pos2Color(array)
+        struct.pos.x = posX
+        struct.pos.y = posY
+        struct.color = color.rgba
+        array += sizeof(Pos3Color)
         vertexSize++
     }
 

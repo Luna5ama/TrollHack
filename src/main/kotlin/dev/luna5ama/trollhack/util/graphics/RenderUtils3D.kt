@@ -4,6 +4,8 @@ import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.structs.Pos3Color
+import dev.luna5ama.trollhack.structs.sizeof
 import dev.luna5ama.trollhack.util.accessor.renderPartialTicksPaused
 import dev.luna5ama.trollhack.util.accessor.renderPosX
 import dev.luna5ama.trollhack.util.accessor.renderPosY
@@ -118,10 +120,12 @@ object RenderUtils3D : AlwaysListening {
 
     fun putVertex(posX: Double, posY: Double, posZ: Double, color: ColorRGB) {
         val array = PersistentMappedVBO.array
-        array.pushFloat((posX + translationX).toFloat())
-        array.pushFloat((posY + translationY).toFloat())
-        array.pushFloat((posZ + translationZ).toFloat())
-        array.pushInt(color.rgba)
+        val struct = Pos3Color(array)
+        struct.pos.x = (posX + translationX).toFloat()
+        struct.pos.y = (posY + translationY).toFloat()
+        struct.pos.z = (posZ + translationZ).toFloat()
+        struct.color = color.rgba
+        array += sizeof(Pos3Color)
         vertexSize++
     }
 

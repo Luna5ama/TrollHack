@@ -2,6 +2,8 @@ package dev.luna5ama.trollhack.util.graphics.font.glyph
 
 import dev.fastmc.common.ParallelUtils
 import dev.fastmc.common.UpdateCounter
+import dev.luna5ama.kmogus.byteLength
+import dev.luna5ama.kmogus.memcpy
 import dev.luna5ama.trollhack.util.graphics.font.GlyphCache
 import dev.luna5ama.trollhack.util.graphics.font.GlyphTexture
 import dev.luna5ama.trollhack.util.graphics.font.Style
@@ -55,7 +57,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
         val bufferID = glCreateBuffers()
         glNamedBufferStorage(bufferID, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
         val buffer = glMapNamedBufferRange(bufferID, 0, cache.data.size.toLong(), GL_MAP_WRITE_BIT)
-        buffer.setBytesUnsafe(cache.data)
+        memcpy(cache.data, buffer.ptr, cache.data.byteLength)
         glUnmapNamedBuffer(bufferID)
 
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferID)
@@ -159,7 +161,7 @@ class FontGlyphs(val id: Int, private val font: Font, private val fallbackFont: 
             }
 
             val (bufferID, buffer) = deferredBuffer.await()
-            buffer.setBytesUnsafe(cache.data)
+            memcpy(cache.data, buffer.ptr, cache.data.byteLength)
             onMainThread {
                 glUnmapNamedBuffer(bufferID)
             }.await()

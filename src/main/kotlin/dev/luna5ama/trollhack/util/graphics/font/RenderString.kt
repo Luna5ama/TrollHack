@@ -1,6 +1,10 @@
 package dev.luna5ama.trollhack.util.graphics.font
 
-import dev.fastmc.memutil.MemoryArray
+import dev.luna5ama.kmogus.Arr
+import dev.luna5ama.kmogus.asMutable
+import dev.luna5ama.kmogus.ensureCapacity
+import dev.luna5ama.trollhack.structs.FontVertex
+import dev.luna5ama.trollhack.structs.sizeof
 import dev.luna5ama.trollhack.util.collections.forEachFast
 import dev.luna5ama.trollhack.util.graphics.GLDataType
 import dev.luna5ama.trollhack.util.graphics.buildAttribute
@@ -193,7 +197,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
         class Builder(private val glyphChunk: GlyphChunk, private val shadowDist: Float) {
             private var size = 0
 
-            private val array = MemoryArray.malloc(16L * 4L * 2L)
+            private val array = Arr.malloc(16L * 4L * 2L).asMutable()
 
             fun put(posX: Float, posY: Float, charInfo: CharInfo, context: AbstractFontRenderContext) {
                 val color = (context.color + 1).toByte()
@@ -204,94 +208,98 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
                 var u = charInfo.uv[0]
                 var v = charInfo.uv[1]
 
-                array.ensureCapacity(++size * 16L * 4L * 2L)
+                array.ensureCapacity(++size * 16L * 4L * 2L, false)
 
-                array.pushFloat(pX + shadowDist)
-                array.pushFloat(pY + shadowDist)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(1)
-                array.pointer++
+                var struct = FontVertex(array)
 
-                array.pushFloat(pX)
-                array.pushFloat(pY)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(0)
-                array.pointer++
+                struct.position.x = pX + shadowDist
+                struct.position.y = pY + shadowDist
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 1
+                struct++
+
+                struct.position.x = pX
+                struct.position.y = pY
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 0
+                struct++
 
                 pX = posX + charInfo.renderWidth
                 pY = posY
                 u = charInfo.uv[2]
                 v = charInfo.uv[1]
 
-                array.pushFloat(pX + shadowDist)
-                array.pushFloat(pY + shadowDist)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(1)
-                array.pointer++
+                struct.position.x = pX + shadowDist
+                struct.position.y = pY + shadowDist
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 1
+                struct++
 
-                array.pushFloat(pX)
-                array.pushFloat(pY)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(0)
-                array.pointer++
+                struct.position.x = pX
+                struct.position.y = pY
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 0
+                struct++
 
                 pX = posX
                 pY = posY + charInfo.height
                 u = charInfo.uv[0]
                 v = charInfo.uv[3]
 
-                array.pushFloat(pX + shadowDist)
-                array.pushFloat(pY + shadowDist)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(1)
-                array.pointer++
+                struct.position.x = pX + shadowDist
+                struct.position.y = pY + shadowDist
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 1
+                struct++
 
-                array.pushFloat(pX)
-                array.pushFloat(pY)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(0)
-                array.pointer++
+                struct.position.x = pX
+                struct.position.y = pY
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 0
+                struct++
 
                 pX = posX + charInfo.renderWidth
                 pY = posY + charInfo.height
                 u = charInfo.uv[2]
                 v = charInfo.uv[3]
 
-                array.pushFloat(pX + shadowDist)
-                array.pushFloat(pY + shadowDist)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(1)
-                array.pointer++
+                struct.position.x = pX + shadowDist
+                struct.position.y = pY + shadowDist
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 1
+                struct++
 
-                array.pushFloat(pX)
-                array.pushFloat(pY)
-                array.pushShort(u)
-                array.pushShort(v)
-                array.pushByte(color)
-                array.pushByte(overrideColor)
-                array.pushByte(0)
-                array.pointer++
+                struct.position.x = pX
+                struct.position.y = pY
+                struct.vertUV.x = u
+                struct.vertUV.y = v
+                struct.colorIndex = color
+                struct.overrideColor = overrideColor
+                struct.shadow = 0
+                struct++
+
+                array.offset += sizeof(FontVertex) * 8
             }
 
             fun build(): StringRenderInfo {
@@ -299,11 +307,11 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
                 val vboID = glCreateBuffers()
                 val iboID = glCreateBuffers()
 
-                glNamedBufferStorage(vboID, size * 16L * 4L * 2L, array, 0)
+                glNamedBufferStorage(vboID, size * 16L * 4L * 2L, array.basePointer, 0)
 
-                array.clear()
-                buildIboBuffer(array)
-                glNamedBufferStorage(iboID, size * 2L * 6L * 2L, array, 0)
+                array.reset()
+                buildIboBuffer()
+                glNamedBufferStorage(iboID, size * 2L * 6L * 2L, array.basePointer, 0)
                 array.free()
 
                 glBindVertexArray(vaoID)
@@ -318,35 +326,48 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
                 return StringRenderInfo(glyphChunk, size, vaoID, vboID, iboID)
             }
 
-            private fun buildIboBuffer(array: MemoryArray) {
+            private fun buildIboBuffer() {
                 val indexSize = size * 2 * 4
                 var index = 0
+                var pointer = array.ptr
 
                 while (index < indexSize) {
-                    array.pushShort(index.toShort())
-                    array.pushShort((index + 4).toShort())
-                    array.pushShort((index + 2).toShort())
-                    array.pushShort((index + 6).toShort())
-                    array.pushShort((index + 2).toShort())
-                    array.pushShort((index + 4).toShort())
+                    pointer.setShort(index.toShort())
+                    pointer += 2
+                    pointer.setShort((index + 4).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 2).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 6).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 2).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 4).toShort())
+                    pointer += 2
                     index += 8
                 }
 
                 index = 0
 
                 while (index < indexSize) {
-                    array.pushShort((index + 1).toShort())
-                    array.pushShort((index + 5).toShort())
-                    array.pushShort((index + 3).toShort())
-                    array.pushShort((index + 7).toShort())
-                    array.pushShort((index + 3).toShort())
-                    array.pushShort((index + 5).toShort())
+                    pointer.setShort((index + 1).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 5).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 3).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 7).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 3).toShort())
+                    pointer += 2
+                    pointer.setShort((index + 5).toShort())
+                    pointer += 2
                     index += 8
                 }
             }
 
             private companion object {
-                val vertexAttribute = buildAttribute(16) {
+                val vertexAttribute = buildAttribute(sizeof(FontVertex).toInt()) {
                     float(0, 2, GLDataType.GL_FLOAT, false)
                     float(1, 2, GLDataType.GL_UNSIGNED_SHORT, true)
                     int(2, 1, GLDataType.GL_BYTE)
