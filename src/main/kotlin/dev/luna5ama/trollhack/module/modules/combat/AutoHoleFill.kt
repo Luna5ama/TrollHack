@@ -24,6 +24,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.collections.asSequenceFast
+import dev.luna5ama.trollhack.util.collections.forEachFast
 import dev.luna5ama.trollhack.util.combat.HoleType
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
 import dev.luna5ama.trollhack.util.graphics.Easing
@@ -108,9 +109,8 @@ internal object AutoHoleFill : Module(
         }
 
         listener<Render3DEvent> {
-            val list = ArrayList<ESPRenderer.Info>()
             renderBlockMap.runSynchronized {
-                object2LongEntrySet().mapTo(list) {
+                object2LongEntrySet().forEach {
                     val color = when {
                         it.key == nextHole -> targetColor
                         it.longValue == -1L -> otherColor
@@ -128,13 +128,12 @@ internal object AutoHoleFill : Module(
                             it.key.x + n, it.key.y + n, it.key.z + n,
                             it.key.x + p, it.key.y + p, it.key.z + p,
                         )
-                        ESPRenderer.Info(box, color.alpha((255.0f * progress).toInt()))
+                        renderer.add(box, color.alpha((255.0f * progress).toInt()))
                     }
                 }
             }
 
-            renderer.replaceAll(list)
-            renderer.render(false)
+            renderer.render(true)
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
@@ -220,22 +219,22 @@ internal object AutoHoleFill : Module(
         return sequence {
             val detectRangeSq = detectRange.sq
 
-            for (entity in EntityManager.players) {
-                if (entity.isSelf) continue
-                if (!entity.isEntityAlive) continue
-                if (entity.isFriend) continue
-                if (player.distanceSqTo(entity) > detectRangeSq) continue
+            EntityManager.players.forEachFast { entity ->
+                if (entity.isSelf) return@forEachFast
+                if (!entity.isEntityAlive) return@forEachFast
+                if (entity.isFriend) return@forEachFast
+                if (player.distanceSqTo(entity) > detectRangeSq) return@forEachFast
 
                 val current = entity.positionVector
                 val predict = entity.calcPredict(current)
 
-                for (holeInfo in holeInfos) {
-                    if (entity.posY <= holeInfo.blockPos.y + 0.5) continue
+                holeInfos.forEachFast { holeInfo ->
+                    if (entity.posY <= holeInfo.blockPos.y + 0.5) return@forEachFast
                     val dist = entity.horizontalDist(holeInfo.center)
-                    if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) continue
+                    if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) return@forEachFast
                     if (!holeInfo.detectBox.contains(current)
                         && (holeInfo.toward || !holeInfo.detectBox.intersects(current, predict))
-                    ) continue
+                    ) return@forEachFast
 
                     yield(entity to holeInfo)
                 }

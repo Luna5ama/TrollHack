@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.util.graphics.font.Style
 import dev.luna5ama.trollhack.util.graphics.font.glyph.FontGlyphs
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import org.joml.Matrix4f
 import java.awt.Font
 
 abstract class AbstractFontRenderer(font: Font, size: Float, private val textureSize: Int) : IFontRenderer {
@@ -46,6 +47,7 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
 
     private val checkTimer = TickTimer()
     private val cleanTimer = TickTimer()
+    private val modelViewMatrix = Matrix4f()
 
     protected fun loadFont(font: Font, size: Float, style: Style): FontGlyphs {
         // Load fallback font
@@ -93,7 +95,7 @@ abstract class AbstractFontRenderer(font: Font, size: Float, private val texture
         GlStateUtils.texture2d(true)
         GlStateUtils.blend(true)
 
-        val modelView = MatrixUtils.loadModelViewMatrix().getMatrix()
+        val modelView = MatrixUtils.loadModelViewMatrix().getMatrix(modelViewMatrix)
             .translate(posX, posY, 0.0f)
             .scale(sizeMultiplier * scale, sizeMultiplier * scale, 1.0f)
             .translate(0.0f, baselineOffset, 0.0f)

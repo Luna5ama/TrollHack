@@ -19,6 +19,14 @@ inline fun <T> List<T>.forEachFast(action: (T) -> Unit) {
     }
 }
 
+inline fun <T> List<T>.none(predicate: (T) -> Boolean): Boolean {
+    if (isEmpty()) return true
+    for (i in indices) {
+        if (predicate(get(i))) return false
+    }
+    return true
+}
+
 fun <T> List<T>.asSequenceFast(): Sequence<T> {
     return sequence {
         for (i in indices) {

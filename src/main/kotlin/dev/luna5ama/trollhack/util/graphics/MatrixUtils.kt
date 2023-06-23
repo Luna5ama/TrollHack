@@ -30,8 +30,9 @@ object MatrixUtils {
         return Matrix4f(matrixBuffer)
     }
 
-    fun getMatrix(matrix: Matrix4f) {
+    fun getMatrix(matrix: Matrix4f): Matrix4f {
         matrix.set(matrixBuffer)
+        return matrix
     }
 
     fun uploadMatrix(location: Int) {

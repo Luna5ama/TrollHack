@@ -29,6 +29,8 @@ import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.accessor.*
 import dev.luna5ama.trollhack.util.collections.averageOrZero
+import dev.luna5ama.trollhack.util.collections.forEachFast
+import dev.luna5ama.trollhack.util.collections.none
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CombatUtils.totalHealth
 import dev.luna5ama.trollhack.util.combat.CrystalDamage
@@ -1367,8 +1369,8 @@ internal object ZealotCrystalPlus : Module(
     private fun EntityLivingBase.getMinArmorRate(): Int {
         var minDura = 100
 
-        for (armor in armorInventoryList.toList()) {
-            if (!armor.isItemStackDamageable) continue
+        armorInventoryList.toList().forEachFast { armor ->
+            if (!armor.isItemStackDamageable) return@forEachFast
             val dura = armor.duraPercentage
             if (dura < minDura) {
                 minDura = dura

@@ -89,13 +89,12 @@ object RotationUtils {
      * @param posTo Calculate rotation to this position vector
      */
     fun getRotationTo(posFrom: Vec3d, posTo: Vec3d): Vec2f {
-        return getRotationFromVec(posTo.subtract(posFrom))
-    }
-
-    fun getRotationFromVec(vec: Vec3d): Vec2f {
-        val xz = sqrt(vec.x.sq + vec.z.sq)
-        val yaw = normalizeAngle(atan2(vec.z, vec.x).toDegree() - 90.0)
-        val pitch = normalizeAngle(-atan2(vec.y, xz).toDegree())
+        val x = posTo.x - posFrom.x
+        val y = posTo.y - posFrom.y
+        val z = posTo.z - posFrom.z
+        val xz = sqrt(x.sq + z.sq)
+        val yaw = normalizeAngle(atan2(z, x).toDegree() - 90.0)
+        val pitch = normalizeAngle(-atan2(y, xz).toDegree())
         return Vec2f(yaw, pitch)
     }
 
