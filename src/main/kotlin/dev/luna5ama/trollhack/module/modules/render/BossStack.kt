@@ -11,6 +11,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.accessor.mapBossInfos
 import dev.luna5ama.trollhack.util.accessor.render
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import net.minecraft.client.gui.BossInfoClient
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -101,7 +102,7 @@ internal object BossStack : Module(
                 if (name != null) filter { it.displayName.formattedText == name }
                 else this
             }
-            .minByOrNull { it.getDistanceSq(player) }
+            .minByOrNull { it.distanceSqTo(player) }
     }
 
     private fun drawHealthBar() {

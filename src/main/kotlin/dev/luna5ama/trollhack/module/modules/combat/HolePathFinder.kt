@@ -2,6 +2,8 @@ package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -26,8 +28,6 @@ import dev.luna5ama.trollhack.util.MovementUtils.resetMove
 import dev.luna5ama.trollhack.util.PathFinder
 import dev.luna5ama.trollhack.util.combat.HoleInfo
 import dev.luna5ama.trollhack.util.combat.HoleType
-import dev.luna5ama.trollhack.util.extension.floorToInt
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd

@@ -12,6 +12,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
@@ -109,7 +110,7 @@ internal object BreakWarning : Module(
         val blockState = world.getBlockState(packet.position)
         if (!nearby.checkBlock(blockState.block)) return false
 
-        if (player.getDistanceSq(packet.position) > range * range) return false
+        if (player.distanceSqToCenter(packet.position) > range * range) return false
 
         Notification.send(hash(packet, 3), "${player.name} is breaking block near you!")
 

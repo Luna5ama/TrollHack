@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.manager.managers
 import com.google.common.collect.MapMaker
 import dev.fastmc.common.TickTimer
 import dev.fastmc.common.collection.FastObjectArrayList
+import dev.fastmc.common.floorToInt
 import dev.fastmc.common.sort.ObjectIntrosort
 import dev.luna5ama.trollhack.event.*
 import dev.luna5ama.trollhack.event.events.*
@@ -26,7 +27,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils.blockPos
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystal
 import dev.luna5ama.trollhack.util.combat.DamageReduction
 import dev.luna5ama.trollhack.util.combat.MotionTracker
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
@@ -110,7 +110,7 @@ object CombatManager : Manager() {
                     if (event.packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
                     val list = crystalList.asSequence()
                         .map(Pair<EntityEnderCrystal, CrystalDamage>::first)
-                        .filter { it.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) <= 144.0 }
+                        .filter { it.distanceSqTo(event.packet.x, event.packet.y, event.packet.z) <= 144.0 }
                         .runIf(CombatSetting.crystalSetDead) { onEach(EntityEnderCrystal::setDead) }
                         .toList()
 
@@ -127,13 +127,13 @@ object CombatManager : Manager() {
 
                 is SPacketSpawnObject -> {
                     if (event.packet.type == 51) {
-                        val distSq = player.eyePosition.squareDistanceTo(event.packet.x, event.packet.y, event.packet.z)
+                        val distSq = player.eyePosition.distanceSqTo(event.packet.x, event.packet.y, event.packet.z)
                         if (distSq > CRYSTAL_RANGE_SQ) return@safeListener
 
                         val blockPos = BlockPos(
-                            event.packet.x.fastFloor(),
-                            event.packet.y.fastFloor() - 1,
-                            event.packet.z.fastFloor()
+                            event.packet.x.floorToInt(),
+                            event.packet.y.floorToInt() - 1,
+                            event.packet.z.floorToInt()
                         )
                         getCrystalDamage(blockPos)?.let {
                             CrystalSpawnEvent(event.packet.entityID, it).post()
@@ -391,10 +391,10 @@ object CombatManager : Manager() {
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
         placeMap0.values.removeIf { crystalDamage ->
-            remove && (crystalDamage.crystalPos.squareDistanceTo(eyePos) > MAX_RANGE_SQ
+            remove && (crystalDamage.crystalPos.distanceSqTo(eyePos) > MAX_RANGE_SQ
                 || !canPlaceCrystal(crystalDamage.blockPos, null)
                 || contextTarget != null
-                && (crystalDamage.crystalPos.squareDistanceTo(contextTarget.predictPos) > MAX_RANGE_SQ
+                && (crystalDamage.crystalPos.distanceSqTo(contextTarget.predictPos) > MAX_RANGE_SQ
                 || !contextTarget.checkColliding(crystalDamage.crystalPos)))
         }
 
@@ -428,7 +428,7 @@ object CombatManager : Manager() {
 
                     val crystalPos = Vec3d(crystalX, crystalY, crystalZ)
                     if (contextTarget != null) {
-                        if (contextTarget.predictPos.squareDistanceTo(crystalPos) > CRYSTAL_RANGE_SQ) continue
+                        if (contextTarget.predictPos.distanceSqTo(crystalPos) > CRYSTAL_RANGE_SQ) continue
                         if (!contextTarget.checkColliding(crystalPos)) continue
                     }
 

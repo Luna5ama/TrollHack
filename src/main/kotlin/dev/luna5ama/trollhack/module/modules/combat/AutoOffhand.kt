@@ -32,6 +32,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.craftingSlots
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.inventory.slot.inventorySlots
 import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -331,7 +332,7 @@ internal object AutoOffhand : Module(
     private fun SafeClientEvent.getMobDamage(): Float {
         return EntityManager.livingBase.asSequence()
             .filterIsInstance<EntityMob>()
-            .filter { player.getDistanceSq(it) <= 64.0 }
+            .filter { player.distanceSqTo(it) <= 64.0 }
             .maxOfOrNull {
                 calcDamageFromMob(it)
             } ?: 0.0f
@@ -340,7 +341,7 @@ internal object AutoOffhand : Module(
     private fun SafeClientEvent.getPlayerDamage(): Float {
         return EntityManager.players.asSequence()
             .filterNot { it.isFakeOrSelf }
-            .filter { player.getDistanceSq(it) <= 64.0 }
+            .filter { player.distanceSqTo(it) <= 64.0 }
             .maxOfOrNull {
                 calcDamageFromPlayer(it, true)
             } ?: 0.0f
@@ -349,7 +350,7 @@ internal object AutoOffhand : Module(
     private fun SafeClientEvent.getArrowDamage(): Float {
         val rawDamage = EntityManager.entity.asSequence()
             .filterIsInstance<EntityArrow>()
-            .filter { player.getDistanceSq(it) <= 250 }
+            .filter { player.distanceSqTo(it) <= 250 }
             .maxOfOrNull {
                 var i = ceil(it.realSpeed * it.damage).toFloat()
                 if (it.isCritical) i * 0.5f + 1.0f

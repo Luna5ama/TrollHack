@@ -1,9 +1,11 @@
 package dev.luna5ama.trollhack.util.math.vector
 
-import dev.luna5ama.trollhack.util.extension.toRadian
+import dev.fastmc.common.distance
+import dev.fastmc.common.distanceSq
+import dev.fastmc.common.sq
+import dev.fastmc.common.toRadians
 import net.minecraft.entity.Entity
-import kotlin.math.hypot
-import kotlin.math.pow
+import kotlin.math.sqrt
 
 @JvmInline
 value class Vec2f private constructor(val bits: Long) {
@@ -26,13 +28,16 @@ value class Vec2f private constructor(val bits: Long) {
         get() = getY(bits)
 
     fun toRadians(): Vec2f {
-        return Vec2f(x.toRadian(), y.toRadian())
+        return Vec2f(x.toRadians(), y.toRadians())
     }
 
+    fun distanceSqTo(vec2f: Vec2f) = distanceSq(x, y, vec2f.x, vec2f.y)
 
-    fun length() = hypot(x, y)
+    fun distanceTo(vec2f: Vec2f) = distance(x, y, vec2f.x, vec2f.y)
 
-    fun lengthSquared() = (x.pow(2) + y.pow(2))
+    fun length() = sqrt(lengthSq())
+
+    fun lengthSq() = x.sq + y.sq
 
 
     operator fun div(vec2f: Vec2f) = div(vec2f.x, vec2f.y)

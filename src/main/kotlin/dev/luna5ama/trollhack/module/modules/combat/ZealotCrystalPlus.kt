@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
-import dev.fastmc.common.TickTimer
+import dev.fastmc.common.*
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
@@ -27,7 +28,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.accessor.*
-import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CombatUtils.totalHealth
@@ -37,10 +37,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.delegate.CachedValueN
-import dev.luna5ama.trollhack.util.extension.ceilToInt
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.*
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.color.setGLColor
@@ -586,7 +582,7 @@ internal object ZealotCrystalPlus : Module(
         }
 
         safeListener<WorldEvent.ClientBlockUpdate>(114514) {
-            if (player.distanceSqTo(it.pos) < (placeRange.ceilToInt() + 1).sq
+            if (player.distanceSqToCenter(it.pos) < (placeRange.ceilToInt() + 1).sq
                 && checkResistant(it.pos, it.oldState) != checkResistant(it.pos, it.newState)
             ) {
                 rawPosList.updateLazy()
@@ -757,9 +753,9 @@ internal object ZealotCrystalPlus : Module(
 
                     if (attackedPosMap.containsKey(
                             toLong(
-                                packet.x.fastFloor(),
-                                packet.y.fastFloor(),
-                                packet.z.fastFloor()
+                                packet.x.floorToInt(),
+                                packet.y.floorToInt(),
+                                packet.z.floorToInt()
                             )
                         )
                     ) {
@@ -863,7 +859,7 @@ internal object ZealotCrystalPlus : Module(
             }
             BreakMode.ALL -> {
                 val entity = target ?: player
-                crystalList.minByOrNull { entity.getDistanceSq(it) }
+                crystalList.minByOrNull { entity.distanceSqTo(it) }
             }
             else -> {
                 return
@@ -1116,7 +1112,7 @@ internal object ZealotCrystalPlus : Module(
             player.setLastAttackedEntity(it.target)
         }
         attackedCrystalMap[entityID] = System.currentTimeMillis() + 1000L
-        attackedPosMap[toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())] = System.currentTimeMillis() + 1000L
+        attackedPosMap[toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())] = System.currentTimeMillis() + 1000L
         breakTimer.reset()
 
         lastActiveTime = System.currentTimeMillis()
@@ -1315,7 +1311,7 @@ internal object ZealotCrystalPlus : Module(
             }
         }
 
-        list.sortBy { player.getDistanceSq(it.entity) }
+        list.sortBy { player.distanceSqTo(it.entity) }
 
         return list.asSequence()
             .filter { it.entity.isEntityAlive }
@@ -1386,17 +1382,17 @@ internal object ZealotCrystalPlus : Module(
         val rangeSq = range.sq
         val wallRangeSq = wallRange.sq
 
-        val floor = range.fastFloor()
-        val ceil = range.fastCeil()
+        val floor = range.floorToInt()
+        val ceil = range.ceilToInt()
 
         val list = ArrayList<BlockPos>()
         val pos = BlockPos.MutableBlockPos()
 
         val feetPos = PlayerPacketManager.position
 
-        val feetXInt = feetPos.x.fastFloor()
-        val feetYInt = feetPos.y.fastFloor()
-        val feetZInt = feetPos.z.fastFloor()
+        val feetXInt = feetPos.x.floorToInt()
+        val feetYInt = feetPos.y.floorToInt()
+        val feetZInt = feetPos.z.floorToInt()
 
         val eyePos = PlayerPacketManager.eyePosition
 
@@ -1412,7 +1408,7 @@ internal object ZealotCrystalPlus : Module(
 
                     if (player.placeDistanceSq(crystalX, crystalY, crystalZ) > rangeSq) continue
                     if (!isPlaceable(pos, mutableBlockPos)) continue
-                    if (feetPos.squareDistanceTo(crystalX, crystalY, crystalZ) > wallRangeSq
+                    if (feetPos.distanceSqTo(crystalX, crystalY, crystalZ) > wallRangeSq
                         && !world.rayTraceVisible(eyePos, crystalX, crystalY + 1.7, crystalZ, 20, mutableBlockPos)
                     ) continue
 
@@ -1436,9 +1432,9 @@ internal object ZealotCrystalPlus : Module(
         val list = ArrayList<BlockPos>()
         val feetPos = PlayerPacketManager.position
 
-        val feetXInt = feetPos.x.fastFloor()
-        val feetYInt = feetPos.y.fastFloor()
-        val feetZInt = feetPos.z.fastFloor()
+        val feetXInt = feetPos.x.floorToInt()
+        val feetYInt = feetPos.y.floorToInt()
+        val feetZInt = feetPos.z.floorToInt()
 
         val eyePos = PlayerPacketManager.eyePosition
         val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
@@ -1463,16 +1459,13 @@ internal object ZealotCrystalPlus : Module(
         mutableBlockPos: BlockPos.MutableBlockPos
     ): List<Entity> {
         val collidingEntities = ArrayList<Entity>()
-        val rangeSqCeil = rangeSq.fastCeil()
+        val rangeSqCeil = rangeSq.ceilToInt()
 
         for (entity in EntityManager.entity) {
             if (!entity.isEntityAlive) continue
 
-            val adjustedRange = rangeSqCeil - ((entity.width / 2.0f).sq * 2.0f).fastCeil()
-            val dist = distanceSq(
-                feetXInt, feetYInt, feetZInt,
-                entity.posX.fastFloor(), entity.posY.fastFloor(), entity.posZ.fastFloor()
-            )
+            val adjustedRange = rangeSqCeil - ((entity.width / 2.0f).sq * 2.0f).ceilToInt()
+            val dist = entity.distanceSqToCenter(feetXInt, feetYInt, feetZInt)
 
             if (dist > adjustedRange) continue
 
@@ -1551,7 +1544,7 @@ internal object ZealotCrystalPlus : Module(
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
         return player.breakDistanceSq(x, y, z) <= breakRange.sq
-            && (player.getDistanceSq(x, y, z) <= wallRange.sq
+            && (player.distanceSqTo(x, y, z) <= wallRange.sq
             || world.rayTraceVisible(
             player.posX,
             player.posY + player.eyeHeight,
@@ -1583,7 +1576,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun toLong(x: Double, y: Double, z: Double): Long {
-        return toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())
+        return toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())
     }
 
     private fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
@@ -1678,9 +1671,9 @@ internal object ZealotCrystalPlus : Module(
             && crystalY - entityPos.y > 1.5652173822904127
             && checkResistant(
                 mutableBlockPos.setPos(
-                    crystalX.fastFloor(),
-                    crystalY.fastFloor() - 1,
-                    crystalZ.fastFloor()
+                    crystalX.floorToInt(),
+                    crystalY.floorToInt() - 1,
+                    crystalZ.floorToInt()
                 ),
                 world.getBlockState(mutableBlockPos)
             )
@@ -1739,8 +1732,8 @@ internal object ZealotCrystalPlus : Module(
         val gridXZ = width * gridMultiplierXZ
         val gridY = height * gridMultiplierY
 
-        val sizeXZ = (1.0 / gridMultiplierXZ).fastFloor()
-        val sizeY = (1.0 / gridMultiplierY).fastFloor()
+        val sizeXZ = (1.0 / gridMultiplierXZ).floorToInt()
+        val sizeY = (1.0 / gridMultiplierY).floorToInt()
         val xzOffset = (1.0 - gridMultiplierXZ * (sizeXZ)) / 2.0
 
         var total = 0

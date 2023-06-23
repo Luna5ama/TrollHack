@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util.graphics.texture
 
 import dev.fastmc.common.ParallelUtils
-import dev.fastmc.common.fastCeil
+import dev.fastmc.common.ceilToInt
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
@@ -85,8 +85,8 @@ object BC4Compression {
     }
 
     suspend fun encode(input: RawImage, output: ByteBuffer) {
-        val xBlocks = (input.width / 4.0).fastCeil()
-        val yBlocks = (input.height / 4.0).fastCeil()
+        val xBlocks = (input.width / 4.0).ceilToInt()
+        val yBlocks = (input.height / 4.0).ceilToInt()
         val totalBlocks = xBlocks * yBlocks
 
         coroutineScope {

@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.Component
 import dev.luna5ama.trollhack.gui.rgui.InteractiveComponent
@@ -8,8 +10,6 @@ import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.render.AntiAlias
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
@@ -172,10 +172,10 @@ open class ListWindow(
         val sampleLevel = AntiAlias.sampleLevel
 
         GlStateUtils.scissor(
-            (((renderPosX + xMargin) * GuiSetting.scaleFactor - 0.5f) * sampleLevel).fastFloor(),
-            (mc.displayHeight * sampleLevel - ((renderPosY * sampleLevel + renderHeight * sampleLevel) * GuiSetting.scaleFactor - 0.5f)).fastFloor(),
-            (((renderWidth - xMargin * 2.0f) * GuiSetting.scaleFactor + 1.0f) * sampleLevel).fastCeil(),
-            (((renderHeight - draggableHeight) * GuiSetting.scaleFactor) * sampleLevel).fastCeil()
+            (((renderPosX + xMargin) * GuiSetting.scaleFactor - 0.5f) * sampleLevel).floorToInt(),
+            (mc.displayHeight * sampleLevel - ((renderPosY * sampleLevel + renderHeight * sampleLevel) * GuiSetting.scaleFactor - 0.5f)).floorToInt(),
+            (((renderWidth - xMargin * 2.0f) * GuiSetting.scaleFactor + 1.0f) * sampleLevel).ceilToInt(),
+            (((renderHeight - draggableHeight) * GuiSetting.scaleFactor) * sampleLevel).ceilToInt()
         )
         glEnable(GL_SCISSOR_TEST)
         glTranslatef(0.0f, -scrollProgress, 0.0f)

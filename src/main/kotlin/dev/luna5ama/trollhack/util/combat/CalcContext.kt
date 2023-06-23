@@ -1,9 +1,10 @@
 package dev.luna5ama.trollhack.util.combat
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.world.FastRayTraceAction
 import dev.luna5ama.trollhack.util.world.FastRayTraceFunction
@@ -28,7 +29,7 @@ class CalcContext(
     val predictBox = getBoundingBox(entity, predictPos)
     val clipped = event.world.checkBlockCollision(currentBox)
 
-    private val predicting = currentPos.squareDistanceTo(predictPos) > 0.01
+    private val predicting = currentPos.distanceSqTo(predictPos) > 0.01
     private val difficulty = event.world.difficulty
     private val reduction = DamageReduction(entity)
 
@@ -117,9 +118,9 @@ class CalcContext(
                     && CrystalUtils.isResistant(
                         world.getBlockState(
                             mutableBlockPos.setPos(
-                                crystalX.fastFloor(),
-                                crystalY.fastFloor() - 1,
-                                crystalZ.fastFloor()
+                                crystalX.floorToInt(),
+                                crystalY.floorToInt() - 1,
+                                crystalZ.floorToInt()
                             )
                         )
                     )

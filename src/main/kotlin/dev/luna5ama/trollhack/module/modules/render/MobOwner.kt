@@ -1,13 +1,13 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.cubic
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.UUIDManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.extension.cubic
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import net.minecraft.entity.passive.AbstractHorse

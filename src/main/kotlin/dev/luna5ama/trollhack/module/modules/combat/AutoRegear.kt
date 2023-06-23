@@ -35,6 +35,7 @@ import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.runSynchronized
 import dev.luna5ama.trollhack.util.world.PlaceInfo.Companion.newPlaceInfo
@@ -200,7 +201,7 @@ internal object AutoRegear : Module(
                 val playerList = EntityManager.players.asSequence()
                     .filterNot { it.isSelf }
                     .filterNot { it.isFriend }
-                    .filter { player.getDistanceSq(it) <= playerRange }
+                    .filter { player.distanceSqTo(it) <= playerRange }
                     .toList()
 
                 val rangeSq = placeRange * placeRange
@@ -239,9 +240,9 @@ internal object AutoRegear : Module(
                                 )
                             }
                         }.thenBy { (pos, _) ->
-                            playerList.maxOfOrNull { it.distanceSqTo(pos) } ?: 0.0
+                            playerList.maxOfOrNull { it.distanceSqToCenter(pos) } ?: 0.0
                         }.thenByDescending { (pos, _) ->
-                            player.distanceSqTo(pos)
+                            player.distanceSqToCenter(pos)
                         }
                     )?.let {
                         closeAfterRegear = true

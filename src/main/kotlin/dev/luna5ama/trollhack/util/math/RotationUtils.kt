@@ -1,8 +1,9 @@
 package dev.luna5ama.trollhack.util.math
 
+import dev.fastmc.common.sq
+import dev.fastmc.common.toDegree
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
-import dev.luna5ama.trollhack.util.extension.toDegree
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
@@ -92,7 +93,7 @@ object RotationUtils {
     }
 
     fun getRotationFromVec(vec: Vec3d): Vec2f {
-        val xz = hypot(vec.x, vec.z)
+        val xz = sqrt(vec.x.sq + vec.z.sq)
         val yaw = normalizeAngle(atan2(vec.z, vec.x).toDegree() - 90.0)
         val pitch = normalizeAngle(-atan2(vec.y, xz).toDegree())
         return Vec2f(yaw, pitch)

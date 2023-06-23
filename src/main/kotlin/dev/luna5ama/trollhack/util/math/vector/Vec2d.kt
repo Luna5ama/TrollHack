@@ -1,9 +1,7 @@
 package dev.luna5ama.trollhack.util.math.vector
 
-import dev.luna5ama.trollhack.util.extension.toRadian
+import dev.fastmc.common.*
 import net.minecraft.util.math.Vec3d
-import kotlin.math.hypot
-import kotlin.math.pow
 
 data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
     constructor(x: Float, y: Float) : this(x.toDouble(), y.toDouble())
@@ -12,12 +10,15 @@ data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
 
     constructor(vec2d: Vec2d) : this(vec2d.x, vec2d.y)
 
-    fun toRadians() = Vec2d(x.toRadian(), y.toRadian())
+    fun toRadians() = Vec2d(x.toRadians(), y.toRadians())
 
+    fun distanceTo(vec2d: Vec2d) = distance(x, y, vec2d.x, vec2d.y)
 
-    fun length() = hypot(x, y)
+    fun distanceSqTo(vec2d: Vec2d) = distanceSq(x, y, vec2d.x, vec2d.y)
 
-    fun lengthSquared() = (this.x.pow(2) + this.y.pow(2))
+    fun length() = length(x, y)
+
+    fun lengthSq() = lengthSq(x, y)
 
 
     operator fun div(vec2d: Vec2d) = div(vec2d.x, vec2d.y)

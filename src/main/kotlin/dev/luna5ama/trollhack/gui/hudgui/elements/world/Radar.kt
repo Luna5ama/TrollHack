@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.world
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.manager.managers.ChunkManager
@@ -11,7 +12,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawCircleFilled
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawCircleOutline
@@ -158,8 +158,8 @@ internal object Radar : HudElement(
         RenderUtils2D.prepareGL()
 
         val interpolatedPos = EntityUtils.getInterpolatedPos(player, RenderUtils3D.partialTicks)
-        val playerChunkX = (interpolatedPos.x / 16.0).fastFloor()
-        val playerChunkZ = (interpolatedPos.z / 16.0).fastFloor()
+        val playerChunkX = (interpolatedPos.x / 16.0).floorToInt()
+        val playerChunkZ = (interpolatedPos.z / 16.0).floorToInt()
 
         val posMultiplier = radius / radarRange
         val diffX = (playerChunkX * 16 - interpolatedPos.x) * posMultiplier

@@ -17,6 +17,7 @@ import dev.luna5ama.trollhack.util.accessor.textComponent
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.text.MessageSendUtils.sendServerMessage
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.text.formatValue
@@ -117,7 +118,7 @@ internal object AutoEZ : Module(
         // Check death and confirmation
         attackedPlayers.keys.find {
             !it.isEntityAlive
-                && player.getDistanceSq(it) <= 256.0
+                && player.distanceSqTo(it) <= 256.0
                 && (detectMode == DetectMode.HEALTH || confirmedKills.contains(it.entityId))
         }?.let {
             attackedPlayers.remove(it)

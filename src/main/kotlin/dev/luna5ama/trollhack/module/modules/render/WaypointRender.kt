@@ -20,7 +20,8 @@ import dev.luna5ama.trollhack.util.graphics.*
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.math.vector.distanceTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
+import dev.luna5ama.trollhack.util.math.vector.distanceToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.or
 import net.minecraft.client.renderer.GlStateManager
@@ -77,7 +78,7 @@ internal object WaypointRender : Module(
 
     // This has to be sorted so the further ones doesn't overlaps the closer ones
     private val waypointMap = TreeMap<Waypoint, TextComponent>(compareByDescending {
-        mc.player?.distanceTo(it.pos) ?: it.pos.distanceSqTo(0, -69420, 0)
+        mc.player?.distanceToCenter(it.pos) ?: it.pos.distanceSqTo(0, -69420, 0)
     })
     private var currentServer: String? = null
     private var timer = TickTimer(TimeUnit.SECONDS)
@@ -100,7 +101,7 @@ internal object WaypointRender : Module(
             GlStateUtils.depth(false)
 
             for (waypoint in waypointMap.keys) {
-                val distance = mc.player.distanceTo(waypoint.pos)
+                val distance = mc.player.distanceToCenter(waypoint.pos)
                 if (renderRange.value && distance > espRange.value) continue
                 renderer.add(AxisAlignedBB(waypoint.pos), color) /* Adds pos to ESPRenderer list */
                 drawVerticalLines(waypoint.pos, color) /* Draw lines from y 0 to y 256 */
@@ -119,10 +120,10 @@ internal object WaypointRender : Module(
     }
 
     init {
-        listener<Render2DEvent.Absolute> {
-            if (waypointMap.isEmpty() || !showCoords.value && !showName.value && !showDate.value && !showDist.value) return@listener
+        safeListener<Render2DEvent.Absolute> {
+            if (waypointMap.isEmpty() || !showCoords.value && !showName.value && !showDate.value && !showDist.value) return@safeListener
             for ((waypoint, textComponent) in waypointMap) {
-                val distance = sqrt(mc.player.getDistanceSqToCenter(waypoint.pos))
+                val distance = sqrt(player.distanceSqToCenter(waypoint.pos))
                 if (distance > infoBoxRange.value) continue
                 drawText(waypoint.pos, textComponent, distance.roundToInt())
             }

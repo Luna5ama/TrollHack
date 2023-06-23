@@ -1,13 +1,13 @@
 package dev.luna5ama.trollhack.manager.managers
 
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import io.netty.util.internal.ConcurrentSet
 import kotlinx.coroutines.launch
@@ -34,8 +34,8 @@ object ChunkManager : Manager() {
 
                 if (newChunks0.add(chunk.pos)) {
                     if (newChunks0.size > 8192) {
-                        val playerX = player.posX.fastFloor()
-                        val playerZ = player.posZ.fastFloor()
+                        val playerX = player.posX.floorToInt()
+                        val playerZ = player.posZ.floorToInt()
 
                         newChunks0.maxByOrNull {
                             (playerX - it.x) + (playerZ - it.z)

@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.util.inventory
 
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.util.accessor.attackDamage
-import dev.luna5ama.trollhack.util.extension.fastCeil
 import io.netty.buffer.Unpooled
 import net.minecraft.block.Block
 import net.minecraft.enchantment.Enchantment
@@ -51,7 +51,7 @@ val ItemStack.durability: Int
     get() = this.maxDamage - this.itemDamage
 
 val ItemStack.duraPercentage: Int
-    get() = (this.durability * 100.0f / this.maxDamage.toFloat()).fastCeil()
+    get() = (this.durability * 100.0f / this.maxDamage.toFloat()).ceilToInt()
 
 fun ItemStack.getEnchantmentLevel(enchantment: Enchantment) =
     EnchantmentHelper.getEnchantmentLevel(enchantment, this)

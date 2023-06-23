@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util
 
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.math.vector.distanceSq
+import dev.fastmc.common.distanceSq
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.util.math.vector.toLong
 import it.unimi.dsi.fastutil.longs.LongSet
 import it.unimi.dsi.fastutil.objects.ObjectArrayPriorityQueue

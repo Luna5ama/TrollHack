@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.module.modules.player
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.*
 import dev.luna5ama.trollhack.event.events.player.HotbarUpdateEvent
@@ -21,9 +23,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.SwingMode
-import dev.luna5ama.trollhack.util.extension.ceilToInt
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
 import dev.luna5ama.trollhack.util.graphics.Easing
@@ -37,6 +36,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.hotbarIndex
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.isInSight
 import dev.luna5ama.trollhack.util.math.scale
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.threads.runSafe
 import dev.luna5ama.trollhack.util.world.canBreakBlock
@@ -254,7 +254,7 @@ internal object PacketMine : Module(
                 this@PacketMine.breakConfirm = null
             }
 
-            if (player.getDistanceSqToCenter(miningInfo.pos) > range.sq) {
+            if (player.distanceSqToCenter(miningInfo.pos) > range.sq) {
                 reset()
                 return@safeListener
             }
@@ -338,7 +338,7 @@ internal object PacketMine : Module(
             val rangeSq = range * range
 
             for (task in sorted) {
-                if (player.getDistanceSqToCenter(task.pos) > rangeSq) {
+                if (player.distanceSqToCenter(task.pos) > rangeSq) {
                     if (removeOutOfRange) {
                         miningQueue.remove(task.owner)
                     } else {
@@ -429,7 +429,7 @@ internal object PacketMine : Module(
         }
 
         val relativeDamage = breakSpeed / hardness / 30.0f
-        val ticks = (0.7f / relativeDamage).fastCeil()
+        val ticks = (0.7f / relativeDamage).ceilToInt()
 
         if (ticks <= 0) {
             return 0

@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.util.graphics
 
-import dev.luna5ama.trollhack.util.extension.*
+import dev.fastmc.common.*
 import dev.luna5ama.trollhack.util.math.MathUtils
 import kotlin.math.cos
 import kotlin.math.pow

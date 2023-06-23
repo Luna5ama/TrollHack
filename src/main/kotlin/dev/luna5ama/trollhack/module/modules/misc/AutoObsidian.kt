@@ -32,6 +32,7 @@ import dev.luna5ama.trollhack.util.inventory.operation.*
 import dev.luna5ama.trollhack.util.inventory.slot.*
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.DefaultScope
@@ -282,7 +283,7 @@ internal object AutoObsidian : Module(
             }
 
             if (state != State.COLLECTING && searchingState != SearchingState.COLLECTING) {
-                goal = if (player.getDistanceSqToCenter(placingPos) > 4.0) {
+                goal = if (player.distanceSqToCenter(placingPos) > 4.0) {
                     GoalNear(placingPos, 2)
                 } else {
                     null
@@ -301,7 +302,7 @@ internal object AutoObsidian : Module(
         val posList = VectorUtils.getBlockPosInSphere(eyePos, maxReach)
             .filter { !miningMap.contains(it) }
             .map { it to world.getBlockState(it) }
-            .sortedBy { it.first.distanceSqToCenter(eyePos.x, eyePos.y, eyePos.z) }
+            .sortedBy { it.first.distanceSqToCenter(eyePos) }
             .toList()
 
         val pair = posList.find { it.second.block == Blocks.ENDER_CHEST || it.second.block is BlockShulkerBox }

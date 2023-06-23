@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.util.world
 
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import net.minecraft.entity.Entity
 import net.minecraft.init.Blocks
@@ -26,8 +26,8 @@ fun World.getGroundPos(entity: Entity): BlockPos {
 fun World.getGroundPos(boundingBox: AxisAlignedBB): BlockPos {
     val center = boundingBox.center
 
-    val cx = center.x.fastFloor()
-    val cz = center.z.fastFloor()
+    val cx = center.x.floorToInt()
+    val cz = center.z.floorToInt()
 
     var rx = cx
     var ry = Int.MIN_VALUE
@@ -35,9 +35,9 @@ fun World.getGroundPos(boundingBox: AxisAlignedBB): BlockPos {
 
     val pos = BlockPos.PooledMutableBlockPos.retain()
 
-    for (x in (boundingBox.minX + 0.01).fastFloor()..(boundingBox.maxX - 0.01).fastFloor()) {
-        for (z in (boundingBox.minZ + 0.01).fastFloor()..(boundingBox.maxZ - 0.01).fastFloor()) {
-            for (y in (boundingBox.minY - 0.5).fastFloor() downTo -1) {
+    for (x in (boundingBox.minX + 0.01).floorToInt()..(boundingBox.maxX - 0.01).floorToInt()) {
+        for (z in (boundingBox.minZ + 0.01).floorToInt()..(boundingBox.maxZ - 0.01).floorToInt()) {
+            for (y in (boundingBox.minY - 0.5).floorToInt() downTo -1) {
                 if (y < ry) break
 
                 pos.setPos(x, y, z)
@@ -64,10 +64,10 @@ fun World.getGroundLevel(boundingBox: AxisAlignedBB): Double {
     var maxY = Double.MIN_VALUE
     val pos = BlockPos.PooledMutableBlockPos.retain()
 
-    for (x in (boundingBox.minX + 0.01).fastFloor()..(boundingBox.maxX - 0.01).fastFloor()) {
-        for (z in (boundingBox.minZ + 0.01).fastFloor()..(boundingBox.maxZ - 0.01).fastFloor()) {
-            for (y in (boundingBox.minY - 0.5).fastFloor() downTo -1) {
-                if (y < maxY.fastCeil() - 1) break
+    for (x in (boundingBox.minX + 0.01).floorToInt()..(boundingBox.maxX - 0.01).floorToInt()) {
+        for (z in (boundingBox.minZ + 0.01).floorToInt()..(boundingBox.maxZ - 0.01).floorToInt()) {
+            for (y in (boundingBox.minY - 0.5).floorToInt() downTo -1) {
+                if (y < maxY.ceilToInt() - 1) break
 
                 pos.setPos(x, y, z)
                 val box = this.getCollisionBox(pos)

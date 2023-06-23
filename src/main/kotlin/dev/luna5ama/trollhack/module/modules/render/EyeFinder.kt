@@ -17,6 +17,7 @@ import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.AxisAlignedBB
@@ -111,7 +112,7 @@ internal object EyeFinder : Module(
 
         if (result.typeOfHit == RayTraceResult.Type.MISS) {
             for (otherEntity in EntityManager.entity) {
-                if (otherEntity.getDistance(entity) > 10.0) continue
+                if (otherEntity.distanceTo(entity) > 10.0) continue
                 if (otherEntity == entity || otherEntity == mc.renderViewEntity) continue
                 val box = otherEntity.entityBoundingBox
                 result = box.calculateIntercept(eyePos, entityLookEnd) ?: continue

@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.floorToInt
 import dev.fastmc.common.isEven
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
@@ -14,7 +15,6 @@ import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
 import dev.luna5ama.trollhack.util.MovementUtils.speedEffectMultiplier
 import dev.luna5ama.trollhack.util.atTrue
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import net.minecraft.block.BlockLiquid
 import net.minecraft.block.material.Material
 import net.minecraft.network.play.server.SPacketPlayerPosLook
@@ -86,9 +86,9 @@ internal object FastSwim : Module(
         val box = player.entityBoundingBox
         val pos = BlockPos.PooledMutableBlockPos.retain()
 
-        for (x in (box.minX + 0.1).fastFloor()..(box.maxX - 0.1).fastFloor()) {
-            for (y in (box.minY + 0.5).fastFloor()..(box.maxY - 0.25).fastFloor()) {
-                for (z in (box.minZ + 0.1).fastFloor()..(box.maxZ - 0.1).fastFloor()) {
+        for (x in (box.minX + 0.1).floorToInt()..(box.maxX - 0.1).floorToInt()) {
+            for (y in (box.minY + 0.5).floorToInt()..(box.maxY - 0.25).floorToInt()) {
+                for (z in (box.minZ + 0.1).floorToInt()..(box.maxZ - 0.1).floorToInt()) {
                     val blockState = world.getBlockState(pos.setPos(x, y, z))
                     if (blockState.block !is BlockLiquid) return false
                     if (blockState.material != material) return false

@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.toRadians
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.InputEvent
@@ -18,8 +20,6 @@ import dev.luna5ama.trollhack.util.MovementUtils.resetJumpSneak
 import dev.luna5ama.trollhack.util.MovementUtils.resetMove
 import dev.luna5ama.trollhack.util.accessor.unpressKey
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
@@ -90,9 +90,9 @@ internal object Freecam : Module(
     fun getRenderChunkOffset(playerPos: BlockPos) =
         runSafe {
             BlockPos(
-                (player.posX / 16).fastFloor() * 16,
-                (player.posY / 16).fastFloor() * 16,
-                (player.posZ / 16).fastFloor() * 16
+                (player.posX / 16).floorToInt() * 16,
+                (player.posY / 16).floorToInt() * 16,
+                (player.posZ / 16).floorToInt() * 16
             )
         } ?: playerPos
 
@@ -269,7 +269,7 @@ internal object Freecam : Module(
             val speed = (horizontalSpeed / 20.0f) * min(abs(moveForward) + abs(moveStrafing), 1.0f)
 
             if (directionMode == FlightMode.THREE_DEE) {
-                val pitchRad = rotationPitch.toDouble().toRadian() * moveForward
+                val pitchRad = rotationPitch.toDouble().toRadians() * moveForward
                 motionX = -sin(yawRad) * cos(pitchRad) * speed
                 motionY = -sin(pitchRad) * speed
                 motionZ = cos(yawRad) * cos(pitchRad) * speed

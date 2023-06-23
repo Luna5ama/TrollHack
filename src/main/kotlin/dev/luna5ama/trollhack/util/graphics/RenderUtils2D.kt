@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util.graphics
 
+import dev.fastmc.common.toRadians
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.graphics.buffer.PersistentMappedVBO
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.shaders.Shader
@@ -236,7 +236,7 @@ object RenderUtils2D {
         val segAngle = (range / seg.toFloat())
 
         return Array(seg + 1) {
-            val angle = (it * segAngle + angleRange.first).toRadian()
+            val angle = (it * segAngle + angleRange.first).toRadians()
             val unRounded = Vec2f(sin(angle), -cos(angle)).times(radius).plus(center)
             Vec2f(MathUtils.round(unRounded.x, 8), MathUtils.round(unRounded.y, 8))
         }

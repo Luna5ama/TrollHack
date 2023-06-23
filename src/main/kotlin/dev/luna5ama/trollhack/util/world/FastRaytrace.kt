@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.util.world
 
-import dev.luna5ama.trollhack.util.extension.fastFloor
+import dev.fastmc.common.floorToInt
 import net.minecraft.block.state.IBlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
@@ -178,9 +178,9 @@ fun World.fastRayTrace(
     var currentZ = startZ
 
     // Int start position
-    var currentBlockX = currentX.fastFloor()
-    var currentBlockY = currentY.fastFloor()
-    var currentBlockZ = currentZ.fastFloor()
+    var currentBlockX = currentX.floorToInt()
+    var currentBlockY = currentY.floorToInt()
+    var currentBlockZ = currentZ.floorToInt()
 
     // Ray trace start block
     mutableBlockPos.setPos(currentBlockX, currentBlockY, currentBlockZ)
@@ -206,9 +206,9 @@ fun World.fastRayTrace(
     }
 
     // Int end position
-    val endBlockX = endX.fastFloor()
-    val endBlockY = endY.fastFloor()
-    val endBlockZ = endZ.fastFloor()
+    val endBlockX = endX.floorToInt()
+    val endBlockY = endY.floorToInt()
+    val endBlockZ = endZ.floorToInt()
 
     var count = maxAttempt
 
@@ -258,23 +258,23 @@ fun World.fastRayTrace(
             currentZ += diffZ * stepX
 
             currentBlockX = nextX - (endBlockX - currentBlockX ushr 31)
-            currentBlockY = currentY.fastFloor()
-            currentBlockZ = currentZ.fastFloor()
+            currentBlockY = currentY.floorToInt()
+            currentBlockZ = currentZ.floorToInt()
         } else if (stepY < stepZ) {
             currentX += diffX * stepY
             currentY = nextY.toDouble()
             currentZ += diffZ * stepY
 
-            currentBlockX = currentX.fastFloor()
+            currentBlockX = currentX.floorToInt()
             currentBlockY = nextY - (endBlockY - currentBlockY ushr 31)
-            currentBlockZ = currentZ.fastFloor()
+            currentBlockZ = currentZ.floorToInt()
         } else {
             currentX += diffX * stepZ
             currentY += diffY * stepZ
             currentZ = nextZ.toDouble()
 
-            currentBlockX = currentX.fastFloor()
-            currentBlockY = currentY.fastFloor()
+            currentBlockX = currentX.floorToInt()
+            currentBlockY = currentY.floorToInt()
             currentBlockZ = nextZ - (endBlockZ - currentBlockZ ushr 31)
         }
 

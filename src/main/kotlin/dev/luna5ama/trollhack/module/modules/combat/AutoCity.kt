@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -25,7 +26,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystal
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.isValidMaterial
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots

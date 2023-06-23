@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.events.player.InputUpdateEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
@@ -8,14 +10,13 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils.applySpeedPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.isCentered
-import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import kotlin.math.floor
-import kotlin.math.hypot
 import kotlin.math.min
+import kotlin.math.sqrt
 
 internal object AutoCenter : Module(
     name = "Auto Center",
@@ -52,7 +53,7 @@ internal object AutoCenter : Module(
         onDisable {
             if (timer > 0.0f && postTimer < 1.0f && ticks > 0) {
                 val x = (postTimer * ticks - timer * postTimer * ticks) / (timer * (postTimer - 1.0f))
-                val postTicks = min(maxPostTicks, x.fastCeil())
+                val postTicks = min(maxPostTicks, x.ceilToInt())
                 modifyTimer(50.0f / postTimer, postTicks)
             }
 
@@ -78,7 +79,7 @@ internal object AutoCenter : Module(
                 var x = center.x - player.posX
                 var z = center.y - player.posZ
 
-                val speed = hypot(x, z)
+                val speed = sqrt(x.sq + z.sq)
                 val baseSpeed = if (player.isSneaking) 0.05746 else 0.2873
                 val maxSpeed = player.applySpeedPotionEffects(baseSpeed)
 

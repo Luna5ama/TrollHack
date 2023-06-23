@@ -1,12 +1,12 @@
 package dev.luna5ama.trollhack.module.modules.client
 
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
-import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.graphics.font.GlyphCache
 import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.threads.onMainThread
@@ -43,7 +43,7 @@ internal object CustomFont : Module(
     init {
         listener<TickEvent.Post>(true) {
             mc.fontRenderer.FONT_HEIGHT = if (overrideMinecraft) {
-                MainFontRenderer.getHeight().fastCeil()
+                MainFontRenderer.getHeight().ceilToInt()
             } else {
                 9
             }

@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.floorToInt
 import dev.fastmc.common.isEven
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.AddCollisionBoxEvent
@@ -11,7 +12,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.BaritoneUtils
 import dev.luna5ama.trollhack.util.accessor.moving
 import dev.luna5ama.trollhack.util.accessor.y
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.world.getBlock
 import net.minecraft.block.BlockLiquid
 import net.minecraft.entity.Entity
@@ -82,11 +82,11 @@ internal object Jesus : Module(
 
     private fun SafeClientEvent.isInWater(entity: Entity): Boolean {
         val box = entity.entityBoundingBox
-        val y = (box.minY + 0.01).fastFloor()
+        val y = (box.minY + 0.01).floorToInt()
         val pos = BlockPos.PooledMutableBlockPos.retain()
 
-        for (x in box.minX.fastFloor()..box.maxX.fastFloor()) {
-            for (z in box.minZ.fastFloor()..box.maxZ.fastFloor()) {
+        for (x in box.minX.floorToInt()..box.maxX.floorToInt()) {
+            for (z in box.minZ.floorToInt()..box.maxZ.floorToInt()) {
                 if (world.getBlock(pos.setPos(x, y, z)) is BlockLiquid) {
                     pos.release()
                     return true
@@ -105,11 +105,11 @@ internal object Jesus : Module(
             else -> 0.5
         }
 
-        val y = (box.minY - offset).fastFloor()
+        val y = (box.minY - offset).floorToInt()
         val pos = BlockPos.PooledMutableBlockPos.retain()
 
-        for (x in box.minX.fastFloor()..box.maxX.fastFloor()) {
-            for (z in box.minZ.fastFloor()..box.maxZ.fastFloor()) {
+        for (x in box.minX.floorToInt()..box.maxX.floorToInt()) {
+            for (z in box.minZ.floorToInt()..box.maxZ.floorToInt()) {
                 if (world.getBlock(pos.setPos(x, y, z)) is BlockLiquid) {
                     pos.release()
                     return true

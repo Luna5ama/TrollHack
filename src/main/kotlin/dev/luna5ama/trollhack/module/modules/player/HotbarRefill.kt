@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.module.modules.player
 
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.confirmedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
@@ -40,7 +40,7 @@ internal object HotbarRefill : Module(
                 val stack = slotTo.stack
                 if (stack.isEmpty) continue
                 if (!stack.isStackable) continue
-                if (stack.count >= (stack.maxStackSize / 64.0f * refillThreshold).fastCeil()) continue
+                if (stack.count >= (stack.maxStackSize / 64.0f * refillThreshold).ceilToInt()) continue
                 if (AutoEject.ejectMap.value.containsKey(stack.item.registryName.toString())) continue
 
                 val slotFrom = sourceSlots.getMaxCompatibleStack(slotTo) ?: continue

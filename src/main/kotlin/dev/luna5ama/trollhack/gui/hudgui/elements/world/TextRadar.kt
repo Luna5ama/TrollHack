@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.world
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.combat.AntiBot
@@ -9,6 +10,7 @@ import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.graphics.color.ColorGradient
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.MathUtils
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.MobEffects
@@ -42,12 +44,12 @@ internal object TextRadar : LabelHud(
 
     private val cacheList by AsyncCachedValue(50L) {
         runSafe {
-            val list = world.playerEntities.toList().asSequence()
-                .filter { it != null && !it.isDead && it.health > 0.0f }
+            val list = EntityManager.players.asSequence()
+                .filter { !it.isDead && it.health > 0.0f }
                 .filter { it != player && it != mc.renderViewEntity }
                 .filter { !AntiBot.isBot(it) }
                 .filter { friend || !FriendManager.isFriend(it.name) }
-                .map { it to player.getDistance(it) }
+                .map { it to player.distanceTo(it).toFloat() }
                 .filter { it.second <= range }
                 .sortedBy { it.second }
                 .toList()

@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -16,30 +17,28 @@ import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.isHostile
 import dev.luna5ama.trollhack.util.EntityUtils.isNeutral
 import dev.luna5ama.trollhack.util.EntityUtils.isPassive
-import dev.luna5ama.trollhack.util.accessor.*
-import dev.luna5ama.trollhack.util.extension.sq
+import dev.luna5ama.trollhack.util.accessor.entityOutlineFramebuffer
+import dev.luna5ama.trollhack.util.accessor.entityOutlineShader
+import dev.luna5ama.trollhack.util.accessor.listShaders
+import dev.luna5ama.trollhack.util.accessor.renderOutlines
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.buffer.PersistentMappedVBO
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.esp.DynamicBoxRenderer
 import dev.luna5ama.trollhack.util.graphics.shaders.DrawShader
 import dev.luna5ama.trollhack.util.graphics.use
-import dev.luna5ama.trollhack.util.math.MathUtils
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import kotlinx.coroutines.launch
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.shader.ShaderGroup
-import net.minecraft.client.util.JsonBlendingMode
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
-import org.lwjgl.opengl.GL14.GL_FUNC_ADD
 import org.lwjgl.opengl.GL20.glUniform1f
 import org.lwjgl.opengl.GL20.glUniform2f
 import org.lwjgl.opengl.GL30.glBindVertexArray
@@ -181,7 +180,7 @@ internal object ESP : Module(
             if (mode == Mode.SHADER
                 && !mc.renderManager.renderOutlines
                 && hideOriginal
-                && player.getDistanceSq(it.entity) <= range.sq
+                && player.distanceSqTo(it.entity) <= range.sq
                 && checkEntityType(it.entity)
             ) {
                 it.cancel()
@@ -213,7 +212,7 @@ internal object ESP : Module(
                     boxRenderer.clear()
                     val rangeSq = range.sq
                     for (entity in EntityManager.entity) {
-                        entity.isGlowing = player.getDistanceSq(entity) <= rangeSq && checkEntityType(entity)
+                        entity.isGlowing = player.distanceSqTo(entity) <= rangeSq && checkEntityType(entity)
                     }
                 }
                 Mode.BOX -> {
@@ -236,7 +235,7 @@ internal object ESP : Module(
 
                 val rangeSq = range.sq
                 for (entity in EntityManager.entity) {
-                    entity.isGlowing = player.getDistanceSq(entity) <= rangeSq && checkEntityType(entity)
+                    entity.isGlowing = player.distanceSqTo(entity) <= rangeSq && checkEntityType(entity)
                 }
             }
         }
@@ -248,7 +247,7 @@ internal object ESP : Module(
         synchronized(ESP) {
             boxRenderer.update {
                 for (entity in EntityManager.entity) {
-                    if (player.getDistanceSq(entity) > rangeSq) continue
+                    if (player.distanceSqTo(entity) > rangeSq) continue
                     if (!checkEntityType(entity)) continue
 
                     val xOffset = entity.posX - entity.lastTickPosX

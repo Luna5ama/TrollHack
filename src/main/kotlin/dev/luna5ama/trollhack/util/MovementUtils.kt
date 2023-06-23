@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.util
 
-import dev.luna5ama.trollhack.util.extension.toDegree
-import dev.luna5ama.trollhack.util.extension.toRadian
+import dev.fastmc.common.toDegree
+import dev.fastmc.common.toRadians
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec3f
 import net.minecraft.client.Minecraft
@@ -53,9 +53,9 @@ object MovementUtils {
         moveForward: Float,
         moveStrafe: Float
     ): Double {
-        val moveYaw =
-            if (moveForward == 0.0f && moveStrafe == 0.0f) 0.0 else atan2(moveForward, moveStrafe).toDegree() - 90.0
-        return RotationUtils.normalizeAngle(yaw + moveYaw).toRadian()
+        val moveYaw = if (moveForward == 0.0f && moveStrafe == 0.0f) 0.0
+        else atan2(moveForward, moveStrafe).toDegree() - 90.0
+        return RotationUtils.normalizeAngle(yaw + moveYaw).toRadians()
     }
 
     fun calcMovementInput(

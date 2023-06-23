@@ -18,6 +18,7 @@ import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.esp.DynamicTracerRenderer
 import dev.luna5ama.trollhack.util.math.MathUtils.convertRange
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
@@ -117,7 +118,7 @@ internal object Tracers : Module(
 
     private fun SafeClientEvent.getRangedColor(entity: Entity, color: ColorRGB): ColorRGB {
         if (!rangedColor || playerOnly && entity !is EntityPlayer) return color
-        val distance = player.getDistance(entity)
+        val distance = player.distanceTo(entity).toFloat()
 
         val r =
             convertRange(distance, 8.0f, colorChangeRange.toFloat(), color.r.toFloat(), colorFar.r.toFloat()).toInt()

@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.color.setGLColor
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityEnderCrystal
 
@@ -36,7 +37,7 @@ internal object CrystalChams : Module(
 
     init {
         safeListener<RenderEntityEvent.All.Pre> {
-            if (it.entity is EntityEnderCrystal && viewEntity.getDistanceSq(it.entity) <= range * range) {
+            if (it.entity is EntityEnderCrystal && viewEntity.distanceSqTo(it.entity) <= range * range) {
                 it.cancel()
             }
         }
@@ -54,7 +55,7 @@ internal object CrystalChams : Module(
 
             for (crystal in EntityManager.entity) {
                 if (crystal !is EntityEnderCrystal) continue
-                if (viewEntity.getDistanceSq(crystal) > rangeSq) continue
+                if (viewEntity.distanceSqTo(crystal) > rangeSq) continue
 
                 renderer.doRender(
                     crystal,

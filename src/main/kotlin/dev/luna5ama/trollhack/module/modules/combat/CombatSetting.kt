@@ -2,6 +2,8 @@ package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -29,8 +31,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.combat.MotionTracker
 import dev.luna5ama.trollhack.util.combat.SurroundUtils
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
@@ -39,6 +39,7 @@ import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.color.setGLColor
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRelativeRotation
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.isActiveOrFalse
@@ -277,7 +278,7 @@ internal object CombatSetting : Module(
         else 0
 
     private fun getPredictTicks(pingSync: Boolean, ticksAhead: Int) =
-        if (pingSync) (InfoCalculator.ping() / 25.0f).fastCeil()
+        if (pingSync) (InfoCalculator.ping() / 25.0f).ceilToInt()
         else ticksAhead
 
     private fun SafeClientEvent.updateTarget() {
@@ -292,7 +293,7 @@ internal object CombatSetting : Module(
         val wallRangeSq = wallRange.sq
         val newTarget = set.firstOrNull {
             (overrideRange == targetRange || it.distanceTo(eyePos) < overrideRange)
-                && (ignoreWall || (player.canEntityBeSeen(it) && player.getDistanceSq(it) <= wallRangeSq))
+                && (ignoreWall || (player.canEntityBeSeen(it) && player.distanceSqTo(it) <= wallRangeSq))
         }
         val tracker = CombatManager.trackerTarget?.takeIf { it.entity === newTarget }
             ?: newTarget?.let { MotionTracker(it) }

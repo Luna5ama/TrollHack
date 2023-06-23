@@ -1,6 +1,10 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.collection.CircularArray
+import dev.fastmc.common.collection.CircularArray.Companion.average
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.*
 import dev.luna5ama.trollhack.event.events.combat.CrystalSetDeadEvent
@@ -23,8 +27,6 @@ import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.accessor.id
 import dev.luna5ama.trollhack.util.accessor.packetAction
-import dev.fastmc.common.collection.CircularArray
-import dev.fastmc.common.collection.CircularArray.Companion.average
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.equipBestWeapon
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
@@ -34,9 +36,7 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.blockPos
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystal
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
@@ -48,6 +48,7 @@ import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.isInSight
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.toLong
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.pause.HandPause
@@ -458,12 +459,12 @@ internal object TrollAura : Module(
                 explodedPosMap[it.blockPos.toLong()] = time
             }
 
-            if (countAllCrystals && player.eyePosition.squareDistanceTo(event.x, event.y, event.z) < breakRange.sq
+            if (countAllCrystals && player.eyePosition.distanceSqTo(event.x, event.y, event.z) < breakRange.sq
                 || placedPosMap.containsKey(
                     toLong(
-                        event.x.fastFloor(),
-                        (event.y - 1.0).fastFloor(),
-                        event.z.fastFloor()
+                        event.x.floorToInt(),
+                        (event.y - 1.0).floorToInt(),
+                        event.z.floorToInt()
                     )
                 )
             ) {

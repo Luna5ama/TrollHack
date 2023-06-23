@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.AddCollisionBoxEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
@@ -8,7 +9,6 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.isFlying
 import dev.luna5ama.trollhack.util.accessor.isInWeb
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.world.getBlock
 import net.minecraft.init.Blocks
 import net.minecraft.util.math.AxisAlignedBB
@@ -44,10 +44,10 @@ internal object AntiWeb : Module(
     private fun SafeClientEvent.isAboveWeb(): Boolean {
         val box = player.entityBoundingBox
         val pos = BlockPos.PooledMutableBlockPos.retain()
-        val y = (player.posY - 0.08).fastFloor()
+        val y = (player.posY - 0.08).floorToInt()
 
-        for (x in box.minX.fastFloor()..box.maxX.fastFloor()) {
-            for (z in box.minZ.fastFloor()..box.maxZ.fastFloor()) {
+        for (x in box.minX.floorToInt()..box.maxX.floorToInt()) {
+            for (z in box.minZ.floorToInt()..box.maxZ.floorToInt()) {
                 if (world.getBlock(pos.setPos(x, y, z)) != Blocks.WEB) {
                     pos.release()
                     return false

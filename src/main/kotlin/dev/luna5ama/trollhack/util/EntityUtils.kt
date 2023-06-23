@@ -1,10 +1,11 @@
 package dev.luna5ama.trollhack.util
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.inventory.id
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.math.vector.toBlockPos
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
@@ -29,14 +30,16 @@ object EntityUtils {
 
     val SafeClientEvent.viewEntity get() = mc.renderViewEntity ?: player
 
+    val viewEntity: Entity? get() = mc.renderViewEntity ?: mc.player
+
     val Entity.eyePosition get() = Vec3d(this.posX, this.posY + this.eyeHeight, this.posZ)
     val Entity.lastTickPos get() = Vec3d(this.lastTickPosX, this.lastTickPosY, this.lastTickPosZ)
-    val Entity.flooredPosition get() = BlockPos(this.posX.fastFloor(), this.posY.fastFloor(), this.posZ.fastFloor())
+    val Entity.flooredPosition get() = BlockPos(this.posX.floorToInt(), this.posY.floorToInt(), this.posZ.floorToInt())
     val Entity.betterPosition
         get() = BlockPos(
-            this.posX.fastFloor(),
-            (this.posY + 0.25).fastFloor(),
-            this.posZ.fastFloor()
+            this.posX.floorToInt(),
+            (this.posY + 0.25).floorToInt(),
+            this.posZ.floorToInt()
         )
 
     val Entity.isPassive
@@ -127,7 +130,7 @@ object EntityUtils {
             } else if (!mobTypeSettings(entity, mobs[0], mobs[1], mobs[2], mobs[3])) continue
 
             if (mc.player.isRiding && entity == mc.player.ridingEntity) continue // Riding entity check
-            if (mc.player.getDistance(entity) > range) continue // Distance check
+            if (mc.player.distanceTo(entity) > range) continue // Distance check
             if (entity.health <= 0) continue // HP check
             if (!invisible && entity.isInvisible) continue
             entityList.add(entity)
@@ -144,7 +147,7 @@ object EntityUtils {
         for (entity in EntityManager.entity) {
             if (entity !is EntityItem) continue /* Entites that are dropped item */
             if (entity.item.item.id != itemId) continue /* Dropped items that are has give item id */
-            if (entity.getDistance(player) > range) continue /* Entities within specified  blocks radius */
+            if (entity.distanceTo(player) > range) continue /* Entities within specified  blocks radius */
 
             entityList.add(entity)
         }
@@ -153,7 +156,7 @@ object EntityUtils {
 
     fun SafeClientEvent.getDroppedItem(itemId: Int, range: Float) =
         getDroppedItems(itemId, range)
-            .minByOrNull { player.getDistance(it) }
+            .minByOrNull { player.distanceTo(it) }
             ?.positionVector
             ?.toBlockPos()
 

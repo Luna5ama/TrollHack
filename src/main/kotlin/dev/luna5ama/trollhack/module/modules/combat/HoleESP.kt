@@ -18,6 +18,7 @@ import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.renderer.GlStateManager
@@ -173,7 +174,7 @@ internal object HoleESP : Module(
             else EnumFacingMask.DOWN
 
             for (holeInfo in HoleManager.holeInfos) {
-                if (eyePos.squareDistanceTo(holeInfo.center) > rangeSq) continue
+                if (eyePos.distanceSqTo(holeInfo.center) > rangeSq) continue
                 if ((eyePos.y - holeInfo.center.y).sq > vRangeSq) continue
                 val color = getColor(holeInfo) ?: continue
                 val box = if (renderMode == RenderMode.BLOCK_FLOOR) holeInfo.boundingBox.offset(0.0, -1.0, 0.0)

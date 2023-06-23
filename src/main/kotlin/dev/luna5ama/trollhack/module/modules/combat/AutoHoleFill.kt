@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.distance
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -23,7 +25,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.collections.asSequenceFast
 import dev.luna5ama.trollhack.util.combat.HoleType
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.ESPRenderer
 import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -31,8 +32,8 @@ import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.isInSight
-import dev.luna5ama.trollhack.util.math.vector.distance
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.runIf
 import dev.luna5ama.trollhack.util.threads.onMainThread
@@ -223,7 +224,7 @@ internal object AutoHoleFill : Module(
                 if (entity.isSelf) continue
                 if (!entity.isEntityAlive) continue
                 if (entity.isFriend) continue
-                if (player.getDistanceSq(entity) > detectRangeSq) continue
+                if (player.distanceSqTo(entity) > detectRangeSq) continue
 
                 val current = entity.positionVector
                 val predict = entity.calcPredict(current)
@@ -282,7 +283,7 @@ internal object AutoHoleFill : Module(
             .flatMap { holeInfo ->
                 holeInfo.holePos.asSequence()
                     .filter { !placeMap.containsKey(it.toLong()) }
-                    .filter { eyePos.distanceSqTo(it) <= rangeSq }
+                    .filter { eyePos.distanceSqToCenter(it) <= rangeSq }
                     .filter { world.getBlockState(it).isReplaceable }
                     .map {
                         val box = AxisAlignedBB(

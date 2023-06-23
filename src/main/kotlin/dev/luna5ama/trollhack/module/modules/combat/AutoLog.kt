@@ -16,6 +16,7 @@ import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.countItem
 import dev.luna5ama.trollhack.util.math.MathUtils
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.GuiMainMenu
 import net.minecraft.client.gui.GuiMultiplayer
@@ -81,8 +82,8 @@ internal object AutoLog : Module(
     private fun SafeClientEvent.checkCreeper(): Boolean {
         for (entity in EntityManager.entity) {
             if (entity !is EntityCreeper) continue
-            if (player.getDistance(entity) > creeperDistance) continue
-            log(CREEPER, MathUtils.round(entity.getDistance(player), 2).toString())
+            if (player.distanceTo(entity) > creeperDistance) continue
+            log(CREEPER, MathUtils.round(entity.distanceTo(player), 2).toString())
             return true
         }
         return false
@@ -93,7 +94,7 @@ internal object AutoLog : Module(
             if (entity !is EntityPlayer) continue
             if (AntiBot.isBot(entity)) continue
             if (entity.isFakeOrSelf) continue
-            if (player.getDistance(entity) > playerDistance) continue
+            if (player.distanceTo(entity) > playerDistance) continue
             if (!friends && FriendManager.isFriend(entity.name)) continue
             log(PLAYER, entity.name)
             return true

@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
@@ -25,7 +26,6 @@ import dev.luna5ama.trollhack.util.MovementUtils.applySpeedPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
 import dev.luna5ama.trollhack.util.MovementUtils.speedEffectMultiplier
 import dev.luna5ama.trollhack.util.accessor.isInWeb
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo

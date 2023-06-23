@@ -1,5 +1,8 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent
@@ -12,10 +15,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.*
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.extension.remove
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.graphics.*
 import dev.luna5ama.trollhack.util.graphics.color.ColorGradient
 import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
@@ -25,6 +25,7 @@ import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.inventory.originalName
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.math.vector.lerp
 import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.client.entity.EntityOtherPlayerMP
@@ -151,7 +152,7 @@ internal object Nametags : Module(
 
             loop@ for (entity in EntityManager.entity) {
                 if (!checkEntityType(entity)) continue
-                if (player.getDistanceSq(entity) > rangeSq) continue
+                if (player.distanceSqTo(entity) > rangeSq) continue
                 when (entity) {
                     is EntityLivingBase -> {
                         list.add(LivingRenderInfo(this, entity))
@@ -186,7 +187,7 @@ internal object Nametags : Module(
         }
     }
 
-    private fun getContent(contentType: ContentType, entity: Entity) = when (contentType) {
+    private fun SafeClientEvent.getContent(contentType: ContentType, entity: Entity) = when (contentType) {
         ContentType.NONE -> {
             null
         }
@@ -226,12 +227,13 @@ internal object Nametags : Module(
             if (entity !is EntityOtherPlayerMP) {
                 null
             } else {
-                val ping = mc.connection?.getPlayerInfo(entity.uniqueID)?.responseTime ?: 0
+                @Suppress("UNNECESSARY_SAFE_CALL")
+                val ping = connection.getPlayerInfo(entity.uniqueID)?.responseTime ?: 0
                 TextComponent.TextElement("${ping}ms", pingColorGradient.get(ping.toFloat()).alpha(aText.value))
             }
         }
         ContentType.DISTANCE -> {
-            val dist = MathUtils.round(mc.player.getDistance(entity), 1).toString()
+            val dist = MathUtils.round(player.distanceTo(entity), 1).toString()
             TextComponent.TextElement("${dist}m", getTextColor())
         }
         ContentType.TOTEM_POPS -> {
@@ -267,7 +269,7 @@ internal object Nametags : Module(
         fun merge(other: ItemGroup) {
             val thisCenter = this.getCenter()
             val otherCenter = other.getCenter()
-            val dist = thisCenter.squareDistanceTo(otherCenter)
+            val dist = thisCenter.distanceSqTo(otherCenter)
 
             if (dist < 20.0f) {
                 val iterator = other.items.iterator()
@@ -285,7 +287,7 @@ internal object Nametags : Module(
 
         fun add(item: EntityItem): Boolean {
             for (otherItem in items) {
-                if (otherItem.getDistanceSq(item) > 10.0f) return false
+                if (otherItem.distanceSqTo(item) > 10.0f) return false
             }
             return items.add(item)
         }
@@ -372,7 +374,7 @@ internal object Nametags : Module(
     }
 
     private class XpOrbRenderInfo(event: SafeClientEvent, private val entity: EntityXPOrb) : IRenderInfo {
-        override val distanceSq = event.player.getDistanceSq(entity).toFloat()
+        override val distanceSq = event.player.distanceSqTo(entity).toFloat()
         private val textComponent = TextComponent()
 
         init {
@@ -395,39 +397,41 @@ internal object Nametags : Module(
     }
 
     private class LivingRenderInfo(event: SafeClientEvent, private val entity: EntityLivingBase) : IRenderInfo {
-        override val distanceSq = event.player.getDistanceSq(entity).toFloat()
+        override val distanceSq = event.player.distanceSqTo(entity).toFloat()
         private val textComponent = TextComponent()
         private val itemList = ArrayList<Pair<ItemStack, TextComponent>>()
 
         init {
-            var isLine1Empty = true
-            for (contentType in line1Settings) {
-                getContent(contentType.value, entity)?.let {
-                    textComponent.add(it)
-                    isLine1Empty = false
+            event {
+                var isLine1Empty = true
+                for (contentType in line1Settings) {
+                    getContent(contentType.value, entity)?.let {
+                        textComponent.add(it)
+                        isLine1Empty = false
+                    }
                 }
-            }
-            if (!isLine1Empty) textComponent.currentLine++
-            for (contentType in line2Settings) {
-                getContent(contentType.value, entity)?.let {
-                    textComponent.add(it)
+                if (!isLine1Empty) textComponent.currentLine++
+                for (contentType in line2Settings) {
+                    getContent(contentType.value, entity)?.let {
+                        textComponent.add(it)
+                    }
                 }
-            }
 
-            getEnumHand(if (invertHand.value) EnumHandSide.RIGHT else EnumHandSide.LEFT)?.let { // Hand
-                val itemStack = entity.getHeldItem(it)
-                itemList.add(itemStack to getEnchantmentText(itemStack))
-            }
+                getEnumHand(if (invertHand.value) EnumHandSide.RIGHT else EnumHandSide.LEFT)?.let { // Hand
+                    val itemStack = entity.getHeldItem(it)
+                    itemList.add(itemStack to getEnchantmentText(itemStack))
+                }
 
-            if (armor.value) for (armor in entity.armorInventoryList.reversed()) itemList.add(
-                armor to getEnchantmentText(
-                    armor
-                )
-            ) // Armor
+                if (armor.value) for (armor in entity.armorInventoryList.reversed()) itemList.add(
+                    armor to getEnchantmentText(
+                        armor
+                    )
+                ) // Armor
 
-            getEnumHand(if (invertHand.value) EnumHandSide.LEFT else EnumHandSide.RIGHT)?.let { // Hand
-                val itemStack = entity.getHeldItem(it)
-                itemList.add(itemStack to getEnchantmentText(itemStack))
+                getEnumHand(if (invertHand.value) EnumHandSide.LEFT else EnumHandSide.RIGHT)?.let { // Hand
+                    val itemStack = entity.getHeldItem(it)
+                    itemList.add(itemStack to getEnchantmentText(itemStack))
+                }
             }
         }
 
@@ -532,10 +536,10 @@ internal object Nametags : Module(
         val scaledHalfWidth = halfWidth * scale
         val scaledHalfHeight = halfHeight * scale
 
-        if ((screenPos.x - scaledHalfWidth).fastFloor() !in 0..mc.displayWidth
-            && (screenPos.x + scaledHalfWidth).fastCeil() !in 0..mc.displayWidth
-            || (screenPos.y - scaledHalfHeight).fastFloor() !in 0..mc.displayHeight
-            && (screenPos.y + scaledHalfHeight).fastCeil() !in 0..mc.displayHeight
+        if ((screenPos.x - scaledHalfWidth).floorToInt() !in 0..mc.displayWidth
+            && (screenPos.x + scaledHalfWidth).ceilToInt() !in 0..mc.displayWidth
+            || (screenPos.y - scaledHalfHeight).floorToInt() !in 0..mc.displayHeight
+            && (screenPos.y + scaledHalfHeight).ceilToInt() !in 0..mc.displayHeight
         ) return false
 
         val lineColor = getHpColor(entity)
@@ -590,10 +594,10 @@ internal object Nametags : Module(
         val scaledHalfWidth = halfWidth * scale
         val scaledHalfHeight = halfHeight * scale
 
-        if ((screenPos.x - scaledHalfWidth).fastFloor() !in 0..mc.displayWidth
-            && (screenPos.x + scaledHalfWidth).fastCeil() !in 0..mc.displayWidth
-            || (screenPos.y - scaledHalfHeight).fastFloor() !in 0..mc.displayHeight
-            && (screenPos.y + scaledHalfHeight).fastCeil() !in 0..mc.displayHeight
+        if ((screenPos.x - scaledHalfWidth).floorToInt() !in 0..mc.displayWidth
+            && (screenPos.x + scaledHalfWidth).ceilToInt() !in 0..mc.displayWidth
+            || (screenPos.y - scaledHalfHeight).floorToInt() !in 0..mc.displayHeight
+            && (screenPos.y + scaledHalfHeight).ceilToInt() !in 0..mc.displayHeight
         ) return
 
         val width = halfWidth + halfWidth

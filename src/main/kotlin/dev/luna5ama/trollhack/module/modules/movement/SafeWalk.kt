@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.mixins.core.entity.MixinEntity
 import dev.luna5ama.trollhack.module.Category
@@ -7,7 +8,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.Scaffold
 import dev.luna5ama.trollhack.util.BaritoneUtils
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.threads.runSafeOrFalse
 import net.minecraft.util.math.BlockPos
 
@@ -55,8 +55,8 @@ internal object SafeWalk : Module(
     }
 
     private fun SafeClientEvent.checkFallDist(posX: Double, posZ: Double): Boolean {
-        val startY = (player.posY - 0.5).fastFloor()
-        val pos = BlockPos.PooledMutableBlockPos.retain(posX.fastFloor(), startY, posZ.fastFloor())
+        val startY = (player.posY - 0.5).floorToInt()
+        val pos = BlockPos.PooledMutableBlockPos.retain(posX.floorToInt(), startY, posZ.floorToInt())
 
         for (y in startY downTo startY - 2) {
             pos.y = y

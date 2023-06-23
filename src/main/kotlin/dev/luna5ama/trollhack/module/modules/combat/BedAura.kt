@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.EntityEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
@@ -29,7 +30,6 @@ import dev.luna5ama.trollhack.util.accessor.renderPosY
 import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
-import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
@@ -52,10 +52,7 @@ import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils
-import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.math.vector.toVec3d
-import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
+import dev.luna5ama.trollhack.util.math.vector.*
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -328,7 +325,7 @@ internal object BedAura : Module(
                     val placeInfo = placeInfo ?: return@safeListener
                     if (packet.category != SoundCategory.BLOCKS) return@safeListener
                     if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
-                    if (placeInfo.center.squareDistanceTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
+                    if (placeInfo.center.distanceSqTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
 
                     explosionCount++
                 }
@@ -608,13 +605,13 @@ internal object BedAura : Module(
         return VectorUtils.getBlockPosInSphere(eyePos, range)
             .filter { !strictDirection || eyePos.y > it.y + 1.0 }
             .mapToCalcInfo(eyePos)
-            .filterNot { contextTarget.entity.getDistanceSqToCenter(it.bedPosHead) > 100.0 }
+            .filterNot { contextTarget.entity.distanceSqToCenter(it.bedPosHead) > 100.0 }
             .filter { isValidBasePos(it.basePosFoot) && (newPlacement || isValidBasePos(it.basePosHead)) }
             .filter { isValidBedPos(ignoreNonFullBox, it) }
             .mapNotNull { checkDamage(map, contextSelf, contextTarget, it, mutableBlockPos) }
             .maxWithOrNull(
                 compareBy<DamageInfo> { it.targetDamage }
-                    .thenByDescending { eyePos.distanceSqTo(it.basePos) }
+                    .thenByDescending { eyePos.distanceSqToCenter(it.basePos) }
             )
             ?.toPlaceInfo()
     }

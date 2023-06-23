@@ -29,6 +29,8 @@ import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
 import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.world.*
 import net.minecraft.init.Blocks
@@ -126,7 +128,7 @@ internal object CevBreaker : Module(
 
             updateTarget()
             posInfo?.let {
-                if (player.getDistanceSqToCenter(it.pos) > range * range) {
+                if (player.distanceSqToCenter(it.pos) > range * range) {
                     reset()
                 } else if (switchToPickaxe) {
                     equipBestTool(world.getBlockState(it.pos))
@@ -174,7 +176,7 @@ internal object CevBreaker : Module(
 
             val pos = BlockPos(it.posX, it.posY + 2.5, it.posZ)
             if (pos != posInfo?.pos) {
-                if (player.getDistanceSqToCenter(pos) <= range * range
+                if (player.distanceSqToCenter(pos) <= range * range
                     && world.canBreakBlock(pos)
                     && hasValidSpaceForCrystal(pos)
                     && wallCheck(pos)
@@ -198,7 +200,7 @@ internal object CevBreaker : Module(
 
     private fun SafeClientEvent.wallCheck(pos: BlockPos): Boolean {
         val eyePos = player.eyePosition
-        return eyePos.squareDistanceTo(pos.x + 0.5, pos.y + 1.0, pos.z + 0.5) <= 9.0
+        return eyePos.distanceSqTo(pos.x + 0.5, pos.y + 1.0, pos.z + 0.5) <= 9.0
             || world.rayTraceBlocks(eyePos, pos.toVec3d(0.5, 2.7, 0.5), false, true, false) == null
     }
 

@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
@@ -8,7 +9,6 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import io.netty.util.internal.ConcurrentSet
 import net.minecraft.network.play.client.CPacketConfirmTeleport
 import net.minecraft.network.play.client.CPacketPlayer
@@ -336,18 +336,18 @@ internal object PacketFly : Module(
     }
 
     private fun SafeClientEvent.isPhasing(): Boolean {
-        val playerX = player.posX.fastFloor()
-        val playerZ = player.posZ.fastFloor()
+        val playerX = player.posX.floorToInt()
+        val playerZ = player.posZ.floorToInt()
         val box = player.entityBoundingBox
         val eps = 0.01
-        val minXE = (box.minX - eps).fastFloor()
-        val maxXE = (box.maxX + eps).fastFloor()
-        val minZE = (box.minZ - eps).fastFloor()
-        val maxZE = (box.maxZ + eps).fastFloor()
-        return (box.minX + eps).fastFloor() != minXE && minXE != playerX
-            || (box.maxX - eps).fastFloor() != maxXE && maxXE != playerX
-            || (box.minZ + eps).fastFloor() != minZE && minZE != playerZ
-            || (box.maxZ - eps).fastFloor() != maxZE && maxZE != playerZ
+        val minXE = (box.minX - eps).floorToInt()
+        val maxXE = (box.maxX + eps).floorToInt()
+        val minZE = (box.minZ - eps).floorToInt()
+        val maxZE = (box.maxZ + eps).floorToInt()
+        return (box.minX + eps).floorToInt() != minXE && minXE != playerX
+            || (box.maxX - eps).floorToInt() != maxXE && maxXE != playerX
+            || (box.minZ + eps).floorToInt() != minZE && minZE != playerZ
+            || (box.maxZ - eps).floorToInt() != maxZE && maxZE != playerZ
     }
 
     private fun SafeClientEvent.sendPlayerPacket(packet: CPacketPlayer) {

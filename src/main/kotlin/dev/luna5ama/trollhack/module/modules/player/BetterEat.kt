@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.player
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.InputEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
@@ -13,8 +14,8 @@ import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.accessor.entityID
 import dev.luna5ama.trollhack.util.accessor.onItemUseFinish
 import dev.luna5ama.trollhack.util.accessor.syncCurrentPlayItem
-import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.util.collections.averageOrZero
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.settings.KeyBinding
@@ -90,7 +91,7 @@ internal object BetterEat : Module(
                 is SPacketSoundEffect -> {
                     if (event.packet.category == SoundCategory.PLAYERS
                         && event.packet.sound == SoundEvents.ENTITY_PLAYER_BURP
-                        && player.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) <= 2.0
+                        && player.distanceSqTo(event.packet.x, event.packet.y, event.packet.z) <= 2.0
                     ) {
                         if (!eatTimer.tick(1L)
                             || !eatTimer.tick(25L) && checkPlayers()

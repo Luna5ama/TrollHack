@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.util.graphics
 
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.extension.fastCeil
 import dev.luna5ama.trollhack.util.interfaces.Helper
 
 object Resolution : AlwaysListening, Helper {
@@ -25,8 +25,8 @@ object Resolution : AlwaysListening, Helper {
         get() = heightF / GuiSetting.scaleFactor
 
     val trollWidthI
-        get() = trollWidthF.fastCeil()
+        get() = trollWidthF.ceilToInt()
 
     val trollHeightI
-        get() = trollHeightF.fastCeil()
+        get() = trollHeightF.ceilToInt()
 }
