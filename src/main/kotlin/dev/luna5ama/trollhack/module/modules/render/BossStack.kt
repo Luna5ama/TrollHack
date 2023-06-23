@@ -5,12 +5,12 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.RenderOverlayEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeConcurrentListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.accessor.mapBossInfos
 import dev.luna5ama.trollhack.util.accessor.render
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import net.minecraft.client.gui.BossInfoClient
 import net.minecraft.client.gui.ScaledResolution

@@ -5,6 +5,9 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -14,9 +17,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.getTargetList
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity

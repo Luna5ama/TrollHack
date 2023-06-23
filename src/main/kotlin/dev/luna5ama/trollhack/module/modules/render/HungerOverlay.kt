@@ -3,9 +3,9 @@ package dev.luna5ama.trollhack.module.modules.render
 import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.events.render.RenderOverlayEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.inventory.foodValue
 import dev.luna5ama.trollhack.util.inventory.saturation
 import net.minecraft.client.gui.Gui

@@ -1,14 +1,12 @@
 package dev.luna5ama.trollhack.gui.rgui
 
+import dev.luna5ama.trollhack.graphics.AnimationFlag
+import dev.luna5ama.trollhack.graphics.Easing
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.windows.DockingOverlay
 import dev.luna5ama.trollhack.setting.GuiConfig.setting
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
-import dev.luna5ama.trollhack.util.graphics.AnimationFlag
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.HAlign
-import dev.luna5ama.trollhack.util.graphics.VAlign
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import kotlin.math.max
@@ -126,29 +124,29 @@ open class WindowComponent(
         val centerSplitterV = min(10.0, preDragSize.y / 3.0)
 
         val horizontalSide = when (relativeClickPos.x) {
-            in -2.0..centerSplitterH -> HAlign.LEFT
-            in centerSplitterH..preDragSize.x - centerSplitterH -> HAlign.CENTER
-            in preDragSize.x - centerSplitterH..preDragSize.x + 2.0 -> HAlign.RIGHT
+            in -2.0..centerSplitterH -> dev.luna5ama.trollhack.graphics.HAlign.LEFT
+            in centerSplitterH..preDragSize.x - centerSplitterH -> dev.luna5ama.trollhack.graphics.HAlign.CENTER
+            in preDragSize.x - centerSplitterH..preDragSize.x + 2.0 -> dev.luna5ama.trollhack.graphics.HAlign.RIGHT
             else -> null
         }
 
-        val centerSplitterVCenter = if (draggableHeight != height && horizontalSide == HAlign.CENTER) {
+        val centerSplitterVCenter = if (draggableHeight != height && horizontalSide == dev.luna5ama.trollhack.graphics.HAlign.CENTER) {
             2.5
         } else {
             min(15.0, preDragSize.x / 3.0)
         }
 
         val verticalSide = when (relativeClickPos.y) {
-            in -2.0..centerSplitterVCenter -> VAlign.TOP
-            in centerSplitterVCenter..preDragSize.y - centerSplitterV -> VAlign.CENTER
-            in preDragSize.y - centerSplitterV..preDragSize.y + 2.0 -> VAlign.BOTTOM
+            in -2.0..centerSplitterVCenter -> dev.luna5ama.trollhack.graphics.VAlign.TOP
+            in centerSplitterVCenter..preDragSize.y - centerSplitterV -> dev.luna5ama.trollhack.graphics.VAlign.CENTER
+            in preDragSize.y - centerSplitterV..preDragSize.y + 2.0 -> dev.luna5ama.trollhack.graphics.VAlign.BOTTOM
             else -> null
         }
 
         if (horizontalSide == null || verticalSide == null) return
         val draggedDist = mousePos.minus(clickPos)
 
-        if (resizable && !minimized && (horizontalSide != HAlign.CENTER || verticalSide != VAlign.CENTER)) {
+        if (resizable && !minimized && (horizontalSide != dev.luna5ama.trollhack.graphics.HAlign.CENTER || verticalSide != dev.luna5ama.trollhack.graphics.VAlign.CENTER)) {
             handleResizeX(horizontalSide, draggedDist)
             handleResizeY(verticalSide, draggedDist)
 
@@ -175,9 +173,9 @@ open class WindowComponent(
         screen.displayWindow(dockingOverlay)
     }
 
-    private fun handleResizeX(horizontalSide: HAlign, draggedDist: Vec2f) {
+    private fun handleResizeX(horizontalSide: dev.luna5ama.trollhack.graphics.HAlign, draggedDist: Vec2f) {
         when (horizontalSide) {
-            HAlign.LEFT -> {
+            dev.luna5ama.trollhack.graphics.HAlign.LEFT -> {
                 val draggedX = max(draggedDist.x, 1.0f - preDragPos.x)
                 var newWidth = max(preDragSize.x - draggedX, minWidth)
 
@@ -188,7 +186,7 @@ open class WindowComponent(
                 width = newWidth
                 posX += prevWidth - newWidth
             }
-            HAlign.RIGHT -> {
+            dev.luna5ama.trollhack.graphics.HAlign.RIGHT -> {
                 val draggedX = min(draggedDist.x, preDragPos.x + preDragSize.x - 1.0f)
                 var newWidth = max(preDragSize.x + draggedX, minWidth)
 
@@ -203,9 +201,9 @@ open class WindowComponent(
         }
     }
 
-    private fun handleResizeY(verticalSide: VAlign, draggedDist: Vec2f) {
+    private fun handleResizeY(verticalSide: dev.luna5ama.trollhack.graphics.VAlign, draggedDist: Vec2f) {
         when (verticalSide) {
-            VAlign.TOP -> {
+            dev.luna5ama.trollhack.graphics.VAlign.TOP -> {
                 val draggedY = max(draggedDist.y, 1.0f - preDragPos.y)
                 var newHeight = max(preDragSize.y - draggedY, minHeight)
 
@@ -216,7 +214,7 @@ open class WindowComponent(
                 height = newHeight
                 posY += prevHeight - newHeight
             }
-            VAlign.BOTTOM -> {
+            dev.luna5ama.trollhack.graphics.VAlign.BOTTOM -> {
                 val draggedY = min(draggedDist.y, preDragPos.y + preDragSize.y - 1.0f)
                 var newHeight = max(preDragSize.y + draggedY, minHeight)
 

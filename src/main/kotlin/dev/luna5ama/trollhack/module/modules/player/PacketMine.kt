@@ -12,6 +12,9 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
@@ -24,9 +27,6 @@ import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.extension.synchronized
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.findBestTool

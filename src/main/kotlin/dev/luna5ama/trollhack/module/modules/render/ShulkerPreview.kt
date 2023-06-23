@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.mixins.core.gui.MixinGuiScreen
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.BufferBuilder
 import net.minecraft.client.renderer.GlStateManager

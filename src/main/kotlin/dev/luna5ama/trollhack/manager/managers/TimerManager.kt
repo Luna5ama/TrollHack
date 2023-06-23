@@ -3,13 +3,13 @@ package dev.luna5ama.trollhack.manager.managers
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.manager.Manager
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.util.accessor.tickLength
 import dev.luna5ama.trollhack.util.accessor.timer
 import dev.luna5ama.trollhack.util.extension.lastValueOrNull
 import dev.luna5ama.trollhack.util.extension.synchronized
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.threads.runSafe
 import java.util.*
 import kotlin.math.roundToInt

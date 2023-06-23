@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.mixins.core.gui;
 
+import dev.luna5ama.trollhack.graphics.AnimationFlag;
+import dev.luna5ama.trollhack.graphics.Easing;
 import dev.luna5ama.trollhack.module.modules.render.GuiAnimation;
-import dev.luna5ama.trollhack.util.graphics.AnimationFlag;
-import dev.luna5ama.trollhack.util.graphics.Easing;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiOptionSlider;

@@ -6,11 +6,11 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.getInterpolatedPos
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.client.renderer.GlStateManager

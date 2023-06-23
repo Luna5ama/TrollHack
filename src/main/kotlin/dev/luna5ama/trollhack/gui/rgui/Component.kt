@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.gui.rgui
 
 import dev.luna5ama.trollhack.TrollHackMod
+import dev.luna5ama.trollhack.graphics.AnimationFlag
+import dev.luna5ama.trollhack.graphics.Easing
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
@@ -9,10 +11,6 @@ import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.graphics.AnimationFlag
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.HAlign
-import dev.luna5ama.trollhack.util.graphics.VAlign
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import kotlin.math.max
@@ -29,8 +27,8 @@ open class Component(
     protected val visibleSetting = setting("Visible", true, { false }, { _, it -> it || !closeable })
     var visible by visibleSetting
 
-    protected val dockingHSetting = setting("Docking H", HAlign.LEFT)
-    protected val dockingVSetting = setting("Docking V", VAlign.TOP)
+    protected val dockingHSetting = setting("Docking H", dev.luna5ama.trollhack.graphics.HAlign.LEFT)
+    protected val dockingVSetting = setting("Docking V", dev.luna5ama.trollhack.graphics.VAlign.TOP)
 
     protected var widthSetting by setting(
         "Width",
@@ -191,18 +189,18 @@ open class Component(
     open val renderWidth by FrameFloat(renderWidthFlag::get)
     open val renderHeight by FrameFloat(renderHeightFlag::get)
 
-    private fun r2aX(x: Float, docking: HAlign) = x + scaledDisplayWidth * docking.multiplier - dockWidth(docking)
-    private fun r2aY(y: Float, docking: VAlign) = y + scaledDisplayHeight * docking.multiplier - dockHeight(docking)
-    private fun a2rX(x: Float, docking: HAlign) = x - scaledDisplayWidth * docking.multiplier + dockWidth(docking)
-    private fun a2rY(y: Float, docking: VAlign) = y - scaledDisplayHeight * docking.multiplier + dockHeight(docking)
+    private fun r2aX(x: Float, docking: dev.luna5ama.trollhack.graphics.HAlign) = x + scaledDisplayWidth * docking.multiplier - dockWidth(docking)
+    private fun r2aY(y: Float, docking: dev.luna5ama.trollhack.graphics.VAlign) = y + scaledDisplayHeight * docking.multiplier - dockHeight(docking)
+    private fun a2rX(x: Float, docking: dev.luna5ama.trollhack.graphics.HAlign) = x - scaledDisplayWidth * docking.multiplier + dockWidth(docking)
+    private fun a2rY(y: Float, docking: dev.luna5ama.trollhack.graphics.VAlign) = y - scaledDisplayHeight * docking.multiplier + dockHeight(docking)
 
     private fun r2aX(x: Float) = r2aX(x, dockingH)
     private fun r2aY(y: Float) = r2aY(y, dockingV)
     private fun a2rX(x: Float) = a2rX(x, dockingH)
     private fun a2rY(y: Float) = a2rY(y, dockingV)
 
-    private fun dockWidth(docking: HAlign) = width * docking.multiplier
-    private fun dockHeight(docking: VAlign) = height * docking.multiplier
+    private fun dockWidth(docking: dev.luna5ama.trollhack.graphics.HAlign) = width * docking.multiplier
+    private fun dockHeight(docking: dev.luna5ama.trollhack.graphics.VAlign) = height * docking.multiplier
 
     protected val scaledDisplayWidth get() = mc.displayWidth / GuiSetting.scaleFactor
     protected val scaledDisplayHeight get() = mc.displayHeight / GuiSetting.scaleFactor

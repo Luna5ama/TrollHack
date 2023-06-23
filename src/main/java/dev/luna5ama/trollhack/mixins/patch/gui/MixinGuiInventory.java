@@ -1,6 +1,6 @@
 package dev.luna5ama.trollhack.mixins.patch.gui;
 
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D;
+import dev.luna5ama.trollhack.graphics.RenderUtils3D;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.EntityLivingBase;
 import org.spongepowered.asm.mixin.Mixin;

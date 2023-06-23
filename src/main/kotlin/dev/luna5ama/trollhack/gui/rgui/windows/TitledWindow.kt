@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.text.format
 import net.minecraft.util.text.TextFormatting

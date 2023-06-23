@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.setting.settings
 
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.setting.settings.impl.number.DoubleSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.FloatSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
@@ -9,7 +10,6 @@ import dev.luna5ama.trollhack.setting.settings.impl.primitive.BooleanSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.EnumSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.StringSetting
 import dev.luna5ama.trollhack.util.Bind
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 
 /**
  * Setting register overloading

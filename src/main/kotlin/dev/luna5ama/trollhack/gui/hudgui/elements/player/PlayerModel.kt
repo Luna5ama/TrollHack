@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.player
 
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager

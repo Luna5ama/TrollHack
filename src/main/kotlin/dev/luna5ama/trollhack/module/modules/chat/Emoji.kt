@@ -1,13 +1,13 @@
 package dev.luna5ama.trollhack.module.modules.chat
 
 import dev.fastmc.common.ceilToInt
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.graphics.texture.MipmapTexture
 import dev.luna5ama.trollhack.manager.managers.EmojiManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.client.CustomFont
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.graphics.texture.MipmapTexture
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats

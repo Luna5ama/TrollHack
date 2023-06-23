@@ -4,6 +4,8 @@ import dev.fastmc.common.EnumMap
 import dev.luna5ama.trollhack.event.events.InputEvent
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.Resolution
 import dev.luna5ama.trollhack.gui.AbstractTrollGui
 import dev.luna5ama.trollhack.gui.hudgui.component.HudButton
 import dev.luna5ama.trollhack.gui.rgui.Component
@@ -12,12 +14,9 @@ import dev.luna5ama.trollhack.module.modules.client.Hud
 import dev.luna5ama.trollhack.module.modules.client.HudEditor
 import dev.luna5ama.trollhack.util.extension.remove
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.Resolution
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
-import java.util.*
 
 object TrollHudGui : AbstractTrollGui() {
     override val alwaysTicking = true

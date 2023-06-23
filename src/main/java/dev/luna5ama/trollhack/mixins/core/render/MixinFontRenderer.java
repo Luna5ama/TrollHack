@@ -2,9 +2,9 @@ package dev.luna5ama.trollhack.mixins.core.render;
 
 import dev.fastmc.common.MathUtilKt;
 import dev.luna5ama.trollhack.TrollHackMod;
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer;
 import dev.luna5ama.trollhack.module.modules.chat.Emoji;
 import dev.luna5ama.trollhack.module.modules.client.CustomFont;
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import org.spongepowered.asm.mixin.Mixin;

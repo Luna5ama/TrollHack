@@ -4,6 +4,8 @@ import dev.luna5ama.trollhack.event.IListenerOwner
 import dev.luna5ama.trollhack.event.ListenerOwner
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.rgui.windows.BasicWindow
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
@@ -14,8 +16,6 @@ import dev.luna5ama.trollhack.translation.TranslateSrc
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.Bind
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.Alias
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.interfaces.Nameable

@@ -1,12 +1,12 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D.drawRectFilled
+import dev.luna5ama.trollhack.graphics.RenderUtils2D.drawRectOutline
 import dev.luna5ama.trollhack.mixins.core.gui.MixinGuiScreen
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawRectFilled
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawRectOutline
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.Tessellator

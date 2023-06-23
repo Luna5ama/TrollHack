@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.BindSetting
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
 

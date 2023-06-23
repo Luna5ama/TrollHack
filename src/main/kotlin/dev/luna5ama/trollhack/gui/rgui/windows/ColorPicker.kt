@@ -1,5 +1,10 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.ColorUtils
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.WindowComponent
 import dev.luna5ama.trollhack.gui.rgui.component.Button
@@ -8,9 +13,6 @@ import dev.luna5ama.trollhack.gui.rgui.component.Slider
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.ColorSetting
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.ColorUtils
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.opengl.GL11.*
@@ -362,8 +364,8 @@ class ColorPicker(
         buttonCancel.width = 50.0f
 
         // Main window
-        dockingH = HAlign.CENTER
-        dockingV = VAlign.CENTER
+        dockingH = dev.luna5ama.trollhack.graphics.HAlign.CENTER
+        dockingV = dev.luna5ama.trollhack.graphics.VAlign.CENTER
         relativePosX = 0.0f
         relativePosY = 0.0f
         height = buttonCancel.posY + buttonCancel.height + 4.0f

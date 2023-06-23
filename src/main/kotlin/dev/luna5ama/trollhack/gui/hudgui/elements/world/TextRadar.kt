@@ -1,14 +1,14 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.world
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.graphics.color.ColorGradient
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.combat.AntiBot
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
-import dev.luna5ama.trollhack.util.graphics.color.ColorGradient
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.threads.runSafe

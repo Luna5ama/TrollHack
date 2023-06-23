@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.mixins.core.render;
 
+import dev.luna5ama.trollhack.graphics.RenderUtils3D;
 import dev.luna5ama.trollhack.module.modules.movement.PacketFly;
 import dev.luna5ama.trollhack.module.modules.player.Freecam;
 import dev.luna5ama.trollhack.module.modules.render.Xray;
 import dev.luna5ama.trollhack.util.Wrapper;
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D;
 import dev.luna5ama.trollhack.util.math.vector.ConversionKt;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.chunk.VisGraph;

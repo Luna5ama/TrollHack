@@ -11,6 +11,9 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -26,9 +29,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
 import dev.luna5ama.trollhack.util.collections.asSequenceFast
 import dev.luna5ama.trollhack.util.collections.forEachFast
 import dev.luna5ama.trollhack.util.combat.HoleType
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
@@ -219,11 +219,11 @@ internal object AutoHoleFill : Module(
         return sequence {
             val detectRangeSq = detectRange.sq
 
-            EntityManager.players.forEachFast { entity ->
-                if (entity.isSelf) return@forEachFast
-                if (!entity.isEntityAlive) return@forEachFast
-                if (entity.isFriend) return@forEachFast
-                if (player.distanceSqTo(entity) > detectRangeSq) return@forEachFast
+            EntityManager.players.forEachFast outer@{ entity ->
+                if (entity.isSelf) return@outer
+                if (!entity.isEntityAlive) return@outer
+                if (entity.isFriend) return@outer
+                if (player.distanceSqTo(entity) > detectRangeSq) return@outer
 
                 val current = entity.positionVector
                 val predict = entity.calcPredict(current)

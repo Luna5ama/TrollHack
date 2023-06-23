@@ -1,17 +1,17 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.graphics.AnimationFlag
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.Resolution
+import dev.luna5ama.trollhack.graphics.font.TextComponent
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.InteractiveComponent
 import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.module.modules.client.Tooltips
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
-import dev.luna5ama.trollhack.util.graphics.AnimationFlag
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.Resolution
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.opengl.GL11.*

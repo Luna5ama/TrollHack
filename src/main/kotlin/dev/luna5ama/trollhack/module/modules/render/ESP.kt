@@ -8,6 +8,13 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.buffer.PersistentMappedVBO
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.esp.DynamicBoxRenderer
+import dev.luna5ama.trollhack.graphics.shaders.DrawShader
+import dev.luna5ama.trollhack.graphics.use
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
@@ -21,13 +28,6 @@ import dev.luna5ama.trollhack.util.accessor.entityOutlineFramebuffer
 import dev.luna5ama.trollhack.util.accessor.entityOutlineShader
 import dev.luna5ama.trollhack.util.accessor.listShaders
 import dev.luna5ama.trollhack.util.accessor.renderOutlines
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.buffer.PersistentMappedVBO
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.esp.DynamicBoxRenderer
-import dev.luna5ama.trollhack.util.graphics.shaders.DrawShader
-import dev.luna5ama.trollhack.util.graphics.use
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe

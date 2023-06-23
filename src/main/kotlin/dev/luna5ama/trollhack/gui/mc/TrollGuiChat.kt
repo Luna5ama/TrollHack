@@ -4,13 +4,13 @@ import dev.luna5ama.trollhack.command.CommandManager
 import dev.luna5ama.trollhack.command.args.AbstractArg
 import dev.luna5ama.trollhack.command.args.AutoComplete
 import dev.luna5ama.trollhack.command.args.GreedyStringArg
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.accessor.historyBuffer
 import dev.luna5ama.trollhack.util.accessor.sentHistoryCursor
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiChat

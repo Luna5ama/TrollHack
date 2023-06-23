@@ -2,9 +2,9 @@ package dev.luna5ama.trollhack
 
 import dev.luna5ama.trollhack.event.ForgeEventProcessor
 import dev.luna5ama.trollhack.event.events.ShutdownEvent
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.translation.TranslationManager
 import dev.luna5ama.trollhack.util.ConfigUtils
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.threads.TimerScope
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod

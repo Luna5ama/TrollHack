@@ -1,12 +1,15 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.luna5ama.trollhack.graphics.AnimationFlag
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.Resolution
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.WindowComponent
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 
 class DockingOverlay(screen: IGuiScreen, private val parent: WindowComponent) : WindowComponent(
@@ -63,8 +66,8 @@ class DockingOverlay(screen: IGuiScreen, private val parent: WindowComponent) : 
             }
         }
 
-        val dockingH = HAlign.VALUES.getDocking(screen.mousePos.x, fifthWidth)
-        val dockingV = VAlign.VALUES.getDocking(screen.mousePos.y, fifthHeight)
+        val dockingH = dev.luna5ama.trollhack.graphics.HAlign.VALUES.getDocking(screen.mousePos.x, fifthWidth)
+        val dockingV = dev.luna5ama.trollhack.graphics.VAlign.VALUES.getDocking(screen.mousePos.y, fifthHeight)
 
         if (dockingH != null && dockingV != null) {
             parent.dockingH = dockingH

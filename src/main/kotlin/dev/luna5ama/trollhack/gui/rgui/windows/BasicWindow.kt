@@ -1,11 +1,11 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.GuiConfig
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 

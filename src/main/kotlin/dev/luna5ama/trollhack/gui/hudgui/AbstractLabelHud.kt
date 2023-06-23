@@ -3,10 +3,9 @@ package dev.luna5ama.trollhack.gui.hudgui
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.font.TextComponent
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.text.format

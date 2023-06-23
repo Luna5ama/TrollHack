@@ -10,6 +10,8 @@ import dev.luna5ama.trollhack.event.events.combat.CrystalSpawnEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -20,8 +22,6 @@ import dev.luna5ama.trollhack.util.accessor.id
 import dev.luna5ama.trollhack.util.accessor.packetAction
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.inventory.*
 import dev.luna5ama.trollhack.util.inventory.operation.action
 import dev.luna5ama.trollhack.util.inventory.operation.swapWith

@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.util.combat
 
 import dev.fastmc.common.floorToInt
+import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
-import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import net.minecraft.util.math.Vec3d
 import kotlin.math.max

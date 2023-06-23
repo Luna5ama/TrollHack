@@ -13,6 +13,13 @@ import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -35,13 +42,6 @@ import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.blockBlacklist
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue

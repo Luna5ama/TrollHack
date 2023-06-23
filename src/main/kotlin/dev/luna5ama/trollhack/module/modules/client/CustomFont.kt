@@ -4,11 +4,11 @@ import dev.fastmc.common.TimeUnit
 import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.font.GlyphCache
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
-import dev.luna5ama.trollhack.util.graphics.font.GlyphCache
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import java.awt.Font
 import java.awt.GraphicsEnvironment

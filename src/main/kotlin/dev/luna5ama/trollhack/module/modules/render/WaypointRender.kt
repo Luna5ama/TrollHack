@@ -9,6 +9,9 @@ import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.*
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.TextComponent
 import dev.luna5ama.trollhack.manager.managers.WaypointManager
 import dev.luna5ama.trollhack.manager.managers.WaypointManager.Waypoint
 import dev.luna5ama.trollhack.module.Category
@@ -16,9 +19,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.distanceToCenter
@@ -156,7 +156,7 @@ internal object WaypointRender : Module(
             2f,
             ColorRGB(80, 80, 80, 232)
         )
-        textComponent.draw(horizontalAlign = HAlign.CENTER, verticalAlign = VAlign.CENTER)
+        textComponent.draw(horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
 
         glPopMatrix()
     }

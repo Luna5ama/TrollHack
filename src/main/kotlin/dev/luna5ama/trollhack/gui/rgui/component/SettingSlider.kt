@@ -1,12 +1,12 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.FloatSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.NumberSetting
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard

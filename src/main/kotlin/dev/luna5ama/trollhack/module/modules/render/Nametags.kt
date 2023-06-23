@@ -8,6 +8,15 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorGradient
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.Style
+import dev.luna5ama.trollhack.graphics.font.TextComponent
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.manager.managers.TotemPopManager
@@ -16,12 +25,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.extension.remove
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorGradient
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.Style
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.inventory.originalName
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
@@ -518,7 +521,7 @@ internal object Nametags : Module(
         glTranslatef(0.0f, -2.0f, 0.0f)
         if (enchantment.value) {
             val scale = 0.6f
-            enchantmentText.draw(lineSpace = 2, scale = scale, verticalAlign = VAlign.BOTTOM)
+            enchantmentText.draw(lineSpace = 2, scale = scale, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.BOTTOM)
         }
 
         glTranslatef(28.0f, 2.0f, 0.0f)
@@ -582,7 +585,7 @@ internal object Nametags : Module(
         RenderUtils2D.draw(GL_QUADS)
         RenderUtils2D.releaseGL()
 
-        textComponent.draw(skipEmptyLine = true, horizontalAlign = HAlign.CENTER, verticalAlign = VAlign.CENTER)
+        textComponent.draw(skipEmptyLine = true, horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
 
         return true
     }
@@ -617,7 +620,7 @@ internal object Nametags : Module(
 
         RenderUtils2D.releaseGL()
 
-        textComponent.draw(skipEmptyLine = true, horizontalAlign = HAlign.CENTER, verticalAlign = VAlign.CENTER)
+        textComponent.draw(skipEmptyLine = true, horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
     }
 
     private fun getEnchantmentText(itemStack: ItemStack): TextComponent {

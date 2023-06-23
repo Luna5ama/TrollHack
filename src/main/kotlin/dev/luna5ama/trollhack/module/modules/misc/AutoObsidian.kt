@@ -13,6 +13,8 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.parallelListener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -22,8 +24,6 @@ import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.getDroppedItem
 import dev.luna5ama.trollhack.util.EntityUtils.getDroppedItems
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.block
 import dev.luna5ama.trollhack.util.inventory.id

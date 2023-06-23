@@ -2,6 +2,13 @@ package dev.luna5ama.trollhack.module.modules.client
 
 import dev.luna5ama.trollhack.event.events.GuiEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.FontRenderer
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.graphics.shaders.GLSLSandbox
 import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.Category
@@ -11,13 +18,6 @@ import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.translation.TranslationKey
 import dev.luna5ama.trollhack.util.extension.mapEach
 import dev.luna5ama.trollhack.util.extension.normalizeCase
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.FontRenderer
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.graphics.shaders.GLSLSandbox
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.Box
 import net.minecraft.client.audio.PositionedSoundRecord

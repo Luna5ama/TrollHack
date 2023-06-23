@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.combat.CrystalSpawnEvent
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.Easing
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
@@ -21,7 +22,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.MovementUtils.isCentered
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
-import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue

@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.util.graphics;
+package dev.luna5ama.trollhack.graphics;
 
 @FunctionalInterface
 public interface InterpolateFunction {

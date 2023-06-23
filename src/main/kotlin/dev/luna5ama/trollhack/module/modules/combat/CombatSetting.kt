@@ -11,6 +11,12 @@ import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.setGLColor
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
@@ -31,12 +37,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.combat.MotionTracker
 import dev.luna5ama.trollhack.util.combat.SurroundUtils
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.setGLColor
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRelativeRotation
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo

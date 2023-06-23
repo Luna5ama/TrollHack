@@ -13,6 +13,10 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.*
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.setGLColor
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Watermark
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -39,10 +43,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.delegate.CachedValueN
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.setGLColor
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.attackDamage
 import dev.luna5ama.trollhack.util.inventory.duraPercentage

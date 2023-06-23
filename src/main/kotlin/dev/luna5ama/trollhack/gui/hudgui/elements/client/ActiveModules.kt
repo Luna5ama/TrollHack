@@ -6,6 +6,12 @@ import dev.fastmc.common.collection.FastIntMap
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.ColorUtils
+import dev.luna5ama.trollhack.graphics.font.TextComponent
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.ModuleManager
@@ -14,14 +20,6 @@ import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.HAlign
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.VAlign
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.ColorUtils
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.state.TimedFlag
 import dev.luna5ama.trollhack.util.text.format
@@ -151,24 +149,24 @@ internal object ActiveModules : HudElement(
         GlStateManager.pushMatrix()
 
         GlStateManager.translate(width / scale * dockingH.multiplier, 0.0f, 0.0f)
-        if (dockingV == VAlign.BOTTOM) {
+        if (dockingV == dev.luna5ama.trollhack.graphics.VAlign.BOTTOM) {
             GlStateManager.translate(0.0f, height / scale - (MainFontRenderer.getHeight() + 2.0f), 0.0f)
-        } else if (dockingV == VAlign.TOP) {
+        } else if (dockingV == dev.luna5ama.trollhack.graphics.VAlign.TOP) {
             GlStateManager.translate(0.0f, -1.0f, 0.0f)
         }
 
-        if (dockingH == HAlign.LEFT) {
+        if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
             GlStateManager.translate(-1.0f, 0.0f, 0.0f)
         }
 
         when (mode) {
             Mode.LEFT_TAG -> {
-                if (dockingH == HAlign.LEFT) {
+                if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
                     GlStateManager.translate(2.0f, 0.0f, 0.0f)
                 }
             }
             Mode.RIGHT_TAG -> {
-                if (dockingH == HAlign.RIGHT) {
+                if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.RIGHT) {
                     GlStateManager.translate(-2.0f, 0.0f, 0.0f)
                 }
             }
@@ -223,9 +221,9 @@ internal object ActiveModules : HudElement(
                     }
                 }
 
-                module.newTextLine(color).drawLine(progress, HAlign.LEFT)
+                module.newTextLine(color).drawLine(progress, dev.luna5ama.trollhack.graphics.HAlign.LEFT)
 
-                if (dockingV == VAlign.BOTTOM) yOffset *= -1.0f
+                if (dockingV == dev.luna5ama.trollhack.graphics.VAlign.BOTTOM) yOffset *= -1.0f
                 GlStateManager.popMatrix()
                 GlStateManager.translate(0.0f, yOffset, 0.0f)
                 index++
@@ -264,9 +262,9 @@ internal object ActiveModules : HudElement(
                     }
                 }
 
-                textLine.drawLine(progress, HAlign.LEFT)
+                textLine.drawLine(progress, dev.luna5ama.trollhack.graphics.HAlign.LEFT)
 
-                if (dockingV == VAlign.BOTTOM) yOffset *= -1.0f
+                if (dockingV == dev.luna5ama.trollhack.graphics.VAlign.BOTTOM) yOffset *= -1.0f
                 GlStateManager.popMatrix()
                 GlStateManager.translate(0.0f, yOffset, 0.0f)
             }
@@ -291,7 +289,7 @@ internal object ActiveModules : HudElement(
                     )
                 }
             }
-            if (dockingH == HAlign.RIGHT) reverse()
+            if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.RIGHT) reverse()
         }
 
     private val TimedFlag<Boolean>.displayHeight
@@ -316,6 +314,6 @@ internal object ActiveModules : HudElement(
     init {
         relativePosX = -2.0f
         relativePosY = 2.0f
-        dockingH = HAlign.RIGHT
+        dockingH = dev.luna5ama.trollhack.graphics.HAlign.RIGHT
     }
 }

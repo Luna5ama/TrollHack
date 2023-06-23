@@ -5,6 +5,11 @@ import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -13,11 +18,6 @@ import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.combat.HoleInfo
 import dev.luna5ama.trollhack.util.combat.HoleType
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
 import kotlinx.coroutines.launch

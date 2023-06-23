@@ -1,20 +1,16 @@
 package dev.luna5ama.trollhack.gui.clickgui
 
 import dev.fastmc.common.EnumMap
+import dev.luna5ama.trollhack.graphics.Resolution
 import dev.luna5ama.trollhack.gui.AbstractTrollGui
 import dev.luna5ama.trollhack.gui.clickgui.component.ModuleButton
-import dev.luna5ama.trollhack.gui.hudgui.AbstractHudElement
 import dev.luna5ama.trollhack.gui.rgui.Component
 import dev.luna5ama.trollhack.gui.rgui.windows.ListWindow
-import dev.luna5ama.trollhack.module.AbstractModule
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.module.modules.client.ClickGUI
 import dev.luna5ama.trollhack.util.extension.remove
-import dev.luna5ama.trollhack.util.graphics.Resolution
 import org.lwjgl.input.Keyboard
-import java.util.*
-import kotlin.collections.ArrayList
 
 object TrollClickGui : AbstractTrollGui() {
     private val moduleWindows = EnumMap<Category, ListWindow>()

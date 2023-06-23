@@ -11,6 +11,8 @@ import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.manager.managers.TimerManager.resetTimer
@@ -26,8 +28,6 @@ import dev.luna5ama.trollhack.util.MovementUtils.isCentered
 import dev.luna5ama.trollhack.util.MovementUtils.resetMove
 import dev.luna5ama.trollhack.util.MovementUtils.speed
 import dev.luna5ama.trollhack.util.combat.HoleInfo
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.RotationUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.network.play.server.SPacketPlayerPosLook
