@@ -190,21 +190,20 @@ internal object AutoCity : Module(
 
     private fun SafeClientEvent.calcTargetInfo(): TargetInfo? {
         val target = CombatManager.target ?: return null
+        val contextSelf = CombatManager.contextSelf ?: return null
+        val contextTarget = CombatManager.contextTarget ?: return null
 
         val targetPos = target.betterPosition
         val prev = targetInfo?.takeIf { it.holePos == targetPos }
 
         if (prev == null && !HoleManager.getHoleInfo(target).isHole) return null
 
-
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
-        val contextSelf = CombatManager.contextSelf ?: return null
-        val contextTarget = CombatManager.contextTarget ?: return null
-
         if (prev != null) {
+            if (!updateTimer.tick(updateDelay)) return prev
             val prevDamage = prev.calcDamage(contextSelf, mutableBlockPos)
-            if (prevDamage > minUpdateDamage || !updateTimer.tick(updateDelay)) return prev
+            if (prevDamage > minUpdateDamage) return prev
         }
 
         var maxDamage = 0.0f
