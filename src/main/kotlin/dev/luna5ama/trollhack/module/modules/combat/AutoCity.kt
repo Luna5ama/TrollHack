@@ -56,8 +56,10 @@ internal object AutoCity : Module(
     private val placeDelay by setting("Place Delay", 100, 0..1000, 5)
     private val breakDelay by setting("Break Delay", 100, 0..1000, 5)
     private val packetBreakDelay by setting("Packet Break Delay", 100, 0..1000, 5)
-    private val minDamage by setting("Min Damage", 4.0f, 1.0f..10.0f, 0.1f)
-    private val minUpdateDamage by setting("Min Update Damage", 8.0f, 1.0f..10.0f, 0.1f)
+    private val minInitDamage by setting("Min Init Damage", 4.0f, 1.0f..20.0f, 0.1f)
+    private val minUpdateDamage by setting("Min Update Damage", 8.0f, 1.0f..20.0f, 0.1f)
+    private val minDamageIncrease by setting("Min Damage Increase", 5.0f, 0.0f..20.0f, 0.1f)
+    private val minEffectiveDamage by setting("Min Effective Damage", 2.0f, -20.0f..20.0f, 0.1f)
     private val updateDelay by setting("Update Delay", 200, 0..1000, 5)
     private val wallRange by setting("Wall Range", 3.0f, 1.0f..6.0f, 0.1f)
     private val range by setting("Range", 4.5f, 1.0f..6.0f, 0.1f)
@@ -67,15 +69,10 @@ internal object AutoCity : Module(
     private val updateTimer = TickTimer()
     private val packetBreakTimer = TickTimer()
 
-    private var anvilPos: BlockPos? = null
-    private var crystalPos: BlockPos? = null
-    private var holePos: BlockPos? = null
-
-    private var anvilPlaced = false
-    private var crystalID = -1
+    private var targetInfo: TargetInfo? = null
 
     override fun isActive(): Boolean {
-        return isEnabled && (anvilPos != null && (placeAnvil || placeCrystal || breakCrystal))
+        return isEnabled && targetInfo != null
     }
 
     init {
@@ -83,199 +80,178 @@ internal object AutoCity : Module(
             placeTimer.reset(-114514L)
             breakTimer.reset(-114514L)
 
-            anvilPos = null
-            crystalPos = null
-            holePos = null
-
-            anvilPlaced = false
-            crystalID = -1
+            targetInfo = null
         }
 
         safeParallelListener<TickEvent.Post> {
-            updateTargetPos()
+            updateTargetInfo()
 
-            val anvilPos = anvilPos
-            val crystalPos = crystalPos
+            val targetInfo = targetInfo
 
-            if (anvilPos == null || crystalPos == null) {
+            if (targetInfo == null) {
                 PacketMine.reset(AutoCity)
                 return@safeParallelListener
             }
 
-            val posUp = anvilPos.up()
-            val block = world.getBlock(posUp)
+            val block = world.getBlock(targetInfo.surroundPos)
+            targetInfo.anvilPlaced = block != Blocks.AIR
 
-            anvilPlaced = block != Blocks.AIR
-
-            crystalID = CombatManager.crystalList
-                .find {
-                    !it.first.isDead
-                        && CrystalUtils.crystalIntersects(it.second.crystalPos, crystalPos)
-                }?.first?.entityId ?: -1
+            targetInfo.crystalID = CombatManager.crystalList.asSequence()
+                .map { it.first }
+                .filterNot { it.isDead }
+                .find { CrystalUtils.crystalIntersects(it, targetInfo.crystalPos) }?.entityId ?: -1
 
             if (block != Blocks.AIR) {
-                PacketMine.mineBlock(AutoCity, posUp, AutoCity.modulePriority)
+                PacketMine.mineBlock(AutoCity, targetInfo.surroundPos, AutoCity.modulePriority)
             }
         }
 
         safeListener<CrystalSpawnEvent> {
-            val anvilPos = anvilPos ?: return@safeListener
-            val crystalPos = crystalPos ?: return@safeListener
+            val targetInfo = targetInfo ?: return@safeListener
+            if (!CrystalUtils.crystalIntersects(targetInfo.crystalPos, it.crystalDamage.blockPos)) return@safeListener
 
-            if (CrystalUtils.crystalIntersects(crystalPos, it.crystalDamage.blockPos)) {
-                crystalID = it.entityID
-                if (!anvilPlaced && breakTimer.tick(0)) {
-                    breakCrystal(it.entityID)
-                    placeAnvil(anvilPos)
-                    placeCrystal(crystalPos)
-                }
+            targetInfo.crystalID = it.entityID
+            if (!targetInfo.anvilPlaced && breakTimer.tick(0)) {
+                breakCrystal(it.entityID)
+                placeAnvil(targetInfo.surroundDown)
+                placeCrystal(targetInfo.crystalPos)
             }
         }
 
         safeListener<WorldEvent.ServerBlockUpdate> {
-            val entityID = crystalID
+            val targetInfo = targetInfo ?: return@safeListener
 
-            val anvilPos = anvilPos ?: return@safeListener
-            val crystalPos = crystalPos ?: return@safeListener
-            val posUp = anvilPos.up()
+            if (it.pos != targetInfo.surroundPos) return@safeListener
 
-            if (it.pos != posUp) return@safeListener
+            if (it.newState.block != Blocks.AIR) {
+                PacketMine.mineBlock(AutoCity, targetInfo.surroundPos, AutoCity.modulePriority)
+                return@safeListener
+            }
 
-            if (it.newState.block == Blocks.AIR) {
-                anvilPlaced = false
+            targetInfo.anvilPlaced = false
+            val crystalID = targetInfo.crystalID
 
-                if (entityID != -1
-                    && packetBreakTimer.tick(packetBreakDelay)
-                    && breakTimer.tick(0)
-                ) {
-                    breakCrystal(entityID)
-                    placeAnvil(anvilPos)
-                    placeCrystal(crystalPos)
-                    packetBreakTimer.reset()
-                }
-            } else {
-                PacketMine.mineBlock(AutoCity, posUp, AutoCity.modulePriority)
+            if (crystalID != -1
+                && packetBreakTimer.tick(packetBreakDelay)
+                && breakTimer.tick(0)
+            ) {
+                println("GOOOO")
+                breakCrystal(crystalID)
+                placeAnvil(targetInfo.surroundDown)
+                placeCrystal(targetInfo.crystalPos)
+                packetBreakTimer.reset()
             }
         }
 
         safeListener<CrystalSetDeadEvent> { event ->
-            val anvilPos = anvilPos ?: return@safeListener
-            val crystalPos = crystalPos ?: return@safeListener
-            if (event.crystals.none { CrystalUtils.crystalIntersects(it, crystalPos) }) return@safeListener
-            crystalID = -1
+            val targetInfo = targetInfo ?: return@safeListener
+            if (event.crystals.none { CrystalUtils.crystalIntersects(it, targetInfo.crystalPos) }) return@safeListener
+            targetInfo.crystalID = -1
 
-            placeAnvil(anvilPos)
-            placeCrystal(crystalPos)
+            placeAnvil(targetInfo.surroundDown)
+            placeCrystal(targetInfo.crystalPos)
         }
 
         safeListener<RunGameLoopEvent.Tick> {
-            val anvilPos = anvilPos ?: return@safeListener
-            val crystalPos = crystalPos ?: return@safeListener
-            val entityID = crystalID
+            val targetInfo = targetInfo ?: return@safeListener
+            val crystalID = targetInfo.crystalID
 
-            if (!anvilPlaced && entityID != -1 && breakTimer.tick(breakDelay)) {
-                breakCrystal(entityID)
-                placeAnvil(anvilPos)
-                placeCrystal(crystalPos)
+            if (!targetInfo.anvilPlaced && crystalID != -1 && breakTimer.tick(breakDelay)) {
+                breakCrystal(crystalID)
+                placeAnvil(targetInfo.surroundDown)
+                placeCrystal(targetInfo.crystalPos)
 
                 placeTimer.reset()
             }
 
             if (placeTimer.tick(placeDelay)) {
-                if (!anvilPlaced) {
-                    placeAnvil(anvilPos)
-                } else {
-                    val anvilPosUp = anvilPos.up()
-                    if (world.getBlock(anvilPosUp) != Blocks.ANVIL
-                        && world.getBlockState(anvilPosUp.up()).isReplaceable
-                    ) {
-                        placeAnvil(anvilPosUp)
+                if (placeAnvil) {
+                    if (!targetInfo.anvilPlaced) {
+                        placeAnvil(targetInfo.surroundDown)
+                    } else {
+                        if (world.getBlock(targetInfo.surroundPos) != Blocks.ANVIL
+                            && world.getBlockState(targetInfo.surroundPos.up()).isReplaceable
+                        ) {
+                            placeAnvil(targetInfo.surroundPos)
+                        }
                     }
                 }
 
-                if (entityID == -1) {
-                    placeCrystal(crystalPos)
+                if (crystalID == -1) {
+                    placeCrystal(targetInfo.crystalPos)
                 }
             }
         }
     }
 
-    private fun SafeClientEvent.updateTargetPos() {
-        val flag = anvilPos != null
-        val target = CombatManager.target
+    private fun SafeClientEvent.updateTargetInfo() {
+        targetInfo = calcTargetInfo()
+    }
 
-        if (target != null) {
-            val targetPos = target.betterPosition
+    private fun SafeClientEvent.calcTargetInfo(): TargetInfo? {
+        val target = CombatManager.target ?: return null
 
-            val result = if (flag || targetPos == holePos || HoleManager.getHoleInfo(target).isHole) {
-                val mutableBlockPos = BlockPos.MutableBlockPos()
+        val targetPos = target.betterPosition
+        val prev = targetInfo?.takeIf { it.holePos == targetPos }
 
-                val anvilPos = anvilPos
-                val crystalPos = crystalPos
-
-                CombatManager.contextTarget?.let { context ->
-                    if (anvilPos != null && crystalPos != null) {
-                        val damage = calcDamage(context, anvilPos.up(), crystalPos, mutableBlockPos)
-                        if (damage > minUpdateDamage && !updateTimer.tick(updateDelay)) return
-                    }
-
-                    var maxDamage = minDamage
-                    var result: Pair<BlockPos, BlockPos>? = null
-
-                    for (pair in calcSequence(targetPos)) {
-                        val damage = calcDamage(context, pair.first, pair.second, mutableBlockPos)
-
-                        if (damage > maxDamage) {
-                            maxDamage = damage
-                            result = pair
-                        }
-                    }
-
-                    if (result == null) {
-                        for (pair in calcInPlaceSequence(targetPos)) {
-                            val damage = calcDamage(context, pair.first, pair.second, mutableBlockPos)
-
-                            if (damage > maxDamage) {
-                                maxDamage = damage
-                                result = pair
-                            }
-                        }
-                    }
-
-                    val prevAnvil = this@AutoCity.anvilPos
-                    val prevAnvilUp = this@AutoCity.anvilPos?.up()
-                    val prevCrystal = this@AutoCity.crystalPos
-
-                    if (result != null
-                        && prevAnvil != null && prevAnvilUp != null && prevCrystal != null
-                        && (result.first != prevAnvilUp || result.second != prevCrystal)
-                    ) {
-                        val blockState = world.getBlockState(prevAnvil)
-                        if ((blockState.block == Blocks.ANVIL || !CrystalUtils.isResistant(blockState))
-                            || maxDamage - calcDamage(context, prevAnvilUp, prevCrystal, mutableBlockPos) < 2.0f
-                        ) {
-                            result = prevAnvilUp to prevCrystal
-                        }
-                    }
+        if (prev == null && !HoleManager.getHoleInfo(target).isHole) return null
 
 
-                    result
+        val mutableBlockPos = BlockPos.MutableBlockPos()
+
+        val contextSelf = CombatManager.contextSelf ?: return null
+        val contextTarget = CombatManager.contextTarget ?: return null
+
+        if (prev != null) {
+            val prevDamage = prev.calcDamage(contextSelf, mutableBlockPos)
+            if (prevDamage > minUpdateDamage || !updateTimer.tick(updateDelay)) return prev
+        }
+
+        var maxDamage = 0.0f
+        var maxDamageDiff = minEffectiveDamage
+        var resultPair: Pair<BlockPos, BlockPos>? = null
+
+        fun checkDamages(sequence: Sequence<Pair<BlockPos, BlockPos>>) {
+            for (pair in sequence) {
+                val damage = calcDamage(contextTarget, pair.first, pair.second, mutableBlockPos)
+                if (damage < minInitDamage) continue
+
+                val selfDamage = calcDamage(contextSelf, pair.first, pair.second, mutableBlockPos)
+                val damageDiff = damage - selfDamage
+
+                if (damageDiff > maxDamageDiff) {
+                    maxDamageDiff = damageDiff
+                    maxDamage = damage
+                    resultPair = pair
                 }
-            } else {
-                null
-            }
-
-            if (result != null) {
-                anvilPos = result.first.down()
-                crystalPos = result.second
-                holePos = target.betterPosition
-                return
             }
         }
 
-        anvilPos = null
-        crystalPos = null
-        holePos = null
+        checkDamages(calcSequence(targetPos))
+
+        if (resultPair == null) {
+            checkDamages(calcSequence(targetPos.down()))
+        }
+
+        if (resultPair == null) return null
+
+        val surrroundPos = resultPair!!.first
+        val crystalPos = resultPair!!.second
+
+        if (prev != null && (surrroundPos != prev.surroundPos || crystalPos != prev.crystalPos)) {
+            val surroundBlockState = world.getBlockState(prev.surroundPos)
+            if ((surroundBlockState.block == Blocks.ANVIL || !CrystalUtils.isResistant(surroundBlockState))
+                || maxDamage - prev.calcDamage(contextTarget, mutableBlockPos) < minDamageIncrease
+            ) {
+                return prev
+            }
+        }
+
+        return TargetInfo(
+            targetPos,
+            surrroundPos,
+            crystalPos,
+        )
     }
 
     private fun SafeClientEvent.calcSequence(
@@ -416,6 +392,7 @@ internal object AutoCity : Module(
 
     private fun SafeClientEvent.placeAnvil(targetPos: BlockPos) {
         if (!placeAnvil) return
+
         player.hotbarSlots.firstBlock(Blocks.ANVIL)?.let {
             player.spoofSneak {
                 ghostSwitch(it) {
@@ -447,5 +424,15 @@ internal object AutoCity : Module(
         )
         connection.sendPacket(CPacketAnimation(EnumHand.MAIN_HAND))
         breakTimer.reset()
+    }
+
+    private class TargetInfo(val holePos: BlockPos, val surroundPos: BlockPos, val crystalPos: BlockPos) {
+        val surroundDown: BlockPos = surroundPos.down()
+        var crystalID = -1
+        var anvilPlaced = false
+
+        fun calcDamage(context: CalcContext, mutableBlockPos: BlockPos.MutableBlockPos): Float {
+            return calcDamage(context, holePos, crystalPos, mutableBlockPos)
+        }
     }
 }
