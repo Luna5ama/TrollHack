@@ -1,11 +1,23 @@
+import com.google.gson.JsonParser
 import dev.fastmc.loader.ModPackagingTask
 import dev.fastmc.loader.ModPlatform
 import dev.fastmc.remapper.mapping.MappingName
 import net.minecraftforge.gradle.userdev.UserDevExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.math.max
 
-group = "dev.luna5ama"
-version = "1.2.0"
+val modGroup: String by project
+val modID: String by project
+val modName: String by project
+var modVersion = project.property("modVersion") as String
+System.getenv("OVERRIDE_VERSION")?.let {
+    modVersion = it
+}
+
+allprojects {
+    group = modGroup
+    version = modVersion
+}
 
 buildscript {
     repositories {
@@ -25,16 +37,29 @@ plugins {
     id("dev.fastmc.fast-remapper").version("1.1-SNAPSHOT")
     id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
     id("dev.fastmc.mod-loader-plugin").version("1.1-SNAPSHOT")
+    id("com.google.devtools.ksp")
+
+    id("dev.luna5ama.kmogus-struct-plugin") apply false
 }
 
 apply {
     plugin("net.minecraftforge.gradle")
 }
 
+allprojects {
+    apply {
+        plugin("kotlin")
+    }
+
+    repositories {
+        mavenCentral()
+        maven("https://maven.luna5ama.dev/")
+        maven("https://maven.fastmc.dev/")
+    }
+}
+
 repositories {
     mavenCentral()
-    maven("https://maven.luna5ama.dev/")
-    maven("https://maven.fastmc.dev/")
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://jitpack.io/")
     maven("https://impactdevelopment.github.io/maven/")
@@ -76,10 +101,19 @@ dependencies {
 
     jarLibImplementation("dev.luna5ama:kmogus-core:1.0.0-SNAPSHOT")
     jarLibImplementation("dev.luna5ama:kmogus-struct-api:1.0.0-SNAPSHOT")
-    jarLibImplementation("dev.luna5ama:structs")
+    jarLibImplementation(project(":structs"))
+
+    ksp(project(":codegen"))
 
     implementation("com.github.cabaletta:baritone:1.2.14")
     jarLib("cabaletta:baritone-api:1.2")
+}
+
+ksp {
+    arg("GROUP", modGroup)
+    arg("ID", modID)
+    arg("NAME", modName)
+    arg("VERSION", modVersion)
 }
 
 idea {
@@ -99,20 +133,41 @@ configure<UserDevExtension> {
     }
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+allprojects {
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
     }
-}
 
-kotlin {
-    val jvmArgs = mutableSetOf<String>()
-    (rootProject.findProperty("kotlin.daemon.jvm.options") as? String)
-        ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
-    System.getProperty("gradle.kotlin.daemon.jvm.options")
-        ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+    kotlin {
+        val jvmArgs = mutableSetOf<String>()
+        (rootProject.findProperty("kotlin.daemon.jvm.options") as? String)
+            ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+        System.getProperty("gradle.kotlin.daemon.jvm.options")
+            ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
 
-    kotlinDaemonJvmArgs = jvmArgs.toList()
+        kotlinDaemonJvmArgs = jvmArgs.toList()
+    }
+
+    tasks {
+        withType<JavaCompile> {
+            options.encoding = "UTF-8"
+        }
+
+        withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "1.8"
+                freeCompilerArgs = listOf(
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-opt-in=kotlin.contracts.ExperimentalContracts",
+                    "-Xlambdas=indy",
+                    "-Xjvm-default=all",
+                    "-Xbackend-threads=0"
+                )
+            }
+        }
+    }
 }
 
 fastRemapper {
@@ -137,6 +192,25 @@ modLoader {
 }
 
 tasks {
+    processResources {
+        outputs.upToDateWhen {
+            runCatching {
+                val mcmodInfo = outputs.previousOutputFiles.find { it.name == "mcmod.info" }!!
+                val obj = JsonParser.parseString(mcmodInfo.readText()).asJsonArray[0].asJsonObject
+                obj["modid"].asString == modID
+                    && obj["name"].asString == modName
+                    && obj["version"].asString == modVersion
+            }.getOrDefault(false)
+        }
+        filesMatching("mcmod.info") {
+            expand(
+                "MOD_ID" to modID,
+                "MOD_NAME" to modName,
+                "MOD_VERSION" to modVersion
+            )
+        }
+    }
+
     register<Task>("releaseBuild") {
         group = "build"
         dependsOn("clean")
@@ -161,29 +235,12 @@ tasks {
         delete = set
     }
 
-    compileJava {
-        options.encoding = "UTF-8"
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-opt-in=kotlin.contracts.ExperimentalContracts",
-                "-Xlambdas=indy",
-                "-Xjvm-default=all",
-                "-Xbackend-threads=0"
-            )
-        }
-    }
-
     jar {
         exclude {
             it.name.contains("devfix", true)
         }
+
+        archiveClassifier.set("devmod")
     }
 
     register<Task>("genRuns") {
@@ -259,7 +316,7 @@ tasks {
     }
 
     modLoaderJar {
-        archiveClassifier.set("release")
+        archiveClassifier.set("")
     }
 }
 
