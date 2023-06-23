@@ -35,6 +35,11 @@ class DockingOverlay(screen: IGuiScreen, private val parent: WindowComponent) : 
     private val renderAlphaMul by FrameFloat(alphaMul::get)
     private var closing = false
 
+    override fun onGuiClosed() {
+        super.onGuiClosed()
+        screen.closeWindow(this)
+    }
+
     override fun onDisplayed() {
         super.onDisplayed()
         closing = false

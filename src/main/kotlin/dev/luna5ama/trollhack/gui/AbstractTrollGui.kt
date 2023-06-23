@@ -110,13 +110,11 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
             if (displayed.value || alwaysTicking) {
                 coroutineScope {
-                    windowsCachedList.addAll(windows)
-                    for (window in windowsCachedList) {
+                    forEachWindow {
                         launch {
-                            window.onTick()
+                            it.onTick()
                         }
                     }
-                    windowsCachedList.clear()
                 }
             }
         }
@@ -133,8 +131,8 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         searchString = ""
         displayed.value = true
 
-        for (window in windows) {
-            window.onGuiDisplayed()
+        forEachWindow {
+            it.onGuiDisplayed()
         }
     }
 
@@ -155,8 +153,8 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
         displayed.value = false
 
-        for (window in windows) {
-            window.onGuiClosed()
+        forEachWindow {
+            it.onGuiClosed()
         }
     }
     // End of gui init
@@ -326,14 +324,22 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         mc.profiler.endSection()
     }
 
-    private inline fun drawEachWindow(renderBlock: (WindowComponent) -> Unit) {
-        for (window in windows) {
-            if (!window.visible) continue
+    private inline fun drawEachWindow(crossinline renderBlock: (WindowComponent) -> Unit) {
+        forEachWindow {
+            if (!it.visible) return@forEachWindow
             glPushMatrix()
-            glTranslatef(window.renderPosX, window.renderPosY, 0.0f)
-            renderBlock(window)
+            glTranslatef(it.renderPosX, it.renderPosY, 0.0f)
+            renderBlock(it)
             glPopMatrix()
         }
+    }
+
+    private inline fun forEachWindow(crossinline block: (WindowComponent) -> Unit) {
+        windowsCachedList.addAll(windows)
+        for (i in windowsCachedList.indices) {
+            block(windowsCachedList[i])
+        }
+        windowsCachedList.clear()
     }
 
     private fun drawTypedString() {
