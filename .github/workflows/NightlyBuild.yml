@@ -31,7 +31,7 @@ jobs:
 
             -   name: Get version
                 run: |
-                    devVer=$(grep modVersion gradle.properties | grep '.\..\..')
+                    devVer=$(grep modVersion gradle.properties | grep -o '.\..\..')
                     commitHash=$(git rev-parse --short HEAD)
                     modVer=$devVer-nightly-$commitHash
                     echo modVer=$modVer >> $GITHUB_ENV
