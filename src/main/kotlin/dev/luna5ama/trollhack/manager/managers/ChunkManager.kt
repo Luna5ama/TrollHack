@@ -27,8 +27,9 @@ object ChunkManager : Manager() {
         }
 
         safeListener<PacketEvent.PostReceive> { event ->
+            if (event.packet !is SPacketChunkData || event.packet.isFullChunk) return@safeListener
+
             BackgroundScope.launch {
-                if (event.packet !is SPacketChunkData || event.packet.isFullChunk) return@launch
                 val chunk = world.getChunk(event.packet.chunkX, event.packet.chunkZ)
                 if (chunk.isEmpty) return@launch
 

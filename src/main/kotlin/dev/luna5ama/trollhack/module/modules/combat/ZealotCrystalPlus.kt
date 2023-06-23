@@ -1075,7 +1075,10 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun SafeClientEvent.breakDirect(x: Double, y: Double, z: Double, entityID: Int) {
-        if (placeSwitchMode != SwitchMode.GHOST && antiWeakness != SwitchMode.GHOST && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
+        if (placeSwitchMode != SwitchMode.GHOST
+            && antiWeakness != SwitchMode.GHOST
+            && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L
+        ) return
 
         if (player.isWeaknessActive() && !isHoldingTool()) {
             when (antiWeakness) {
@@ -1105,17 +1108,18 @@ internal object ZealotCrystalPlus : Module(
             swingHand()
         }
 
-        placeInfo.get(500L)?.let {
-            if (packetPlace.onBreak && CrystalUtils.crystalPlaceBoxIntersectsCrystalBox(it.blockPos, x, y, z)) {
-                placeDirect(it)
-            }
-            player.setLastAttackedEntity(it.target)
-        }
         attackedCrystalMap[entityID] = System.currentTimeMillis() + 1000L
         attackedPosMap[toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())] = System.currentTimeMillis() + 1000L
         breakTimer.reset()
 
         lastActiveTime = System.currentTimeMillis()
+
+        placeInfo.get(500L)?.let {
+            player.setLastAttackedEntity(it.target)
+            if (packetPlace.onBreak && CrystalUtils.crystalPlaceBoxIntersectsCrystalBox(it.blockPos, x, y, z)) {
+                placeDirect(it)
+            }
+        }
     }
 
     private fun attackPacket(entityID: Int): CPacketUseEntity {
