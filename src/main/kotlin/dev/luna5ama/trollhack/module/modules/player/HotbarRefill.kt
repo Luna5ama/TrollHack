@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.confirmedOrTrue
+import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.moveTo
 import dev.luna5ama.trollhack.util.inventory.operation.quickMove
@@ -26,7 +27,7 @@ internal object HotbarRefill : Module(
 
     init {
         safeParallelListener<TickEvent.Post> {
-            if (!lastTask.confirmedOrTrue) return@safeParallelListener
+            if (!lastTask.executedOrTrue) return@safeParallelListener
 
             val sourceSlots = if (prioritizeCraftingSlot) {
                 player.craftingSlots + player.storageSlots
