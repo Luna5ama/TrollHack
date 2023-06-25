@@ -16,7 +16,8 @@ internal object Timer : Module(
     description = "Changes your client tick speed",
     modulePriority = 500
 ) {
-    private val pauseOnMove by setting("Pause On Move", true)
+    private val pauseOnMove by setting("Pause On Move", false)
+    private val pauseOnSteady by setting("Pause On Steady", false)
     private val slow0 = setting("Slow Mode", false)
     private val slow by slow0
     private val tickNormal by setting("Tick N", 2.0f, 1f..10f, 0.1f, slow0.atFalse())
@@ -28,7 +29,8 @@ internal object Timer : Module(
         }
 
         listener<RunGameLoopEvent.Start> {
-            if (pauseOnMove && MovementUtils.isInputting(jump=true)) {
+            val inputting = MovementUtils.isInputting(jump = true)
+            if (pauseOnMove && inputting || pauseOnSteady && !inputting) {
                 resetTimer()
                 return@listener
             }
