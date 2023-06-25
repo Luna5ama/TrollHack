@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.mixins.core.world;
 
 import dev.luna5ama.trollhack.module.modules.movement.Velocity;
 import dev.luna5ama.trollhack.module.modules.player.BlockInteraction;
+import dev.luna5ama.trollhack.util.Wrapper;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -23,6 +24,9 @@ public class MixinBlockLiquid {
         Vec3d motion,
         CallbackInfoReturnable<Vec3d> cir
     ) {
+        if (worldIn != Wrapper.getWorld()
+        || entityIn != Wrapper.getPlayer()) return;
+
         if (Velocity.shouldCancelLiquidVelocity()) {
             cir.setReturnValue(motion);
         }
