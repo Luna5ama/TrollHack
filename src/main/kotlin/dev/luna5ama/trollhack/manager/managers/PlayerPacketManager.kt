@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.manager.managers
 
+import com.google.common.collect.MapMaker
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.player.OnUpdateWalkingPlayerEvent
@@ -15,9 +16,11 @@ import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.Vec3d
+import java.util.Collections
 import java.util.concurrent.atomic.AtomicReference
 
 object PlayerPacketManager : Manager() {
+    private val ignoreUpdateSet = Collections.newSetFromMap<CPacketPlayer>(MapMaker().weakKeys().makeMap())
     private val pendingPacket = AtomicReference<Packet?>()
 
     var position: Vec3d = Vec3d.ZERO; private set
@@ -40,6 +43,7 @@ object PlayerPacketManager : Manager() {
     init {
         listener<PacketEvent.PostSend>(-6969) {
             if (it.packet !is CPacketPlayer) return@listener
+            if (ignoreUpdateSet.remove(it.packet)) return@listener
 
             runSafe {
                 if (it.packet.moving) {
@@ -78,6 +82,10 @@ object PlayerPacketManager : Manager() {
             it.entity.prevRotationPitch = clientSidePitch.x
             it.entity.rotationPitch = clientSidePitch.y
         }
+    }
+
+    fun ignoreUpdate(packet: CPacketPlayer) {
+        ignoreUpdateSet.add(packet)
     }
 
     fun applyPacket(event: OnUpdateWalkingPlayerEvent.Pre) {

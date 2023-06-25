@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
@@ -304,14 +305,15 @@ internal object PacketFly : Module(
                 GroundMode.OFF_GROUND -> false
             }
 
-            sendPlayerPacket(
-                CPacketPlayer.Position(
-                    player.posX + spoofX.offset(this),
-                    player.posY + spoofY.offset(this),
-                    player.posZ + spoofZ.offset(this),
-                    spoofOnGround
-                )
+            val spoofPacket = CPacketPlayer.Position(
+                player.posX + spoofX.offset(this),
+                player.posY + spoofY.offset(this),
+                player.posZ + spoofZ.offset(this),
+                spoofOnGround
             )
+
+            PlayerPacketManager.ignoreUpdate(spoofPacket)
+            sendPlayerPacket(spoofPacket)
 
             if (confirmTeleportMove) {
                 connection.sendPacket(CPacketConfirmTeleport(++teleportID))
