@@ -88,12 +88,12 @@ object MathUtils {
     }
 
     @JvmStatic
-    fun equals(a: Double, b: Double, epsilon: Double = 0.0001): Boolean {
+    fun approxEq(a: Double, b: Double, epsilon: Double = 0.0001): Boolean {
         return abs(a - b) < epsilon
     }
 
     @JvmStatic
-    fun equals(a: Float, b: Float, epsilon: Float = 0.0001f): Boolean {
+    fun approxEq(a: Float, b: Float, epsilon: Float = 0.0001f): Boolean {
         return abs(a - b) < epsilon
     }
 
