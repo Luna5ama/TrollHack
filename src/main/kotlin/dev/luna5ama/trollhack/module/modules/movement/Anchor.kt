@@ -3,6 +3,8 @@ package dev.luna5ama.trollhack.module.modules.movement
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.HoleManager
+import dev.luna5ama.trollhack.manager.managers.TimerManager
+import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.combat.HolePathFinder
@@ -18,7 +20,8 @@ import dev.luna5ama.trollhack.util.math.vector.toVec3d
 internal object Anchor : Module(
     name = "Anchor",
     description = "Stops your motion when you are above hole",
-    category = Category.MOVEMENT
+    category = Category.MOVEMENT,
+    modulePriority = 99999
 ) {
     private val autoCenter by setting("Auto Center", true)
     private val stopYMotion by setting("Stop Y Motion", true)
@@ -26,9 +29,18 @@ internal object Anchor : Module(
     private val pitchTrigger by pitchTrigger0
     private val pitch by setting("Pitch", 75, 0..90, 1, pitchTrigger0.atTrue())
     private val yRange by setting("Y Range", 3, 1..5, 1)
+    private val fallTimer by setting("Fall Timer", 0.0f, 0.0f..2.0f, 0.01f)
+
+    private var inactiveTicks = 0
+
+    override fun isActive(): Boolean {
+        return isEnabled && inactiveTicks < 2
+    }
 
     init {
         safeListener<PlayerMoveEvent.Pre>(-1000) { event ->
+            inactiveTicks++
+
             if (Burrow.isEnabled
                 || WallClip.run { isEnabled || isClipped() }
                 || Surround.isEnabled
@@ -43,6 +55,10 @@ internal object Anchor : Module(
                 // Stops XZ motion
                 val hole = HoleManager.getHoleBelow(playerPos, yRange) {
                     it.canEnter(world, playerPos)
+                }
+
+                if (fallTimer != 0.0f && hole != null && !player.onGround) {
+                    modifyTimer(50.0f / fallTimer)
                 }
 
                 if (isInHole || hole != null) {
