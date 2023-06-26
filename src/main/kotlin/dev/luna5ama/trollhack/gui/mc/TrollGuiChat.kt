@@ -181,9 +181,7 @@ class TrollGuiChat(
         glEnable(GL_DEPTH_CLAMP)
 
         // Draw rect background
-        if (GuiSetting.windowBlur) {
-            WindowBlurShader.render(2.0f, height - 14.0f, width - 2.0f, height - 2.0f)
-        }
+        WindowBlurShader.render(2.0f, height - 14.0f, width - 2.0f, height - 2.0f)
         RenderUtils2D.drawRectFilled(2.0f, height - 14.0f, width - 2.0f, height - 2.0f, ColorRGB(0, 0, 0, 128))
 
         GlStateUtils.useProgramForce(0)

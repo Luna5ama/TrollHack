@@ -28,3 +28,11 @@ interface Vec3f32 {
     val y: Float
     val z: Float
 }
+
+@Struct
+interface Vec4f32 {
+    val x: Float
+    val y: Float
+    val z: Float
+    val w: Float
+}

@@ -20,9 +20,7 @@ open class BasicWindow(
 ) : CleanWindow(name, screen, settingGroup, config) {
     override fun onRender(absolutePos: Vec2f) {
         super.onRender(absolutePos)
-        if (GuiSetting.windowBlur) {
-            WindowBlurShader.render(renderWidth, renderHeight)
-        }
+        WindowBlurShader.render(renderWidth, renderHeight)
         if (GuiSetting.titleBar) {
             RenderUtils2D.drawRectFilled(0.0f, draggableHeight, renderWidth, renderHeight, GuiSetting.backGround)
         } else {

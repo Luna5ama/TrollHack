@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.GLAllocation
 import net.minecraft.client.renderer.OpenGlHelper.glUniformMatrix4
 import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL41.glProgramUniformMatrix4
 import java.nio.FloatBuffer
 
 object MatrixUtils {
@@ -37,5 +38,9 @@ object MatrixUtils {
 
     fun uploadMatrix(location: Int) {
         glUniformMatrix4(location, false, matrixBuffer)
+    }
+
+    fun uploadMatrix(id: Int, location: Int) {
+        glProgramUniformMatrix4(id, location, false, matrixBuffer)
     }
 }

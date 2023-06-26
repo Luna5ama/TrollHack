@@ -3,23 +3,36 @@ package dev.luna5ama.trollhack.graphics.shaders
 import dev.luna5ama.trollhack.event.AlwaysListening
 import dev.luna5ama.trollhack.event.events.render.ResolutionUpdateEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.GLDataType
 import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.graphics.MatrixUtils
+import dev.luna5ama.trollhack.graphics.buffer.PersistentMappedVBO
+import dev.luna5ama.trollhack.graphics.buildAttribute
 import dev.luna5ama.trollhack.graphics.use
+import dev.luna5ama.trollhack.module.modules.client.GuiSetting
+import dev.luna5ama.trollhack.structs.Vec4f32
 import dev.luna5ama.trollhack.util.interfaces.Helper
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.client.shader.Framebuffer
 import org.joml.Matrix4f
-import org.lwjgl.opengl.GL11.GL_QUADS
-import org.lwjgl.opengl.GL20.*
+import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE
+import org.lwjgl.opengl.GL20.glGetUniformLocation
+import org.lwjgl.opengl.GL20.glUniform1i
+import org.lwjgl.opengl.GL30.glBindVertexArray
+import org.lwjgl.opengl.GL41.glProgramUniform2f
+import org.lwjgl.opengl.GL45.glTextureParameteri
 
 object WindowBlurShader : AlwaysListening, Helper {
-    val framebuffer = Framebuffer(mc.displayWidth, mc.displayHeight, false)
-    private val pass1 = Pass("/assets/trollhack/shaders/gui/WindowBlurH.vsh")
-    private val pass2 = Pass("/assets/trollhack/shaders/gui/WindowBlurV.vsh")
+    private val vao = PersistentMappedVBO.createVao(buildAttribute(16) {
+        float(0, 4, GLDataType.GL_FLOAT, false)
+    })
+
+    private val fbo1 = Framebuffer(mc.displayWidth, mc.displayHeight, false)
+    private val fbo2 = Framebuffer(mc.displayWidth, mc.displayHeight, false)
+    private val passH = Pass("/assets/trollhack/shaders/gui/WindowBlurH.vsh")
+    private val passV = Pass("/assets/trollhack/shaders/gui/WindowBlurV.vsh")
 
     init {
         updateResolution(mc.displayWidth, mc.displayHeight)
@@ -30,11 +43,12 @@ object WindowBlurShader : AlwaysListening, Helper {
     }
 
     private fun updateResolution(width: Int, height: Int) {
-        pass1.bind()
-        pass1.updateResolution(width.toFloat(), height.toFloat())
-        pass2.bind()
-        pass2.updateResolution(width.toFloat(), height.toFloat())
-        framebuffer.createBindFramebuffer(width, height)
+        passH.updateResolution(width.toFloat(), height.toFloat())
+        passV.updateResolution(width.toFloat(), height.toFloat())
+        fbo1.createBindFramebuffer(width, height)
+        setTextureParam(fbo1.framebufferTexture)
+        fbo2.createBindFramebuffer(width, height)
+        setTextureParam(fbo2.framebufferTexture)
     }
 
     fun render(x: Float, y: Float) {
@@ -42,55 +56,117 @@ object WindowBlurShader : AlwaysListening, Helper {
     }
 
     fun render(x1: Float, y1: Float, x2: Float, y2: Float) {
-        val tessellator = Tessellator.getInstance()
-        val buffer = tessellator.buffer
+        val pass = GuiSetting.windowBlurPass
+        if (pass == 0) return
 
-        val x1D = x1.toDouble()
-        val y1D = y1.toDouble()
-        val x2D = x2.toDouble()
-        val y2D = y2.toDouble()
+        setTextureParam(mc.framebuffer.framebufferTexture)
+        putVertices(x1, y1, x2, y2)
 
         GlStateManager.enableTexture2D()
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)
         GlStateManager.disableDepth()
         GlStateManager.depthMask(false)
-
-        mc.framebuffer.bindFramebufferTexture()
-        framebuffer.bindFramebuffer(false)
         GlStateUtils.blend(false)
 
-        pass1.bind()
-        pass1.updateMatrix()
+        passH.updateMatrix()
+        passV.updateMatrix()
+        glBindVertexArray(vao)
 
-        buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
-        buffer.pos(x1D, x1D, 1.0).endVertex()
-        buffer.pos(x1D, y2D, -1.0).endVertex()
-        buffer.pos(x2D, y2D, -1.0).endVertex()
-        buffer.pos(x2D, y1D, 1.0).endVertex()
-        tessellator.draw()
+        var extend = pass - 1.0f
 
-        framebuffer.bindFramebufferTexture()
-        mc.framebuffer.bindFramebuffer(false)
+        bindFbo(mc.framebuffer, fbo1)
+        drawPass(passH, extend, extend + 1.0f)
 
-        pass2.bind()
-        pass2.updateMatrix()
+        while (extend > 0) {
+            bindFbo(fbo1, fbo2)
+            drawPass(passV, extend, extend)
 
-        buffer.begin(GL_QUADS, DefaultVertexFormats.POSITION)
-        buffer.pos(x1D, y1D, -1.0).endVertex()
-        buffer.pos(x1D, y2D, -1.0).endVertex()
-        buffer.pos(x2D, y2D, 1.0).endVertex()
-        buffer.pos(x2D, y1D, 1.0).endVertex()
-        tessellator.draw()
+            bindFbo(fbo2, fbo1)
+            drawPass(passH, extend - 1.0f, extend)
 
-        framebuffer.unbindFramebufferTexture()
-        mc.framebuffer.bindFramebuffer(false)
+            extend--
+        }
+
+        bindFbo(fbo1, mc.framebuffer)
+        drawPass(passV, 0.0f, 0.0f)
+
+        fbo1.unbindFramebufferTexture()
         GlStateUtils.blend(true)
+        PersistentMappedVBO.end()
+        glBindVertexArray(0)
+    }
+
+    private fun drawPass(shader: Pass, x: Float, y: Float) {
+        shader.bind()
+        shader.updateExtend(x, y)
+        glDrawArrays(GL_TRIANGLES, PersistentMappedVBO.drawOffset, 6)
+    }
+
+    private fun bindFbo(from: Framebuffer, to: Framebuffer) {
+        from.bindFramebufferTexture()
+        to.bindFramebuffer(false)
+    }
+
+    private fun putVertices(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+    ) {
+        val array = PersistentMappedVBO.array
+        var struct = Vec4f32(array)
+
+        struct.x = x1
+        struct.y = y1
+        struct.z = -1.0f
+        struct.w = 1.0f
+        struct++
+
+        struct.x = x1
+        struct.y = y2
+        struct.z = -1.0f
+        struct.w = -1.0f
+        struct++
+
+        struct.x = x2
+        struct.y = y2
+        struct.z = 1.0f
+        struct.w = -1.0f
+        struct++
+
+        struct.x = x2
+        struct.y = y1
+        struct.z = 1.0f
+        struct.w = 1.0f
+        struct++
+
+        struct.x = x1
+        struct.y = y1
+        struct.z = -1.0f
+        struct.w = 1.0f
+        struct++
+
+        struct.x = x2
+        struct.y = y2
+        struct.z = 1.0f
+        struct.w = -1.0f
+        struct++
+
+        array.offset(struct.asPointer())
+    }
+
+    private fun setTextureParam(textureID: Int) {
+        glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTextureParameteri(textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
     }
 
     private open class Pass(vertShaderPath: String) :
         DrawShader(vertShaderPath, "/assets/trollhack/shaders/gui/WindowBlur.fsh") {
         val reverseProjectionUniform = glGetUniformLocation(id, "reverseProjection")
         val resolutionUniform = glGetUniformLocation(id, "resolution")
+        val extendUniform = glGetUniformLocation(id, "extend")
 
         init {
             use {
@@ -99,14 +175,18 @@ object WindowBlurShader : AlwaysListening, Helper {
             }
         }
 
+        fun updateExtend(x: Float, y: Float) {
+            glProgramUniform2f(id, extendUniform, x, y)
+        }
+
         fun updateResolution(width: Float, height: Float) {
-            glUniform2f(resolutionUniform, width, height)
+            glProgramUniform2f(id, resolutionUniform, width, height)
 
             val matrix = Matrix4f()
                 .ortho(0.0f, width, 0.0f, height, 1000.0f, 3000.0f)
                 .invert()
 
-            MatrixUtils.loadMatrix(matrix).uploadMatrix(reverseProjectionUniform)
+            MatrixUtils.loadMatrix(matrix).uploadMatrix(id, reverseProjectionUniform)
         }
     }
 }
