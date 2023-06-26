@@ -22,6 +22,7 @@ import dev.luna5ama.trollhack.util.inventory.slot.firstItem
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.pause.MainHandPause
+import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
@@ -61,46 +62,50 @@ internal object SelfCrystal : Module(
         }
 
         safeParallelListener<TickEvent.Post> {
-            val crystalSlot = player.allSlots.firstItem(Items.END_CRYSTAL)
-            if (crystalSlot == null) {
-                Notification.send(this@SelfCrystal, "$chatName No crystal found in inventory, disabling.")
-                disable()
-                return@safeParallelListener
-            }
-
-            if (breakTimer.tick(500L)) {
-                CombatManager.crystalList
-                    .maxByOrNull { it.second.selfDamage }
-                    ?.let {
-                        breakCrystal(it.first.entityId)
-                        breakTimer.reset()
+            OffhandPause.withPause(this@SelfCrystal, 1000) {
+                MainHandPause.withPause(this@SelfCrystal, 1000) {
+                    val crystalSlot = player.allSlots.firstItem(Items.END_CRYSTAL)
+                    if (crystalSlot == null) {
+                        Notification.send(this@SelfCrystal, "$chatName No crystal found in inventory, disabling.")
+                        disable()
+                        return@safeParallelListener
                     }
-            }
 
-            val mutableBlockPos = BlockPos.MutableBlockPos()
+                    if (breakTimer.tick(500L)) {
+                        CombatManager.crystalList
+                            .maxByOrNull { it.second.selfDamage }
+                            ?.let {
+                                breakCrystal(it.first.entityId)
+                                breakTimer.reset()
+                            }
+                    }
 
-            CombatManager.placeList.asSequence()
-                .filter { player.distanceSqTo(it.crystalPos) < 9.0 }
-                .filter { canPlaceCrystal(it.blockPos, player, mutableBlockPos) }
-                .maxByOrNull { it.selfDamage }
-                ?.let {
-                    crystalPos = it.crystalPos
+                    val mutableBlockPos = BlockPos.MutableBlockPos()
 
-                   MainHandPause.withPause(this@SelfCrystal) {
-                        ghostSwitch(crystalSlot) {
-                            connection.sendPacket(
-                                CPacketPlayerTryUseItemOnBlock(
-                                    it.blockPos,
-                                    EnumFacing.UP,
-                                    EnumHand.MAIN_HAND,
-                                    0.5f,
-                                    1.0f,
-                                    0.5f
-                                )
-                            )
+                    CombatManager.placeList.asSequence()
+                        .filter { player.distanceSqTo(it.crystalPos) < 9.0 }
+                        .filter { canPlaceCrystal(it.blockPos, player, mutableBlockPos) }
+                        .maxByOrNull { it.selfDamage }
+                        ?.let {
+                            crystalPos = it.crystalPos
+
+                            MainHandPause.withPause(this@SelfCrystal) {
+                                ghostSwitch(crystalSlot) {
+                                    connection.sendPacket(
+                                        CPacketPlayerTryUseItemOnBlock(
+                                            it.blockPos,
+                                            EnumFacing.UP,
+                                            EnumHand.MAIN_HAND,
+                                            0.5f,
+                                            1.0f,
+                                            0.5f
+                                        )
+                                    )
+                                }
+                            }
                         }
-                    }
                 }
+            }
         }
     }
 

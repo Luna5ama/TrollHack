@@ -6,10 +6,10 @@ import dev.luna5ama.trollhack.util.extension.synchronized
 import java.util.*
 
 abstract class PriorityTimeoutPause : ITimeoutPause {
-    private val pauseMap = TreeMap<AbstractModule, Long>(Comparator.reverseOrder()).synchronized()
+    private val pauseMap = TreeMap<AbstractModule, Long>(Comparator.reverseOrder())
 
     override fun requestPause(module: AbstractModule, timeout: Long): Boolean {
-        synchronized(pauseMap) {
+        synchronized(this) {
             val flag = isOnTopPriority(module)
 
             if (flag) {
@@ -21,7 +21,7 @@ abstract class PriorityTimeoutPause : ITimeoutPause {
     }
 
     fun isOnTopPriority(module: AbstractModule): Boolean {
-        synchronized(pauseMap) {
+        synchronized(this) {
             val currentTime = System.currentTimeMillis()
             var entry = pauseMap.firstEntryOrNull()
 
@@ -37,7 +37,7 @@ abstract class PriorityTimeoutPause : ITimeoutPause {
     }
 
     fun getTopPriority(): AbstractModule? {
-        synchronized(pauseMap) {
+        synchronized(this) {
             val currentTime = System.currentTimeMillis()
             var entry = pauseMap.firstEntryOrNull()
 

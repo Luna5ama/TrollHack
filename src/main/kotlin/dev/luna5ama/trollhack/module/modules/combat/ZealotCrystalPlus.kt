@@ -1060,8 +1060,8 @@ internal object ZealotCrystalPlus : Module(
                 }
                 SwitchMode.LEGIT -> {
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
-                    onMainThread {
-                        val slot = player.getCrystalSlot() ?: return@onMainThread
+                    synchronized(InventoryTaskManager) {
+                        val slot = player.getCrystalSlot() ?: return
                         MainHandPause.withPause(ZealotCrystalPlus, placeDelay * 2) {
                             swapToSlot(slot)
                             connection.sendPacket(packet)
@@ -1070,32 +1070,33 @@ internal object ZealotCrystalPlus : Module(
                 }
                 SwitchMode.GHOST -> {
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
-                    onMainThread {
-                        val slot = player.getMaxCrystalSlot() ?: return@onMainThread
+                    synchronized(InventoryTaskManager) {
+                        val slot = player.getMaxCrystalSlot() ?: return
                         ghostSwitch(placeSwitchBypass, slot) {
                             connection.sendPacket(packet)
                         }
                     }
+
                 }
             }
         } else {
-            onMainThread {
+            synchronized(InventoryTaskManager) {
                 HandPause[hand].withPause(ZealotCrystalPlus, placeDelay * 2) {
-                    mc.playerController.syncCurrentPlayItem()
+                    playerController.syncCurrentPlayItem()
                     connection.sendPacket(placePacket(placeInfo, hand))
                 }
             }
         }
 
         placedPosMap[placeInfo.blockPos.toLong()] = System.currentTimeMillis() + ownTimeout
+        placeTimer.reset()
+        lastActiveTime = System.currentTimeMillis()
+
         if (placeSwing) {
             onMainThread {
                 swingHand()
             }
         }
-        placeTimer.reset()
-
-        lastActiveTime = System.currentTimeMillis()
     }
 
     private fun placePacket(placeInfo: PlaceInfo, hand: EnumHand): CPacketPlayerTryUseItemOnBlock {

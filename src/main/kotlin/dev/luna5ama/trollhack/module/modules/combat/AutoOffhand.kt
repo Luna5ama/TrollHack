@@ -240,6 +240,8 @@ internal object AutoOffhand : Module(
         || checkWeaponS && player.heldItemMainhand.item.isWeapon)
 
     private fun SafeClientEvent.switchToType(typeOriginal: Type?, alternativeType: Boolean = false) {
+        if (SelfCrystal.isActive()) return
+
         // First check for whether player is holding the right item already or not
         if (typeOriginal == null) {
             lastType = null
