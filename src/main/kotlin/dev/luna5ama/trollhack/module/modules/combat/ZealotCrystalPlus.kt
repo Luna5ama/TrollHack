@@ -32,6 +32,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.accessor.*
+import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.collections.forEachFast
 import dev.luna5ama.trollhack.util.collections.none
@@ -165,6 +166,7 @@ internal object ZealotCrystalPlus : Module(
     private val wallRange by setting("Wall Range", 3.0f, 0.0f..8.0f, 0.1f, { page == Page.CALCULATION })
     private val motionPredict by setting("Motion Predict", true, { page == Page.CALCULATION })
     private val predictTicks by setting("Predict Ticks", 8, 0..20, 1, { page == Page.CALCULATION && motionPredict })
+    private val damagePriority by setting("Damage Priority", DamagePriority.EFFICIENT, ::page.atValue(Page.CALCULATION))
     private val lethalOverride by setting("Lethal Override", true, { page == Page.CALCULATION })
     private val lethalThresholdAddition by setting(
         "Lethal Threshole Addition",
@@ -265,6 +267,21 @@ internal object ZealotCrystalPlus : Module(
         PLACE("Place"),
         BREAK("Break"),
         RENDER("Render")
+    }
+
+    private enum class DamagePriority(override val displayName: String) : DisplayEnum {
+        EFFICIENT("Efficient") {
+            override operator fun invoke(selfDamage: Float, targetDamage: Float): Float {
+                return targetDamage - selfDamage
+            }
+        },
+        AGGRESSIVE("Aggressive") {
+            override operator fun invoke(selfDamage: Float, targetDamage: Float): Float {
+                return targetDamage
+            }
+        };
+
+        abstract operator fun invoke(selfDamage: Float, targetDamage: Float): Float
     }
 
     private enum class SwingHand(override val displayName: String) : DisplayEnum {
@@ -933,6 +950,7 @@ internal object ZealotCrystalPlus : Module(
         val noSuicide = noSuicide
         val mutableBlockPos = BlockPos.MutableBlockPos()
         val context = CombatManager.contextSelf ?: return null
+        val damagePriority = damagePriority
 
         if (targets.isNotEmpty()) {
             for (crystal in crystalList) {
@@ -973,14 +991,14 @@ internal object ZealotCrystalPlus : Module(
                         balance = breakBalance
                     }
 
-                    if (targetDamage >= minDamage && targetDamage - selfDamage >= balance) {
-                        if (targetDamage > max.targetDamage) {
-                            max.update(crystal, selfDamage, targetDamage)
-                        } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
-                            && max.selfDamage - selfDamage >= safeMinSelfDamageReduction
-                        ) {
-                            safe.update(crystal, selfDamage, targetDamage)
-                        }
+                    if (targetDamage < minDamage || targetDamage - selfDamage < balance) continue
+
+                    if (damagePriority(selfDamage, targetDamage) > damagePriority(max.selfDamage, max.targetDamage)) {
+                        max.update(crystal, selfDamage, targetDamage)
+                    } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
+                        && max.selfDamage - selfDamage >= safeMinSelfDamageReduction
+                    ) {
+                        safe.update(crystal, selfDamage, targetDamage)
                     }
                 }
             }
@@ -1200,6 +1218,8 @@ internal object ZealotCrystalPlus : Module(
             val noSuicide = noSuicide
             val crystals = CombatManager.crystalList
 
+            val damagePriority = damagePriority
+
             for (pos in targetBlocks) {
                 val placeBox = CrystalUtils.getCrystalPlacingBB(pos)
 
@@ -1241,14 +1261,14 @@ internal object ZealotCrystalPlus : Module(
                         balance = placeBalance
                     }
 
-                    if (targetDamage >= minDamage && targetDamage - adjustedDamage >= balance) {
-                        if (targetDamage > max.targetDamage) {
-                            max.update(entity, pos, adjustedDamage, targetDamage)
-                        } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
-                            && max.selfDamage - adjustedDamage >= safeMinSelfDamageReduction
-                        ) {
-                            safe.update(entity, pos, adjustedDamage, targetDamage)
-                        }
+                    if (targetDamage < minDamage || targetDamage - adjustedDamage < balance) continue
+
+                    if (damagePriority(selfDamage, targetDamage) > damagePriority(max.selfDamage, max.targetDamage)) {
+                        max.update(entity, pos, adjustedDamage, targetDamage)
+                    } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
+                        && max.selfDamage - adjustedDamage >= safeMinSelfDamageReduction
+                    ) {
+                        safe.update(entity, pos, adjustedDamage, targetDamage)
                     }
                 }
             }
