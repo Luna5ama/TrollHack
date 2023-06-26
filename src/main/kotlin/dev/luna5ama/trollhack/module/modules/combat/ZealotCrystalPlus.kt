@@ -157,7 +157,7 @@ internal object ZealotCrystalPlus : Module(
         -10.0f..10.0f,
         0.25f,
         { page == Page.FORCE_PLACE })
-    private val forcePlaceSword by setting("Force Place Sword", false, { page == Page.FORCE_PLACE })
+    private val forcePlaceWhileSwording by setting("Force Place While Swording", false, { page == Page.FORCE_PLACE })
 
     // Calculation
     private val assumeInstantMine by setting("Assume Instant Mine", true, { page == Page.CALCULATION })
@@ -166,21 +166,36 @@ internal object ZealotCrystalPlus : Module(
     private val motionPredict by setting("Motion Predict", true, { page == Page.CALCULATION })
     private val predictTicks by setting("Predict Ticks", 8, 0..20, 1, { page == Page.CALCULATION && motionPredict })
     private val lethalOverride by setting("Lethal Override", true, { page == Page.CALCULATION })
-    private val lethalBalance by setting(
-        "Lethal Balance",
+    private val lethalThresholdAddition by setting(
+        "Lethal Threshole Addition",
         0.5f,
         -5.0f..5.0f,
         0.1f,
         { page == Page.CALCULATION && lethalOverride })
-    private val lethalMaxDamage by setting(
-        "Lethal Max Damage",
+    private val lethalMaxSelfDamage by setting(
+        "Lethal Max Self Damage",
         16.0f,
         0.0f..20.0f,
         0.25f,
         { page == Page.CALCULATION && lethalOverride })
-    private val safeRange by setting("Safe Range", 1.0f, 0.0f..10.0f, 0.1f, { page == Page.CALCULATION })
-    private val safeThreshold by setting("Safe Threshold", 2.0f, 0.0f..10.0f, 0.1f, { page == Page.CALCULATION })
-    private val avoidThreshold by setting("Avoid Threshold", 4.0f, 0.0f..10.0f, 0.1f, { page == Page.CALCULATION })
+    private val safeMaxTargetDamageReduction by setting(
+        "Safe Max Target Damage Reduction",
+        1.0f,
+        0.0f..10.0f,
+        0.1f,
+        { page == Page.CALCULATION })
+    private val safeMinSelfDamageReduction by setting(
+        "Safe Min Self Damage Reduction",
+        2.0f,
+        0.0f..10.0f,
+        0.1f,
+        { page == Page.CALCULATION })
+    private val collidingCrystalExtraSelfDamageThreshold by setting(
+        "Colliiding Crystal Extra Self Damage Threshold",
+        4.0f,
+        0.0f..10.0f,
+        0.1f,
+        { page == Page.CALCULATION })
 
     // Place
     private val placeMode by setting("Place Mode", PlaceMode.SINGLE, { page == Page.PLACE })
@@ -192,7 +207,7 @@ internal object ZealotCrystalPlus : Module(
         HotbarSwitchManager.Override.PICK,
         { page == Page.PLACE && placeSwitchMode == SwitchMode.GHOST })
     private val placeSwing by setting("Place Swing", false, { page == Page.PLACE })
-    private val placeBypass by setting("Place Bypass", PlaceBypass.UP, { page == Page.PLACE })
+    private val placeSideBypass by setting("Place Side Bypass", PlaceBypass.UP, { page == Page.PLACE })
     private val placeMinDamage by setting("Place Min Damage", 5.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
     private val placeMaxSelfDamage by setting("Place Max Self Damage", 6.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
     private val placeBalance by setting("Place Balance", -3.0f, -10.0f..10.0f, 0.25f, { page == Page.PLACE })
@@ -715,7 +730,7 @@ internal object ZealotCrystalPlus : Module(
     ): Boolean {
         val targetDamage =
             calcDamage(targetInfo.entity, targetInfo.pos, targetInfo.box, crystalX, crystalY, crystalZ, mutableBlockPos)
-        if (lethalOverride && targetDamage - targetInfo.entity.totalHealth > lethalBalance && targetDamage <= lethalMaxDamage) {
+        if (lethalOverride && targetDamage - targetInfo.entity.totalHealth > lethalThresholdAddition && targetDamage <= lethalMaxSelfDamage) {
             return true
         }
 
@@ -939,8 +954,8 @@ internal object ZealotCrystalPlus : Module(
                         mutableBlockPos
                     )
                     if (lethalOverride && System.currentTimeMillis() - CombatManager.getHurtTime(entity) > 400L
-                        && targetDamage - entity.totalHealth > lethalBalance && selfDamage < lethal.selfDamage
-                        && selfDamage <= lethalMaxDamage
+                        && targetDamage - entity.totalHealth > lethalThresholdAddition && selfDamage < lethal.selfDamage
+                        && selfDamage <= lethalMaxSelfDamage
                     ) {
                         lethal.update(crystal, selfDamage, targetDamage)
                     }
@@ -961,8 +976,8 @@ internal object ZealotCrystalPlus : Module(
                     if (targetDamage >= minDamage && targetDamage - selfDamage >= balance) {
                         if (targetDamage > max.targetDamage) {
                             max.update(crystal, selfDamage, targetDamage)
-                        } else if (max.targetDamage - targetDamage <= safeRange
-                            && max.selfDamage - selfDamage >= safeThreshold
+                        } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
+                            && max.selfDamage - selfDamage >= safeMinSelfDamageReduction
                         ) {
                             safe.update(crystal, selfDamage, targetDamage)
                         }
@@ -971,8 +986,8 @@ internal object ZealotCrystalPlus : Module(
             }
         }
 
-        if (max.targetDamage - safe.targetDamage > safeRange
-            || max.selfDamage - safe.selfDamage <= safeThreshold
+        if (max.targetDamage - safe.targetDamage > safeMaxTargetDamageReduction
+            || max.selfDamage - safe.selfDamage <= safeMinSelfDamageReduction
         ) {
             safe.clear()
         }
@@ -1197,7 +1212,7 @@ internal object ZealotCrystalPlus : Module(
                     context.calcDamage(crystalX, crystalY, crystalZ, true, mutableBlockPos)
                 )
                 val collidingDamage = calcCollidingCrystalDamage(crystals, placeBox)
-                val adjustedDamage = max(selfDamage, collidingDamage - avoidThreshold)
+                val adjustedDamage = max(selfDamage, collidingDamage - collidingCrystalExtraSelfDamageThreshold)
 
                 if (player.scaledHealth - adjustedDamage <= noSuicide) continue
                 if (player.scaledHealth - collidingDamage <= noSuicide) continue
@@ -1209,7 +1224,7 @@ internal object ZealotCrystalPlus : Module(
 
                     val targetDamage =
                         calcDamage(entity, entityPos, entityBox, crystalX, crystalY, crystalZ, mutableBlockPos)
-                    if (lethalOverride && targetDamage - entity.totalHealth > lethalBalance && selfDamage < lethal.selfDamage && selfDamage <= lethalMaxDamage) {
+                    if (lethalOverride && targetDamage - entity.totalHealth > lethalThresholdAddition && selfDamage < lethal.selfDamage && selfDamage <= lethalMaxSelfDamage) {
                         lethal.update(entity, pos, selfDamage, targetDamage)
                     }
 
@@ -1229,8 +1244,8 @@ internal object ZealotCrystalPlus : Module(
                     if (targetDamage >= minDamage && targetDamage - adjustedDamage >= balance) {
                         if (targetDamage > max.targetDamage) {
                             max.update(entity, pos, adjustedDamage, targetDamage)
-                        } else if (max.targetDamage - targetDamage <= safeRange
-                            && max.selfDamage - adjustedDamage >= safeThreshold
+                        } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
+                            && max.selfDamage - adjustedDamage >= safeMinSelfDamageReduction
                         ) {
                             safe.update(entity, pos, adjustedDamage, targetDamage)
                         }
@@ -1238,8 +1253,8 @@ internal object ZealotCrystalPlus : Module(
                 }
             }
 
-            if (max.targetDamage - safe.targetDamage > safeRange
-                || max.selfDamage - safe.selfDamage <= safeThreshold
+            if (max.targetDamage - safe.targetDamage > safeMaxTargetDamageReduction
+                || max.selfDamage - safe.selfDamage <= safeMinSelfDamageReduction
             ) {
                 safe.clear(player)
             }
@@ -1360,7 +1375,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun SafeClientEvent.shouldForcePlace(entity: EntityLivingBase): Boolean {
-        return (!forcePlaceSword || player.heldItemMainhand.item !is ItemSword)
+        return (!forcePlaceWhileSwording || player.heldItemMainhand.item !is ItemSword)
             && (entity.totalHealth <= forcePlaceHealth
             || entity.realSpeed >= forcePlaceMotion
             || entity.getMinArmorRate() <= forcePlaceArmorRate)
@@ -1824,7 +1839,7 @@ internal object ZealotCrystalPlus : Module(
 
             fun calcPlacement(event: SafeClientEvent) {
                 event {
-                    when (placeBypass) {
+                    when (placeSideBypass) {
                         PlaceBypass.UP -> {
                             side = EnumFacing.UP
                             hitVecOffset = Vec3f(0.5f, 1.0f, 0.5f)
