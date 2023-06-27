@@ -20,7 +20,6 @@ import dev.luna5ama.trollhack.module.modules.combat.HoleSnap
 import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
-import dev.luna5ama.trollhack.util.EntityUtils.isInOrAboveLiquid
 import dev.luna5ama.trollhack.util.MovementUtils.applyJumpBoostPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.applySpeedPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
@@ -324,7 +323,7 @@ internal object Speed : Module(
         return !player.capabilities.isFlying
             && !player.isElytraFlying
             && !mc.gameSettings.keyBindSneak.isKeyDown
-            && !player.isInOrAboveLiquid
+            && !(player.isInWater || player.isInLava)
             && !player.isInWeb
             && !player.isOnLadder
             && Flight.isDisabled
