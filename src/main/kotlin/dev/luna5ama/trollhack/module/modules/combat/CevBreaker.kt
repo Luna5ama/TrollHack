@@ -6,29 +6,29 @@ import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
+import dev.luna5ama.trollhack.event.events.combat.CrystalSetDeadEvent
 import dev.luna5ama.trollhack.event.events.combat.CrystalSpawnEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.graphics.ESPRenderer
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.CombatManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
+import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
-import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.accessor.id
 import dev.luna5ama.trollhack.util.accessor.packetAction
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
-import dev.luna5ama.trollhack.util.inventory.*
-import dev.luna5ama.trollhack.util.inventory.operation.action
-import dev.luna5ama.trollhack.util.inventory.operation.swapWith
+import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.inventory.slot.firstItem
-import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
-import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
@@ -53,7 +53,6 @@ internal object CevBreaker : Module(
     category = Category.COMBAT,
     modulePriority = 400
 ) {
-    private val switchToPickaxe by setting("Switch To Pickaxe", false)
     private val minHealth by setting("Min Health", 8.0f, 0.0f..20.0f, 0.5f)
     private val placeDelay by setting("Place Delay", 500, 0..1000, 1)
     private val breakDelay by setting("Break Delay", 100, 0..1000, 1)
@@ -65,7 +64,6 @@ internal object CevBreaker : Module(
     private val packetTimer = TickTimer()
     private var posInfo: Info? = null
     private var crystalID = -69420
-    private var lastInventoryTask: InventoryTask? = null
 
     init {
         onEnable {
@@ -74,7 +72,6 @@ internal object CevBreaker : Module(
 
         onDisable {
             reset()
-            lastInventoryTask = null
         }
 
         listener<Render3DEvent> {
@@ -113,27 +110,28 @@ internal object CevBreaker : Module(
 
         safeListener<CrystalSpawnEvent> {
             val info = posInfo ?: return@safeListener
-            if (it.crystalDamage.blockPos == info.pos || CrystalUtils.getCrystalBB(it.crystalDamage.blockPos)
-                    .intersects(info.placeBB)
-            ) {
-                crystalID = it.entityID
-            }
+            if (it.crystalDamage.blockPos != info.pos
+                && !CrystalUtils.crystalPlaceBoxIntersectsCrystalBox(info.pos, it.crystalDamage.crystalPos)
+            ) return@safeListener
+
+            crystalID = it.entityID
         }
 
-        safeListener<TickEvent.Pre> {
+        safeListener<CrystalSetDeadEvent> { event ->
+            val info = posInfo ?: return@safeListener
+            if (event.crystals.none { it.entityBoundingBox.intersects(info.placeBB) }) return@safeListener
+
+            crystalID = -69420
+            place(info)
+        }
+
+        safeParallelListener<TickEvent.Post> {
             if (!safeCheck()) {
                 posInfo = null
-                return@safeListener
+                return@safeParallelListener
             }
 
             updateTarget()
-            posInfo?.let {
-                if (player.distanceSqToCenter(it.pos) > range * range) {
-                    reset()
-                } else if (switchToPickaxe) {
-                    equipBestTool(world.getBlockState(it.pos))
-                }
-            }
         }
 
         safeListener<RunGameLoopEvent.Tick> {
@@ -147,16 +145,19 @@ internal object CevBreaker : Module(
             if (blockState.block == Blocks.AIR) {
                 var id = crystalID
                 if (id == -69420) {
-                    CombatManager.crystalList
+                    CombatManager.crystalList.asSequence()
+                        .filter { !it.first.isDead }
                         .find { it.first.entityBoundingBox.intersects(info.placeBB) }
                         ?.let { id = it.first.entityId }
                 }
 
+                PacketMine.mineBlock(CevBreaker, info.pos, CevBreaker.modulePriority)
+
                 if (id != -69420) {
-                    if (breakTimer.tickAndReset(breakDelay)) breakCrystal(id)
-                } else {
-                    if (lastInventoryTask.executedOrTrue && placeTimer.tickAndReset(placeDelay)) place(info)
+                    if (breakTimer.tick(breakDelay)) breakCrystal(id)
                 }
+
+                if (placeTimer.tick(placeDelay)) place(info)
             }
         }
     }
@@ -167,35 +168,35 @@ internal object CevBreaker : Module(
     }
 
     private fun SafeClientEvent.updateTarget() {
-        CombatManager.target?.let {
-            val feetPos = it.betterPosition
-            if (world.getBlockState(feetPos).getCollisionBoundingBox(world, feetPos) != null) {
-                reset()
-                return
-            }
+        val targetInfo = calcTarget()
 
-            val pos = BlockPos(it.posX, it.posY + 2.5, it.posZ)
-            if (pos != posInfo?.pos) {
-                if (player.distanceSqToCenter(pos) <= range * range
-                    && world.canBreakBlock(pos)
-                    && hasValidSpaceForCrystal(pos)
-                    && wallCheck(pos)
-                ) {
-                    val side = getMiningSide(pos) ?: EnumFacing.UP
-
-                    reset()
-                    posInfo = Info(pos, side)
-                    renderer.clear()
-                    renderer.add(AxisAlignedBB(pos), ColorRGB(255, 255, 255))
-                    packetTimer.reset(-69420)
-
-                    PacketMine.mineBlock(CevBreaker, pos, CevBreaker.modulePriority)
-                    player.swingArm(EnumHand.MAIN_HAND)
-                }
-            }
-        } ?: run {
+        if (targetInfo == null) {
             reset()
+        } else if (targetInfo != posInfo) {
+            reset()
+
+            renderer.clear()
+            renderer.add(AxisAlignedBB(targetInfo.pos), ColorRGB(255, 255, 255))
+            packetTimer.reset(-69420)
+
+            PacketMine.mineBlock(CevBreaker, targetInfo.pos, CevBreaker.modulePriority)
         }
+
+        posInfo = targetInfo
+    }
+
+    private fun SafeClientEvent.calcTarget(): Info? {
+        val target = CombatManager.target ?: return null
+        if (Burrow.isBurrowed(target)) return null
+
+        val pos = BlockPos(target.posX, target.posY + 2.5, target.posZ)
+
+        if (player.distanceSqToCenter(pos) > range * range) return null
+        if (!world.canBreakBlock(pos)) return null
+        if (!hasValidSpaceForCrystal(pos)) return null
+        if (!wallCheck(pos)) return null
+
+        return Info(pos, getMiningSide(pos) ?: EnumFacing.UP)
     }
 
     private fun SafeClientEvent.wallCheck(pos: BlockPos): Boolean {
@@ -205,8 +206,8 @@ internal object CevBreaker : Module(
     }
 
     private fun SafeClientEvent.place(info: Info) {
-        if (player.hotbarSlots.firstBlock(Blocks.OBSIDIAN) == null) return
-        if (player.hotbarSlots.firstItem(Items.END_CRYSTAL) == null) return
+        val obsidianSlot = player.allSlotsPrioritized.firstBlock(Blocks.OBSIDIAN) ?: return
+        val crystalSlot = player.allSlotsPrioritized.firstItem(Items.END_CRYSTAL) ?: return
         val placeInfo = getPlacement(
             info.pos,
             arrayOf(*EnumFacing.HORIZONTALS, EnumFacing.DOWN),
@@ -214,44 +215,28 @@ internal object CevBreaker : Module(
             PlacementSearchOption.range(6.0f)
         ) ?: return
 
-        inventoryTask {
-            swapWith(
-                slot = { player.offhandSlot },
-                hotbarSlot = {
-                    if (player.isHolding(EnumHand.OFF_HAND, Blocks.OBSIDIAN)) null
-                    else player.hotbarSlots.firstBlock(Blocks.OBSIDIAN)
-                }
-            )
-
-            action {
-                placeBlock(placeInfo, EnumHand.OFF_HAND)
+        synchronized(InventoryTaskManager) {
+            ghostSwitch(obsidianSlot) {
+                placeBlock(placeInfo)
             }
-            swapWith(
-                slot = { player.offhandSlot },
-                hotbarSlot = {
-                    if (player.isHolding(EnumHand.OFF_HAND, Items.END_CRYSTAL)) null
-                    else player.hotbarSlots.firstItem(Items.END_CRYSTAL)
-                }
-            )
 
-            action {
+            ghostSwitch(crystalSlot) {
                 connection.sendPacket(
                     CPacketPlayerTryUseItemOnBlock(
                         info.pos,
                         info.side,
-                        EnumHand.OFF_HAND,
+                        EnumHand.MAIN_HAND,
                         info.hitVecOffset.x,
                         info.hitVecOffset.y,
                         info.hitVecOffset.z
                     )
                 )
-                connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
-            }
 
-            runInGui()
-            delay(0L)
-            postDelay(100L)
+                connection.sendPacket(CPacketAnimation(EnumHand.MAIN_HAND))
+            }
         }
+
+        placeTimer.reset()
     }
 
     private fun SafeClientEvent.breakCrystal(id: Int) {
@@ -260,7 +245,8 @@ internal object CevBreaker : Module(
             this.packetAction = CPacketUseEntity.Action.ATTACK
         }
         connection.sendPacket(packet)
-        connection.sendPacket(CPacketAnimation(EnumHand.OFF_HAND))
+        connection.sendPacket(CPacketAnimation(EnumHand.MAIN_HAND))
+        breakTimer.reset()
     }
 
     private fun reset() {
@@ -281,5 +267,16 @@ internal object CevBreaker : Module(
             pos.x + 2.0, pos.y + 3.0, pos.z + 2.0
         )
         val hitVecOffset = getHitVecOffset(side)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Info) return false
+
+            return pos == other.pos
+        }
+
+        override fun hashCode(): Int {
+            return pos.hashCode()
+        }
     }
 }

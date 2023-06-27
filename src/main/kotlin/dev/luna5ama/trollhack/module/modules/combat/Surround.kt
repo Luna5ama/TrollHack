@@ -130,7 +130,7 @@ internal object Surround : Module(
 
                     loop@ for (placeInfo in list) {
                         if (event.crystals.none {
-                                CrystalUtils.placeBoxIntersectsCrystalBox(
+                                CrystalUtils.blockPlaceBoxIntersectsCrystalBox(
                                     placeInfo.placedPos,
                                     it
                                 )

@@ -124,11 +124,11 @@ object CrystalUtils {
     }
 
 
-    fun placeBoxIntersectsCrystalBox(placePos: BlockPos, crystal: EntityEnderCrystal): Boolean {
-        return placeBoxIntersectsCrystalBox(placePos, crystal.posX, crystal.posY, crystal.posZ)
+    fun blockPlaceBoxIntersectsCrystalBox(placePos: BlockPos, crystal: EntityEnderCrystal): Boolean {
+        return blockPlaceBoxIntersectsCrystalBox(placePos, crystal.posX, crystal.posY, crystal.posZ)
     }
 
-    fun placeBoxIntersectsCrystalBox(
+    fun blockPlaceBoxIntersectsCrystalBox(
         placePos: BlockPos,
         crystalX: Double,
         crystalY: Double,
