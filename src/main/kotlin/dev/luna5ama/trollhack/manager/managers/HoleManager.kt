@@ -54,9 +54,9 @@ object HoleManager : Manager() {
                 val mutablePos = BlockPos.MutableBlockPos()
 
                 val sequence = sequence {
-                    for (x in it.pos.x + 2 downTo it.pos.x - 1) {
+                    for (x in it.pos.x + 2 downTo it.pos.x - 2) {
                         for (y in it.pos.y + 1 downTo it.pos.y - 2) {
-                            for (z in it.pos.z + 2 downTo it.pos.z - 1) {
+                            for (z in it.pos.z + 2 downTo it.pos.z - 2) {
                                 if (playerPos.distanceSqTo(x, y, z) > RANGE_SQ) continue
                                 yield(mutablePos.setPos(x, y, z))
                             }
