@@ -135,7 +135,6 @@ internal object AutoCity : Module(
                 && packetBreakTimer.tick(packetBreakDelay)
                 && breakTimer.tick(0)
             ) {
-                println("GOOOO")
                 breakCrystal(crystalID)
                 placeAnvil(targetInfo.surroundDown)
                 placeCrystal(targetInfo.crystalPos)
