@@ -26,8 +26,8 @@ void main() {
 
     coord0 = (gl_Position * reverseProjection).xy * uv + 0.5;
 
-    #define CALC_OFFSET(i) float offset##i = OFFSET_##i * uv.y;\
-        coords[##i] = vec4(coord0.x, coord0.y - offset##i, coord0.x, coord0.y + offset##i);
+    #define CALC_OFFSET(i) float offset##i## = OFFSET_##i## * uv.y;\
+        coords[##i##] = vec4(coord0.x, coord0.y - offset##i##, coord0.x, coord0.y + offset##i##);
 
     CALC_OFFSET(0)
     CALC_OFFSET(1)
