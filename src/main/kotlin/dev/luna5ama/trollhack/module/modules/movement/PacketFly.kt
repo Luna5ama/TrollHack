@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.MathUtil
 import dev.fastmc.common.ceilToInt
 import dev.fastmc.common.floorToInt
 import dev.fastmc.common.isEven
@@ -13,6 +14,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
+import dev.luna5ama.trollhack.util.threads.runSafe
 import io.netty.util.internal.ConcurrentSet
 import net.minecraft.network.play.client.CPacketConfirmTeleport
 import net.minecraft.network.play.client.CPacketEntityAction
@@ -176,6 +178,14 @@ internal object PacketFly : Module(
             teleportID = 0
             serverIgnores = 0
             packetFlyingTicks = 0
+
+            runSafe {
+                if (player.isSneaking) {
+                    connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
+                } else {
+                    connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
+                }
+            }
         }
 
         safeListener<PacketEvent.Send> {
@@ -282,14 +292,14 @@ internal object PacketFly : Module(
             if (player.movementInput.jump) {
                 motionY = upSpeed
 
-                val clipedMaxY = player.posY.floorToInt() + 2.0625
+                val clipedMaxY = player.posY.floorToInt() + 2
                 val newMaxY = playerBB.maxY + motionY
 
                 if (newMaxY > clipedMaxY) {
-                    if (newMaxY < clipedMaxY + 0.06) {
+                    if (newMaxY < clipedMaxY + 0.2) {
                         connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
-                        motionY = clipedMaxY - playerBB.maxY
-                    } else if (newMaxY < clipedMaxY + 0.1) {
+                        motionY = MathUtil.clamp(clipedMaxY - (player.posY + 1.65), 0.01, upSpeed)
+                    } else if (newMaxY < clipedMaxY + 0.4) {
                         connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
                     }
                 }
