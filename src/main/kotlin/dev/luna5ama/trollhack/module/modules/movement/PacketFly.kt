@@ -1,17 +1,21 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.ceilToInt
 import dev.fastmc.common.floorToInt
+import dev.fastmc.common.isEven
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
+import dev.luna5ama.trollhack.manager.managers.TimerManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
 import io.netty.util.internal.ConcurrentSet
 import net.minecraft.network.play.client.CPacketConfirmTeleport
+import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketCloseWindow
 import net.minecraft.network.play.server.SPacketPlayerPosLook
@@ -274,8 +278,23 @@ internal object PacketFly : Module(
             var motionY = 0.0
             var motionZ = 0.0
 
-            if (player.movementInput.jump xor player.movementInput.sneak) {
-                motionY = if (player.movementInput.jump) upSpeed else -downSpeed
+            val playerBB = player.entityBoundingBox
+            if (player.movementInput.jump) {
+                motionY = upSpeed
+
+                val clipedMaxY = player.posY.floorToInt() + 2.0625
+                val newMaxY = playerBB.maxY + motionY
+
+                if (newMaxY > clipedMaxY) {
+                    if (newMaxY < clipedMaxY + 0.06) {
+                        connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
+                        motionY = clipedMaxY - playerBB.maxY
+                    } else if (newMaxY < clipedMaxY + 0.1) {
+                        connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
+                    }
+                }
+            } else if (player.movementInput.sneak) {
+                motionY = -downSpeed
             } else if (MovementUtils.isInputting()) {
                 val yaw = player.calcMoveYaw()
                 motionX -= sin(yaw) * speed
