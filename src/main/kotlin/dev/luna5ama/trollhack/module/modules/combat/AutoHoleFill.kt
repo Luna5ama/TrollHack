@@ -95,7 +95,7 @@ internal object AutoHoleFill : Module(
             holeInfos = emptyList()
             nextHole = null
             renderBlockMap.clear()
-            renderer.replaceAll(Collections.emptyList())
+            renderer.replaceAll(mutableListOf())
         }
 
         listener<WorldEvent.ClientBlockUpdate> {
