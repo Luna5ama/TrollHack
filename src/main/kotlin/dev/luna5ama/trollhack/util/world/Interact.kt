@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.util.world
 import dev.fastmc.common.collection.FastObjectArrayList
 import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
@@ -184,18 +185,12 @@ fun interface PlacementSearchOption {
 
         @JvmField
         val ENTITY_COLLISION = PlacementSearchOption { _, _, to ->
-            world.checkNoEntityCollision(
-                AxisAlignedBB(to),
-                null
-            )
+            EntityManager.checkEntityCollision(AxisAlignedBB(to))
         }
 
         @JvmField
         val ENTITY_COLLISION_IGNORE_SELF = PlacementSearchOption { _, _, to ->
-            world.checkNoEntityCollision(
-                AxisAlignedBB(to),
-                player
-            )
+            EntityManager.checkEntityCollision(AxisAlignedBB(to))
         }
     }
 }

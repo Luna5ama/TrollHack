@@ -4,6 +4,7 @@ import dev.fastmc.common.ceilToInt
 import dev.fastmc.common.floorToInt
 import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import net.minecraft.entity.Entity
@@ -116,7 +117,7 @@ fun SafeClientEvent.hasNeighbor(pos: BlockPos): Boolean {
  */
 fun World.isPlaceable(pos: BlockPos, ignoreSelfCollide: Boolean = false) =
     this.getBlockState(pos).isReplaceable
-        && this.checkNoEntityCollision(AxisAlignedBB(pos), if (ignoreSelfCollide) Wrapper.player else null)
+        && EntityManager.checkEntityCollision(AxisAlignedBB(pos), if (ignoreSelfCollide) Wrapper.player else null)
 
 fun World.checkBlockCollision(pos: BlockPos, box: AxisAlignedBB, tolerance: Double = 0.005): Boolean {
     val blockBox = getCollisionBox(pos) ?: return false

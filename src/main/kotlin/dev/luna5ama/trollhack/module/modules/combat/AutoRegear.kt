@@ -219,7 +219,7 @@ internal object AutoRegear : Module(
                             ) < rangeSq
                         }.filter {
                             world.getBlockState(mutable.setAndAdd(pos, it)).isReplaceable
-                                && world.checkNoEntityCollision(AxisAlignedBB(mutable), null)
+                                && EntityManager.checkEntityCollision(AxisAlignedBB(mutable))
                                 && world.isAir(mutable.move(it))
                         }.map {
                             pos to it
