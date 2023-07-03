@@ -26,7 +26,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:5.+")
+        classpath("net.minecraftforge.gradle:ForgeGradle:6.+")
     }
 }
 
@@ -244,7 +244,9 @@ tasks {
     }
 
     register<Task>("genRuns") {
+        dependsOn("prepareRuns")
         group = "ide"
+
         doLast {
             val threads = Runtime.getRuntime().availableProcessors()
             val vmOptions = listOf(
@@ -305,7 +307,7 @@ tasks {
                             <option name="VM_PARAMETERS" value="$vmOptions" />
                             <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/run" />
                             <method v="2">
-                              <option name="Gradle.BeforeRunTask" enabled="true" tasks="prepareRunClient" externalProjectPath="${'$'}PROJECT_DIR$" />
+                              <option name="Make" enabled="true" />
                             </method>
                           </configuration>
                         </component>
