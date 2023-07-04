@@ -208,7 +208,7 @@ object RenderUtils2D {
     }
 
     fun putVertex(posX: Float, posY: Float, color: ColorRGB) {
-        val array = PersistentMappedVBO.array
+        val array = PersistentMappedVBO.arr
         val struct = Pos2Color(array)
         struct.pos.x = posX
         struct.pos.y = posY

@@ -23,7 +23,7 @@ object PersistentMappedVBO : AlwaysListening {
             GL_MAP_WRITE_BIT or GL_MAP_PERSISTENT_BIT or GL_MAP_COHERENT_BIT
         )
     }
-    val array = glMapNamedBufferRange(
+    val arr = glMapNamedBufferRange(
         vbo,
         0,
         64L * 1024L * 1024L,
@@ -34,20 +34,20 @@ object PersistentMappedVBO : AlwaysListening {
     private var sync = 0L
 
     fun end() {
-        drawOffset = (array.offset / 16L).toInt()
+        drawOffset = (arr.pos / 16L).toInt()
     }
 
     init {
         listener<RunGameLoopEvent.End> {
             if (sync == 0L) {
-                if (array.offset >= array.length / 2) {
+                if (arr.pos >= arr.len / 2) {
                     @Suppress("RemoveRedundantQualifierName", "RedundantSuppression")
                     sync = dev.luna5ama.trollhack.graphics.glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0)
                 }
             } else if (glGetSynciv(sync, GL_SYNC_STATUS) == GL_SIGNALED) {
                 glDeleteSync(sync)
                 sync = 0L
-                array.offset = 0L
+                arr.pos = 0L
                 drawOffset = 0
             }
         }

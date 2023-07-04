@@ -77,6 +77,7 @@ val minecraftVersion: String by project
 val forgeVersion: String by project
 val mappingsChannel: String by project
 val mappingsVersion: String by project
+val kmogusVersion: String by project
 
 dependencies {
     // Forge
@@ -99,8 +100,8 @@ dependencies {
     jarLibImplementation("org.joml:joml:1.10.5")
     jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
 
-    jarLibImplementation("dev.luna5ama:kmogus-core:1.0.0-SNAPSHOT")
-    jarLibImplementation("dev.luna5ama:kmogus-struct-api:1.0.0-SNAPSHOT")
+    jarLibImplementation("dev.luna5ama:kmogus-core:$kmogusVersion")
+    jarLibImplementation("dev.luna5ama:kmogus-struct-api:$kmogusVersion")
     jarLibImplementation(project(":structs"))
 
     ksp(project(":codegen"))

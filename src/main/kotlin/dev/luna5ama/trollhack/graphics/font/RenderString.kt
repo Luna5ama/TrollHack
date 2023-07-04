@@ -299,7 +299,7 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
                 struct.shadow = 0
                 struct++
 
-                array.offset(struct.asPointer())
+                array.pos(struct.ptr)
             }
 
             fun build(): StringRenderInfo {
@@ -307,11 +307,11 @@ class RenderString(fontRenderer: AbstractFontRenderer, private val string: CharS
                 val vboID = glCreateBuffers()
                 val iboID = glCreateBuffers()
 
-                glNamedBufferStorage(vboID, size * 16L * 4L * 2L, array.basePointer, 0)
+                glNamedBufferStorage(vboID, size * 16L * 4L * 2L, array.basePtr, 0)
 
                 array.reset()
                 buildIboBuffer()
-                glNamedBufferStorage(iboID, size * 2L * 6L * 2L, array.basePointer, 0)
+                glNamedBufferStorage(iboID, size * 2L * 6L * 2L, array.basePtr, 0)
                 array.free()
 
                 glBindVertexArray(vaoID)

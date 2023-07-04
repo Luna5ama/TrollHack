@@ -119,7 +119,7 @@ object RenderUtils3D : AlwaysListening {
     }
 
     fun putVertex(posX: Double, posY: Double, posZ: Double, color: ColorRGB) {
-        val array = PersistentMappedVBO.array
+        val array = PersistentMappedVBO.arr
         val struct = Pos3Color(array)
         struct.pos.x = (posX + translationX).toFloat()
         struct.pos.y = (posY + translationY).toFloat()

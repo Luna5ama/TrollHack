@@ -113,7 +113,7 @@ object WindowBlurShader : AlwaysListening, Helper {
         x2: Float,
         y2: Float,
     ) {
-        val array = PersistentMappedVBO.array
+        val array = PersistentMappedVBO.arr
         var struct = Vec4f32(array)
 
         struct.x = x1
@@ -152,7 +152,7 @@ object WindowBlurShader : AlwaysListening, Helper {
         struct.w = -1.0f
         struct++
 
-        array.offset(struct.asPointer())
+        array.pos(struct.ptr)
     }
 
     private fun setTextureParam(textureID: Int) {
