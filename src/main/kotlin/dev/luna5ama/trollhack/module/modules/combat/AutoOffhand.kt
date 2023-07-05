@@ -65,8 +65,8 @@ internal object AutoOffhand : Module(
     private val delay by setting("Delay", 1, 1..20, 1, description = "Ticks to wait between each move")
     private val confirmTimeout by setting(
         "Confirm Timeout",
-        4,
-        1..20,
+        2,
+        0..20,
         1,
         description = "Maximum ticks to wait for confirm packets from server"
     )
