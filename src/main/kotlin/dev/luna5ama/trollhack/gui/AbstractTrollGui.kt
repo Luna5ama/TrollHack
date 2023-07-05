@@ -264,13 +264,13 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
         mc.profiler.endStartSection("windows")
         GlStateUtils.rescaleTroll()
-        glTranslatef(0.0f, -(Resolution.trollHeightF * (1.0f - multiplier)), 0.0f)
+         GlStateManager.translate(0.0f, -(Resolution.trollHeightF * (1.0f - multiplier)), 0.0f)
         drawWindows()
         drawTypedString()
 
         mc.profiler.endStartSection("post")
         GlStateUtils.rescaleMc()
-        glTranslatef(0.0f, -(scaledResolution.scaledHeight * (1.0f - multiplier)), 0.0f)
+         GlStateManager.translate(0.0f, -(scaledResolution.scaledHeight * (1.0f - multiplier)), 0.0f)
 
         glDisable(GL_DEPTH_CLAMP)
         GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
@@ -289,13 +289,13 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
         // Blur effect
         if (GuiSetting.backGroundBlur > 0.0f) {
-            glPushMatrix()
+            GlStateManager.pushMatrix()
             GlStateUtils.useProgramForce(0)
             blurShader.shader?.render(partialTicks)
             mc.framebuffer.bindFramebuffer(true)
             blurShader.getFrameBuffer("final")?.framebufferRenderExt(mc.displayWidth, mc.displayHeight, false)
             GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
 
         // Darkened background
@@ -327,10 +327,10 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
     private inline fun drawEachWindow(crossinline renderBlock: (WindowComponent) -> Unit) {
         forEachWindow {
             if (!it.visible) return@forEachWindow
-            glPushMatrix()
-            glTranslatef(it.renderPosX, it.renderPosY, 0.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(it.renderPosX, it.renderPosY, 0.0f)
             renderBlock(it)
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 

@@ -15,7 +15,8 @@ import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.ColorSetting
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import org.lwjgl.opengl.GL11.*
+import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP
 
 class ColorPicker(
     screen: IGuiScreen,
@@ -178,10 +179,10 @@ class ColorPicker(
 
         for (component in components) {
             if (!component.visible) continue
-            glPushMatrix()
-            glTranslatef(component.renderPosX, component.renderPosY, 0.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(component.renderPosX, component.renderPosY, 0.0f)
             component.onRender(absolutePos.plus(component.renderPosX, component.renderPosY))
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 
@@ -190,10 +191,10 @@ class ColorPicker(
 
         for (component in components) {
             if (!component.visible) continue
-            glPushMatrix()
-            glTranslatef(component.renderPosX, component.renderPosY, 0.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(component.renderPosX, component.renderPosY, 0.0f)
             component.onPostRender(absolutePos.plus(component.renderPosX, component.renderPosY))
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 

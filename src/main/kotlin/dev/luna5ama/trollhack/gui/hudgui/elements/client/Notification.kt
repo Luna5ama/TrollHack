@@ -15,8 +15,8 @@ import dev.luna5ama.trollhack.util.text.format
 import it.unimi.dsi.fastutil.HashCommon
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.text.TextFormatting
-import org.lwjgl.opengl.GL11.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.max
 
@@ -74,13 +74,13 @@ internal object Notification : HudElement(
 
         GlStateUtils.pushMatrixAll()
         GlStateUtils.rescaleTroll()
-        glTranslatef(renderPosX, renderPosY, 0.0f)
-        glScalef(scale, scale, 0.0f)
+         GlStateManager.translate(renderPosX, renderPosY, 0.0f)
+        GlStateManager.scale(scale, scale, 0.0f)
 
         notifications.removeIf {
-            glPushMatrix()
+            GlStateManager.pushMatrix()
             val y = it.render()
-            glPopMatrix()
+            GlStateManager.popMatrix()
 
             if (y == -1.0f) {
                 synchronized(map) {
@@ -88,7 +88,7 @@ internal object Notification : HudElement(
                 }
                 true
             } else {
-                glTranslatef(0.0f, y, 0.0f)
+                 GlStateManager.translate(0.0f, y, 0.0f)
                 false
             }
         }
@@ -138,7 +138,7 @@ internal object Notification : HudElement(
 
         fun render(): Float {
             if (dockingH != dev.luna5ama.trollhack.graphics.HAlign.LEFT && width > hudWidth) {
-                glTranslatef(hudWidth - width, 0.0f, 0.0f)
+                 GlStateManager.translate(hudWidth - width, 0.0f, 0.0f)
             }
 
             return when (val deltaTotal = Easing.toDelta(startTime)) {

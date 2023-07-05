@@ -123,7 +123,7 @@ internal object BossStack : Module(
             val textPosY = posY - 9.0f
 
             GlStateManager.pushMatrix()
-            glScalef(scale, scale, 1.0f)
+            GlStateManager.scale(scale, scale, 1.0f)
             mc.textureManager.bindTexture(texture)
             mc.ingameGUI.bossOverlay.render(posX, posY, bossInfo)
             mc.fontRenderer.drawStringWithShadow(text, textPosX, textPosY, 0xffffff)

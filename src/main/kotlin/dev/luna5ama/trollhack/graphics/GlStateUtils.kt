@@ -126,17 +126,17 @@ object GlStateUtils {
     }
 
     fun pushMatrixAll() {
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
+        GlStateManager.matrixMode(GL_PROJECTION)
+        GlStateManager.pushMatrix()
+        GlStateManager.matrixMode(GL_MODELVIEW)
+        GlStateManager.pushMatrix()
     }
 
     fun popMatrixAll() {
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-        glPopMatrix()
+        GlStateManager.matrixMode(GL_PROJECTION)
+        GlStateManager.popMatrix()
+        GlStateManager.matrixMode(GL_MODELVIEW)
+        GlStateManager.popMatrix()
     }
 
     fun rescale(width: Double, height: Double) {

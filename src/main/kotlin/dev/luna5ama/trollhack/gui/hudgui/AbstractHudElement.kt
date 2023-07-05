@@ -21,7 +21,7 @@ import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
-import org.lwjgl.opengl.GL11.glScalef
+import net.minecraft.client.renderer.GlStateManager
 
 abstract class AbstractHudElement(
     name: String,
@@ -84,7 +84,7 @@ abstract class AbstractHudElement(
 
     final override fun onRender(absolutePos: Vec2f) {
         renderFrame()
-        glScalef(scale, scale, scale)
+        GlStateManager.scale(scale, scale, scale)
         renderHud()
     }
 

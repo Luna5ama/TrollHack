@@ -30,8 +30,8 @@ internal object PlayerModel : HudElement(
             val yaw = if (emulateYaw) interpolateAndWrap(player.prevRotationYaw, player.rotationYaw) else 0.0f
             val pitch = if (emulatePitch) interpolateAndWrap(player.prevRotationPitch, player.rotationPitch) else 0.0f
 
-            glPushMatrix()
-            glTranslatef(renderWidth / scale / 2.0f, renderHeight / scale - 8.0f, 0.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(renderWidth / scale / 2.0f, renderHeight / scale - 8.0f, 0.0f)
             GlStateUtils.depth(true)
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
 
@@ -45,7 +45,7 @@ internal object PlayerModel : HudElement(
             GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
 
             GlStateManager.disableColorMaterial()
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 

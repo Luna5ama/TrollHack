@@ -32,6 +32,7 @@ import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.math.vector.lerp
 import dev.luna5ama.trollhack.util.text.unformatted
 import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -42,7 +43,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.EnumHand
 import net.minecraft.util.EnumHandSide
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.GL_QUADS
+import org.lwjgl.opengl.GL11.glColor4f
 import java.util.*
 import kotlin.collections.set
 import kotlin.math.max
@@ -366,13 +368,13 @@ internal object Nametags : Module(
             val screenPos = ProjectionUtils.toAbsoluteScreenPos(pos)
             val scale = calcScale(camPos, pos)
 
-            glPushMatrix()
-            glTranslatef(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
-            glScalef(scale, scale, 1.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
+            GlStateManager.scale(scale, scale, 1.0f)
 
             drawNametag(screenPos, scale, textComponent)
 
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 
@@ -389,13 +391,13 @@ internal object Nametags : Module(
             val screenPos = ProjectionUtils.toAbsoluteScreenPos(pos)
             val scale = calcScale(camPos, pos)
 
-            glPushMatrix()
-            glTranslatef(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
-            glScalef(scale, scale, 1.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
+            GlStateManager.scale(scale, scale, 1.0f)
 
             drawNametag(screenPos, scale, textComponent)
 
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 
@@ -448,19 +450,19 @@ internal object Nametags : Module(
             val screenPos = ProjectionUtils.toAbsoluteScreenPos(pos)
             val scale = calcScale(camPos, pos)
 
-            glPushMatrix()
-            glTranslatef(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
-            glScalef(scale, scale, 1.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
+            GlStateManager.scale(scale, scale, 1.0f)
 
             if (drawNametagLiving(screenPos, scale, entity, textComponent) && !empty) {
-                glPushMatrix()
-                glTranslatef(0.0f, -halfHeight, 0.0f) // Translate to top of nametag
-                glScalef(itemScale.value, itemScale.value, 1f) // Scale to item scale
-                glTranslatef(0.0f, -margins.value - 2.0f, 0.0f)
+                GlStateManager.pushMatrix()
+                 GlStateManager.translate(0.0f, -halfHeight, 0.0f) // Translate to top of nametag
+                GlStateManager.scale(itemScale.value, itemScale.value, 1f) // Scale to item scale
+                 GlStateManager.translate(0.0f, -margins.value - 2.0f, 0.0f)
 
-                glTranslatef(-halfWidth + 4f, -16f, 0.0f)
+                 GlStateManager.translate(-halfWidth + 4f, -16f, 0.0f)
                 if (drawDura) {
-                    glTranslatef(0.0f, -MainFontRenderer.getHeight() - 2.0f, 0.0f)
+                     GlStateManager.translate(0.0f, -MainFontRenderer.getHeight() - 2.0f, 0.0f)
                 }
 
                 for ((itemStack, enchantmentText) in itemList) {
@@ -468,10 +470,10 @@ internal object Nametags : Module(
                     drawItem(itemStack, enchantmentText, drawDura)
                 }
 
-                glPopMatrix()
+                GlStateManager.popMatrix()
             }
 
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 
@@ -512,19 +514,19 @@ internal object Nametags : Module(
 
         if (count.value && itemStack.count > 1) {
             val itemCount = itemStack.count.toString()
-            glTranslatef(0.0f, 0.0f, 60.0f)
+             GlStateManager.translate(0.0f, 0.0f, 60.0f)
             val stringWidth = 17.0f - MainFontRenderer.getWidth(itemCount)
             MainFontRenderer.drawString(itemCount, stringWidth, 9.0f)
-            glTranslatef(0.0f, 0.0f, -60.0f)
+             GlStateManager.translate(0.0f, 0.0f, -60.0f)
         }
 
-        glTranslatef(0.0f, -2.0f, 0.0f)
+         GlStateManager.translate(0.0f, -2.0f, 0.0f)
         if (enchantment.value) {
             val scale = 0.6f
             enchantmentText.draw(lineSpace = 2, scale = scale, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.BOTTOM)
         }
 
-        glTranslatef(28.0f, 2.0f, 0.0f)
+         GlStateManager.translate(28.0f, 2.0f, 0.0f)
     }
 
     private fun drawNametagLiving(

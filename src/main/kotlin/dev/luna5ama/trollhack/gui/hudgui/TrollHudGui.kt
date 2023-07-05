@@ -123,13 +123,13 @@ object TrollHudGui : AbstractTrollGui() {
     }
 
     private fun renderHudElement(window: AbstractHudElement) {
-        glPushMatrix()
-        glTranslatef(window.renderPosX, window.renderPosY, 0.0f)
+        GlStateManager.pushMatrix()
+         GlStateManager.translate(window.renderPosX, window.renderPosY, 0.0f)
 
-        glScalef(window.scale, window.scale, window.scale)
+        GlStateManager.scale(window.scale, window.scale, window.scale)
         window.renderHud()
 
-        glPopMatrix()
+        GlStateManager.popMatrix()
     }
 
 }

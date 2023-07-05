@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.module.modules.client.Tooltips
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11.*
 
 open class Slider(
@@ -174,8 +175,8 @@ open class Slider(
         val posY = (renderHeight + 4.0f).coerceIn(-absolutePos.y, (relativeCorner.y - textHeight - 10.0f))
 
         glDisable(GL_SCISSOR_TEST)
-        glPushMatrix()
-        glTranslatef(posX, posY, 696.0f)
+        GlStateManager.pushMatrix()
+         GlStateManager.translate(posX, posY, 696.0f)
 
         RenderUtils2D.drawRectFilled(
             0.0f,
@@ -197,7 +198,7 @@ open class Slider(
         displayDescription.draw(Vec2d(2.0, 2.0), 2, alpha)
 
         glEnable(GL_SCISSOR_TEST)
-        glPopMatrix()
+        GlStateManager.popMatrix()
     }
 
     private fun getStateColor(state: MouseState) = when (state) {

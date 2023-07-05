@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.module.modules.render.AntiAlias
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.extension.sumOfFloat
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.ln
@@ -178,17 +179,17 @@ open class ListWindow(
             (((renderHeight - draggableHeight) * GuiSetting.scaleFactor) * sampleLevel).ceilToInt()
         )
         glEnable(GL_SCISSOR_TEST)
-        glTranslatef(0.0f, -scrollProgress, 0.0f)
+         GlStateManager.translate(0.0f, -scrollProgress, 0.0f)
 
         mc.profiler.startSection("childrens")
         for (child in children) {
             if (!child.visible) continue
             if (child.renderPosY + child.renderHeight - scrollProgress < draggableHeight) continue
             if (child.renderPosY - scrollProgress > renderHeight) continue
-            glPushMatrix()
-            glTranslatef(child.renderPosX, child.renderPosY, 0.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(child.renderPosX, child.renderPosY, 0.0f)
             renderBlock(child)
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
         mc.profiler.endSection()
 

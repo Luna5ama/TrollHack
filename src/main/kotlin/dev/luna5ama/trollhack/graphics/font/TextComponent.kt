@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.graphics.font
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
-import org.lwjgl.opengl.GL11.*
+import net.minecraft.client.renderer.GlStateManager
 import kotlin.math.max
 
 /**
@@ -95,23 +95,23 @@ class TextComponent(val separator: String = " ") {
     ) {
         if (isEmpty()) return
 
-        glPushMatrix()
-        glTranslated(pos.x, pos.y - 1.0, 0.0)
-        glScalef(scale, scale, 1f)
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(pos.x, pos.y - 1.0, 0.0)
+        GlStateManager.scale(scale, scale, 1f)
 
         if (verticalAlign != dev.luna5ama.trollhack.graphics.VAlign.TOP) {
             var height = getHeight(lineSpace)
             if (verticalAlign == dev.luna5ama.trollhack.graphics.VAlign.CENTER) height /= 2
-            glTranslatef(0f, -height, 0f)
+             GlStateManager.translate(0f, -height, 0f)
         }
 
         for (line in textLines) {
             if (skipEmptyLine && (line == null || line.isEmpty())) continue
             line?.drawLine(alpha, horizontalAlign)
-            glTranslatef(0f, (MainFontRenderer.getHeight() + lineSpace), 0f)
+             GlStateManager.translate(0f, (MainFontRenderer.getHeight() + lineSpace), 0f)
         }
 
-        glPopMatrix()
+        GlStateManager.popMatrix()
     }
 
     fun isEmpty() = textLines.firstOrNull { it?.isEmpty() == false } == null
@@ -138,12 +138,12 @@ class TextComponent(val separator: String = " ") {
         }
 
         fun drawLine(alpha: Float, horizontalAlign: dev.luna5ama.trollhack.graphics.HAlign) {
-            glPushMatrix()
+            GlStateManager.pushMatrix()
 
             if (horizontalAlign != dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
                 var width = getWidth()
                 if (horizontalAlign == dev.luna5ama.trollhack.graphics.HAlign.CENTER) width /= 2.0f
-                glTranslatef(-width, 0f, 0f)
+                 GlStateManager.translate(-width, 0f, 0f)
             }
 
             for (textElement in textElementList) {
@@ -151,14 +151,14 @@ class TextComponent(val separator: String = " ") {
                 color = color.alpha((color.a * alpha).toInt())
                 MainFontRenderer.drawString(textElement.text, color = color)
                 val adjustedSeparator = if (separator == " ") "  " else separator
-                glTranslatef(
+                 GlStateManager.translate(
                     MainFontRenderer.getWidth(textElement.text) + MainFontRenderer.getWidth(adjustedSeparator),
                     0f,
                     0f
                 )
             }
 
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
 
         fun getWidth(): Float {

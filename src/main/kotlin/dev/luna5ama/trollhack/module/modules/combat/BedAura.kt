@@ -64,6 +64,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.launch
 import net.minecraft.block.BlockBed
 import net.minecraft.block.state.IBlockState
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.init.SoundEvents
@@ -78,7 +79,6 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
@@ -897,13 +897,13 @@ internal object BedAura : Module(
                         Easing.IN_CUBIC.dec(Easing.toDelta(startTime, fadeLength))
                     }
 
-                    glPushMatrix()
-                    glTranslatef(
+                    GlStateManager.pushMatrix()
+                     GlStateManager.translate(
                         (renderPos.x - mc.renderManager.renderPosX).toFloat(),
                         (renderPos.y - mc.renderManager.renderPosY).toFloat(),
                         (renderPos.z - mc.renderManager.renderPosZ).toFloat()
                     )
-                    glRotatef(
+                     GlStateManager.rotate(
                         renderRotation,
                         0.0f,
                         1.0f,
@@ -932,7 +932,7 @@ internal object BedAura : Module(
                         -mc.renderManager.renderPosZ
                     )
 
-                    glPopMatrix()
+                    GlStateManager.popMatrix()
                 }
             }
         }

@@ -27,7 +27,7 @@ import dev.luna5ama.trollhack.util.or
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.GL_LINES
 import java.util.*
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -131,11 +131,11 @@ internal object WaypointRender : Module(
     }
 
     private fun drawText(pos: BlockPos, textComponentIn: TextComponent, distance: Int) {
-        glPushMatrix()
+        GlStateManager.pushMatrix()
 
         val screenPos = ProjectionUtils.toAbsoluteScreenPos(pos.toVec3dCenter())
-        glTranslatef(screenPos.x.toFloat(), screenPos.y.toFloat(), 0f)
-        glScalef(textScale.value * 2.0f, textScale.value * 2.0f, 0f)
+         GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0f)
+        GlStateManager.scale(textScale.value * 2.0f, textScale.value * 2.0f, 0f)
 
         val textComponent = TextComponent(textComponentIn).apply { if (showDist.value) add("$distance m") }
         val stringWidth = textComponent.getWidth()
@@ -158,7 +158,7 @@ internal object WaypointRender : Module(
         )
         textComponent.draw(horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
 
-        glPopMatrix()
+        GlStateManager.popMatrix()
     }
 
     init {

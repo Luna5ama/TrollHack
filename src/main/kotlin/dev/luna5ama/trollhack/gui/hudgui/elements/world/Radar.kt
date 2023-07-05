@@ -21,6 +21,7 @@ import dev.luna5ama.trollhack.util.atValue
 import dev.luna5ama.trollhack.util.threads.runSafe
 import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.ints.IntArrayList
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
@@ -103,12 +104,12 @@ internal object Radar : HudElement(
     }
 
     private fun SafeClientEvent.drawBorder() {
-        glTranslated(halfSize, halfSize, 0.0)
+        GlStateManager.translate(halfSize, halfSize, 0.0)
 
         drawCircleFilled(radius = radius, color = GuiSetting.backGround)
         drawCircleOutline(radius = radius, lineWidth = 1.5f, color = GuiSetting.text)
 
-        glRotatef(-player.rotationYaw + 180.0f, 0.0f, 0.0f, 1.0f)
+        GlStateManager.rotate(-player.rotationYaw + 180.0f, 0.0f, 0.0f, 1.0f)
     }
 
     private fun SafeClientEvent.drawEntity() {
@@ -274,7 +275,7 @@ internal object Radar : HudElement(
             GuiSetting.primary,
             0.8f
         )
-        glRotatef(90.0f, 0.0f, 0.0f, 1.0f)
+         GlStateManager.rotate(90.0f, 0.0f, 0.0f, 1.0f)
     }
 
     private fun getColor(entity: EntityLivingBase): ColorRGB {
