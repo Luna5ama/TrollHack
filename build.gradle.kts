@@ -2,7 +2,6 @@ import com.google.gson.JsonParser
 import dev.fastmc.loader.ModPackagingTask
 import dev.fastmc.loader.ModPlatform
 import dev.fastmc.remapper.mapping.MappingName
-import net.minecraftforge.gradle.userdev.UserDevExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.math.max
 
@@ -19,31 +18,19 @@ allprojects {
     version = modVersion
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-        maven("https://files.minecraftforge.net/maven")
-    }
-
-    dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:6.+")
-    }
-}
-
 plugins {
     idea
     java
     kotlin("jvm")
-    id("dev.fastmc.fast-remapper").version("1.1-SNAPSHOT")
-    id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
-    id("dev.fastmc.mod-loader-plugin").version("1.1-SNAPSHOT")
+
+    id("net.minecraftforge.gradle")
+
     id("com.google.devtools.ksp")
-
     id("dev.luna5ama.kmogus-struct-plugin") apply false
-}
 
-apply {
-    plugin("net.minecraftforge.gradle")
+    id("dev.fastmc.fast-remapper")
+    id("dev.luna5ama.jar-optimizer")
+    id("dev.fastmc.mod-loader-plugin")
 }
 
 allprojects {
@@ -59,17 +46,28 @@ allprojects {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://jitpack.io/")
     maven("https://impactdevelopment.github.io/maven/")
 }
 
-val jarLibImplementation: Configuration by configurations.creating {
-    configurations["implementation"].extendsFrom(this)
+val jarLibImplementation: Configuration by configurations.creating
+
+configurations.implementation {
+    extendsFrom(jarLibImplementation)
 }
+
 val jarLib: Configuration by configurations.creating {
     extendsFrom(jarLibImplementation)
+}
+
+afterEvaluate {
+    configurations["minecraft"].resolvedConfiguration.resolvedArtifacts.forEach {
+        val id = it.moduleVersion.id
+        jarLib.exclude(id.group, it.name)
+    }
 }
 
 val kotlinxCoroutineVersion: String by project
@@ -81,7 +79,7 @@ val kmogusVersion: String by project
 
 dependencies {
     // Forge
-    "minecraft"("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
+    minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
 
     // Dependencies
     jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib")
@@ -89,14 +87,7 @@ dependencies {
     jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     jarLibImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    jarLibImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
-        exclude("commons-io")
-        exclude("gson")
-        exclude("guava")
-        exclude("launchwrapper")
-        exclude(group = "org.apache.logging.log4j")
-    }
-
+    jarLibImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     jarLibImplementation("org.joml:joml:1.10.5")
     jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
 
@@ -110,13 +101,6 @@ dependencies {
     jarLib("cabaletta:baritone-api:1.2")
 }
 
-ksp {
-    arg("GROUP", modGroup)
-    arg("ID", modID)
-    arg("NAME", modName)
-    arg("VERSION", modVersion)
-}
-
 idea {
     module {
         excludeDirs.add(file("log.txt"))
@@ -124,14 +108,15 @@ idea {
     }
 }
 
-configure<UserDevExtension> {
+ksp {
+    arg("GROUP", modGroup)
+    arg("ID", modID)
+    arg("NAME", modName)
+    arg("VERSION", modVersion)
+}
+
+minecraft {
     mappings(mappingsChannel, mappingsVersion)
-
-    runs {
-        create("client") {
-
-        }
-    }
 }
 
 allprojects {
@@ -203,6 +188,7 @@ tasks {
                     && obj["version"].asString == modVersion
             }.getOrDefault(false)
         }
+
         filesMatching("mcmod.info") {
             expand(
                 "MOD_ID" to modID,
@@ -244,6 +230,70 @@ tasks {
         archiveClassifier.set("devmod")
     }
 
+    modLoaderJar {
+        archiveClassifier.set("")
+    }
+}
+
+val fastRemapJar = fastRemapper.register(tasks.jar)
+
+val fatjar = tasks.register<Jar>("fatjar") {
+    val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
+
+    dependsOn(fastRemapJar)
+
+    manifest {
+        from(fastRemapJarZipTree.map { zipTree -> zipTree.find { it.name == "MANIFEST.MF" }!! })
+        attributes(
+            "Manifest-Version" to 1.0,
+            "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
+            "FMLCorePlugin" to "dev.luna5ama.trollhack.TrollHackCoreMod",
+            "FMLCorePluginContainsFMLMod" to true,
+            "ForceLoadAsMod" to true
+        )
+    }
+
+    val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
+    val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
+
+    archiveClassifier.set("fatjar")
+
+    from(fastRemapJarZipTree)
+
+    exclude { file ->
+        file.name.endsWith("kotlin_module")
+            || excludeNames.contains(file.file.nameWithoutExtension)
+            || excludeDirs.any { file.path.contains(it) }
+    }
+
+    from(
+        jarLib.elements.map { set ->
+            set.map { fileSystemLocation ->
+                fileSystemLocation.asFile.let {
+                    if (it.isDirectory) it else zipTree(it)
+                }
+            }
+        }
+    )
+}
+
+val optimizeFatJar = jarOptimizer.register(fatjar, "dev.luna5ama", "org.spongepowered", "baritone")
+
+afterEvaluate {
+    tasks.register<Copy>("updateMods") {
+        group = "build"
+        from(optimizeFatJar)
+        into(provider { File(System.getenv("mod_dir")) })
+    }
+
+    artifacts {
+        archives(optimizeFatJar)
+        archives(tasks.modLoaderJar)
+        add("modLoaderPlatforms", optimizeFatJar)
+    }
+}
+
+tasks {
     register<Task>("genRuns") {
         dependsOn("prepareRuns")
         group = "ide"
@@ -296,7 +346,12 @@ tasks {
                               <env name="MCP_MAPPINGS" value="${mappingsChannel}_$mappingsVersion" />
                               <env name="FORGE_VERSION" value="$forgeVersion" />
                               <env name="assetIndex" value="${minecraftVersion.substringBeforeLast('.')}" />
-                              <env name="assetDirectory" value="${gradle.gradleUserHomeDir.path.replace('\\', '/')}/caches/forge_gradle/assets" />
+                              <env name="assetDirectory" value="${
+                        gradle.gradleUserHomeDir.path.replace(
+                            '\\',
+                            '/'
+                        )
+                    }/caches/forge_gradle/assets" />
                               <env name="nativesDirectory" value="${'$'}PROJECT_DIR$/../${rootProject.name}/build/natives" />
                               <env name="FORGE_GROUP" value="net.minecraftforge" />
                               <env name="tweakClass" value="net.minecraftforge.fml.common.launcher.FMLTweaker" />
@@ -316,68 +371,5 @@ tasks {
                 )
             }
         }
-    }
-
-    modLoaderJar {
-        archiveClassifier.set("")
-    }
-}
-
-val fastRemapJar = fastRemapper.register(tasks.jar)
-
-val fatjar = tasks.register<Jar>("fatjar") {
-    val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
-
-    dependsOn(fastRemapJar)
-
-
-    manifest {
-        from(fastRemapJarZipTree.map { zipTree -> zipTree.find { it.name == "MANIFEST.MF" }!! })
-        attributes(
-            "Manifest-Version" to 1.0,
-            "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-            "FMLCorePlugin" to "dev.luna5ama.trollhack.TrollHackCoreMod",
-            "FMLCorePluginContainsFMLMod" to true,
-            "ForceLoadAsMod" to true
-        )
-    }
-
-    val excludeDirs = listOf("META-INF/com.android.tools", "META-INF/maven", "META-INF/proguard", "META-INF/versions")
-    val excludeNames = hashSetOf("module-info", "MUMFREY", "LICENSE", "kotlinx_coroutines_core")
-
-    archiveClassifier.set("fatjar")
-
-    from(fastRemapJarZipTree)
-
-    exclude { file ->
-        file.name.endsWith("kotlin_module")
-            || excludeNames.contains(file.file.nameWithoutExtension)
-            || excludeDirs.any { file.path.contains(it) }
-    }
-
-    from(
-        jarLib.elements.map { set ->
-            set.map { fileSystemLocation ->
-                fileSystemLocation.asFile.let {
-                    if (it.isDirectory) it else zipTree(it)
-                }
-            }
-        }
-    )
-}
-
-val optimizeFatJar = jarOptimizer.register(fatjar, "dev.luna5ama", "org.spongepowered", "baritone")
-
-afterEvaluate {
-    tasks.register<Copy>("updateMods") {
-        group = "build"
-        from(optimizeFatJar)
-        into(provider { File(System.getenv("mod_dir")) })
-    }
-
-    artifacts {
-        archives(optimizeFatJar)
-        archives(tasks.modLoaderJar)
-        add("modLoaderPlatforms", optimizeFatJar)
     }
 }
