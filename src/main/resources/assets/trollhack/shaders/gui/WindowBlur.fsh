@@ -15,16 +15,27 @@ const float WEIGHT_3 = 0.03538335634090266;
 const float WEIGHT_4 = 0.01232869558916469;
 const float WEIGHT_5 = 0.00329720928547428;
 
+const float WEIGHTS[6] = float[6](
+    WEIGHT_0,
+    WEIGHT_1,
+    WEIGHT_2,
+    WEIGHT_3,
+    WEIGHT_4,
+    WEIGHT_5
+);
+
+void calcSample(int index) {
+    fragColor += texture2D(background, coords[index].xy) * WEIGHTS[index];
+    fragColor += texture2D(background, coords[index].zw) * WEIGHTS[index];
+}
+
 void main() {
     fragColor = texture2D(background, coord0) * WEIGHT_C;
 
-    #define CALC_SAMPLE(i) fragColor += texture2D(background, coords[##i].xy) * WEIGHT_##i;\
-        fragColor += texture2D(background, coords[##i].zw) * WEIGHT_##i;
-
-    CALC_SAMPLE(0)
-    CALC_SAMPLE(1)
-    CALC_SAMPLE(2)
-    CALC_SAMPLE(3)
-    CALC_SAMPLE(4)
-    CALC_SAMPLE(5)
+    calcSample(0);
+    calcSample(1);
+    calcSample(2);
+    calcSample(3);
+    calcSample(4);
+    calcSample(5);
 }

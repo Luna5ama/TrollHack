@@ -18,21 +18,32 @@ const float OFFSET_3 = 7.384615384615384;
 const float OFFSET_4 = 9.353846153846154;
 const float OFFSET_5 = 11.323076923076922;
 
+const float OFFSETS[6] = float[](
+    OFFSET_0,
+    OFFSET_1,
+    OFFSET_2,
+    OFFSET_3,
+    OFFSET_4,
+    OFFSET_5
+);
+
+void calcOffset(int index, vec2 texelSize) {
+    float offset = OFFSETS[index] * texelSize.y;
+    coords[index] = vec4(coord0.x, coord0.y - offset, coord0.x, coord0.y + offset);
+}
+
 void main() {
-    vec2 uv = 1.0 / resolution;
+    vec2 texelSize = 1.0 / resolution;
 
     gl_Position = projection * modelView * vec4(vertexPos.xy, 2000.0, 1.0);
-    gl_Position.xy += extend * 12.0 * uv * vertexPos.zw;
+    gl_Position.xy += extend * 12.0 * texelSize * vertexPos.zw;
 
-    coord0 = (gl_Position * reverseProjection).xy * uv + 0.5;
+    coord0 = (gl_Position * reverseProjection).xy * texelSize + 0.5;
 
-    #define CALC_OFFSET(i) float offset##i## = OFFSET_##i## * uv.y;\
-        coords[##i##] = vec4(coord0.x, coord0.y - offset##i##, coord0.x, coord0.y + offset##i##);
-
-    CALC_OFFSET(0)
-    CALC_OFFSET(1)
-    CALC_OFFSET(2)
-    CALC_OFFSET(3)
-    CALC_OFFSET(4)
-    CALC_OFFSET(5)
+    calcOffset(0, texelSize);
+    calcOffset(1, texelSize);
+    calcOffset(2, texelSize);
+    calcOffset(3, texelSize);
+    calcOffset(4, texelSize);
+    calcOffset(5, texelSize);
 }
