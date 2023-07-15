@@ -73,7 +73,7 @@ dependencies {
     jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
     jarLibImplementation("dev.fastmc:mem-util:1.0-SNAPSHOT")
 
-    implementation("com.github.cabaletta:baritone:1.2.14")
+    implementation("cabaletta:baritone-deobf-unoptimized-mcp-dev:1.2")
     jarLib("cabaletta:baritone-api:1.2")
 }
 
