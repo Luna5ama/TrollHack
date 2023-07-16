@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.BaritoneUtils
-import dev.luna5ama.trollhack.graphics.color.ColorRG
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 
 /**
  * Created by Dewy on the 21st of April, 2020
