@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.manager.managers.TimerManager.resetTimer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.collections.averageOrZero
 import net.minecraft.network.play.client.CPacketPlayer
 import kotlin.math.min
 
@@ -72,8 +73,8 @@ internal object PacketLimiter : Module(
                     longPacketTime.addAndTrim(duration, longTermTicks)
                     shortPacketTime.addAndTrim(duration, shortTermTicks)
 
-                    longPacketSpeed = (1000.0 / shortPacketTime.average()).toFloat()
-                    shortPacketSpeed = (1000.0 / shortPacketTime.average()).toFloat()
+                    longPacketSpeed = (1000.0 / shortPacketTime.averageOrZero()).toFloat()
+                    shortPacketSpeed = (1000.0 / shortPacketTime.averageOrZero()).toFloat()
                 }
             }
 

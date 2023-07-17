@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.util
 
-import dev.luna5ama.trollhack.util.collections.ExtendedBitSet
+import dev.fastmc.common.collection.DynamicBitSet
 
 class IDRegistry {
-    private val bitSet = ExtendedBitSet()
+    private val bitSet = DynamicBitSet()
 
     fun register(): Int {
         var id = -1

@@ -1,16 +1,23 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.BindSetting
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
 
 class BindButton(
+    screen: IGuiScreen,
     private val setting: BindSetting
-) : Slider(setting.name, setting.description, setting.visibility) {
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+) : Slider(screen, setting.name, setting.description, setting.visibility) {
+    override fun onDisplayed() {
+        protectedWidth = MainFontRenderer.getWidth(setting.value.toString(), 0.75f)
+        super.onDisplayed()
+    }
+
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (listening) {
             setting.value.apply {
                 if (buttonId > 1) setBind(-buttonId - 1)

@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.util.combat
 
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.EntityUtils
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.Vec3d

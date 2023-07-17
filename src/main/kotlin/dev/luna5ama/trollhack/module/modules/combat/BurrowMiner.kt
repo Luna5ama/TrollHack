@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.distanceSq
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeConcurrentListener
@@ -11,8 +13,6 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.math.vector.distanceSq
 import dev.luna5ama.trollhack.util.world.isAir
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.math.BlockPos
@@ -88,9 +88,9 @@ internal object BurrowMiner : Module(
         var minDist = Double.MAX_VALUE
         val minDistPos = BlockPos.MutableBlockPos()
 
-        val y = target.posY.fastFloor()
-        for (x in (detectBB.minX + 0.001).fastFloor()..(detectBB.maxX + 0.001).fastFloor()) {
-            for (z in (detectBB.minZ + 0.001).fastFloor()..(detectBB.maxZ + 0.001).fastFloor()) {
+        val y = target.posY.floorToInt()
+        for (x in (detectBB.minX + 0.001).floorToInt()..(detectBB.maxX + 0.001).floorToInt()) {
+            for (z in (detectBB.minZ + 0.001).floorToInt()..(detectBB.maxZ + 0.001).floorToInt()) {
                 val dist = distanceSq(x + 0.5, z + 0.5, target.posX, target.posZ)
 
                 if (dist < minDist && !world.isAir(x, y, z)) {

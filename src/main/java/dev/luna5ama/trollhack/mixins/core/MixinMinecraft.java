@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent;
 import dev.luna5ama.trollhack.mixins.accessor.player.AccessorEntityPlayerSP;
 import dev.luna5ama.trollhack.mixins.accessor.player.AccessorPlayerControllerMP;
 import dev.luna5ama.trollhack.module.modules.client.MainMenu;
+import dev.luna5ama.trollhack.module.modules.misc.UnfocusedFps;
 import dev.luna5ama.trollhack.module.modules.player.BlockInteraction;
 import dev.luna5ama.trollhack.module.modules.player.FastUse;
 import dev.luna5ama.trollhack.module.modules.player.PacketMine;
@@ -19,6 +20,9 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.math.RayTraceResult;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.ContextAttribs;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.PixelFormat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,6 +58,11 @@ public abstract class MixinMinecraft {
 
     @Shadow
     protected abstract void init() throws LWJGLException, IOException;
+
+    @Redirect(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
+    public void Redirect$createDisplay$INVOKE$Display$create(PixelFormat pixel_format) throws LWJGLException {
+        Display.create(pixel_format, new ContextAttribs(4, 5).withProfileCompatibility(true));
+    }
 
     @ModifyVariable(method = "displayGuiScreen", at = @At("HEAD"), ordinal = 0, argsOnly = true)
     public GuiScreen displayGuiScreen$ModifyVariable$HEAD(GuiScreen value) {
@@ -223,6 +232,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "getLimitFramerate", at = @At("HEAD"), cancellable = true)
     public void getLimitFramerate$Inject$HEAD(CallbackInfoReturnable<Integer> cir) {
         MainMenu.handleGetLimitFramerate(cir);
+        UnfocusedFps.handleGetLimitFramerate(cir);
     }
 
     @Inject(method = "rightClickMouse", at = @At(value = "RETURN", ordinal = 0))

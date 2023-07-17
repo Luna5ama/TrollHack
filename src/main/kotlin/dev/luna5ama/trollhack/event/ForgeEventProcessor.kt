@@ -13,12 +13,12 @@ import dev.luna5ama.trollhack.event.events.render.FogColorEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderOverlayEvent
 import dev.luna5ama.trollhack.event.events.render.ResolutionUpdateEvent
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.gui.mc.TrollGuiChat
 import dev.luna5ama.trollhack.manager.managers.WorldManager
 import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.text.MessageDetection
 import net.minecraftforge.client.event.*
 import net.minecraftforge.event.entity.player.PlayerInteractEvent

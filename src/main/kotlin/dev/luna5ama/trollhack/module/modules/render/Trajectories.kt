@@ -1,21 +1,21 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.toRadians
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.combat.MidClickPearl
 import dev.luna5ama.trollhack.module.modules.player.FastUse
 import dev.luna5ama.trollhack.util.EntityUtils
-import dev.luna5ama.trollhack.util.extension.toRadian
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.ActiveRenderInfo
 import net.minecraft.client.renderer.GlStateManager
@@ -118,8 +118,8 @@ internal object Trajectories : Module(
         val camPos =
             EntityUtils.getInterpolatedPos(player, RenderUtils3D.partialTicks).add(ActiveRenderInfo.getCameraPosition())
 
-        val yawRad = player.rotationYaw.toRadian()
-        val pitchRad = player.rotationPitch.toRadian()
+        val yawRad = player.rotationYaw.toRadians()
+        val pitchRad = player.rotationPitch.toRadians()
         val offset = Vec3d(
             cos(yawRad) * 0.2 + sin(pitchRad) * -sin(yawRad) * 0.15,
             0.0,

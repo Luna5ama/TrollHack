@@ -10,6 +10,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.accessor.rightClickMouse
 import dev.luna5ama.trollhack.util.atTrue
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.world.isWater
 import net.minecraft.init.Items
 import net.minecraft.network.play.server.SPacketSoundEffect
@@ -113,7 +114,7 @@ internal object AutoFish : Module(
     }
 
     private fun SafeClientEvent.isSplash(packet: SPacketSoundEffect): Boolean {
-        if (mode.value == Mode.SPLASH && (player.fishEntity?.getDistance(packet.x, packet.y, packet.z)
+        if (mode.value == Mode.SPLASH && (player.fishEntity?.distanceTo(packet.x, packet.y, packet.z)
                 ?: 69420.0) > 2
         ) return false
         val soundName = packet.sound.soundName.toString().lowercase()

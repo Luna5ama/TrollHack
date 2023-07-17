@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -12,8 +13,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.runIf
 import dev.luna5ama.trollhack.util.world.getBlock
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
@@ -61,7 +61,7 @@ internal object AntiRegear : Module(
             val mineRangeSq = mineRange.sq
             world.loadedTileEntityList.asSequence()
                 .filterIsInstance<TileEntityShulkerBox>()
-                .filter { player.distanceSqTo(it.pos) <= mineRangeSq }
+                .filter { player.distanceSqToCenter(it.pos) <= mineRangeSq }
                 .filter { otherPlayerNearBy(it.pos) }
                 .runIf(ignoreSelfPlaced) {
                     filterNot { selfPlaced.contains(it.pos) }
@@ -72,7 +72,7 @@ internal object AntiRegear : Module(
 
             while (!mineQueue.isEmpty()) {
                 pos = mineQueue.first()
-                if (player.distanceSqTo(pos) > mineRangeSq || world.getBlock(pos) !is BlockShulkerBox) {
+                if (player.distanceSqToCenter(pos) > mineRangeSq || world.getBlock(pos) !is BlockShulkerBox) {
                     mineQueue.removeFirst()
                 } else {
                     break
@@ -88,7 +88,7 @@ internal object AntiRegear : Module(
         }
 
         safeListener<WorldEvent.ClientBlockUpdate> { event ->
-            val playerDistance = player.distanceSqTo(event.pos)
+            val playerDistance = player.distanceSqToCenter(event.pos)
             if (playerDistance > mineRange.sq) return@safeListener
 
             if (event.newState.block !is BlockShulkerBox) {
@@ -115,12 +115,12 @@ internal object AntiRegear : Module(
         val playerSequence = EntityManager.players.asSequence().filterNot { it.isSelf }
 
         val noFriendInRange = playerSequence.filter { it.isFriend }
-            .filter { it.distanceSqTo(pos) <= friendRangeSq }
+            .filter { it.distanceSqToCenter(pos) <= friendRangeSq }
             .none()
 
         val othersInRange = playerSequence
             .filterNot { it.isFriend }
-            .filter { it.distanceSqTo(pos) <= otherPlayerRangeSq }
+            .filter { it.distanceSqToCenter(pos) <= otherPlayerRangeSq }
             .any()
 
         return noFriendInRange && othersInRange

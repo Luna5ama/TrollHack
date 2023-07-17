@@ -8,29 +8,29 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.Quad
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.placeCollideCheck
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.threads.runSynchronized
 import it.unimi.dsi.fastutil.longs.Long2LongMaps
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityEnderCrystal
 import net.minecraft.init.Items
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
-import org.lwjgl.opengl.GL11.*
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.min
@@ -132,11 +132,11 @@ internal object CrystalESP : Module(
             if (!showDamage && !showSelfDamage) return@listener
 
             for ((pos, quad) in renderCrystalMap) {
-                glPushMatrix()
+                GlStateManager.pushMatrix()
 
                 val screenPos = ProjectionUtils.toAbsoluteScreenPos(pos.toVec3dCenter())
-                glTranslated(screenPos.x, screenPos.y, 0.0)
-                glScalef(2.0f, 2.0f, 1.0f)
+                GlStateManager.translate(screenPos.x, screenPos.y, 0.0)
+                GlStateManager.scale(2.0f, 2.0f, 1.0f)
 
                 val alpha = (getAnimationProgress(quad.third, quad.fourth) * 255f).toInt()
                 val color = ColorRGB(255, 255, 255, alpha)
@@ -153,7 +153,7 @@ internal object CrystalESP : Module(
                 val y = MainFontRenderer.getHeight() * -0.5f
                 MainFontRenderer.drawString(text, x, y, color = color)
 
-                glPopMatrix()
+                GlStateManager.popMatrix()
             }
         }
     }

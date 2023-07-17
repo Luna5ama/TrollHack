@@ -3,10 +3,13 @@ package dev.luna5ama.trollhack.gui.hudgui
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.font.TextComponent
 import dev.luna5ama.trollhack.setting.configs.AbstractConfig
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
+import dev.luna5ama.trollhack.util.text.format
+import net.minecraft.util.text.TextFormatting
 
 abstract class AbstractLabelHud(
     name: String,
@@ -17,8 +20,8 @@ abstract class AbstractLabelHud(
     enabledByDefault: Boolean,
     config: AbstractConfig<out Nameable>,
 ) : AbstractHudElement(name, alias, category, description, alwaysListening, enabledByDefault, config) {
-    override val hudWidth: Float get() = displayText.getWidth() + 2.0f
-    override val hudHeight: Float get() = displayText.getHeight(2)
+    override val hudWidth by FrameFloat { displayText.getWidth() + 2.0f }
+    override val hudHeight by FrameFloat { displayText.getHeight(2) }
 
     protected val displayText = TextComponent()
 
@@ -26,6 +29,9 @@ abstract class AbstractLabelHud(
         safeParallelListener<TickEvent.Post> {
             displayText.clear()
             updateText()
+            if (displayText.isEmpty() && screen.isVisible) {
+                displayText.add(TextFormatting.ITALIC format nameAsString)
+            }
         }
     }
 
@@ -43,5 +49,4 @@ abstract class AbstractLabelHud(
             verticalAlign = dockingV
         )
     }
-
 }

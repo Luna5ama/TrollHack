@@ -1,10 +1,18 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.esp.DynamicBoxRenderer
+import dev.luna5ama.trollhack.graphics.esp.DynamicTracerRenderer
+import dev.luna5ama.trollhack.graphics.esp.StaticBoxRenderer
+import dev.luna5ama.trollhack.graphics.esp.StaticTracerRenderer
+import dev.luna5ama.trollhack.graphics.mask.SideMask
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -12,15 +20,8 @@ import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.esp.DynamicBoxRenderer
-import dev.luna5ama.trollhack.util.graphics.esp.DynamicTracerRenderer
-import dev.luna5ama.trollhack.util.graphics.esp.StaticBoxRenderer
-import dev.luna5ama.trollhack.util.graphics.esp.StaticTracerRenderer
-import dev.luna5ama.trollhack.util.graphics.mask.SideMask
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.or
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -137,7 +138,7 @@ internal object StorageESP : Module(
         staticBoxRenderer.update {
             staticTracerRenderer.update {
                 for (tileEntity in world.loadedTileEntityList.toList()) {
-                    if (eyePos.distanceSqTo(tileEntity.pos) > rangeSq) continue
+                    if (eyePos.distanceSqToCenter(tileEntity.pos) > rangeSq) continue
                     if (!checkTileEntityType(tileEntity)) continue
 
                     val color = getTileEntityColor(tileEntity)

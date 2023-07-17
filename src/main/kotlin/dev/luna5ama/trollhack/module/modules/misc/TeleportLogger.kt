@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.math.MathUtils
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import net.minecraft.util.math.BlockPos
 
@@ -30,19 +31,14 @@ internal object TeleportLogger : Module(
                 if (otherPlayer.isFakeOrSelf) continue
 
                 /* 8 chunk render distance * 16 */
-                if (removeInRange.value && otherPlayer.getDistance(player) < 128) {
+                if (removeInRange.value && otherPlayer.distanceTo(player) < 128) {
                     teleportedPlayers.remove(otherPlayer.name)?.let {
                         val removed = WaypointManager.remove(it)
 
                         if (printRemove.value) {
                             if (removed) {
                                 NoSpamMessage.sendMessage(
-                                    "$chatName Removed ${otherPlayer.name}, they are now ${
-                                        MathUtils.round(
-                                            otherPlayer.getDistance(player),
-                                            1
-                                        )
-                                    } blocks away"
+                                    "$chatName Removed ${otherPlayer.name}, they are now ${MathUtils.round(otherPlayer.distanceTo(player), 1)} blocks away"
                                 )
                             } else {
                                 NoSpamMessage.sendError("$chatName Error removing ${otherPlayer.name} from coords, their position wasn't saved anymore")
@@ -53,7 +49,7 @@ internal object TeleportLogger : Module(
                     continue
                 }
 
-                if (otherPlayer.getDistance(player) < minimumDistance.value || teleportedPlayers.containsKey(otherPlayer.name)) {
+                if (otherPlayer.distanceTo(player) < minimumDistance.value || teleportedPlayers.containsKey(otherPlayer.name)) {
                     continue
                 }
 

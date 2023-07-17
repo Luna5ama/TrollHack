@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.player
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.util.inventory.slot.storageSlots
 import dev.luna5ama.trollhack.util.threads.runSafe
 
@@ -15,8 +15,8 @@ internal object InventoryViewer : HudElement(
     private val border by setting("Border", true)
     private val background by setting("Background", true)
 
-    override val hudWidth: Float = 162.0f
-    override val hudHeight: Float = 54.0f
+    override val hudWidth = 162.0f
+    override val hudHeight = 54.0f
 
     override fun renderHud() {
         super.renderHud()

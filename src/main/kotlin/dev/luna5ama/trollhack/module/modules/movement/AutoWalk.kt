@@ -3,6 +3,7 @@ package dev.luna5ama.trollhack.module.modules.movement
 import baritone.api.pathing.goals.GoalXZ
 import dev.fastmc.common.TickTimer
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
@@ -14,7 +15,6 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.LagNotifier
 import dev.luna5ama.trollhack.util.BaritoneUtils
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.Direction
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -97,8 +97,8 @@ internal object AutoWalk : Module(
         if (!world.isChunkGeneratedAt(player.chunkCoordX, player.chunkCoordZ)) return
 
         direction = Direction.fromEntity(player)
-        val x = player.posX.fastFloor() + direction.directionVec.x * border
-        val z = player.posZ.fastFloor() + direction.directionVec.z * border
+        val x = player.posX.floorToInt() + direction.directionVec.x * border
+        val z = player.posZ.floorToInt() + direction.directionVec.z * border
 
         BaritoneUtils.cancelEverything()
         BaritoneUtils.primary?.customGoalProcess?.setGoalAndPath(GoalXZ(x, z))

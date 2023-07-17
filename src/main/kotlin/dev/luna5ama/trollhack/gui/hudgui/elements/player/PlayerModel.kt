@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.player
 
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager
@@ -17,8 +17,8 @@ internal object PlayerModel : HudElement(
     private val emulatePitch by setting("Emulate Pitch", true)
     private val emulateYaw by setting("Emulate Yaw", false)
 
-    override val hudWidth: Float get() = 50.0f
-    override val hudHeight: Float get() = 80.0f
+    override val hudWidth get() = 50.0f
+    override val hudHeight get() = 80.0f
 
     override val resizable: Boolean = true
 
@@ -30,8 +30,8 @@ internal object PlayerModel : HudElement(
             val yaw = if (emulateYaw) interpolateAndWrap(player.prevRotationYaw, player.rotationYaw) else 0.0f
             val pitch = if (emulatePitch) interpolateAndWrap(player.prevRotationPitch, player.rotationPitch) else 0.0f
 
-            glPushMatrix()
-            glTranslatef(renderWidth / scale / 2.0f, renderHeight / scale - 8.0f, 0.0f)
+            GlStateManager.pushMatrix()
+             GlStateManager.translate(renderWidth / scale / 2.0f, renderHeight / scale - 8.0f, 0.0f)
             GlStateUtils.depth(true)
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
 
@@ -45,7 +45,7 @@ internal object PlayerModel : HudElement(
             GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
 
             GlStateManager.disableColorMaterial()
-            glPopMatrix()
+            GlStateManager.popMatrix()
         }
     }
 

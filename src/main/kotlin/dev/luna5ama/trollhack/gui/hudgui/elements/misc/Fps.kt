@@ -2,12 +2,15 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.misc
 
 import dev.fastmc.common.sort.IntComparator
 import dev.fastmc.common.sort.IntIntrosort
+import dev.fastmc.common.sort.LongComparator
+import dev.fastmc.common.sort.LongIntrosort
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.longs.LongArrayList
 
 internal object Fps : LabelHud(
     name = "Fps",
@@ -26,7 +29,7 @@ internal object Fps : LabelHud(
 
     private val shortFrameTimeList = ArrayList<FrameTimeRecord>()
     private val longFrameTimeList = ArrayList<FrameTimeRecord>()
-    private val sorted = IntArrayList()
+    private val sorted = LongArrayList()
 
     init {
         listener<RunGameLoopEvent.End> {
@@ -40,7 +43,7 @@ internal object Fps : LabelHud(
                 it.timeout <= current
             }
 
-            val frameTime = (current - lastRender).toInt()
+            val frameTime = current - lastRender
             shortFrameTimeList.add(FrameTimeRecord(current + (shortWindow * 1_000_000_000L).toLong(), frameTime))
             longFrameTimeList.add(FrameTimeRecord(current + (longWindow * 1_000_000_000L).toLong(), frameTime))
             lastRender = current
@@ -71,37 +74,37 @@ internal object Fps : LabelHud(
                 longFrameTimeList.forEach {
                     sorted.add(it.frameTime)
                 }
-                IntIntrosort.sort(sorted.elements(), 0, sorted.size, IntComparator.REVERSE_ORDER)
+                LongIntrosort.sort(sorted.elements(), 0, sorted.size, LongComparator.REVERSE_ORDER)
             }
             if (show1Low) {
-                val time = if (sorted.isNotEmpty()) sorted.getInt(sorted.size / 100) else 0
+                val time = if (sorted.isNotEmpty()) sorted.getLong(sorted.size / 100) else 0
                 displayText.add("1% Low", GuiSetting.primary)
                 addFps(time)
             }
             if (show5Low) {
-                val time = if (sorted.isNotEmpty()) sorted.getInt(sorted.size / 20) else 0
+                val time = if (sorted.isNotEmpty()) sorted.getLong(sorted.size / 20) else 0
                 displayText.add("5% Low", GuiSetting.primary)
                 addFps(time)
             }
         }
     }
 
-    private fun addFps(time: Int) {
+    private fun addFps(time: Long) {
         displayText.add((1000_000_000.0 / time).toInt().toString(), GuiSetting.text)
         if (showFrameTime) {
             displayText.add("(%.2f ms)".format(time / 1_000_000.0), GuiSetting.text)
         }
     }
 
-    private fun ArrayList<FrameTimeRecord>.average(): Int {
+    private fun ArrayList<FrameTimeRecord>.average(): Long {
         if (isEmpty()) {
             return 0
         }
         val mul = 1.0 / size
         return sumOf {
             it.frameTime * mul
-        }.toInt()
+        }.toLong()
     }
 
-    private class FrameTimeRecord(val timeout: Long, val frameTime: Int)
+    private class FrameTimeRecord(val timeout: Long, val frameTime: Long)
 }

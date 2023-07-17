@@ -22,12 +22,6 @@ class Command<E : IExecuteEvent> internal constructor(
     val finalArgs: Array<FinalArg<E>>,
     val builder: CommandBuilder<E>
 ) : Nameable, Alias, Invokable<E> {
-
-    /**
-     * [name] + [alias]
-     */
-    val allNames = arrayOf(name, *alias)
-
     /**
      * Invoke this [Command] with [event].
      *

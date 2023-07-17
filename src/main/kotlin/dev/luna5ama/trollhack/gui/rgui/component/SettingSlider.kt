@@ -1,10 +1,12 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.gui.IGuiScreen
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.FloatSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.IntegerSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.NumberSetting
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
@@ -13,7 +15,10 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.round
 
-class SettingSlider(val setting: NumberSetting<*>) : Slider(setting.name, setting.description, setting.visibility) {
+class SettingSlider(
+    screen: IGuiScreen,
+    val setting: NumberSetting<*>
+) : Slider(screen, setting.name, setting.description, setting.visibility) {
     private val range = setting.range.endInclusive.toDouble() - setting.range.start.toDouble()
     private val settingStep = if (setting.step.toDouble() > 0.0) setting.step else getDefaultStep()
     private val stepDouble = settingStep.toDouble()
@@ -51,6 +56,11 @@ class SettingSlider(val setting: NumberSetting<*>) : Slider(setting.name, settin
         else -> range / 20.0
     }
 
+    override fun onDisplayed() {
+        protectedWidth = MainFontRenderer.getWidth(setting.toString(), 0.75f)
+        super.onDisplayed()
+    }
+
     override fun onStopListening(success: Boolean) {
         if (success) {
             inputField.toDoubleOrNull()?.let { setting.setValue(it.toString()) }
@@ -68,8 +78,8 @@ class SettingSlider(val setting: NumberSetting<*>) : Slider(setting.name, settin
         }
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (buttonId == 1) {
             if (!listening) {
                 listening = true

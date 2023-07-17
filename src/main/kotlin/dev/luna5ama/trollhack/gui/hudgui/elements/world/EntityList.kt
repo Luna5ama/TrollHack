@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.isNeutral
 import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
 import dev.luna5ama.trollhack.util.inventory.originalName
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.*
@@ -42,7 +43,7 @@ internal object EntityList : LabelHud(
                 if (!neutral && entity.isNeutral) continue
                 if (!hostile && entity.isHostile) continue
 
-                if (player.getDistance(entity) > range) continue
+                if (player.distanceTo(entity) > range) continue
 
                 val name = entity.entityListName
 

@@ -2,10 +2,10 @@ package dev.luna5ama.trollhack.setting.settings.impl.other
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.setting.settings.MutableNonPrimitive
 import dev.luna5ama.trollhack.setting.settings.MutableSetting
 import dev.luna5ama.trollhack.util.asStringOrNull
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import java.util.*
 import kotlin.reflect.KProperty
 

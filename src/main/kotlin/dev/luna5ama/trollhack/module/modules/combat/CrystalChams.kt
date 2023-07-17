@@ -3,6 +3,10 @@ package dev.luna5ama.trollhack.module.modules.combat
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.setGLColor
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -10,10 +14,7 @@ import dev.luna5ama.trollhack.util.EntityUtils.viewEntity
 import dev.luna5ama.trollhack.util.accessor.renderPosX
 import dev.luna5ama.trollhack.util.accessor.renderPosY
 import dev.luna5ama.trollhack.util.accessor.renderPosZ
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.setGLColor
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityEnderCrystal
 
@@ -36,7 +37,7 @@ internal object CrystalChams : Module(
 
     init {
         safeListener<RenderEntityEvent.All.Pre> {
-            if (it.entity is EntityEnderCrystal && viewEntity.getDistanceSq(it.entity) <= range * range) {
+            if (it.entity is EntityEnderCrystal && viewEntity.distanceSqTo(it.entity) <= range * range) {
                 it.cancel()
             }
         }
@@ -54,7 +55,7 @@ internal object CrystalChams : Module(
 
             for (crystal in EntityManager.entity) {
                 if (crystal !is EntityEnderCrystal) continue
-                if (viewEntity.getDistanceSq(crystal) > rangeSq) continue
+                if (viewEntity.distanceSqTo(crystal) > rangeSq) continue
 
                 renderer.doRender(
                     crystal,

@@ -2,14 +2,14 @@ package dev.luna5ama.trollhack.module.modules.render
 
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.ChunkManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.getInterpolatedPos
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.math.vector.distanceSqToBlock
+import dev.luna5ama.trollhack.util.math.vector.hDistanceSqToCenter
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.ChunkPos
@@ -65,7 +65,7 @@ internal object NewChunks : Module(
             val rangeSq = renderRange * renderRange
 
             for (chunkPos in ChunkManager.newChunks) {
-                if (player.distanceSqToBlock(chunkPos) > rangeSq) continue
+                if (player.hDistanceSqToCenter(chunkPos) > rangeSq) continue
 
                 val xStart = chunkPos.xStart.toDouble()
                 val xEnd = chunkPos.xEnd + 1.0

@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.mixins.core.render;
 
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent;
+import dev.luna5ama.trollhack.graphics.GlStateUtils;
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification;
 import dev.luna5ama.trollhack.module.modules.movement.ElytraFlight;
 import dev.luna5ama.trollhack.module.modules.player.BlockInteraction;
@@ -9,7 +10,6 @@ import dev.luna5ama.trollhack.module.modules.render.AntiOverlay;
 import dev.luna5ama.trollhack.module.modules.render.Fov;
 import dev.luna5ama.trollhack.module.modules.render.ThirdPersonCamera;
 import dev.luna5ama.trollhack.util.Wrapper;
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;

@@ -1,48 +1,73 @@
+import com.google.gson.JsonParser
 import dev.fastmc.loader.ModPackagingTask
 import dev.fastmc.loader.ModPlatform
 import dev.fastmc.remapper.mapping.MappingName
-import net.minecraftforge.gradle.userdev.UserDevExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.math.max
 
-group = "dev.luna5ama"
-version = "1.2.0"
+val modGroup: String by project
+val modID: String by project
+val modName: String by project
+var modVersion = project.property("modVersion") as String
+System.getenv("OVERRIDE_VERSION")?.let {
+    modVersion = it
+}
 
-buildscript {
-    repositories {
-        maven("https://files.minecraftforge.net/maven")
-    }
-
-    dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:5.+")
-    }
+allprojects {
+    group = modGroup
+    version = modVersion
 }
 
 plugins {
     idea
     java
     kotlin("jvm")
-    id("dev.fastmc.fast-remapper").version("1.1-SNAPSHOT")
-    id("dev.luna5ama.jar-optimizer").version("1.2-SNAPSHOT")
-    id("dev.fastmc.mod-loader-plugin").version("1.1-SNAPSHOT")
+
+    id("net.minecraftforge.gradle")
+
+    id("com.google.devtools.ksp")
+    id("dev.luna5ama.kmogus-struct-plugin") apply false
+
+    id("dev.fastmc.fast-remapper")
+    id("dev.luna5ama.jar-optimizer")
+    id("dev.fastmc.mod-loader-plugin")
 }
 
-apply {
-    plugin("net.minecraftforge.gradle")
+allprojects {
+    apply {
+        plugin("kotlin")
+    }
+
+    repositories {
+        mavenCentral()
+        maven("https://maven.luna5ama.dev/")
+        maven("https://maven.fastmc.dev/")
+    }
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
-    maven("https://maven.fastmc.dev/")
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://jitpack.io/")
     maven("https://impactdevelopment.github.io/maven/")
 }
 
-val jarLibImplementation: Configuration by configurations.creating {
-    configurations["implementation"].extendsFrom(this)
+val jarLibImplementation: Configuration by configurations.creating
+
+configurations.implementation {
+    extendsFrom(jarLibImplementation)
 }
+
 val jarLib: Configuration by configurations.creating {
     extendsFrom(jarLibImplementation)
+}
+
+afterEvaluate {
+    configurations["minecraft"].resolvedConfiguration.resolvedArtifacts.forEach {
+        val id = it.moduleVersion.id
+        jarLib.exclude(id.group, it.name)
+    }
 }
 
 val kotlinxCoroutineVersion: String by project
@@ -50,10 +75,11 @@ val minecraftVersion: String by project
 val forgeVersion: String by project
 val mappingsChannel: String by project
 val mappingsVersion: String by project
+val kmogusVersion: String by project
 
 dependencies {
     // Forge
-    "minecraft"("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
+    minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
 
     // Dependencies
     jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib")
@@ -61,17 +87,15 @@ dependencies {
     jarLibImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     jarLibImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutineVersion")
 
-    jarLibImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
-        exclude("commons-io")
-        exclude("gson")
-        exclude("guava")
-        exclude("launchwrapper")
-        exclude(group = "org.apache.logging.log4j")
-    }
-
+    jarLibImplementation("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     jarLibImplementation("org.joml:joml:1.10.5")
     jarLibImplementation("dev.fastmc:fastmc-common:1.1-SNAPSHOT:java8")
-    jarLibImplementation("dev.fastmc:mem-util:1.0-SNAPSHOT")
+
+    jarLibImplementation("dev.luna5ama:kmogus-core:$kmogusVersion")
+    jarLibImplementation("dev.luna5ama:kmogus-struct-api:$kmogusVersion")
+    jarLibImplementation(project(":structs"))
+
+    ksp(project(":codegen"))
 
     implementation("cabaletta:baritone-deobf-unoptimized-mcp-dev:1.2")
     jarLib("cabaletta:baritone-api:1.2")
@@ -84,30 +108,52 @@ idea {
     }
 }
 
-configure<UserDevExtension> {
+ksp {
+    arg("GROUP", modGroup)
+    arg("ID", modID)
+    arg("NAME", modName)
+    arg("VERSION", modVersion)
+}
+
+minecraft {
     mappings(mappingsChannel, mappingsVersion)
+}
 
-    runs {
-        create("client") {
-
+allprojects {
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
         }
     }
-}
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+    kotlin {
+        val jvmArgs = mutableSetOf<String>()
+        (rootProject.findProperty("kotlin.daemon.jvm.options") as? String)
+            ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+        System.getProperty("gradle.kotlin.daemon.jvm.options")
+            ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+
+        kotlinDaemonJvmArgs = jvmArgs.toList()
     }
-}
 
-kotlin {
-    val jvmArgs = mutableSetOf<String>()
-    (rootProject.findProperty("kotlin.daemon.jvm.options") as? String)
-        ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
-    System.getProperty("gradle.kotlin.daemon.jvm.options")
-        ?.split("\\s+".toRegex())?.toCollection(jvmArgs)
+    tasks {
+        withType<JavaCompile> {
+            options.encoding = "UTF-8"
+        }
 
-    kotlinDaemonJvmArgs = jvmArgs.toList()
+        withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "1.8"
+                freeCompilerArgs = listOf(
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-opt-in=kotlin.contracts.ExperimentalContracts",
+                    "-Xlambdas=indy",
+                    "-Xjvm-default=all",
+                    "-Xbackend-threads=0"
+                )
+            }
+        }
+    }
 }
 
 fastRemapper {
@@ -132,6 +178,26 @@ modLoader {
 }
 
 tasks {
+    processResources {
+        outputs.upToDateWhen {
+            runCatching {
+                val mcmodInfo = outputs.previousOutputFiles.find { it.name == "mcmod.info" }!!
+                val obj = JsonParser.parseString(mcmodInfo.readText()).asJsonArray[0].asJsonObject
+                obj["modid"].asString == modID
+                    && obj["name"].asString == modName
+                    && obj["version"].asString == modVersion
+            }.getOrDefault(false)
+        }
+
+        filesMatching("mcmod.info") {
+            expand(
+                "MOD_ID" to modID,
+                "MOD_NAME" to modName,
+                "MOD_VERSION" to modVersion
+            )
+        }
+    }
+
     register<Task>("releaseBuild") {
         group = "build"
         dependsOn("clean")
@@ -156,105 +222,16 @@ tasks {
         delete = set
     }
 
-    compileJava {
-        options.encoding = "UTF-8"
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-opt-in=kotlin.contracts.ExperimentalContracts",
-                "-Xlambdas=indy",
-                "-Xjvm-default=all",
-                "-Xbackend-threads=0"
-            )
-        }
-    }
-
     jar {
         exclude {
             it.name.contains("devfix", true)
         }
-    }
 
-    register<Task>("genRuns") {
-        group = "ide"
-        doLast {
-            val threads = Runtime.getRuntime().availableProcessors()
-            val vmOptions = listOf(
-                "-Xms2G",
-                "-Xmx2G",
-                "-XX:+UnlockExperimentalVMOptions",
-                "-XX:+AlwaysPreTouch",
-                "-XX:+ExplicitGCInvokesConcurrent",
-                "-XX:+ParallelRefProcEnabled",
-                "-XX:+UseG1GC",
-                "-XX:+UseStringDeduplication",
-                "-XX:MaxGCPauseMillis=1",
-                "-XX:G1NewSizePercent=2",
-                "-XX:G1MaxNewSizePercent=10",
-                "-XX:G1HeapRegionSize=1M",
-                "-XX:G1ReservePercent=15",
-                "-XX:G1HeapWastePercent=10",
-                "-XX:G1MixedGCCountTarget=16",
-                "-XX:InitiatingHeapOccupancyPercent=50",
-                "-XX:G1MixedGCLiveThresholdPercent=50",
-                "-XX:G1RSetUpdatingPauseTimePercent=25",
-                "-XX:G1OldCSetRegionThresholdPercent=5",
-                "-XX:SurvivorRatio=5",
-                "-XX:ParallelGCThreads=$threads",
-                "-XX:ConcGCThreads=${max(threads / 4, 1)}",
-                "-XX:FlightRecorderOptions=stackdepth=512",
-                "-Dforge.logging.console.level=debug",
-                "-Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP",
-                "-Dmixin.env.disableRefMap=true",
-                "-Dfml.coreMods.load=dev.luna5ama.trollhack.TrollHackDevFixCoreMod"
-            ).joinToString(" ")
-
-            val dir = File(rootDir, ".idea/runConfigurations")
-            if (!dir.exists()) {
-                dir.mkdirs()
-            }
-            File(dir, "runClient.xml").writer().use {
-                it.write(
-                    """
-                        <component name="ProjectRunConfigurationManager">
-                          <configuration default="false" name="runClient" type="Application" factoryName="Application">
-                            <envs>
-                              <env name="MCP_TO_SRG" value="${'$'}PROJECT_DIR$/build/createSrgToMcp/output.srg" />
-                              <env name="MOD_CLASSES" value="${'$'}PROJECT_DIR$/build/resources/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/java/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/kotlin/main" />
-                              <env name="mainClass" value="net.minecraft.launchwrapper.Launch" />
-                              <env name="MCP_MAPPINGS" value="${mappingsChannel}_$mappingsVersion" />
-                              <env name="FORGE_VERSION" value="$forgeVersion" />
-                              <env name="assetIndex" value="${minecraftVersion.substringBeforeLast('.')}" />
-                              <env name="assetDirectory" value="${gradle.gradleUserHomeDir.path.replace('\\', '/')}/caches/forge_gradle/assets" />
-                              <env name="nativesDirectory" value="${'$'}PROJECT_DIR$/../${rootProject.name}/build/natives" />
-                              <env name="FORGE_GROUP" value="net.minecraftforge" />
-                              <env name="tweakClass" value="net.minecraftforge.fml.common.launcher.FMLTweaker" />
-                              <env name="MC_VERSION" value="${'$'}{MC_VERSION}" />
-                            </envs>
-                            <option name="MAIN_CLASS_NAME" value="net.minecraftforge.legacydev.MainClient" />
-                            <module name="${rootProject.name}.main" />
-                            <option name="PROGRAM_PARAMETERS" value="--width 1280 --height 720 --username TEST" />
-                            <option name="VM_PARAMETERS" value="$vmOptions" />
-                            <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/run" />
-                            <method v="2">
-                              <option name="Gradle.BeforeRunTask" enabled="true" tasks="prepareRunClient" externalProjectPath="${'$'}PROJECT_DIR$" />
-                            </method>
-                          </configuration>
-                        </component>
-                    """.trimIndent()
-                )
-            }
-        }
+        archiveClassifier.set("devmod")
     }
 
     modLoaderJar {
-        archiveClassifier.set("release")
+        archiveClassifier.set("")
     }
 }
 
@@ -264,7 +241,6 @@ val fatjar = tasks.register<Jar>("fatjar") {
     val fastRemapJarZipTree = fastRemapJar.map { zipTree(it.archiveFile) }
 
     dependsOn(fastRemapJar)
-
 
     manifest {
         from(fastRemapJarZipTree.map { zipTree -> zipTree.find { it.name == "MANIFEST.MF" }!! })
@@ -314,5 +290,86 @@ afterEvaluate {
         archives(optimizeFatJar)
         archives(tasks.modLoaderJar)
         add("modLoaderPlatforms", optimizeFatJar)
+    }
+}
+
+tasks {
+    register<Task>("genRuns") {
+        dependsOn("prepareRuns")
+        group = "ide"
+
+        doLast {
+            val threads = Runtime.getRuntime().availableProcessors()
+            val vmOptions = listOf(
+                "-Xms2G",
+                "-Xmx2G",
+                "-XX:+UnlockExperimentalVMOptions",
+                "-XX:+AlwaysPreTouch",
+                "-XX:+ExplicitGCInvokesConcurrent",
+                "-XX:+ParallelRefProcEnabled",
+                "-XX:+UseG1GC",
+                "-XX:+UseStringDeduplication",
+                "-XX:MaxGCPauseMillis=1",
+                "-XX:G1NewSizePercent=2",
+                "-XX:G1MaxNewSizePercent=10",
+                "-XX:G1HeapRegionSize=1M",
+                "-XX:G1ReservePercent=15",
+                "-XX:G1HeapWastePercent=10",
+                "-XX:G1MixedGCCountTarget=16",
+                "-XX:InitiatingHeapOccupancyPercent=50",
+                "-XX:G1MixedGCLiveThresholdPercent=50",
+                "-XX:G1RSetUpdatingPauseTimePercent=25",
+                "-XX:G1OldCSetRegionThresholdPercent=5",
+                "-XX:SurvivorRatio=5",
+                "-XX:ParallelGCThreads=$threads",
+                "-XX:ConcGCThreads=${max(threads / 4, 1)}",
+                "-XX:FlightRecorderOptions=stackdepth=512",
+                "-Dforge.logging.console.level=debug",
+                "-Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP",
+                "-Dmixin.env.disableRefMap=true",
+                "-Dfml.coreMods.load=dev.luna5ama.trollhack.TrollHackDevFixCoreMod"
+            ).joinToString(" ")
+
+            val dir = File(rootDir, ".idea/runConfigurations")
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
+            File(dir, "runClient.xml").writer().use {
+                it.write(
+                    """
+                        <component name="ProjectRunConfigurationManager">
+                          <configuration default="false" name="runClient" type="Application" factoryName="Application">
+                            <envs>
+                              <env name="MCP_TO_SRG" value="${'$'}PROJECT_DIR$/build/createSrgToMcp/output.srg" />
+                              <env name="MOD_CLASSES" value="${'$'}PROJECT_DIR$/build/resources/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/java/main;${'$'}PROJECT_DIR$/../${rootProject.name}/${project.name}/build/classes/kotlin/main" />
+                              <env name="mainClass" value="net.minecraft.launchwrapper.Launch" />
+                              <env name="MCP_MAPPINGS" value="${mappingsChannel}_$mappingsVersion" />
+                              <env name="FORGE_VERSION" value="$forgeVersion" />
+                              <env name="assetIndex" value="${minecraftVersion.substringBeforeLast('.')}" />
+                              <env name="assetDirectory" value="${
+                        gradle.gradleUserHomeDir.path.replace(
+                            '\\',
+                            '/'
+                        )
+                    }/caches/forge_gradle/assets" />
+                              <env name="nativesDirectory" value="${'$'}PROJECT_DIR$/../${rootProject.name}/build/natives" />
+                              <env name="FORGE_GROUP" value="net.minecraftforge" />
+                              <env name="tweakClass" value="net.minecraftforge.fml.common.launcher.FMLTweaker" />
+                              <env name="MC_VERSION" value="${'$'}{MC_VERSION}" />
+                            </envs>
+                            <option name="MAIN_CLASS_NAME" value="net.minecraftforge.legacydev.MainClient" />
+                            <module name="${rootProject.name}.main" />
+                            <option name="PROGRAM_PARAMETERS" value="--width 1280 --height 720 --username TEST" />
+                            <option name="VM_PARAMETERS" value="$vmOptions" />
+                            <option name="WORKING_DIRECTORY" value="${'$'}PROJECT_DIR$/run" />
+                            <method v="2">
+                              <option name="Make" enabled="true" />
+                            </method>
+                          </configuration>
+                        </component>
+                    """.trimIndent()
+                )
+            }
+        }
     }
 }

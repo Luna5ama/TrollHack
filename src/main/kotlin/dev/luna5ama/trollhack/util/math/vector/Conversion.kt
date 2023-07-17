@@ -1,17 +1,17 @@
 package dev.luna5ama.trollhack.util.math.vector
 
-import dev.luna5ama.trollhack.util.extension.fastFloor
+import dev.fastmc.common.floorToInt
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.MathHelper
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vec3i
 
 fun Vec3d.toBlockPos(xOffset: Int, yOffset: Int, zOffset: Int): BlockPos {
-    return BlockPos(x.fastFloor() + xOffset, y.fastFloor() + yOffset, z.fastFloor() + zOffset)
+    return BlockPos(x.floorToInt() + xOffset, y.floorToInt() + yOffset, z.floorToInt() + zOffset)
 }
 
 fun Vec3d.toBlockPos(): BlockPos {
-    return BlockPos(x.fastFloor(), y.fastFloor(), z.fastFloor())
+    return BlockPos(x.floorToInt(), y.floorToInt(), z.floorToInt())
 }
 
 fun Vec3i.toVec3dCenter(): Vec3d {

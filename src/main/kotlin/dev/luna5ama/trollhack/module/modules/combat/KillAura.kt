@@ -21,6 +21,7 @@ import dev.luna5ama.trollhack.util.inventory.operation.swapToSlot
 import dev.luna5ama.trollhack.util.math.RotationUtils.faceEntityClosest
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationToEntityClosest
 import dev.luna5ama.trollhack.util.math.isInSight
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.runSafe
@@ -125,7 +126,7 @@ internal object KillAura : Module(
         val target = CombatManager.target ?: return
 
         if (CombatSetting.pause) return
-        if (player.getDistance(target) >= range) return
+        if (player.distanceTo(target) >= range) return
         if (swapDelay > 0 && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
 
         MainHandPause.withPause(KillAura) {

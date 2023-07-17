@@ -1,13 +1,13 @@
 package dev.luna5ama.trollhack.module.modules.chat
 
+import dev.fastmc.common.ceilToInt
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.graphics.texture.MipmapTexture
 import dev.luna5ama.trollhack.manager.managers.EmojiManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.client.CustomFont
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.graphics.texture.MipmapTexture
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -71,7 +71,7 @@ internal object Emoji : Module(
             text = text.replaceFirst(emojiText, replacement)
         }
 
-        return MainFontRenderer.getWidth(text).fastCeil()
+        return MainFontRenderer.getWidth(text).ceilToInt()
     }
 
     @JvmStatic
@@ -91,13 +91,13 @@ internal object Emoji : Module(
     }
 
     private fun getReplacementCustomFont(): String {
-        val emojiWidth = (MainFontRenderer.getHeight() / MainFontRenderer.getWidth(' ')).fastCeil()
+        val emojiWidth = (MainFontRenderer.getHeight() / MainFontRenderer.getWidth(' ')).ceilToInt()
         val spaces = CharArray(emojiWidth) { ' ' }
         return String(spaces)
     }
 
     private fun getReplacement(fontHeight: Int): String {
-        val emojiWidth = (fontHeight / mc.fontRenderer.getCharWidth(' ').toFloat()).fastCeil()
+        val emojiWidth = (fontHeight / mc.fontRenderer.getCharWidth(' ').toFloat()).ceilToInt()
         val spaces = CharArray(emojiWidth) { ' ' }
         return String(spaces)
     }

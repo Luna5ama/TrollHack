@@ -7,6 +7,8 @@ import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceTo
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityBoat
 import net.minecraft.entity.passive.*
@@ -40,9 +42,9 @@ internal object AutoRemount : Module(
             if (remountTimer.tickAndReset(remountDelay)) {
                 EntityManager.entity.asSequence()
                     .filter(::isValidEntity)
-                    .minByOrNull { player.getDistanceSq(it) }
+                    .minByOrNull { player.distanceSqTo(it) }
                     ?.let {
-                        if (player.getDistance(it) < range) {
+                        if (player.distanceTo(it) < range) {
                             playerController.interactWithEntity(player, it, EnumHand.MAIN_HAND)
                         }
                     }

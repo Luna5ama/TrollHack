@@ -1,15 +1,23 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.MathUtil
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.isEven
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
+import dev.luna5ama.trollhack.manager.managers.TimerManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.MovementUtils
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
+import dev.luna5ama.trollhack.util.threads.runSafe
 import io.netty.util.internal.ConcurrentSet
 import net.minecraft.network.play.client.CPacketConfirmTeleport
+import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.server.SPacketCloseWindow
 import net.minecraft.network.play.server.SPacketPlayerPosLook
@@ -28,6 +36,7 @@ internal object PacketFly : Module(
     private val page by setting("Page", Page.MOVEMENT)
 
     private val sprintFastMode by setting("Sprint Fast Mode", true, { page == Page.MOVEMENT })
+    private val phaseTicks by setting("Phase Ticks", 5, 1..20, 1, { page == Page.MOVEMENT })
     private val upSpeed by setting("Up Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val downSpeed by setting("Down Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
     private val speed by setting("Speed", 0.062, 0.0..1.0, 0.01, { page == Page.MOVEMENT })
@@ -169,6 +178,14 @@ internal object PacketFly : Module(
             teleportID = 0
             serverIgnores = 0
             packetFlyingTicks = 0
+
+            runSafe {
+                if (player.isSneaking) {
+                    connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
+                } else {
+                    connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
+                }
+            }
         }
 
         safeListener<PacketEvent.Send> {
@@ -271,9 +288,24 @@ internal object PacketFly : Module(
             var motionY = 0.0
             var motionZ = 0.0
 
-            if (player.movementInput.jump xor player.movementInput.sneak) {
-                motionY = if (player.movementInput.jump) upSpeed else -downSpeed
-            } else if (MovementUtils.isInputting) {
+            val playerBB = player.entityBoundingBox
+            if (player.movementInput.jump) {
+                motionY = upSpeed
+
+                val clipedMaxY = player.posY.floorToInt() + 2
+                val newMaxY = playerBB.maxY + motionY
+
+                if (newMaxY > clipedMaxY) {
+                    if (newMaxY < clipedMaxY + 0.2) {
+                        connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
+                        motionY = MathUtil.clamp(clipedMaxY - (player.posY + 1.65), 0.01, upSpeed)
+                    } else if (newMaxY < clipedMaxY + 0.4) {
+                        connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
+                    }
+                }
+            } else if (player.movementInput.sneak) {
+                motionY = -downSpeed
+            } else if (MovementUtils.isInputting()) {
                 val yaw = player.calcMoveYaw()
                 motionX -= sin(yaw) * speed
                 motionZ += cos(yaw) * speed
@@ -302,14 +334,15 @@ internal object PacketFly : Module(
                 GroundMode.OFF_GROUND -> false
             }
 
-            sendPlayerPacket(
-                CPacketPlayer.Position(
-                    player.posX + spoofX.offset(this),
-                    player.posY + spoofY.offset(this),
-                    player.posZ + spoofZ.offset(this),
-                    spoofOnGround
-                )
+            val spoofPacket = CPacketPlayer.Position(
+                player.posX + spoofX.offset(this),
+                player.posY + spoofY.offset(this),
+                player.posZ + spoofZ.offset(this),
+                spoofOnGround
             )
+
+            PlayerPacketManager.ignoreUpdate(spoofPacket)
+            sendPlayerPacket(spoofPacket)
 
             if (confirmTeleportMove) {
                 connection.sendPacket(CPacketConfirmTeleport(++teleportID))
@@ -326,21 +359,26 @@ internal object PacketFly : Module(
                 return
             }
 
-            if (MovementUtils.isInputting && player.collidedHorizontally && isPhasing()) {
-                packetFlyingTicks = 5
+            if (MovementUtils.isInputting() && isPhasing()) {
+                packetFlyingTicks = phaseTicks
                 return
             }
         }
     }
 
     private fun SafeClientEvent.isPhasing(): Boolean {
-        val yaw = player.calcMoveYaw()
-        val box = player.entityBoundingBox.grow(-0.001, -0.001, -0.001)
-        val nextBox = box.offset(-sin(yaw) * 0.05, 0.0, cos(yaw) * 0.05)
-
-        val colliedBoxList = world.getCollisionBoxes(null, nextBox)
-        colliedBoxList.removeAll(world.getCollisionBoxes(null, box).toSet())
-        return colliedBoxList.isNotEmpty()
+        val playerX = player.posX.floorToInt()
+        val playerZ = player.posZ.floorToInt()
+        val box = player.entityBoundingBox
+        val eps = 0.01
+        val minXE = (box.minX - eps).floorToInt()
+        val maxXE = (box.maxX + eps).floorToInt()
+        val minZE = (box.minZ - eps).floorToInt()
+        val maxZE = (box.maxZ + eps).floorToInt()
+        return (box.minX + eps).floorToInt() != minXE && minXE != playerX
+            || (box.maxX - eps).floorToInt() != maxXE && maxXE != playerX
+            || (box.minZ + eps).floorToInt() != minZE && minZE != playerZ
+            || (box.maxZ - eps).floorToInt() != maxZE && maxZE != playerZ
     }
 
     private fun SafeClientEvent.sendPlayerPacket(packet: CPacketPlayer) {

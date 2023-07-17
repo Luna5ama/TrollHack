@@ -3,10 +3,10 @@ package dev.luna5ama.trollhack.module.modules.client
 import dev.fastmc.common.TickTimer
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.delegate.FrameValue
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import kotlin.math.round
 
 internal object GuiSetting : Module(
@@ -18,18 +18,19 @@ internal object GuiSetting : Module(
 ) {
     private val scaleSetting = setting("Scale", 100, 50..400, 5)
     val particle by setting("Particle", false)
-    val blur by setting("Blur", 0.25f, 0.0f..1.0f, 0.05f)
+    val backGroundBlur by setting("Background Blur", 0.0f, 0.0f..1.0f, 0.05f)
     val windowOutline by setting("Window Outline", true)
     val titleBar by setting("Title Bar", false)
-    private val windowBlur0 = setting("Window Blur", true)
-    val windowBlur by windowBlur0
+    val windowBlurPass by setting("Window Blur Pass", 2, 0..10, 1)
+    val xMargin by setting("X Margin", 4.0f, 0.0f..10.0f, 0.5f)
+    val yMargin by setting("Y Margin", 1.0f, 0.0f..10.0f, 0.5f)
     val darkness by setting("Darkness", 0.25f, 0.0f..1.0f, 0.05f)
     val fadeInTime by setting("Fade In Time", 0.4f, 0.0f..1.0f, 0.05f)
     val fadeOutTime by setting("Fade Out Time", 0.4f, 0.0f..1.0f, 0.05f)
     private val primarySetting by setting("Primary Color", ColorRGB(255, 140, 180, 220))
     private val backgroundSetting by setting("Background Color", ColorRGB(40, 32, 36, 160))
     private val textSetting by setting("Text Color", ColorRGB(255, 250, 253, 255))
-    private val aHover by setting("Hover Alpha", 24, 0..255, 1)
+    private val aHover by setting("Hover Alpha", 32, 0..255, 1)
 
     val primary get() = primarySetting
     val idle get() = if (primary.lightness < 0.9f) ColorRGB(255, 255, 255, 0) else ColorRGB(0, 0, 0, 0)
@@ -48,8 +49,7 @@ internal object GuiSetting : Module(
         scale = 1.0f
     }
 
-    val scaleFactorFloat by FrameValue { (prevScale + (scale - prevScale) * mc.renderPartialTicks) * 2.0f }
-    val scaleFactor by FrameValue { (prevScale + (scale - prevScale) * mc.renderPartialTicks) * 2.0 }
+    val scaleFactor by FrameFloat { (prevScale + (scale - prevScale) * mc.renderPartialTicks) * 2.0f }
 
     private fun getRoundedScale(): Float {
         return round((scaleSetting.value / 100.0f) / 0.1f) * 0.1f

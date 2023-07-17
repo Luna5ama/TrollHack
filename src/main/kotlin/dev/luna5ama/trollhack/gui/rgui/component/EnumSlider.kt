@@ -1,13 +1,18 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.gui.IGuiScreen
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.EnumSetting
 import dev.luna5ama.trollhack.util.extension.readableName
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import kotlin.math.floor
 
-class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, setting.description, setting.visibility) {
+class EnumSlider(
+    screen: IGuiScreen,
+    val setting: EnumSetting<*>
+) : Slider(screen, setting.name, setting.description, setting.visibility) {
     private val enumValues = setting.enumValues
 
     override var progress = 0.0f
@@ -25,8 +30,13 @@ class EnumSlider(val setting: EnumSetting<*>) : Slider(setting.name, setting.des
             }
         }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
+    override fun onDisplayed() {
+        protectedWidth = MainFontRenderer.getWidth(setting.value.readableName(), 0.75f)
+        super.onDisplayed()
+    }
+
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
         if (prevState != MouseState.DRAG) setting.nextValue()
     }
 

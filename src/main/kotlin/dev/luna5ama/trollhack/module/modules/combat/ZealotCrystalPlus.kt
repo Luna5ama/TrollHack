@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
-import dev.fastmc.common.TickTimer
+import dev.fastmc.common.*
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
@@ -12,6 +13,10 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.*
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.setGLColor
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Watermark
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -27,7 +32,10 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.MovementUtils.realSpeed
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.accessor.*
-import dev.luna5ama.trollhack.util.collections.CircularArray
+import dev.luna5ama.trollhack.util.atValue
+import dev.luna5ama.trollhack.util.collections.averageOrZero
+import dev.luna5ama.trollhack.util.collections.forEachFast
+import dev.luna5ama.trollhack.util.collections.none
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CombatUtils.totalHealth
 import dev.luna5ama.trollhack.util.combat.CrystalDamage
@@ -36,14 +44,6 @@ import dev.luna5ama.trollhack.util.combat.CrystalUtils.canPlaceCrystalOn
 import dev.luna5ama.trollhack.util.combat.CrystalUtils.hasValidSpaceForCrystal
 import dev.luna5ama.trollhack.util.combat.ExposureSample
 import dev.luna5ama.trollhack.util.delegate.CachedValueN
-import dev.luna5ama.trollhack.util.extension.ceilToInt
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.setGLColor
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.inventory.attackDamage
 import dev.luna5ama.trollhack.util.inventory.duraPercentage
@@ -57,10 +57,7 @@ import dev.luna5ama.trollhack.util.pause.HandPause
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.threads.*
-import dev.luna5ama.trollhack.util.world.FastRayTraceAction
-import dev.luna5ama.trollhack.util.world.FastRayTraceFunction
-import dev.luna5ama.trollhack.util.world.fastRayTrace
-import dev.luna5ama.trollhack.util.world.rayTraceVisible
+import dev.luna5ama.trollhack.util.world.*
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntArrayList
@@ -161,7 +158,7 @@ internal object ZealotCrystalPlus : Module(
         -10.0f..10.0f,
         0.25f,
         { page == Page.FORCE_PLACE })
-    private val forcePlaceSword by setting("Force Place Sword", false, { page == Page.FORCE_PLACE })
+    private val forcePlaceWhileSwording by setting("Force Place While Swording", false, { page == Page.FORCE_PLACE })
 
     // Calculation
     private val assumeInstantMine by setting("Assume Instant Mine", true, { page == Page.CALCULATION })
@@ -169,22 +166,38 @@ internal object ZealotCrystalPlus : Module(
     private val wallRange by setting("Wall Range", 3.0f, 0.0f..8.0f, 0.1f, { page == Page.CALCULATION })
     private val motionPredict by setting("Motion Predict", true, { page == Page.CALCULATION })
     private val predictTicks by setting("Predict Ticks", 8, 0..20, 1, { page == Page.CALCULATION && motionPredict })
+    private val damagePriority by setting("Damage Priority", DamagePriority.EFFICIENT, ::page.atValue(Page.CALCULATION))
     private val lethalOverride by setting("Lethal Override", true, { page == Page.CALCULATION })
-    private val lethalBalance by setting(
-        "Lethal Balance",
+    private val lethalThresholdAddition by setting(
+        "Lethal Threshole Addition",
         0.5f,
         -5.0f..5.0f,
         0.1f,
         { page == Page.CALCULATION && lethalOverride })
-    private val lethalMaxDamage by setting(
-        "Lethal Max Damage",
+    private val lethalMaxSelfDamage by setting(
+        "Lethal Max Self Damage",
         16.0f,
         0.0f..20.0f,
         0.25f,
         { page == Page.CALCULATION && lethalOverride })
-    private val safeRange by setting("Safe Range", 1.0f, 0.0f..10.0f, 0.1f, { page == Page.CALCULATION })
-    private val safeThreshold by setting("Safe Threshold", 2.0f, 0.0f..10.0f, 0.1f, { page == Page.CALCULATION })
-    private val avoidThreshold by setting("Avoid Threshold", 4.0f, 0.0f..10.0f, 0.1f, { page == Page.CALCULATION })
+    private val safeMaxTargetDamageReduction by setting(
+        "Safe Max Target Damage Reduction",
+        1.0f,
+        0.0f..10.0f,
+        0.1f,
+        { page == Page.CALCULATION })
+    private val safeMinSelfDamageReduction by setting(
+        "Safe Min Self Damage Reduction",
+        2.0f,
+        0.0f..10.0f,
+        0.1f,
+        { page == Page.CALCULATION })
+    private val collidingCrystalExtraSelfDamageThreshold by setting(
+        "Colliiding Crystal Extra Self Damage Threshold",
+        4.0f,
+        0.0f..10.0f,
+        0.1f,
+        { page == Page.CALCULATION })
 
     // Place
     private val placeMode by setting("Place Mode", PlaceMode.SINGLE, { page == Page.PLACE })
@@ -196,7 +209,7 @@ internal object ZealotCrystalPlus : Module(
         HotbarSwitchManager.Override.PICK,
         { page == Page.PLACE && placeSwitchMode == SwitchMode.GHOST })
     private val placeSwing by setting("Place Swing", false, { page == Page.PLACE })
-    private val placeBypass by setting("Place Bypass", PlaceBypass.UP, { page == Page.PLACE })
+    private val placeSideBypass by setting("Place Side Bypass", PlaceBypass.UP, { page == Page.PLACE })
     private val placeMinDamage by setting("Place Min Damage", 5.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
     private val placeMaxSelfDamage by setting("Place Max Self Damage", 6.0f, 0.0f..20.0f, 0.25f, { page == Page.PLACE })
     private val placeBalance by setting("Place Balance", -3.0f, -10.0f..10.0f, 0.25f, { page == Page.PLACE })
@@ -254,6 +267,21 @@ internal object ZealotCrystalPlus : Module(
         PLACE("Place"),
         BREAK("Break"),
         RENDER("Render")
+    }
+
+    private enum class DamagePriority(override val displayName: String) : DisplayEnum {
+        EFFICIENT("Efficient") {
+            override operator fun invoke(selfDamage: Float, targetDamage: Float): Float {
+                return targetDamage - selfDamage
+            }
+        },
+        AGGRESSIVE("Aggressive") {
+            override operator fun invoke(selfDamage: Float, targetDamage: Float): Float {
+                return targetDamage
+            }
+        };
+
+        abstract operator fun invoke(selfDamage: Float, targetDamage: Float): Float
     }
 
     private enum class SwingHand(override val displayName: String) : DisplayEnum {
@@ -462,11 +490,11 @@ internal object ZealotCrystalPlus : Module(
     override fun getHudInfo(): String {
         return when (hudInfo) {
             HudInfo.OFF -> ""
-            HudInfo.SPEED -> "%.1f".format(explosionCountArray.average() * 4.0)
+            HudInfo.SPEED -> "%.1f".format(explosionCountArray.averageOrZero() * 4.0)
             HudInfo.DAMAGE -> renderPlaceInfo?.let { "%.1f/%.1f".format(it.targetDamage, it.selfDamage) }
                 ?: "0.0/0.0"
             HudInfo.TARGET -> target?.name ?: "None"
-            HudInfo.CALCULATION_TIME -> "%.2f ms".format(calculationTimes.average() / 1_000_000.0)
+            HudInfo.CALCULATION_TIME -> "%.2f ms".format(calculationTimes.averageOrZero() / 1_000_000.0)
         }
     }
 
@@ -588,7 +616,7 @@ internal object ZealotCrystalPlus : Module(
         }
 
         safeListener<WorldEvent.ClientBlockUpdate>(114514) {
-            if (player.distanceSqTo(it.pos) < (placeRange.ceilToInt() + 1).sq
+            if (player.distanceSqToCenter(it.pos) < (placeRange.ceilToInt() + 1).sq
                 && checkResistant(it.pos, it.oldState) != checkResistant(it.pos, it.newState)
             ) {
                 rawPosList.updateLazy()
@@ -719,7 +747,7 @@ internal object ZealotCrystalPlus : Module(
     ): Boolean {
         val targetDamage =
             calcDamage(targetInfo.entity, targetInfo.pos, targetInfo.box, crystalX, crystalY, crystalZ, mutableBlockPos)
-        if (lethalOverride && targetDamage - targetInfo.entity.totalHealth > lethalBalance && targetDamage <= lethalMaxDamage) {
+        if (lethalOverride && targetDamage - targetInfo.entity.totalHealth > lethalThresholdAddition && targetDamage <= lethalMaxSelfDamage) {
             return true
         }
 
@@ -759,9 +787,9 @@ internal object ZealotCrystalPlus : Module(
 
                     if (attackedPosMap.containsKey(
                             toLong(
-                                packet.x.fastFloor(),
-                                packet.y.fastFloor(),
-                                packet.z.fastFloor()
+                                packet.x.floorToInt(),
+                                packet.y.floorToInt(),
+                                packet.z.floorToInt()
                             )
                         )
                     ) {
@@ -865,7 +893,7 @@ internal object ZealotCrystalPlus : Module(
             }
             BreakMode.ALL -> {
                 val entity = target ?: player
-                crystalList.minByOrNull { entity.getDistanceSq(it) }
+                crystalList.minByOrNull { entity.distanceSqTo(it) }
             }
             else -> {
                 return
@@ -922,6 +950,7 @@ internal object ZealotCrystalPlus : Module(
         val noSuicide = noSuicide
         val mutableBlockPos = BlockPos.MutableBlockPos()
         val context = CombatManager.contextSelf ?: return null
+        val damagePriority = damagePriority
 
         if (targets.isNotEmpty()) {
             for (crystal in crystalList) {
@@ -943,8 +972,8 @@ internal object ZealotCrystalPlus : Module(
                         mutableBlockPos
                     )
                     if (lethalOverride && System.currentTimeMillis() - CombatManager.getHurtTime(entity) > 400L
-                        && targetDamage - entity.totalHealth > lethalBalance && selfDamage < lethal.selfDamage
-                        && selfDamage <= lethalMaxDamage
+                        && targetDamage - entity.totalHealth > lethalThresholdAddition && selfDamage < lethal.selfDamage
+                        && selfDamage <= lethalMaxSelfDamage
                     ) {
                         lethal.update(crystal, selfDamage, targetDamage)
                     }
@@ -962,21 +991,21 @@ internal object ZealotCrystalPlus : Module(
                         balance = breakBalance
                     }
 
-                    if (targetDamage >= minDamage && targetDamage - selfDamage >= balance) {
-                        if (targetDamage > max.targetDamage) {
-                            max.update(crystal, selfDamage, targetDamage)
-                        } else if (max.targetDamage - targetDamage <= safeRange
-                            && max.selfDamage - selfDamage >= safeThreshold
-                        ) {
-                            safe.update(crystal, selfDamage, targetDamage)
-                        }
+                    if (targetDamage < minDamage || targetDamage - selfDamage < balance) continue
+
+                    if (damagePriority(selfDamage, targetDamage) > damagePriority(max.selfDamage, max.targetDamage)) {
+                        max.update(crystal, selfDamage, targetDamage)
+                    } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
+                        && max.selfDamage - selfDamage >= safeMinSelfDamageReduction
+                    ) {
+                        safe.update(crystal, selfDamage, targetDamage)
                     }
                 }
             }
         }
 
-        if (max.targetDamage - safe.targetDamage > safeRange
-            || max.selfDamage - safe.selfDamage <= safeThreshold
+        if (max.targetDamage - safe.targetDamage > safeMaxTargetDamageReduction
+            || max.selfDamage - safe.selfDamage <= safeMinSelfDamageReduction
         ) {
             safe.clear()
         }
@@ -1031,8 +1060,8 @@ internal object ZealotCrystalPlus : Module(
                 }
                 SwitchMode.LEGIT -> {
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
-                    onMainThread {
-                        val slot = player.getCrystalSlot() ?: return@onMainThread
+                    synchronized(InventoryTaskManager) {
+                        val slot = player.getCrystalSlot() ?: return
                         MainHandPause.withPause(ZealotCrystalPlus, placeDelay * 2) {
                             swapToSlot(slot)
                             connection.sendPacket(packet)
@@ -1041,32 +1070,33 @@ internal object ZealotCrystalPlus : Module(
                 }
                 SwitchMode.GHOST -> {
                     val packet = placePacket(placeInfo, EnumHand.MAIN_HAND)
-                    onMainThread {
-                        val slot = player.getMaxCrystalSlot() ?: return@onMainThread
+                    synchronized(InventoryTaskManager) {
+                        val slot = player.getMaxCrystalSlot() ?: return
                         ghostSwitch(placeSwitchBypass, slot) {
                             connection.sendPacket(packet)
                         }
                     }
+
                 }
             }
         } else {
-            onMainThread {
+            synchronized(InventoryTaskManager) {
                 HandPause[hand].withPause(ZealotCrystalPlus, placeDelay * 2) {
-                    mc.playerController.syncCurrentPlayItem()
+                    playerController.syncCurrentPlayItem()
                     connection.sendPacket(placePacket(placeInfo, hand))
                 }
             }
         }
 
         placedPosMap[placeInfo.blockPos.toLong()] = System.currentTimeMillis() + ownTimeout
+        placeTimer.reset()
+        lastActiveTime = System.currentTimeMillis()
+
         if (placeSwing) {
             onMainThread {
                 swingHand()
             }
         }
-        placeTimer.reset()
-
-        lastActiveTime = System.currentTimeMillis()
     }
 
     private fun placePacket(placeInfo: PlaceInfo, hand: EnumHand): CPacketPlayerTryUseItemOnBlock {
@@ -1081,7 +1111,10 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun SafeClientEvent.breakDirect(x: Double, y: Double, z: Double, entityID: Int) {
-        if (placeSwitchMode != SwitchMode.GHOST && antiWeakness != SwitchMode.GHOST && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
+        if (placeSwitchMode != SwitchMode.GHOST
+            && antiWeakness != SwitchMode.GHOST
+            && System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L
+        ) return
 
         if (player.isWeaknessActive() && !isHoldingTool()) {
             when (antiWeakness) {
@@ -1111,17 +1144,18 @@ internal object ZealotCrystalPlus : Module(
             swingHand()
         }
 
-        placeInfo.get(500L)?.let {
-            if (packetPlace.onBreak && CrystalUtils.crystalPlaceBoxIntersectsCrystalBox(it.blockPos, x, y, z)) {
-                placeDirect(it)
-            }
-            player.setLastAttackedEntity(it.target)
-        }
         attackedCrystalMap[entityID] = System.currentTimeMillis() + 1000L
-        attackedPosMap[toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())] = System.currentTimeMillis() + 1000L
+        attackedPosMap[toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())] = System.currentTimeMillis() + 1000L
         breakTimer.reset()
 
         lastActiveTime = System.currentTimeMillis()
+
+        placeInfo.get(500L)?.let {
+            player.setLastAttackedEntity(it.target)
+            if (packetPlace.onBreak && CrystalUtils.crystalPlaceBoxIntersectsCrystalBox(it.blockPos, x, y, z)) {
+                placeDirect(it)
+            }
+        }
     }
 
     private fun attackPacket(entityID: Int): CPacketUseEntity {
@@ -1185,6 +1219,8 @@ internal object ZealotCrystalPlus : Module(
             val noSuicide = noSuicide
             val crystals = CombatManager.crystalList
 
+            val damagePriority = damagePriority
+
             for (pos in targetBlocks) {
                 val placeBox = CrystalUtils.getCrystalPlacingBB(pos)
 
@@ -1197,7 +1233,7 @@ internal object ZealotCrystalPlus : Module(
                     context.calcDamage(crystalX, crystalY, crystalZ, true, mutableBlockPos)
                 )
                 val collidingDamage = calcCollidingCrystalDamage(crystals, placeBox)
-                val adjustedDamage = max(selfDamage, collidingDamage - avoidThreshold)
+                val adjustedDamage = max(selfDamage, collidingDamage - collidingCrystalExtraSelfDamageThreshold)
 
                 if (player.scaledHealth - adjustedDamage <= noSuicide) continue
                 if (player.scaledHealth - collidingDamage <= noSuicide) continue
@@ -1209,7 +1245,7 @@ internal object ZealotCrystalPlus : Module(
 
                     val targetDamage =
                         calcDamage(entity, entityPos, entityBox, crystalX, crystalY, crystalZ, mutableBlockPos)
-                    if (lethalOverride && targetDamage - entity.totalHealth > lethalBalance && selfDamage < lethal.selfDamage && selfDamage <= lethalMaxDamage) {
+                    if (lethalOverride && targetDamage - entity.totalHealth > lethalThresholdAddition && selfDamage < lethal.selfDamage && selfDamage <= lethalMaxSelfDamage) {
                         lethal.update(entity, pos, selfDamage, targetDamage)
                     }
 
@@ -1226,20 +1262,20 @@ internal object ZealotCrystalPlus : Module(
                         balance = placeBalance
                     }
 
-                    if (targetDamage >= minDamage && targetDamage - adjustedDamage >= balance) {
-                        if (targetDamage > max.targetDamage) {
-                            max.update(entity, pos, adjustedDamage, targetDamage)
-                        } else if (max.targetDamage - targetDamage <= safeRange
-                            && max.selfDamage - adjustedDamage >= safeThreshold
-                        ) {
-                            safe.update(entity, pos, adjustedDamage, targetDamage)
-                        }
+                    if (targetDamage < minDamage || targetDamage - adjustedDamage < balance) continue
+
+                    if (damagePriority(selfDamage, targetDamage) > damagePriority(max.selfDamage, max.targetDamage)) {
+                        max.update(entity, pos, adjustedDamage, targetDamage)
+                    } else if (max.targetDamage - targetDamage <= safeMaxTargetDamageReduction
+                        && max.selfDamage - adjustedDamage >= safeMinSelfDamageReduction
+                    ) {
+                        safe.update(entity, pos, adjustedDamage, targetDamage)
                     }
                 }
             }
 
-            if (max.targetDamage - safe.targetDamage > safeRange
-                || max.selfDamage - safe.selfDamage <= safeThreshold
+            if (max.targetDamage - safe.targetDamage > safeMaxTargetDamageReduction
+                || max.selfDamage - safe.selfDamage <= safeMinSelfDamageReduction
             ) {
                 safe.clear(player)
             }
@@ -1317,7 +1353,7 @@ internal object ZealotCrystalPlus : Module(
             }
         }
 
-        list.sortBy { player.getDistanceSq(it.entity) }
+        list.sortBy { player.distanceSqTo(it.entity) }
 
         return list.asSequence()
             .filter { it.entity.isEntityAlive }
@@ -1360,7 +1396,7 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun SafeClientEvent.shouldForcePlace(entity: EntityLivingBase): Boolean {
-        return (!forcePlaceSword || player.heldItemMainhand.item !is ItemSword)
+        return (!forcePlaceWhileSwording || player.heldItemMainhand.item !is ItemSword)
             && (entity.totalHealth <= forcePlaceHealth
             || entity.realSpeed >= forcePlaceMotion
             || entity.getMinArmorRate() <= forcePlaceArmorRate)
@@ -1369,8 +1405,8 @@ internal object ZealotCrystalPlus : Module(
     private fun EntityLivingBase.getMinArmorRate(): Int {
         var minDura = 100
 
-        for (armor in armorInventoryList.toList()) {
-            if (!armor.isItemStackDamageable) continue
+        armorInventoryList.toList().forEachFast { armor ->
+            if (!armor.isItemStackDamageable) return@forEachFast
             val dura = armor.duraPercentage
             if (dura < minDura) {
                 minDura = dura
@@ -1388,17 +1424,17 @@ internal object ZealotCrystalPlus : Module(
         val rangeSq = range.sq
         val wallRangeSq = wallRange.sq
 
-        val floor = range.fastFloor()
-        val ceil = range.fastCeil()
+        val floor = range.floorToInt()
+        val ceil = range.ceilToInt()
 
         val list = ArrayList<BlockPos>()
         val pos = BlockPos.MutableBlockPos()
 
         val feetPos = PlayerPacketManager.position
 
-        val feetXInt = feetPos.x.fastFloor()
-        val feetYInt = feetPos.y.fastFloor()
-        val feetZInt = feetPos.z.fastFloor()
+        val feetXInt = feetPos.x.floorToInt()
+        val feetYInt = feetPos.y.floorToInt()
+        val feetZInt = feetPos.z.floorToInt()
 
         val eyePos = PlayerPacketManager.eyePosition
 
@@ -1414,7 +1450,7 @@ internal object ZealotCrystalPlus : Module(
 
                     if (player.placeDistanceSq(crystalX, crystalY, crystalZ) > rangeSq) continue
                     if (!isPlaceable(pos, mutableBlockPos)) continue
-                    if (feetPos.squareDistanceTo(crystalX, crystalY, crystalZ) > wallRangeSq
+                    if (feetPos.distanceSqTo(crystalX, crystalY, crystalZ) > wallRangeSq
                         && !world.rayTraceVisible(eyePos, crystalX, crystalY + 1.7, crystalZ, 20, mutableBlockPos)
                     ) continue
 
@@ -1438,9 +1474,9 @@ internal object ZealotCrystalPlus : Module(
         val list = ArrayList<BlockPos>()
         val feetPos = PlayerPacketManager.position
 
-        val feetXInt = feetPos.x.fastFloor()
-        val feetYInt = feetPos.y.fastFloor()
-        val feetZInt = feetPos.z.fastFloor()
+        val feetXInt = feetPos.x.floorToInt()
+        val feetYInt = feetPos.y.floorToInt()
+        val feetZInt = feetPos.z.floorToInt()
 
         val eyePos = PlayerPacketManager.eyePosition
         val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
@@ -1465,16 +1501,13 @@ internal object ZealotCrystalPlus : Module(
         mutableBlockPos: BlockPos.MutableBlockPos
     ): List<Entity> {
         val collidingEntities = ArrayList<Entity>()
-        val rangeSqCeil = rangeSq.fastCeil()
+        val rangeSqCeil = rangeSq.ceilToInt()
 
         for (entity in EntityManager.entity) {
             if (!entity.isEntityAlive) continue
 
-            val adjustedRange = rangeSqCeil - ((entity.width / 2.0f).sq * 2.0f).fastCeil()
-            val dist = distanceSq(
-                feetXInt, feetYInt, feetZInt,
-                entity.posX.fastFloor(), entity.posY.fastFloor(), entity.posZ.fastFloor()
-            )
+            val adjustedRange = rangeSqCeil - ((entity.width / 2.0f).sq * 2.0f).ceilToInt()
+            val dist = entity.distanceSqToCenter(feetXInt, feetYInt, feetZInt)
 
             if (dist > adjustedRange) continue
 
@@ -1553,7 +1586,7 @@ internal object ZealotCrystalPlus : Module(
         mutableBlockPos: BlockPos.MutableBlockPos
     ): Boolean {
         return player.breakDistanceSq(x, y, z) <= breakRange.sq
-            && (player.getDistanceSq(x, y, z) <= wallRange.sq
+            && (player.distanceSqTo(x, y, z) <= wallRange.sq
             || world.rayTraceVisible(
             player.posX,
             player.posY + player.eyeHeight,
@@ -1585,15 +1618,15 @@ internal object ZealotCrystalPlus : Module(
     }
 
     private fun toLong(x: Double, y: Double, z: Double): Long {
-        return toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())
+        return toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())
     }
 
     private fun calcDirection(eyePos: Vec3d, hitVec: Vec3d): EnumFacing {
-        val x = hitVec.x - eyePos.x
-        val y = hitVec.y - eyePos.y
-        val z = hitVec.z - eyePos.z
+        val x = eyePos.x - hitVec.x
+        val y = eyePos.y - hitVec.y
+        val z = eyePos.z - hitVec.z
 
-        return EnumFacing.HORIZONTALS.maxByOrNull {
+        return EnumFacing.VALUES.maxByOrNull {
             x * it.directionVec.x + y * it.directionVec.y + z * it.directionVec.z
         } ?: EnumFacing.NORTH
     }
@@ -1680,9 +1713,9 @@ internal object ZealotCrystalPlus : Module(
             && crystalY - entityPos.y > 1.5652173822904127
             && checkResistant(
                 mutableBlockPos.setPos(
-                    crystalX.fastFloor(),
-                    crystalY.fastFloor() - 1,
-                    crystalZ.fastFloor()
+                    crystalX.floorToInt(),
+                    crystalY.floorToInt() - 1,
+                    crystalZ.floorToInt()
                 ),
                 world.getBlockState(mutableBlockPos)
             )
@@ -1741,8 +1774,8 @@ internal object ZealotCrystalPlus : Module(
         val gridXZ = width * gridMultiplierXZ
         val gridY = height * gridMultiplierY
 
-        val sizeXZ = (1.0 / gridMultiplierXZ).fastFloor()
-        val sizeY = (1.0 / gridMultiplierY).fastFloor()
+        val sizeXZ = (1.0 / gridMultiplierXZ).floorToInt()
+        val sizeY = (1.0 / gridMultiplierY).floorToInt()
         val xzOffset = (1.0 - gridMultiplierXZ * (sizeXZ)) / 2.0
 
         var total = 0
@@ -1827,7 +1860,7 @@ internal object ZealotCrystalPlus : Module(
 
             fun calcPlacement(event: SafeClientEvent) {
                 event {
-                    when (placeBypass) {
+                    when (placeSideBypass) {
                         PlaceBypass.UP -> {
                             side = EnumFacing.UP
                             hitVecOffset = Vec3f(0.5f, 1.0f, 0.5f)
@@ -1839,13 +1872,13 @@ internal object ZealotCrystalPlus : Module(
                             hitVec = Vec3d(blockPos.x + 0.5, blockPos.y.toDouble(), blockPos.z + 0.5)
                         }
                         PlaceBypass.CLOSEST -> {
-                            side = calcDirection(player.eyePosition, blockPos.toVec3dCenter())
+                            side = getMiningSide(blockPos) ?: calcDirection(player.eyePosition, blockPos.toVec3dCenter())
                             val directionVec = side.directionVec
                             val x = directionVec.x * 0.5f + 0.5f
                             val y = directionVec.y * 0.5f + 0.5f
                             val z = directionVec.z * 0.5f + 0.5f
                             hitVecOffset = Vec3f(x, y, z)
-                            hitVec = blockPos.toVec3dCenter(x.toDouble(), y.toDouble(), z.toDouble())
+                            hitVec = blockPos.toVec3d(x.toDouble(), y.toDouble(), z.toDouble())
                         }
                     }
                 }

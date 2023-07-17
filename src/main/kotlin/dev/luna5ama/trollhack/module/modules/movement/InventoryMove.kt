@@ -94,5 +94,5 @@ internal object InventoryMove : Module(
         || guiScreen is GuiChat
         || guiScreen is GuiEditSign
         || guiScreen is GuiRepair
-        || guiScreen.let { it is AbstractTrollGui<*, *> && it.searching }
+        || guiScreen.let { it is AbstractTrollGui && it.searching }
 }

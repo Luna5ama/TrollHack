@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
@@ -8,6 +9,7 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.combat.CrystalSpawnEvent
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.Easing
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
@@ -20,8 +22,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
 import dev.luna5ama.trollhack.util.MovementUtils.isCentered
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.duraPercentage
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
@@ -30,6 +30,7 @@ import dev.luna5ama.trollhack.util.inventory.operation.pickUp
 import dev.luna5ama.trollhack.util.inventory.operation.quickMove
 import dev.luna5ama.trollhack.util.inventory.slot.*
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.enchantment.EnchantmentHelper
@@ -114,7 +115,7 @@ internal object AutoMend : Module(
                 // Counts xp bottle spawning
                 is SPacketSpawnObject -> {
                     if (event.packet.type == 75
-                        && player.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) < 5.0
+                        && player.distanceSqTo(event.packet.x, event.packet.y, event.packet.z) < 5.0
                     ) {
                         confirmedAmount--
                         lastBottlePacket = System.currentTimeMillis()
@@ -122,7 +123,7 @@ internal object AutoMend : Module(
                 }
                 // Throw more xp bottles if we didn't get enough
                 is SPacketSpawnExperienceOrb -> {
-                    if (player.getDistanceSq(event.packet.x, event.packet.y, event.packet.z) < 5.0
+                    if (player.distanceSqTo(event.packet.x, event.packet.y, event.packet.z) < 5.0
                         && player.armorInventoryList.all { it.itemDamage > 100 }
                     ) {
                         xpDiff += 11 - event.packet.xpValue
@@ -355,7 +356,7 @@ internal object AutoMend : Module(
 
             // Xp bottle gives 11 exp at max and 1 exp mends 2 item damage
             val requiredForMin = leastDamaged.itemDamage / 22
-            val requiredForMax = ((mostDamaged.itemDamage - targetMax) / 22.0f).fastCeil()
+            val requiredForMax = ((mostDamaged.itemDamage - targetMax) / 22.0f).ceilToInt()
 
             val minRequired = min(requiredForMin, requiredForMax)
             throwAmount = minRequired

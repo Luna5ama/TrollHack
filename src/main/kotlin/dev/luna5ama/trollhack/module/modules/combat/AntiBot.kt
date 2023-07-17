@@ -22,8 +22,7 @@ import kotlin.math.abs
 internal object AntiBot : Module(
     name = "Anti Bot",
     description = "Avoid attacking fake players",
-    category = Category.COMBAT,
-    alwaysListening = true
+    category = Category.COMBAT
 ) {
     private val tabList by setting("Tab List", true)
     private val ping by setting("Ping", true)
@@ -93,7 +92,7 @@ internal object AntiBot : Module(
     }
 
     private fun SafeClientEvent.hoverCheck(entity: EntityPlayer): Boolean {
-        val distXZ = Vec2d(entity.posX, entity.posZ).minus(player.posX, player.posZ).lengthSquared()
+        val distXZ = Vec2d(entity.posX, entity.posZ).minus(player.posX, player.posZ).lengthSq()
         return distXZ < 16 && entity.posY - player.posY > 2.0 && abs(entity.posY - entity.prevPosY) < 0.1
     }
 }

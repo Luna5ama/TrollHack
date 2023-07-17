@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
@@ -13,8 +15,6 @@ import dev.luna5ama.trollhack.util.BaritoneUtils
 import dev.luna5ama.trollhack.util.EntityUtils.isFlying
 import dev.luna5ama.trollhack.util.EntityUtils.isInOrAboveLiquid
 import dev.luna5ama.trollhack.util.MovementUtils
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.network.play.client.CPacketPlayer
 import kotlin.math.max
@@ -121,7 +121,7 @@ internal object Step : Module(
             && !player.isInOrAboveLiquid
             && (mode == Mode.VANILLA || TimerManager.globalTicks > timeoutTick)
             && (!strictYMotion || y in -0.08..0.0 && player.lastTickPosY == player.posY)
-            && (MovementUtils.isInputting || HolePathFinder.isActive())
+            && (MovementUtils.isInputting() || HolePathFinder.isActive())
             && (x.sq + z.sq) > 0.001
     }
 
@@ -145,7 +145,7 @@ internal object Step : Module(
             if (useTimer) {
                 val targetTimer = 1.09f
                 val extraPackets = array.size + 1
-                val ticks = min((extraPackets / (targetTimer - postTimer)).fastCeil(), maxPostTicks)
+                val ticks = min((extraPackets / (targetTimer - postTimer)).ceilToInt(), maxPostTicks)
                 val adjustedTimer = max((targetTimer * ticks - extraPackets) / ticks, postTimer)
                 timeoutTick = TimerManager.globalTicks + ticks - 1
                 modifyTimer(50.0f / adjustedTimer, ticks)

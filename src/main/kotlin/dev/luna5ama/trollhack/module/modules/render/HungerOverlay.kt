@@ -1,11 +1,11 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.events.render.RenderOverlayEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.inventory.foodValue
 import dev.luna5ama.trollhack.util.inventory.saturation
 import net.minecraft.client.gui.Gui
@@ -79,7 +79,7 @@ internal object HungerOverlay : Module(
 
     private fun drawBarHalf(start: Int, end: Float, left: Int, top: Int, textureX: Int, alpha: Float) {
         glColor4f(1f, 1f, 1f, alpha)
-        for (currentBar in start..(end).fastCeil()) {
+        for (currentBar in start..(end).ceilToInt()) {
             val remainBars = min((floor((end - currentBar) * 2f) / 2f), 1f)
             val posX = left - (currentBar * 8)
             when (remainBars) {
@@ -92,7 +92,7 @@ internal object HungerOverlay : Module(
 
     private fun drawBarFourth(start: Int, end: Float, left: Int, top: Int, alpha: Float) {
         glColor4f(1f, 1f, 1f, alpha)
-        for (currentBar in start..(end).fastCeil()) {
+        for (currentBar in start..(end).ceilToInt()) {
             val remainBars = min((floor((end - currentBar) * 4f) / 4f), 1f)
             val posX = left - (currentBar * 8)
             when (remainBars) {

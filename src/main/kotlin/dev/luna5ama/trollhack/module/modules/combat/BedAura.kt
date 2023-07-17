@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.collection.CircularArray
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.EntityEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
@@ -12,6 +13,13 @@ import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.ProjectionUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -29,18 +37,11 @@ import dev.luna5ama.trollhack.util.accessor.renderPosY
 import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.collections.CircularArray
+import dev.luna5ama.trollhack.util.collections.averageOrZero
 import dev.luna5ama.trollhack.util.combat.CalcContext
 import dev.luna5ama.trollhack.util.combat.CombatUtils.scaledHealth
 import dev.luna5ama.trollhack.util.combat.CrystalUtils
 import dev.luna5ama.trollhack.util.extension.rootName
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.ProjectionUtils
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
-import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.blockBlacklist
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
@@ -51,10 +52,7 @@ import dev.luna5ama.trollhack.util.math.RotationUtils
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.RotationUtils.yaw
 import dev.luna5ama.trollhack.util.math.VectorUtils
-import dev.luna5ama.trollhack.util.math.vector.Vec2f
-import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.math.vector.toVec3d
-import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
+import dev.luna5ama.trollhack.util.math.vector.*
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -66,6 +64,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.launch
 import net.minecraft.block.BlockBed
 import net.minecraft.block.state.IBlockState
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.init.Blocks
 import net.minecraft.init.Items
 import net.minecraft.init.SoundEvents
@@ -80,7 +79,6 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
@@ -312,7 +310,7 @@ internal object BedAura : Module(
     }
 
     override fun getHudInfo(): String {
-        return "%.1f".format(explosionCountArray.average() * 4.0)
+        return "%.1f".format(explosionCountArray.averageOrZero() * 4.0)
     }
 
     init {
@@ -327,7 +325,7 @@ internal object BedAura : Module(
                     val placeInfo = placeInfo ?: return@safeListener
                     if (packet.category != SoundCategory.BLOCKS) return@safeListener
                     if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
-                    if (placeInfo.center.squareDistanceTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
+                    if (placeInfo.center.distanceSqTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
 
                     explosionCount++
                 }
@@ -607,13 +605,13 @@ internal object BedAura : Module(
         return VectorUtils.getBlockPosInSphere(eyePos, range)
             .filter { !strictDirection || eyePos.y > it.y + 1.0 }
             .mapToCalcInfo(eyePos)
-            .filterNot { contextTarget.entity.getDistanceSqToCenter(it.bedPosHead) > 100.0 }
+            .filterNot { contextTarget.entity.distanceSqToCenter(it.bedPosHead) > 100.0 }
             .filter { isValidBasePos(it.basePosFoot) && (newPlacement || isValidBasePos(it.basePosHead)) }
             .filter { isValidBedPos(ignoreNonFullBox, it) }
             .mapNotNull { checkDamage(map, contextSelf, contextTarget, it, mutableBlockPos) }
             .maxWithOrNull(
                 compareBy<DamageInfo> { it.targetDamage }
-                    .thenByDescending { eyePos.distanceSqTo(it.basePos) }
+                    .thenByDescending { eyePos.distanceSqToCenter(it.basePos) }
             )
             ?.toPlaceInfo()
     }
@@ -899,13 +897,13 @@ internal object BedAura : Module(
                         Easing.IN_CUBIC.dec(Easing.toDelta(startTime, fadeLength))
                     }
 
-                    glPushMatrix()
-                    glTranslatef(
+                    GlStateManager.pushMatrix()
+                     GlStateManager.translate(
                         (renderPos.x - mc.renderManager.renderPosX).toFloat(),
                         (renderPos.y - mc.renderManager.renderPosY).toFloat(),
                         (renderPos.z - mc.renderManager.renderPosZ).toFloat()
                     )
-                    glRotatef(
+                     GlStateManager.rotate(
                         renderRotation,
                         0.0f,
                         1.0f,
@@ -934,7 +932,7 @@ internal object BedAura : Module(
                         -mc.renderManager.renderPosZ
                     )
 
-                    glPopMatrix()
+                    GlStateManager.popMatrix()
                 }
             }
         }

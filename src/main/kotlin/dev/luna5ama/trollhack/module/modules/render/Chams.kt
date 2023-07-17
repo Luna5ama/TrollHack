@@ -4,6 +4,10 @@ import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.HueCycler
+import dev.luna5ama.trollhack.graphics.color.setGLColor
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -13,10 +17,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.mobTypeSettings
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atFalse
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.HueCycler
-import dev.luna5ama.trollhack.util.graphics.color.setGLColor
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityItem

@@ -1,14 +1,14 @@
 package dev.luna5ama.trollhack.module.modules.client
 
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.ceilToInt
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.font.GlyphCache
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.delegate.AsyncCachedValue
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.graphics.font.GlyphCache
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.threads.onMainThread
 import java.awt.Font
 import java.awt.GraphicsEnvironment
@@ -34,16 +34,16 @@ internal object CustomFont : Module(
     private val lodBiasSetting = setting("Lod Bias", 0.0f, -10.0f..10.0f, 0.05f)
 
     val isDefaultFont get() = fontName.value.equals(DEFAULT_FONT_NAME, true)
-    val size get() = sizeSetting.value * 0.1425f
-    val charGap get() = charGapSetting.value * 0.5f - 2.05f
-    val lineSpace get() = size * (lineSpaceSetting.value * 0.05f + 0.77f)
+    val size get() = sizeSetting.value * 0.140625f
+    val charGap get() = charGapSetting.value * 0.5f
+    val lineSpace get() = size * (lineSpaceSetting.value * 0.05f + 0.75f)
     val lodBias get() = lodBiasSetting.value * 0.25f - 0.5375f
-    val baselineOffset get() = baselineOffsetSetting.value * 2.0f - 8.0f
+    val baselineOffset get() = baselineOffsetSetting.value * 2.0f - 9.5f
 
     init {
         listener<TickEvent.Post>(true) {
             mc.fontRenderer.FONT_HEIGHT = if (overrideMinecraft) {
-                MainFontRenderer.getHeight().fastCeil()
+                MainFontRenderer.getHeight().ceilToInt()
             } else {
                 9
             }

@@ -1,10 +1,10 @@
 package dev.luna5ama.trollhack.mixins.core.render;
 
+import dev.fastmc.common.MathUtilKt;
 import dev.luna5ama.trollhack.TrollHackMod;
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer;
 import dev.luna5ama.trollhack.module.modules.chat.Emoji;
 import dev.luna5ama.trollhack.module.modules.client.CustomFont;
-import dev.luna5ama.trollhack.util.extension.MathKt;
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -85,7 +85,7 @@ public abstract class MixinFontRenderer {
                 GL_ONE_MINUS_SRC_ALPHA
             );
             MainFontRenderer.INSTANCE.drawStringJava(text, x, y, color, 1.0f, drawShadow);
-            cir.setReturnValue(MathKt.fastCeil(x + MainFontRenderer.INSTANCE.getWidth(text)));
+            cir.setReturnValue(MathUtilKt.ceilToInt(x + MainFontRenderer.INSTANCE.getWidth(text)));
         }
     }
 
@@ -113,7 +113,7 @@ public abstract class MixinFontRenderer {
             if (Emoji.INSTANCE.isEnabled() && text.contains(":")) {
                 cir.setReturnValue(Emoji.getStringWidthCustomFont(text));
             } else {
-                cir.setReturnValue(MathKt.fastCeil(MainFontRenderer.INSTANCE.getWidth(text)));
+                cir.setReturnValue(MathUtilKt.ceilToInt(MainFontRenderer.INSTANCE.getWidth(text)));
             }
         }
     }
@@ -129,7 +129,7 @@ public abstract class MixinFontRenderer {
     @Inject(method = "getCharWidth", at = @At("HEAD"), cancellable = true)
     public void getCharWidth$Inject$HEAD(char character, CallbackInfoReturnable<Integer> cir) {
         if (TrollHackMod.isReady() && CustomFont.INSTANCE.getOverrideMinecraft()) {
-            cir.setReturnValue(MathKt.fastCeil(MainFontRenderer.INSTANCE.getWidth(character)));
+            cir.setReturnValue(MathUtilKt.ceilToInt(MainFontRenderer.INSTANCE.getWidth(character)));
         }
     }
 }

@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.StepEvent
@@ -19,13 +20,11 @@ import dev.luna5ama.trollhack.module.modules.combat.HoleSnap
 import dev.luna5ama.trollhack.module.modules.exploit.Burrow
 import dev.luna5ama.trollhack.util.*
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
-import dev.luna5ama.trollhack.util.EntityUtils.isInOrAboveLiquid
 import dev.luna5ama.trollhack.util.MovementUtils.applyJumpBoostPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.applySpeedPotionEffects
 import dev.luna5ama.trollhack.util.MovementUtils.calcMoveYaw
 import dev.luna5ama.trollhack.util.MovementUtils.speedEffectMultiplier
 import dev.luna5ama.trollhack.util.accessor.isInWeb
-import dev.luna5ama.trollhack.util.extension.sq
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.math.vector.Vec2d
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
@@ -62,7 +61,7 @@ internal object Speed : Module(
     private val maxJumpSpeed by setting("Max Jump Speed", 0.548, 0.1..2.0, 0.01, page.atValue(Page.STRAFE))
     private val jumpDelay by setting("Jump Delay", 5, 0..10, 1, page.atValue(Page.STRAFE) and ::autoJump)
 
-    private val velocityBoost by setting("Velocity Boost", 0.5, 0.0..2.0, 0.01, page.atValue(Page.BOOST))
+    private val velocityBoost by setting("Velocity Boost", 0.0, 0.0..2.0, 0.01, page.atValue(Page.BOOST))
     private val minBoostSpeed by setting(
         "Min Boost Speed",
         0.2,
@@ -324,11 +323,11 @@ internal object Speed : Module(
         return !player.capabilities.isFlying
             && !player.isElytraFlying
             && !mc.gameSettings.keyBindSneak.isKeyDown
-            && !player.isInOrAboveLiquid
+            && !(player.isInWater || player.isInLava)
             && !player.isInWeb
             && !player.isOnLadder
             && Flight.isDisabled
-            && MovementUtils.isInputting
+            && MovementUtils.isInputting()
             && !HoleSnap.isActive()
             && !BaritoneUtils.isPathing
     }

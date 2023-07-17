@@ -1,6 +1,8 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
+import dev.fastmc.common.distance
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -9,6 +11,9 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.ESPRenderer
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -21,17 +26,15 @@ import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
+import dev.luna5ama.trollhack.util.collections.asSequenceFast
+import dev.luna5ama.trollhack.util.collections.forEachFast
 import dev.luna5ama.trollhack.util.combat.HoleType
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.graphics.ESPRenderer
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.util.math.isInSight
-import dev.luna5ama.trollhack.util.math.vector.distance
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3d
 import dev.luna5ama.trollhack.util.runIf
 import dev.luna5ama.trollhack.util.threads.onMainThread
@@ -92,7 +95,7 @@ internal object AutoHoleFill : Module(
             holeInfos = emptyList()
             nextHole = null
             renderBlockMap.clear()
-            renderer.replaceAll(Collections.emptyList())
+            renderer.replaceAll(mutableListOf())
         }
 
         listener<WorldEvent.ClientBlockUpdate> {
@@ -106,9 +109,8 @@ internal object AutoHoleFill : Module(
         }
 
         listener<Render3DEvent> {
-            val list = ArrayList<ESPRenderer.Info>()
             renderBlockMap.runSynchronized {
-                object2LongEntrySet().mapTo(list) {
+                object2LongEntrySet().forEach {
                     val color = when {
                         it.key == nextHole -> targetColor
                         it.longValue == -1L -> otherColor
@@ -126,13 +128,12 @@ internal object AutoHoleFill : Module(
                             it.key.x + n, it.key.y + n, it.key.z + n,
                             it.key.x + p, it.key.y + p, it.key.z + p,
                         )
-                        ESPRenderer.Info(box, color.alpha((255.0f * progress).toInt()))
+                        renderer.add(box, color.alpha((255.0f * progress).toInt()))
                     }
                 }
             }
 
-            renderer.replaceAll(list)
-            renderer.render(false)
+            renderer.render(true)
         }
 
         safeListener<OnUpdateWalkingPlayerEvent.Pre> {
@@ -218,22 +219,22 @@ internal object AutoHoleFill : Module(
         return sequence {
             val detectRangeSq = detectRange.sq
 
-            for (entity in EntityManager.players) {
-                if (entity.isSelf) continue
-                if (!entity.isEntityAlive) continue
-                if (entity.isFriend) continue
-                if (player.getDistanceSq(entity) > detectRangeSq) continue
+            EntityManager.players.forEachFast outer@{ entity ->
+                if (entity.isSelf) return@outer
+                if (!entity.isEntityAlive) return@outer
+                if (entity.isFriend) return@outer
+                if (player.distanceSqTo(entity) > detectRangeSq) return@outer
 
                 val current = entity.positionVector
                 val predict = entity.calcPredict(current)
 
-                for (holeInfo in holeInfos) {
-                    if (entity.posY <= holeInfo.blockPos.y + 0.5) continue
+                holeInfos.forEachFast { holeInfo ->
+                    if (entity.posY <= holeInfo.blockPos.y + 0.5) return@forEachFast
                     val dist = entity.horizontalDist(holeInfo.center)
-                    if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) continue
+                    if (holeInfo.toward && holeInfo.playerDist - dist < distanceBalance) return@forEachFast
                     if (!holeInfo.detectBox.contains(current)
                         && (holeInfo.toward || !holeInfo.detectBox.intersects(current, predict))
-                    ) continue
+                    ) return@forEachFast
 
                     yield(entity to holeInfo)
                 }
@@ -254,7 +255,7 @@ internal object AutoHoleFill : Module(
             it.preventEntitySpawning && it.isEntityAlive
         }
 
-        return HoleManager.holeInfos.asSequence()
+        return HoleManager.holeInfos.asSequenceFast()
             .filterNot {
                 it.isFullyTrapped
             }
@@ -281,7 +282,7 @@ internal object AutoHoleFill : Module(
             .flatMap { holeInfo ->
                 holeInfo.holePos.asSequence()
                     .filter { !placeMap.containsKey(it.toLong()) }
-                    .filter { eyePos.distanceSqTo(it) <= rangeSq }
+                    .filter { eyePos.distanceSqToCenter(it) <= rangeSq }
                     .filter { world.getBlockState(it).isReplaceable }
                     .map {
                         val box = AxisAlignedBB(

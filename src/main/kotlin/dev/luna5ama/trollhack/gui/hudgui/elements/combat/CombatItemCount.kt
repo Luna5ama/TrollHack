@@ -1,9 +1,10 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.combat
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.gui.hudgui.LabelHud
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.inventory.ItemStackPredicate
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.threads.runSafeOrElse
@@ -41,21 +42,23 @@ internal object CombatItemCount : LabelHud(
         ItemStack(Items.CHORUS_FRUIT, -1)
     )
 
-    override val hudWidth: Float
-        get() = if (showIcon) {
+    override val hudWidth by FrameFloat {
+        if (showIcon) {
             if (horizontal) 20.0f * itemSettings.count { it.isEnabled() }
             else 20.0f
         } else {
             displayText.getWidth()
         }
+    }
 
-    override val hudHeight: Float
-        get() = if (showIcon) {
+    override val hudHeight by FrameFloat {
+        if (showIcon) {
             if (horizontal) 20.0f
             else 20.0f * itemSettings.count { it.isEnabled() }
         } else {
             displayText.getHeight(2)
         }
+    }
 
     override fun SafeClientEvent.updateText() {
         val slots = player.allSlots

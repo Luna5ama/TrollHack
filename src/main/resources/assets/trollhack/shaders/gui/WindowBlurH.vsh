@@ -1,40 +1,49 @@
-#version 140
+#version 460
 
 uniform mat4 projection;
 uniform mat4 modelView;
 uniform mat4 reverseProjection;
 uniform vec2 resolution;
+uniform vec2 extend;
 
-in vec3 vertexPos;
+layout(location = 0) in vec4 vertexPos;
 
 out vec2 coord0;
-out vec4 coords[10];
+out vec4 coords[6];
+
+const float OFFSET_0 = 1.4769230769230768;
+const float OFFSET_1 = 3.4461538461538463;
+const float OFFSET_2 = 5.415384615384616;
+const float OFFSET_3 = 7.384615384615384;
+const float OFFSET_4 = 9.353846153846154;
+const float OFFSET_5 = 11.323076923076922;
+
+const float OFFSETS[6] = float[](
+    OFFSET_0,
+    OFFSET_1,
+    OFFSET_2,
+    OFFSET_3,
+    OFFSET_4,
+    OFFSET_5
+);
+
+void calcOffset(int index, vec2 texelSize) {
+    float offset = OFFSETS[index] * texelSize.x;
+    coords[index] = vec4(coord0.x - offset, coord0.y, coord0.x + offset, coord0.y);
+}
 
 void main() {
-    vec2 uv = 1.0 / resolution;
-    float offset1 = 1.0 * uv.x;
-    float offset2 = 2.0 * uv.x;
-    float offset3 = 3.0 * uv.x;
-    float offset4 = 4.0 * uv.x;
-    float offset5 = 5.0 * uv.x;
-    float offset6 = 6.0 * uv.x;
-    float offset7 = 7.0 * uv.x;
-    float offset8 = 8.0 * uv.x;
-    float offset9 = 9.0 * uv.x;
-    float offset10 = 10.0 * uv.x;
+    vec2 texelSize = 1.0 / resolution;
 
     gl_Position = projection * modelView * vec4(vertexPos.xy, 2000.0, 1.0);
-    gl_Position.y += 10.0 * uv.y * vertexPos.z;
+    gl_Position.xy += extend * 12.0 * texelSize * vertexPos.zw;
 
-    coord0 = (gl_Position * reverseProjection).xy * uv + 0.5;
-    coords[0] = vec4(coord0.x - offset1, coord0.y, coord0.x + offset1, coord0.y);
-    coords[1] = vec4(coord0.x - offset2, coord0.y, coord0.x + offset2, coord0.y);
-    coords[2] = vec4(coord0.x - offset3, coord0.y, coord0.x + offset3, coord0.y);
-    coords[3] = vec4(coord0.x - offset4, coord0.y, coord0.x + offset4, coord0.y);
-    coords[4] = vec4(coord0.x - offset5, coord0.y, coord0.x + offset5, coord0.y);
-    coords[5] = vec4(coord0.x - offset6, coord0.y, coord0.x + offset6, coord0.y);
-    coords[6] = vec4(coord0.x - offset7, coord0.y, coord0.x + offset7, coord0.y);
-    coords[7] = vec4(coord0.x - offset8, coord0.y, coord0.x + offset8, coord0.y);
-    coords[8] = vec4(coord0.x - offset9, coord0.y, coord0.x + offset9, coord0.y);
-    coords[9] = vec4(coord0.x - offset10, coord0.y, coord0.x + offset10, coord0.y);
+    coord0 = (gl_Position * reverseProjection).xy * texelSize + 0.5;
+
+    calcOffset(0, texelSize);
+    calcOffset(1, texelSize);
+    calcOffset(2, texelSize);
+    calcOffset(3, texelSize);
+    calcOffset(4, texelSize);
+    calcOffset(5, texelSize);
 }

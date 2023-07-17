@@ -1,5 +1,9 @@
 package dev.luna5ama.trollhack.module.modules.combat
 
+import dev.fastmc.common.ceilToInt
+import dev.fastmc.common.distanceSq
+import dev.fastmc.common.sq
+import dev.fastmc.common.toRadians
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.InputUpdateEvent
@@ -7,6 +11,8 @@ import dev.luna5ama.trollhack.event.events.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.manager.managers.HoleManager
 import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.manager.managers.TimerManager.resetTimer
@@ -22,13 +28,7 @@ import dev.luna5ama.trollhack.util.MovementUtils.isCentered
 import dev.luna5ama.trollhack.util.MovementUtils.resetMove
 import dev.luna5ama.trollhack.util.MovementUtils.speed
 import dev.luna5ama.trollhack.util.combat.HoleInfo
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.extension.toRadian
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.util.math.RotationUtils
-import dev.luna5ama.trollhack.util.math.vector.distanceSq
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.network.play.server.SPacketPlayerPosLook
 import net.minecraft.util.MovementInputFromOptions
@@ -111,7 +111,7 @@ internal object HoleSnap : Module(
 
                 if (timer > 0.0f && postTimer < 1.0f && ticks > 0) {
                     val x = (postTimer * ticks - timer * postTimer * ticks) / (timer * (postTimer - 1.0f))
-                    val postTicks = min(maxPostTicks, x.fastCeil())
+                    val postTicks = min(maxPostTicks, x.ceilToInt())
                     modifyTimer(50.0f / postTimer, postTicks)
                 }
                 return@safeListener
@@ -129,7 +129,7 @@ internal object HoleSnap : Module(
                     if (disableStep) Step.disable()
 
                     val playerPos = player.positionVector
-                    val yawRad = RotationUtils.getRotationTo(playerPos, it.center).x.toRadian()
+                    val yawRad = RotationUtils.getRotationTo(playerPos, it.center).x.toRadians()
                     val dist = hypot(it.center.x - playerPos.x, it.center.z - playerPos.z)
                     val baseSpeed = player.applySpeedPotionEffects(0.2873)
                     val speed = if (player.onGround) baseSpeed else max(currentSpeed + 0.02, baseSpeed)

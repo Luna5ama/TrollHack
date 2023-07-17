@@ -56,7 +56,7 @@ internal object Strafe : Module(
 
             if (shouldStrafe()) {
                 val onGround = player.onGround
-                val inputting = MovementUtils.isInputting
+                val inputting = MovementUtils.isInputting()
 
                 if (onGround && groundBoost || !onGround && airBoost) {
                     if (inputting) {

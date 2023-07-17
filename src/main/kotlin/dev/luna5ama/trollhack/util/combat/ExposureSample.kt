@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.util.combat
 
+import dev.fastmc.common.floorToInt
+import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.graphics.mask.EnumFacingMask
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import net.minecraft.util.math.Vec3d
 import kotlin.math.max
@@ -21,8 +21,8 @@ class ExposureSample(
         val gridXZ = width * gridMultiplierXZ
         val gridY = height * gridMultiplierY
 
-        val sizeXZ = (1.0 / gridMultiplierXZ).fastFloor()
-        val sizeY = (1.0 / gridMultiplierY).fastFloor()
+        val sizeXZ = (1.0 / gridMultiplierXZ).floorToInt()
+        val sizeY = (1.0 / gridMultiplierY).floorToInt()
         val xzOffset = (1.0 - gridMultiplierXZ * (sizeXZ)) / 2.0
 
         val list = ArrayList<Point>()

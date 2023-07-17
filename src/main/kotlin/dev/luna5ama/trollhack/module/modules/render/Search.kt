@@ -1,15 +1,17 @@
 package dev.luna5ama.trollhack.module.modules.render
 
-import dev.fastmc.common.ConcurrentObjectPool
-import dev.fastmc.common.DoubleBuffered
-import dev.fastmc.common.TickTimer
+import dev.fastmc.common.*
 import dev.fastmc.common.collection.FastObjectArrayList
-import dev.fastmc.common.isCompletedOrNull
 import dev.fastmc.common.sort.ObjectIntrosort
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.color.ColorUtils
+import dev.luna5ama.trollhack.graphics.esp.StaticBoxRenderer
+import dev.luna5ama.trollhack.graphics.esp.StaticTracerRenderer
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.setting.settings.impl.collection.CollectionSetting
@@ -18,14 +20,6 @@ import dev.luna5ama.trollhack.util.EntityUtils.flooredPosition
 import dev.luna5ama.trollhack.util.accessor.palette
 import dev.luna5ama.trollhack.util.accessor.storage
 import dev.luna5ama.trollhack.util.atTrue
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.color.ColorUtils
-import dev.luna5ama.trollhack.util.graphics.esp.StaticBoxRenderer
-import dev.luna5ama.trollhack.util.graphics.esp.StaticTracerRenderer
-import dev.luna5ama.trollhack.util.math.vector.distanceSq
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.or
 import dev.luna5ama.trollhack.util.threads.BackgroundScope
@@ -110,9 +104,9 @@ internal object Search : Module(
         }
 
         safeListener<WorldEvent.ClientBlockUpdate> {
-            val eyeX = player.posX.fastFloor()
-            val eyeY = (player.posY + player.getEyeHeight()).fastFloor()
-            val eyeZ = player.posZ.fastFloor()
+            val eyeX = player.posX.floorToInt()
+            val eyeY = (player.posY + player.getEyeHeight()).floorToInt()
+            val eyeZ = player.posZ.floorToInt()
             if (it.pos.distanceSqTo(eyeX, eyeY, eyeZ) <= range.sq
                 && (blockSet.contains(it.oldState.block) || blockSet.contains(it.newState.block))
             ) {
@@ -154,9 +148,9 @@ internal object Search : Module(
         lastUpdateJob = BackgroundScope.launch {
             val cleanList = gcTimer.tickAndReset(1000L)
 
-            val eyeX = player.posX.fastFloor()
-            val eyeY = (player.posY + player.getEyeHeight()).fastFloor()
-            val eyeZ = player.posZ.fastFloor()
+            val eyeX = player.posX.floorToInt()
+            val eyeY = (player.posY + player.getEyeHeight()).floorToInt()
+            val eyeZ = player.posZ.floorToInt()
 
             val renderDist = mc.gameSettings.renderDistanceChunks
             val playerChunkPosX = eyeX shr 4

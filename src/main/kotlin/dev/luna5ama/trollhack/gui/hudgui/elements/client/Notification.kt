@@ -2,22 +2,21 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.client
 
 import dev.luna5ama.trollhack.event.events.ModuleToggleEvent
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.Easing
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.gui.hudgui.TrollHudGui
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
-import dev.luna5ama.trollhack.util.delegate.FrameValue
-import dev.luna5ama.trollhack.util.graphics.Easing
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils
-import dev.luna5ama.trollhack.util.graphics.HAlign
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
+import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.text.format
 import it.unimi.dsi.fastutil.HashCommon
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.text.TextFormatting
-import org.lwjgl.opengl.GL11.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.max
 
@@ -38,11 +37,9 @@ internal object Notification : HudElement(
     private val nvidia by setting("Nvidia Theme", false)
     private val backgroundAlpha by setting("Background Alpha", 180, 0..255, 1, { nvidia })
 
-    override val hudWidth: Float
-        get() = Message.minWidth
+    override val hudWidth by Message.Companion::minWidth
 
-    override val hudHeight: Float
-        get() = Message.height
+    override val hudHeight by Message.Companion::height
 
     private val notifications = CopyOnWriteArrayList<Message>()
     private val map = Long2ObjectMaps.synchronize(Long2ObjectOpenHashMap<Message>())
@@ -61,7 +58,7 @@ internal object Notification : HudElement(
     override fun renderHud() {
         if (mc.currentScreen == TrollHudGui && notifications.isEmpty()) {
             Message.run {
-                if (dockingH == HAlign.LEFT) {
+                if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
                     RenderUtils2D.drawRectFilled(minWidth - padding, 0.0f, minWidth, height, color)
                 } else {
                     RenderUtils2D.drawRectFilled(0.0f, 0.0f, padding, height, color)
@@ -77,13 +74,13 @@ internal object Notification : HudElement(
 
         GlStateUtils.pushMatrixAll()
         GlStateUtils.rescaleTroll()
-        glTranslatef(renderPosX, renderPosY, 0.0f)
-        glScalef(scale, scale, 0.0f)
+         GlStateManager.translate(renderPosX, renderPosY, 0.0f)
+        GlStateManager.scale(scale, scale, 0.0f)
 
         notifications.removeIf {
-            glPushMatrix()
+            GlStateManager.pushMatrix()
             val y = it.render()
-            glPopMatrix()
+            GlStateManager.popMatrix()
 
             if (y == -1.0f) {
                 synchronized(map) {
@@ -91,7 +88,7 @@ internal object Notification : HudElement(
                 }
                 true
             } else {
-                glTranslatef(0.0f, y, 0.0f)
+                 GlStateManager.translate(0.0f, y, 0.0f)
                 false
             }
         }
@@ -128,7 +125,7 @@ internal object Notification : HudElement(
         private val startTime by lazy { System.currentTimeMillis() }
         val isTimeout get() = System.currentTimeMillis() - startTime > length
 
-        private val width0 = FrameValue {
+        private val width0 = FrameFloat {
             max(minWidth, padding + padding + MainFontRenderer.getWidth(message) + padding)
         }
         private val width by width0
@@ -140,8 +137,8 @@ internal object Notification : HudElement(
         }
 
         fun render(): Float {
-            if (dockingH != HAlign.LEFT && width > hudWidth) {
-                glTranslatef(hudWidth - width, 0.0f, 0.0f)
+            if (dockingH != dev.luna5ama.trollhack.graphics.HAlign.LEFT && width > hudWidth) {
+                 GlStateManager.translate(hudWidth - width, 0.0f, 0.0f)
             }
 
             return when (val deltaTotal = Easing.toDelta(startTime)) {
@@ -180,7 +177,7 @@ internal object Notification : HudElement(
         }
 
         private fun renderStage1(progress: Float): Float {
-            if (dockingH == HAlign.LEFT) {
+            if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
                 RenderUtils2D.drawRectFilled(0.0f, 0.0f, width * progress, height, color)
             } else {
                 RenderUtils2D.drawRectFilled(minWidth * (1.0f - progress), 0.0f, width, height, color)
@@ -195,7 +192,7 @@ internal object Notification : HudElement(
             val textColor = ColorRGB(255, 255, 255, (255.0f * progress).toInt())
             MainFontRenderer.drawString(message, stringPosX, stringPosY, color = textColor)
 
-            if (dockingH == HAlign.LEFT) {
+            if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
                 RenderUtils2D.drawRectFilled((width - padding) * progress, 0.0f, width, height, color)
             } else {
                 RenderUtils2D.drawRectFilled(0.0f, 0.0f, padding + (width - padding) * (1.0f - progress), height, color)
@@ -207,7 +204,7 @@ internal object Notification : HudElement(
         private fun renderStage3(): Float {
             RenderUtils2D.drawRectFilled(0.0f, 0.0f, width, height, backGroundColor)
 
-            if (dockingH == HAlign.LEFT) {
+            if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) {
                 RenderUtils2D.drawRectFilled(width - padding, 0.0f, width, height, color)
             } else {
                 RenderUtils2D.drawRectFilled(0.0f, 0.0f, padding, height, color)
@@ -241,7 +238,7 @@ internal object Notification : HudElement(
             val space get() = 4.0f
 
             val padding get() = 4.0f
-            val stringPosX get() = if (dockingH == HAlign.LEFT) padding else padding + padding
+            val stringPosX get() = if (dockingH == dev.luna5ama.trollhack.graphics.HAlign.LEFT) padding else padding + padding
             val stringPosY get() = height * 0.5f - 1.0f - MainFontRenderer.getHeight() * 0.5f
         }
     }

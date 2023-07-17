@@ -119,11 +119,13 @@ object EntityManager : Manager() {
             .none()
     }
 
-    fun checkEntityCollision(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
+    fun checkEntityCollision(box: AxisAlignedBB, ignoreEntity: Entity?): Boolean {
+        if (ignoreEntity == null) return checkEntityCollision(box)
+
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.preventEntitySpawning }
-            .filter { it != ignoreEntity }
+            .filter { it != ignoreEntity || it.isRidingSameEntity(ignoreEntity) }
             .filter { it.entityBoundingBox.intersects(box) }
             .none()
     }

@@ -1,11 +1,6 @@
 package dev.luna5ama.trollhack.util.math
 
-import dev.fastmc.common.BlockPosUtil
-import dev.fastmc.common.fastFloor
-import dev.luna5ama.trollhack.util.extension.PI_FLOAT
-import dev.luna5ama.trollhack.util.extension.fastCeil
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.extension.toRadian
+import dev.fastmc.common.*
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import net.minecraft.entity.Entity
 import net.minecraft.util.EnumFacing
@@ -42,12 +37,12 @@ object VectorUtils {
     }
 
     private fun getAxisRange(d1: Double, d2: Float): IntRange {
-        return IntRange((d1 - d2).fastFloor(), (d1 + d2).fastCeil())
+        return IntRange((d1 - d2).floorToInt(), (d1 + d2).ceilToInt())
     }
 
     fun Vec2f.toViewVec(): Vec3d {
-        val yawRad = this.x.toDouble().toRadian()
-        val pitchRag = this.y.toDouble().toRadian()
+        val yawRad = this.x.toDouble().toRadians()
+        val pitchRag = this.y.toDouble().toRadians()
         val yaw = -yawRad - PI_FLOAT
         val pitch = -pitchRag
 
@@ -98,7 +93,7 @@ object VectorUtils {
     }
 
     fun toLong(x: Double, y: Double, z: Double): Long {
-        return BlockPosUtil.toLong(x.fastFloor(), y.fastFloor(), z.fastFloor())
+        return BlockPosUtil.toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())
     }
 
     fun fromLong(long: Long): BlockPos {

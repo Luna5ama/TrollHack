@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.module.modules.movement
 
+import dev.fastmc.common.toRadians
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.PacketEvent
 import dev.luna5ama.trollhack.event.events.player.PlayerTravelEvent
@@ -14,7 +15,6 @@ import dev.luna5ama.trollhack.util.MovementUtils.speed
 import dev.luna5ama.trollhack.util.accessor.rotationPitch
 import dev.luna5ama.trollhack.util.accessor.tickLength
 import dev.luna5ama.trollhack.util.accessor.timer
-import dev.luna5ama.trollhack.util.extension.toRadian
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
@@ -538,7 +538,7 @@ internal object ElytraFlight : Module(
 
     /* Boost mode */
     private fun SafeClientEvent.boostMode() {
-        val yaw = player.rotationYaw.toDouble().toRadian()
+        val yaw = player.rotationYaw.toDouble().toRadians()
         player.motionX -= player.movementInput.moveForward * sin(yaw) * speedBoost / 20
         if (player.movementInput.jump) player.motionY += upSpeedBoost / 15 else if (player.movementInput.sneak) player.motionY -= downSpeedBoost / 15
         player.motionZ += player.movementInput.moveForward * cos(yaw) * speedBoost / 20

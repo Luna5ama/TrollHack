@@ -5,9 +5,11 @@ import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
+import dev.luna5ama.trollhack.util.EntityUtils
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atValue
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.block.BlockSnow
 import net.minecraft.client.particle.Particle
@@ -179,8 +181,8 @@ internal object NoRender : Module(
 
             ci.cancel()
         } else if (tileEntityRange) {
-            val entity = mc.renderViewEntity ?: mc.player ?: return
-            if (entity.getDistanceSqToCenter(tileEntity.pos) > range * range) {
+            val entity = EntityUtils.viewEntity ?: return
+            if (entity.distanceSqToCenter(tileEntity.pos) > range * range) {
                 ci.cancel()
             }
         }

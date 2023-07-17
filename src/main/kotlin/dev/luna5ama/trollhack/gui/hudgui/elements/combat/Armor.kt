@@ -2,13 +2,11 @@ package dev.luna5ama.trollhack.gui.hudgui.elements.combat
 
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.color.ColorGradient
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
-import dev.luna5ama.trollhack.util.graphics.HAlign
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.VAlign
-import dev.luna5ama.trollhack.util.graphics.color.ColorGradient
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.inventory.slot.allSlots
 import dev.luna5ama.trollhack.util.inventory.slot.countItem
 import dev.luna5ama.trollhack.util.math.MathUtils
@@ -90,14 +88,14 @@ internal object Armor : HudElement(
     }
 
     private fun drawClassic(index: Int, itemStack: ItemStack) {
-        val itemY = if (dockingV != VAlign.TOP) (MainFontRenderer.getHeight() + 4.0f).toInt() else 2
+        val itemY = if (dockingV != dev.luna5ama.trollhack.graphics.VAlign.TOP) (MainFontRenderer.getHeight() + 4.0f).toInt() else 2
 
         drawItem(itemStack, index, 2, itemY)
         GlStateManager.translate(20.0f, 0.0f, 0.0f)
     }
 
     private fun drawModern(index: Int, itemStack: ItemStack) {
-        val itemX = if (dockingH != HAlign.RIGHT) 2 else (renderStringWidth - 18.0f).toInt()
+        val itemX = if (dockingH != dev.luna5ama.trollhack.graphics.HAlign.RIGHT) 2 else (renderStringWidth - 18.0f).toInt()
 
         drawItem(itemStack, index, itemX, 2)
         GlStateManager.translate(0.0f, 20.0f, 0.0f)
@@ -138,7 +136,7 @@ internal object Armor : HudElement(
                 val width = MainFontRenderer.getWidth(string)
 
                 val duraX = 10 - width * 0.5f
-                val duraY = if (dockingV != VAlign.TOP) 2.0f else 22.0f
+                val duraY = if (dockingV != dev.luna5ama.trollhack.graphics.VAlign.TOP) 2.0f else 22.0f
 
                 MainFontRenderer.drawString(string, duraX, duraY, color = color)
             } else {
@@ -146,7 +144,7 @@ internal object Armor : HudElement(
                 val width = MainFontRenderer.getWidth(string)
                 stringWidth = max(width, stringWidth)
 
-                val duraX = if (dockingH != HAlign.RIGHT) 22.0f else renderStringWidth - 22.0f - width
+                val duraX = if (dockingH != dev.luna5ama.trollhack.graphics.HAlign.RIGHT) 22.0f else renderStringWidth - 22.0f - width
                 val duraY = 10.0f - MainFontRenderer.getHeight() * 0.5f
 
                 MainFontRenderer.drawString(string, duraX, duraY, color = color)

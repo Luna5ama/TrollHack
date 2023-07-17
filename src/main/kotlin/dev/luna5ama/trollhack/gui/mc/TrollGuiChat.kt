@@ -4,12 +4,13 @@ import dev.luna5ama.trollhack.command.CommandManager
 import dev.luna5ama.trollhack.command.args.AbstractArg
 import dev.luna5ama.trollhack.command.args.AutoComplete
 import dev.luna5ama.trollhack.command.args.GreedyStringArg
+import dev.luna5ama.trollhack.graphics.GlStateUtils
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
 import dev.luna5ama.trollhack.util.accessor.historyBuffer
 import dev.luna5ama.trollhack.util.accessor.sentHistoryCursor
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.shaders.WindowBlurShader
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiChat
@@ -180,10 +181,10 @@ class TrollGuiChat(
         glEnable(GL_DEPTH_CLAMP)
 
         // Draw rect background
-        if (GuiSetting.windowBlur) {
-            WindowBlurShader.render(2.0f, height - 14.0f, width - 2.0f, height - 2.0f)
-        }
+        WindowBlurShader.render(2.0f, height - 14.0f, width - 2.0f, height - 2.0f)
         RenderUtils2D.drawRectFilled(2.0f, height - 14.0f, width - 2.0f, height - 2.0f, ColorRGB(0, 0, 0, 128))
+
+        GlStateUtils.useProgramForce(0)
 
         // Draw predict string
         if (predictString.isNotBlank()) {

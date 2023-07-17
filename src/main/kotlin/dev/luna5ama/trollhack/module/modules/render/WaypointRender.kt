@@ -9,6 +9,9 @@ import dev.luna5ama.trollhack.event.events.render.Render2DEvent
 import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
+import dev.luna5ama.trollhack.graphics.*
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.TextComponent
 import dev.luna5ama.trollhack.manager.managers.WaypointManager
 import dev.luna5ama.trollhack.manager.managers.WaypointManager.Waypoint
 import dev.luna5ama.trollhack.module.Category
@@ -16,17 +19,15 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.graphics.*
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.TextComponent
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
-import dev.luna5ama.trollhack.util.math.vector.distanceTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqToCenter
+import dev.luna5ama.trollhack.util.math.vector.distanceToCenter
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
 import dev.luna5ama.trollhack.util.or
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
-import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL11.GL_LINES
 import java.util.*
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -77,7 +78,7 @@ internal object WaypointRender : Module(
 
     // This has to be sorted so the further ones doesn't overlaps the closer ones
     private val waypointMap = TreeMap<Waypoint, TextComponent>(compareByDescending {
-        mc.player?.distanceTo(it.pos) ?: it.pos.distanceSqTo(0, -69420, 0)
+        mc.player?.distanceToCenter(it.pos) ?: it.pos.distanceSqTo(0, -69420, 0)
     })
     private var currentServer: String? = null
     private var timer = TickTimer(TimeUnit.SECONDS)
@@ -100,7 +101,7 @@ internal object WaypointRender : Module(
             GlStateUtils.depth(false)
 
             for (waypoint in waypointMap.keys) {
-                val distance = mc.player.distanceTo(waypoint.pos)
+                val distance = mc.player.distanceToCenter(waypoint.pos)
                 if (renderRange.value && distance > espRange.value) continue
                 renderer.add(AxisAlignedBB(waypoint.pos), color) /* Adds pos to ESPRenderer list */
                 drawVerticalLines(waypoint.pos, color) /* Draw lines from y 0 to y 256 */
@@ -119,10 +120,10 @@ internal object WaypointRender : Module(
     }
 
     init {
-        listener<Render2DEvent.Absolute> {
-            if (waypointMap.isEmpty() || !showCoords.value && !showName.value && !showDate.value && !showDist.value) return@listener
+        safeListener<Render2DEvent.Absolute> {
+            if (waypointMap.isEmpty() || !showCoords.value && !showName.value && !showDate.value && !showDist.value) return@safeListener
             for ((waypoint, textComponent) in waypointMap) {
-                val distance = sqrt(mc.player.getDistanceSqToCenter(waypoint.pos))
+                val distance = sqrt(player.distanceSqToCenter(waypoint.pos))
                 if (distance > infoBoxRange.value) continue
                 drawText(waypoint.pos, textComponent, distance.roundToInt())
             }
@@ -130,11 +131,11 @@ internal object WaypointRender : Module(
     }
 
     private fun drawText(pos: BlockPos, textComponentIn: TextComponent, distance: Int) {
-        glPushMatrix()
+        GlStateManager.pushMatrix()
 
         val screenPos = ProjectionUtils.toAbsoluteScreenPos(pos.toVec3dCenter())
-        glTranslatef(screenPos.x.toFloat(), screenPos.y.toFloat(), 0f)
-        glScalef(textScale.value * 2.0f, textScale.value * 2.0f, 0f)
+         GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0f)
+        GlStateManager.scale(textScale.value * 2.0f, textScale.value * 2.0f, 0f)
 
         val textComponent = TextComponent(textComponentIn).apply { if (showDist.value) add("$distance m") }
         val stringWidth = textComponent.getWidth()
@@ -155,9 +156,9 @@ internal object WaypointRender : Module(
             2f,
             ColorRGB(80, 80, 80, 232)
         )
-        textComponent.draw(horizontalAlign = HAlign.CENTER, verticalAlign = VAlign.CENTER)
+        textComponent.draw(horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
 
-        glPopMatrix()
+        GlStateManager.popMatrix()
     }
 
     init {

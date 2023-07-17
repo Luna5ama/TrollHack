@@ -1,11 +1,16 @@
 package dev.luna5ama.trollhack.gui.rgui.component
 
+import dev.luna5ama.trollhack.gui.IGuiScreen
+import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.StringSetting
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import org.lwjgl.input.Keyboard
 import kotlin.math.max
 
-class StringButton(val setting: StringSetting) : BooleanSlider(setting.name, setting.description, setting.visibility) {
+class StringButton(
+    screen: IGuiScreen,
+    val setting: StringSetting
+) : BooleanSlider(screen, setting.name, setting.description, setting.visibility) {
     override val progress: Float
         get() = if (!listening) 1.0f else 0.0f
 
@@ -34,18 +39,29 @@ class StringButton(val setting: StringSetting) : BooleanSlider(setting.name, set
         }
     }
 
-    override fun onRelease(mousePos: Vec2f, buttonId: Int) {
-        super.onRelease(mousePos, buttonId)
-        if (buttonId == 1) {
-            if (!listening) {
-                listening = true
-                inputField = setting.value
-            } else {
-                onStopListening(false)
+    override fun onRelease(mousePos: Vec2f, clickPos: Vec2f, buttonId: Int) {
+        super.onRelease(mousePos, clickPos, buttonId)
+        when (buttonId) {
+            0 -> {
+                if (listening) {
+                    onStopListening(true)
+                } else {
+                    startListening()
+                }
             }
-        } else if (buttonId == 0 && listening) {
-            onStopListening(true)
+            1 -> {
+                if (listening) {
+                    onStopListening(false)
+                } else {
+                    startListening()
+                }
+            }
         }
+    }
+
+    private fun startListening() {
+        listening = true
+        inputField = setting.value
     }
 
     override fun onKeyInput(keyCode: Int, keyState: Boolean) {

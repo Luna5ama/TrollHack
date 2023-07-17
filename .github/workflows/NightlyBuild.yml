@@ -29,19 +29,26 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-extra-
 
-            -   uses: burrunan/gradle-cache-action@v1
-                name: Gradle assemble
+            -   name: Get version
+                run: |
+                    devVer=$(grep modVersion gradle.properties | grep -o '.\..\..')
+                    commitHash=$(git rev-parse --short HEAD)
+                    modVer=$devVer-nightly-$commitHash
+                    echo modVer=$modVer >> $GITHUB_ENV
+
+            -   name: Gradle assemble
+                uses: burrunan/gradle-cache-action@v1
+                env:
+                    OVERRIDE_VERSION: ${{ env.modVer }}
                 with:
                     concurrent: true
                     arguments: --build-cache assemble
 
-            -   name: Rename jar
+            -   name: Copy jar
+                env:
+                    modVer: ${{ env.modVer }}
                 run: |
-                    devVer=$(basename build/libs/TrollHack-*-release.jar | grep -o ".\..\..")
-                    commitHash=$(git rev-parse --short HEAD)
-                    modVer=nightly-$devVer-$commitHash
-                    echo modVer=$modVer >> $GITHUB_ENV
-                    cp build/libs/TrollHack-*-release.jar TrollHack-$modVer.jar
+                    cp build/libs/TrollHack-$modVer.jar TrollHack-$modVer.jar
 
             -   name: Upload jar
                 uses: actions/upload-artifact@v2

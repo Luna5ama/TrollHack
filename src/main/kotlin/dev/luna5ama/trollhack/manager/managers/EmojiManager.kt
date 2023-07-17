@@ -3,8 +3,8 @@ package dev.luna5ama.trollhack.manager.managers
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import dev.luna5ama.trollhack.TrollHackMod
+import dev.luna5ama.trollhack.graphics.texture.MipmapTexture
 import dev.luna5ama.trollhack.manager.Manager
-import dev.luna5ama.trollhack.util.graphics.texture.MipmapTexture
 import dev.luna5ama.trollhack.util.readText
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import kotlinx.coroutines.Dispatchers

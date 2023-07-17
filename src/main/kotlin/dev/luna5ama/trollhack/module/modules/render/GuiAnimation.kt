@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.module.modules.render
 
+import dev.luna5ama.trollhack.graphics.AnimationFlag
+import dev.luna5ama.trollhack.graphics.Easing
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
-import dev.luna5ama.trollhack.util.graphics.AnimationFlag
-import dev.luna5ama.trollhack.util.graphics.Easing
 import dev.luna5ama.trollhack.util.threads.runSafe
 
 internal object GuiAnimation : Module(

@@ -1,8 +1,9 @@
 package dev.luna5ama.trollhack.util.world
 
 import dev.fastmc.common.collection.FastObjectArrayList
-import dev.fastmc.common.fastFloor
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
@@ -184,18 +185,12 @@ fun interface PlacementSearchOption {
 
         @JvmField
         val ENTITY_COLLISION = PlacementSearchOption { _, _, to ->
-            world.checkNoEntityCollision(
-                AxisAlignedBB(to),
-                null
-            )
+            EntityManager.checkEntityCollision(AxisAlignedBB(to))
         }
 
         @JvmField
         val ENTITY_COLLISION_IGNORE_SELF = PlacementSearchOption { _, _, to ->
-            world.checkNoEntityCollision(
-                AxisAlignedBB(to),
-                player
-            )
+            EntityManager.checkEntityCollision(AxisAlignedBB(to))
         }
     }
 }
@@ -242,14 +237,14 @@ fun SafeClientEvent.getMiningSide(pos: BlockPos): EnumFacing? {
 
     return getVisibleSides(pos)
         .filter { !world.getBlockState(pos.offset(it)).isFullBox }
-        .minByOrNull { eyePos.squareDistanceTo(getHitVec(pos, it)) }
+        .minByOrNull { eyePos.distanceSqTo(getHitVec(pos, it)) }
 }
 
 fun SafeClientEvent.getClosestVisibleSide(pos: BlockPos): EnumFacing? {
     val eyePos = player.eyePosition
 
     return getVisibleSides(pos)
-        .minByOrNull { eyePos.squareDistanceTo(getHitVec(pos, it)) }
+        .minByOrNull { eyePos.distanceSqTo(getHitVec(pos, it)) }
 }
 
 /**
@@ -365,19 +360,19 @@ fun SafeClientEvent.isSideVisible(
             eyeY >= blockPos.y + 1
         }
         EnumFacing.NORTH -> {
-            val i = eyeZ.fastFloor()
+            val i = eyeZ.floorToInt()
             i < blockPos.z || i == blockPos.z && isFullBox()
         }
         EnumFacing.SOUTH -> {
-            val i = eyeZ.fastFloor()
+            val i = eyeZ.floorToInt()
             i > blockPos.z + 1 || i == blockPos.z + 1 && isFullBox()
         }
         EnumFacing.WEST -> {
-            val i = eyeX.fastFloor()
+            val i = eyeX.floorToInt()
             i < blockPos.x || i == blockPos.x && isFullBox()
         }
         EnumFacing.EAST -> {
-            val i = eyeX.fastFloor()
+            val i = eyeX.floorToInt()
             i > blockPos.x + 1 || i == blockPos.x + 1 && isFullBox()
         }
     }

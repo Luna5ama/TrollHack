@@ -1,6 +1,13 @@
 package dev.luna5ama.trollhack.gui.hudgui.elements.world
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.graphics.RenderUtils2D
+import dev.luna5ama.trollhack.graphics.RenderUtils2D.drawCircleFilled
+import dev.luna5ama.trollhack.graphics.RenderUtils2D.drawCircleOutline
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.gui.hudgui.HudElement
 import dev.luna5ama.trollhack.manager.managers.ChunkManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
@@ -11,16 +18,10 @@ import dev.luna5ama.trollhack.util.EntityUtils.isPassive
 import dev.luna5ama.trollhack.util.and
 import dev.luna5ama.trollhack.util.atTrue
 import dev.luna5ama.trollhack.util.atValue
-import dev.luna5ama.trollhack.util.extension.fastFloor
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawCircleFilled
-import dev.luna5ama.trollhack.util.graphics.RenderUtils2D.drawCircleOutline
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
-import dev.luna5ama.trollhack.util.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.util.threads.runSafe
 import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.ints.IntArrayList
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.abs
@@ -80,8 +81,8 @@ internal object Radar : HudElement(
         ENTITY, CHUNK
     }
 
-    override val hudWidth: Float = 100.0f
-    override val hudHeight: Float = 100.0f
+    override val hudWidth = 100.0f
+    override val hudHeight = 100.0f
 
     private const val halfSize = 50.0
     private const val radius = 48.0f
@@ -103,12 +104,12 @@ internal object Radar : HudElement(
     }
 
     private fun SafeClientEvent.drawBorder() {
-        glTranslated(halfSize, halfSize, 0.0)
+        GlStateManager.translate(halfSize, halfSize, 0.0)
 
         drawCircleFilled(radius = radius, color = GuiSetting.backGround)
         drawCircleOutline(radius = radius, lineWidth = 1.5f, color = GuiSetting.text)
 
-        glRotatef(-player.rotationYaw + 180.0f, 0.0f, 0.0f, 1.0f)
+        GlStateManager.rotate(-player.rotationYaw + 180.0f, 0.0f, 0.0f, 1.0f)
     }
 
     private fun SafeClientEvent.drawEntity() {
@@ -158,8 +159,8 @@ internal object Radar : HudElement(
         RenderUtils2D.prepareGL()
 
         val interpolatedPos = EntityUtils.getInterpolatedPos(player, RenderUtils3D.partialTicks)
-        val playerChunkX = (interpolatedPos.x / 16.0).fastFloor()
-        val playerChunkZ = (interpolatedPos.z / 16.0).fastFloor()
+        val playerChunkX = (interpolatedPos.x / 16.0).floorToInt()
+        val playerChunkZ = (interpolatedPos.z / 16.0).floorToInt()
 
         val posMultiplier = radius / radarRange
         val diffX = (playerChunkX * 16 - interpolatedPos.x) * posMultiplier
@@ -274,7 +275,7 @@ internal object Radar : HudElement(
             GuiSetting.primary,
             0.8f
         )
-        glRotatef(90.0f, 0.0f, 0.0f, 1.0f)
+         GlStateManager.rotate(90.0f, 0.0f, 0.0f, 1.0f)
     }
 
     private fun getColor(entity: EntityLivingBase): ColorRGB {

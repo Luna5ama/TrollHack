@@ -31,7 +31,7 @@ internal object Flight : Module(
 
     init {
         safeListener<PlayerMoveEvent.Pre>(-500) {
-            if (MovementUtils.isInputting) {
+            if (MovementUtils.isInputting()) {
                 val yaw = player.calcMoveYaw()
                 player.motionX = -sin(yaw) * speed
                 player.motionZ = cos(yaw) * speed

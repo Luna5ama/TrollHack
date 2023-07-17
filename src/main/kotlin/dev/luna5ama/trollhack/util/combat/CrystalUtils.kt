@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.util.combat
 
+import dev.fastmc.common.floorToInt
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.module.modules.combat.CombatSetting
-import dev.luna5ama.trollhack.util.extension.fastFloor
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.world.isAir
 import dev.luna5ama.trollhack.util.world.isLiquid
@@ -21,7 +21,7 @@ import kotlin.math.abs
 
 object CrystalUtils {
     val EntityEnderCrystal.blockPos: BlockPos
-        get() = BlockPos(this.posX.fastFloor(), this.posY.fastFloor() - 1, this.posZ.fastFloor())
+        get() = BlockPos(this.posX.floorToInt(), this.posY.floorToInt() - 1, this.posZ.floorToInt())
 
     private val cacheBlockPos = ThreadLocal.withInitial {
         BlockPos.MutableBlockPos()
@@ -118,25 +118,25 @@ object CrystalUtils {
         crystalY: Double,
         crystalZ: Double
     ): Boolean {
-        return (crystalY.fastFloor() - placePos.y).withIn(0, 2)
-            && (crystalX.fastFloor() - placePos.x).withIn(-1, 1)
-            && (crystalZ.fastFloor() - placePos.z).withIn(-1, 1)
+        return (crystalY.floorToInt() - placePos.y).withIn(0, 2)
+            && (crystalX.floorToInt() - placePos.x).withIn(-1, 1)
+            && (crystalZ.floorToInt() - placePos.z).withIn(-1, 1)
     }
 
 
-    fun placeBoxIntersectsCrystalBox(placePos: BlockPos, crystal: EntityEnderCrystal): Boolean {
-        return placeBoxIntersectsCrystalBox(placePos, crystal.posX, crystal.posY, crystal.posZ)
+    fun blockPlaceBoxIntersectsCrystalBox(placePos: BlockPos, crystal: EntityEnderCrystal): Boolean {
+        return blockPlaceBoxIntersectsCrystalBox(placePos, crystal.posX, crystal.posY, crystal.posZ)
     }
 
-    fun placeBoxIntersectsCrystalBox(
+    fun blockPlaceBoxIntersectsCrystalBox(
         placePos: BlockPos,
         crystalX: Double,
         crystalY: Double,
         crystalZ: Double
     ): Boolean {
-        return (crystalY.fastFloor() - placePos.y).withIn(0, 1)
-            && (crystalX.fastFloor() - placePos.x).withIn(-1, 1)
-            && (crystalZ.fastFloor() - placePos.z).withIn(-1, 1)
+        return (crystalY.floorToInt() - placePos.y).withIn(0, 1)
+            && (crystalX.floorToInt() - placePos.x).withIn(-1, 1)
+            && (crystalZ.floorToInt() - placePos.z).withIn(-1, 1)
     }
 
 

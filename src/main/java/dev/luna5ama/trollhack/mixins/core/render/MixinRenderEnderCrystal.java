@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.mixins.core.render;
 
 import dev.luna5ama.trollhack.event.events.render.RenderEntityEvent;
+import dev.luna5ama.trollhack.graphics.GlStateUtils;
 import dev.luna5ama.trollhack.module.modules.combat.CrystalChams;
-import dev.luna5ama.trollhack.util.graphics.GlStateUtils;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;

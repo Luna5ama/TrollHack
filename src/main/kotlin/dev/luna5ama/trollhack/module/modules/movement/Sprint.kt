@@ -67,7 +67,11 @@ internal object Sprint : Module(
         }
     }
 
-    private fun SafeClientEvent.checkMovementInput() =
-        if (multiDirection) MovementUtils.isInputting else
+    private fun SafeClientEvent.checkMovementInput(): Boolean {
+        return if (multiDirection) {
+            MovementUtils.isInputting()
+        } else {
             player.movementInput.moveForward > 0.0f
+        }
+    }
 }

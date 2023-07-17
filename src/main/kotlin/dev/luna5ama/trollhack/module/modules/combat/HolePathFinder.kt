@@ -2,6 +2,8 @@ package dev.luna5ama.trollhack.module.modules.combat
 
 import dev.fastmc.common.TickTimer
 import dev.fastmc.common.TimeUnit
+import dev.fastmc.common.floorToInt
+import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.WorldEvent
@@ -11,6 +13,8 @@ import dev.luna5ama.trollhack.event.events.render.Render3DEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.event.safeParallelListener
+import dev.luna5ama.trollhack.graphics.RenderUtils3D
+import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HoleManager
@@ -26,10 +30,7 @@ import dev.luna5ama.trollhack.util.MovementUtils.resetMove
 import dev.luna5ama.trollhack.util.PathFinder
 import dev.luna5ama.trollhack.util.combat.HoleInfo
 import dev.luna5ama.trollhack.util.combat.HoleType
-import dev.luna5ama.trollhack.util.extension.floorToInt
-import dev.luna5ama.trollhack.util.extension.sq
-import dev.luna5ama.trollhack.util.graphics.RenderUtils3D
-import dev.luna5ama.trollhack.util.graphics.color.ColorRGB
+import dev.luna5ama.trollhack.util.math.MathUtils
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
@@ -375,7 +376,13 @@ internal object HolePathFinder : Module(
                 ) {
                     return true
                 }
+            } else if (!MathUtils.approxEq(player.posX, nextNode.x + 0.5, 0.2)
+                || !MathUtils.approxEq(player.posZ, nextNode.z + 0.5, 0.2)
+                || !MathUtils.approxEq(player.posY, nextNode.y.toDouble(), 0.5)
+            ) {
+                return true
             }
+
 
             path.pollFirst() ?: break
         } while (path.isNotEmpty())

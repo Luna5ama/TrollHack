@@ -33,6 +33,7 @@ import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.inventory.slot.allSlotsPrioritized
 import dev.luna5ama.trollhack.util.inventory.slot.firstBlock
 import dev.luna5ama.trollhack.util.math.RotationUtils.getRotationTo
+import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import dev.luna5ama.trollhack.util.threads.runSynchronized
@@ -118,7 +119,7 @@ internal object Surround : Module(
         }
 
         safeListener<CrystalSetDeadEvent> { event ->
-            if (event.crystals.none { it.getDistanceSq(player) < 6.0 }) return@safeListener
+            if (event.crystals.none { it.distanceSqTo(player) < 6.0 }) return@safeListener
             var placeCount = 0
 
             placing.runSynchronized {
@@ -129,7 +130,7 @@ internal object Surround : Module(
 
                     loop@ for (placeInfo in list) {
                         if (event.crystals.none {
-                                CrystalUtils.placeBoxIntersectsCrystalBox(
+                                CrystalUtils.blockPlaceBoxIntersectsCrystalBox(
                                     placeInfo.placedPos,
                                     it
                                 )

@@ -2,12 +2,12 @@ package dev.luna5ama.trollhack.module.modules.render
 
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.listener
+import dev.luna5ama.trollhack.graphics.fastrender.tileentity.*
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.accessor.renderPosX
 import dev.luna5ama.trollhack.util.accessor.renderPosY
 import dev.luna5ama.trollhack.util.accessor.renderPosZ
-import dev.luna5ama.trollhack.util.graphics.fastrender.tileentity.*
 import dev.luna5ama.trollhack.util.threads.DefaultScope
 import dev.luna5ama.trollhack.util.threads.runSafe
 import kotlinx.coroutines.*
