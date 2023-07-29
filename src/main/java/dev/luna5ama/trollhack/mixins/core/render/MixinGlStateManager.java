@@ -16,10 +16,6 @@ import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING;
 
 @Mixin(GlStateManager.class)
 abstract class MixinGlStateManager<T extends Entity> {
-    @Shadow
-    public static void viewport(int x, int y, int width, int height) {
-    }
-
     @Inject(method = "viewport", at = @At("HEAD"), cancellable = true)
     private static void viewport$Inject$HEAD(int x, int y, int width, int height, CallbackInfo ci) {
         float sampleLevel = AntiAlias.INSTANCE.getSampleLevel();
@@ -29,9 +25,9 @@ abstract class MixinGlStateManager<T extends Entity> {
         if (GL11.glGetInteger(GL_FRAMEBUFFER_BINDING) == Minecraft.getMinecraft().getFramebuffer().framebufferObject) {
             ci.cancel();
             if (x == 0 && y == 0) {
-                viewport(x, y, framebuffer.framebufferWidth, framebuffer.framebufferHeight);
+                GL11.glViewport(x, y, framebuffer.framebufferWidth, framebuffer.framebufferHeight);
             } else {
-                viewport(
+                GL11.glViewport(
                     (int) (x * sampleLevel),
                     (int) (y * sampleLevel),
                     (int) (width * sampleLevel),
