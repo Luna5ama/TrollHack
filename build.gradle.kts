@@ -97,7 +97,7 @@ dependencies {
 
     ksp(project(":codegen"))
 
-    implementation("com.github.cabaletta:baritone:1.2.14")
+    implementation("cabaletta:baritone-deobf-unoptimized-mcp-dev:1.2")
     jarLib("cabaletta:baritone-api:1.2")
 }
 
