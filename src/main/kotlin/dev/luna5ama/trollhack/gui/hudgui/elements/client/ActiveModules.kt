@@ -4,6 +4,7 @@ import dev.fastmc.common.DoubleBuffered
 import dev.fastmc.common.TimeUnit
 import dev.fastmc.common.collection.FastIntMap
 import dev.fastmc.common.collection.FastObjectArrayList
+import dev.fastmc.common.sort.ObjectIntrosort
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.graphics.Easing
@@ -62,47 +63,20 @@ internal object ActiveModules : HudElement(
     }
 
     override val hudWidth by FrameFloat {
-        sortedModuleList.maxOfOrNull {
+        ModuleManager.modules.maxOfOrNull {
             if (toggleMap[it.id]?.value == true) it.textLine.getWidth() + 4.0f
             else 20.0f
         }?.let {
             max(it, 20.0f)
         } ?: 20.0f
     }
+
     override val hudHeight by FrameFloat {
         max(toggleMap.values.sumOfFloat { it.displayHeight }, 20.0f)
     }
 
     private val textLineMap = Int2ObjectOpenHashMap<TextComponent.TextLine>()
-    private var lastSorted = makeKeyPair(ModuleManager.modules)
-
-    private val cachedList = DoubleBuffered { FastObjectArrayList<AbstractModule>() }
-
-    private val sortedModuleList by AsyncCachedValue(5L) {
-        synchronized(ActiveModules) {
-            val modules = ModuleManager.modules
-            val list = cachedList.swap().front
-
-            var lastSortedLocal = lastSorted
-
-            if (modules.size != lastSortedLocal.size) {
-                lastSortedLocal = makeKeyPair(modules)
-                list.clear()
-            } else {
-                for (i in lastSortedLocal.indices) {
-                    lastSortedLocal[i].update()
-                }
-            }
-
-            lastSortedLocal.sort()
-            list.clearFast()
-            for (i in lastSortedLocal.indices) {
-                list.add(lastSortedLocal[i].module)
-            }
-            lastSorted = lastSortedLocal
-            list
-        }
-    }
+    private var lastSorted = makeKeyPair(ModuleManager.modules, null)
 
     private data class SortingPair(
         val module: AbstractModule,
@@ -118,7 +92,11 @@ internal object ActiveModules : HudElement(
         }
     }
 
-    private fun makeKeyPair(modules: List<AbstractModule>): Array<SortingPair> {
+    private fun makeKeyPair(modules: List<AbstractModule>, old: Array<SortingPair>?): Array<SortingPair> {
+        if (old != null && modules.size == old.size) {
+            return old
+        }
+
         return Array(modules.size) {
             SortingPair(modules[it])
         }
@@ -181,12 +159,20 @@ internal object ActiveModules : HudElement(
     }
 
     private fun drawModuleList() {
+        val sortArray = makeKeyPair(ModuleManager.modules, lastSorted)
+        lastSorted = sortArray
+        for (pair in sortArray) {
+            pair.update()
+        }
+        ObjectIntrosort.sort(sortArray)
+
         if (rainbow) {
             val lengthMs = rainbowLength * 1000.0f
             val timedHue = System.currentTimeMillis() % lengthMs.toLong() / lengthMs
             var index = 0
 
-            for (module in sortedModuleList) {
+            for (pair in sortArray) {
+                val module = pair.module
                 val timedFlag = toggleMap[module.id] ?: continue
                 val progress = timedFlag.progress
 
@@ -230,7 +216,8 @@ internal object ActiveModules : HudElement(
             }
         } else {
             val color = GuiSetting.primary
-            for (module in sortedModuleList) {
+            for (pair in sortArray) {
+                val module = pair.module
                 val timedFlag = toggleMap[module.id] ?: continue
                 val progress = timedFlag.progress
 
