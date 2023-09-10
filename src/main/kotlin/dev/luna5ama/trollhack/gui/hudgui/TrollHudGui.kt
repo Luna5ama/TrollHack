@@ -7,6 +7,7 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.graphics.Resolution
 import dev.luna5ama.trollhack.gui.AbstractTrollGui
+import dev.luna5ama.trollhack.gui.IGuiScreen.Companion.forEachWindow
 import dev.luna5ama.trollhack.gui.hudgui.component.HudButton
 import dev.luna5ama.trollhack.gui.rgui.Component
 import dev.luna5ama.trollhack.gui.rgui.windows.ListWindow
@@ -14,6 +15,7 @@ import dev.luna5ama.trollhack.module.modules.client.Hud
 import dev.luna5ama.trollhack.module.modules.client.HudEditor
 import dev.luna5ama.trollhack.util.extension.remove
 import dev.luna5ama.trollhack.util.extension.rootName
+import dev.luna5ama.trollhack.util.threads.runSynchronized
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
@@ -59,14 +61,14 @@ object TrollHudGui : AbstractTrollGui() {
 
         }
 
-        windows.addAll(hudWindows.values)
+        windows.runSynchronized { addAll(hudWindows.values) }
 
         listener<InputEvent.Keyboard> {
             if (!it.state || it.key == Keyboard.KEY_NONE || Keyboard.isKeyDown(Keyboard.KEY_F3)) return@listener
 
-            for (child in windows) {
-                if (child !is AbstractHudElement) continue
-                if (!child.bind.isDown(it.key)) continue
+            forEachWindow { child ->
+                if (child !is AbstractHudElement) return@forEachWindow
+                if (!child.bind.isDown(it.key)) return@forEachWindow
                 child.visible = !child.visible
             }
         }
@@ -75,12 +77,12 @@ object TrollHudGui : AbstractTrollGui() {
     internal fun register(hudElement: AbstractHudElement) {
         val button = HudButton(this, hudElement)
         hudWindows[hudElement.category]!!.children.add(button)
-        windows.addAndMoveToLast(hudElement)
+        windows.runSynchronized { addAndMoveToLast(hudElement) }
     }
 
     internal fun unregister(hudElement: AbstractHudElement) {
         hudWindows[hudElement.category]!!.children.removeIf { it is HudButton && it.hudElement == hudElement }
-        windows.remove(hudElement)
+        windows.runSynchronized { remove(hudElement) }
     }
 
     override fun onGuiClosed() {
@@ -110,8 +112,8 @@ object TrollHudGui : AbstractTrollGui() {
             if (Hud.isEnabled) {
                 GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
 
-                for (window in windows) {
-                    if (window !is AbstractHudElement || !window.visible) continue
+                forEachWindow { window ->
+                    if (window !is AbstractHudElement || !window.visible) return@forEachWindow
                     mc.profiler.startSection(window.rootName)
                     renderHudElement(window)
                     mc.profiler.endSection()

@@ -10,6 +10,7 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.ModuleManager
 import dev.luna5ama.trollhack.module.modules.client.ClickGUI
 import dev.luna5ama.trollhack.util.extension.remove
+import dev.luna5ama.trollhack.util.threads.runSynchronized
 import org.lwjgl.input.Keyboard
 
 object TrollClickGui : AbstractTrollGui() {
@@ -55,7 +56,7 @@ object TrollClickGui : AbstractTrollGui() {
             }
         }
 
-        windows.addAll(moduleWindows.values)
+        windows.runSynchronized { addAll(moduleWindows.values) }
     }
 
     override fun onGuiClosed() {

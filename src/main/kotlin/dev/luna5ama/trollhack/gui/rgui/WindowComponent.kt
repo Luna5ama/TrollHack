@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.setting.configs.AbstractConfig
 import dev.luna5ama.trollhack.util.delegate.FrameFloat
 import dev.luna5ama.trollhack.util.interfaces.Nameable
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import dev.luna5ama.trollhack.util.threads.runSynchronized
 import kotlin.math.max
 import kotlin.math.min
 
@@ -89,13 +90,14 @@ open class WindowComponent(
         if (minimizable
             && prevState != MouseState.DRAG
             && buttonId == 1
-            && mousePos.y - posY < draggableHeight) minimized = !minimized
+            && mousePos.y - posY < draggableHeight
+        ) minimized = !minimized
 
         if (mouseState != MouseState.DRAG) {
             updatePreDrag(mousePos.minus(posX, posY))
         }
 
-        if (dockingOverlay in screen.windows) {
+        if (screen.windows.runSynchronized { contains(dockingOverlay) }) {
             dockingOverlay.onRelease(mousePos, clickPos, buttonId)
         }
     }
@@ -130,11 +132,12 @@ open class WindowComponent(
             else -> null
         }
 
-        val centerSplitterVCenter = if (draggableHeight != height && horizontalSide == dev.luna5ama.trollhack.graphics.HAlign.CENTER) {
-            2.5
-        } else {
-            min(15.0, preDragSize.x / 3.0)
-        }
+        val centerSplitterVCenter =
+            if (draggableHeight != height && horizontalSide == dev.luna5ama.trollhack.graphics.HAlign.CENTER) {
+                2.5
+            } else {
+                min(15.0, preDragSize.x / 3.0)
+            }
 
         val verticalSide = when (relativeClickPos.y) {
             in -2.0..centerSplitterVCenter -> dev.luna5ama.trollhack.graphics.VAlign.TOP

@@ -9,6 +9,7 @@ import dev.luna5ama.trollhack.graphics.*
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.graphics.shaders.ParticleShader
+import dev.luna5ama.trollhack.gui.IGuiScreen.Companion.forEachWindow
 import dev.luna5ama.trollhack.gui.rgui.MouseState
 import dev.luna5ama.trollhack.gui.rgui.WindowComponent
 import dev.luna5ama.trollhack.gui.rgui.windows.ListWindow
@@ -17,6 +18,7 @@ import dev.luna5ama.trollhack.util.Wrapper
 import dev.luna5ama.trollhack.util.accessor.listShaders
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
 import dev.luna5ama.trollhack.util.state.TimedFlag
+import dev.luna5ama.trollhack.util.threads.runSynchronized
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -39,7 +41,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
     // Window
     override val windows = ObjectLinkedOpenHashSet<WindowComponent>()
-    private val windowsCachedList = FastObjectArrayList<WindowComponent>()
+    override val windowsCachedList = FastObjectArrayList<WindowComponent>()
 
     override var lastClicked: WindowComponent? = null
     override var hovered: WindowComponent? = null
@@ -192,7 +194,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         lastClicked = hovered
 
         lastClicked?.let {
-            windows.addAndMoveToLast(it)
+            windows.runSynchronized { addAndMoveToLast(it) }
         }
     }
 
@@ -202,7 +204,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         mouseState = MouseState.NONE
 
         lastClicked?.let {
-            windows.addAndMoveToLast(it)
+            windows.runSynchronized { addAndMoveToLast(it) }
         }
     }
 
@@ -214,7 +216,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         hovered?.onDrag(mousePos, lastClickPos, clickedMouseButton)
 
         lastClicked?.let {
-            windows.addAndMoveToLast(it)
+            windows.runSynchronized { addAndMoveToLast(it) }
         }
     }
     // End of mouse input
@@ -264,13 +266,13 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
 
         mc.profiler.endStartSection("windows")
         GlStateUtils.rescaleTroll()
-         GlStateManager.translate(0.0f, -(Resolution.trollHeightF * (1.0f - multiplier)), 0.0f)
+        GlStateManager.translate(0.0f, -(Resolution.trollHeightF * (1.0f - multiplier)), 0.0f)
         drawWindows()
         drawTypedString()
 
         mc.profiler.endStartSection("post")
         GlStateUtils.rescaleMc()
-         GlStateManager.translate(0.0f, -(scaledResolution.scaledHeight * (1.0f - multiplier)), 0.0f)
+        GlStateManager.translate(0.0f, -(scaledResolution.scaledHeight * (1.0f - multiplier)), 0.0f)
 
         glDisable(GL_DEPTH_CLAMP)
         GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
@@ -328,18 +330,10 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         forEachWindow {
             if (!it.visible) return@forEachWindow
             GlStateManager.pushMatrix()
-             GlStateManager.translate(it.renderPosX, it.renderPosY, 0.0f)
+            GlStateManager.translate(it.renderPosX, it.renderPosY, 0.0f)
             renderBlock(it)
             GlStateManager.popMatrix()
         }
-    }
-
-    private inline fun forEachWindow(crossinline block: (WindowComponent) -> Unit) {
-        windowsCachedList.addAll(windows)
-        for (i in windowsCachedList.indices) {
-            block(windowsCachedList[i])
-        }
-        windowsCachedList.clear()
     }
 
     private fun drawTypedString() {
@@ -347,7 +341,8 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
             val posX = Resolution.trollWidthF / 2.0f - renderStringPosX.get() / 2.0f
             val posY = Resolution.trollHeightF / 2.0f - MainFontRenderer.getHeight(2.0f) / 2.0f
             var color = GuiSetting.text
-            color = color.alpha(Easing.IN_CUBIC.dec(Easing.toDelta(renderStringPosX.time, 5000.0f), 0.0f, 255.0f).toInt())
+            color =
+                color.alpha(Easing.IN_CUBIC.dec(Easing.toDelta(renderStringPosX.time, 5000.0f), 0.0f, 255.0f).toInt())
             MainFontRenderer.drawString(searchString, posX, posY, color, 2.0f)
         }
     }
