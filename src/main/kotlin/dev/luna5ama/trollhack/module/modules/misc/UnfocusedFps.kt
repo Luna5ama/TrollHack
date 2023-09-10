@@ -7,7 +7,7 @@ import org.lwjgl.opengl.Display
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
 
 internal object UnfocusedFps : Module(
-    name = "UnfocusedFps",
+    name = "Unfocused Fps",
     description = "Reduces FPS when the game is running in the background",
     category = Category.MISC
 ) {
