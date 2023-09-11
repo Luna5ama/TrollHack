@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.esp.DynamicTracerRenderer
+import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -43,12 +44,13 @@ internal object Tracers : Module(
     private val range by setting("Range", 64, 8..512, 8, page.atValue(Page.ENTITY_TYPE))
 
     /* Color settings */
-    private val colorPlayer by setting("Player Color", ColorRGB(255, 160, 240), false, page.atValue(Page.COLOR))
-    private val colorFriend by setting("Friend Color", ColorRGB(32, 250, 32), false, page.atValue(Page.COLOR))
-    private val colorPassive by setting("Passive Mob Color", ColorRGB(132, 240, 32), false, page.atValue(Page.COLOR))
-    private val colorNeutral by setting("Neutral Mob Color", ColorRGB(255, 232, 0), false, page.atValue(Page.COLOR))
-    private val colorHostile by setting("Hostile Mob Color", ColorRGB(250, 32, 32), false, page.atValue(Page.COLOR))
-    private val colorFar by setting("Far Color", ColorRGB(255, 255, 255), false, page.atValue(Page.COLOR))
+    private val colorTarget by setting("Target Color", ColorRGB(255, 32, 255, 255), true, page.atValue(Page.COLOR))
+    private val colorPlayer by setting("Player Color", ColorRGB(255, 160, 240, 255), true, page.atValue(Page.COLOR))
+    private val colorFriend by setting("Friend Color", ColorRGB(32, 250, 32, 255), true, page.atValue(Page.COLOR))
+    private val colorPassive by setting("Passive Mob Color", ColorRGB(132, 240, 32, 255), true, page.atValue(Page.COLOR))
+    private val colorNeutral by setting("Neutral Mob Color", ColorRGB(255, 232, 0, 255), true, page.atValue(Page.COLOR))
+    private val colorHostile by setting("Hostile Mob Color", ColorRGB(250, 32, 32, 255), true, page.atValue(Page.COLOR))
+    private val colorFar by setting("Far Color", ColorRGB(255, 255, 255, 255), true, page.atValue(Page.COLOR))
 
     /*Rendering settings */
     private val rangedColor0 = setting("Ranged Color", true, page.atValue(Page.RENDERING))
@@ -106,6 +108,7 @@ internal object Tracers : Module(
 
     private fun SafeClientEvent.getColor(entity: Entity): ColorRGB {
         val color = when {
+            entity == CombatManager.target -> colorTarget
             FriendManager.isFriend(entity.name) -> colorFriend
             entity is EntityPlayer -> colorPlayer
             entity.isPassive -> colorPassive
