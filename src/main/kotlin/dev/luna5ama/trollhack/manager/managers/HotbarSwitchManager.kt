@@ -21,8 +21,10 @@ object HotbarSwitchManager : Manager() {
     var serverSideHotbar = 0; private set
     var swapTime = 0L; private set
 
+    private var serverSizeItemOverride: ItemStack? = null
+
     val EntityPlayerSP.serverSideItem: ItemStack
-        get() = inventory.mainInventory[serverSideHotbar]
+        get() = serverSizeItemOverride ?: inventory.mainInventory[serverSideHotbar]
 
     init {
         safeListener<PacketEvent.Send>(Int.MIN_VALUE) {
@@ -52,12 +54,14 @@ object HotbarSwitchManager : Manager() {
 
     fun SafeClientEvent.ghostSwitch(override: Override, slot: Slot, block: () -> Unit) {
         synchronized(InventoryTaskManager) {
+            serverSizeItemOverride = slot.stack
             if (slot.hotbarIndex != serverSideHotbar) {
                 override.mode.run {
                     switch(slot, block)
                 }
                 return
             }
+            serverSizeItemOverride = null
         }
 
         block.invoke()
