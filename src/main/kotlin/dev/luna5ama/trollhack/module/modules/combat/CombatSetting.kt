@@ -5,6 +5,7 @@ import dev.fastmc.common.TimeUnit
 import dev.fastmc.common.ceilToInt
 import dev.fastmc.common.sq
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.event.events.ConnectionEvent
 import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
 import dev.luna5ama.trollhack.event.events.render.Render2DEvent
@@ -205,6 +206,10 @@ internal object CombatSetting : Module(
     override fun isActive() = KillAura.isActive() || BedAura.isActive() || TrollAura.isActive() || Surround.isActive()
 
     init {
+        listener<ConnectionEvent.Disconnect> {
+            CombatManager.targetOverride = null
+        }
+
         listener<RenderEntityEvent.Model.Pre> {
             if (it.cancelled || !chams || it.entity != CombatManager.target) return@listener
 
@@ -286,15 +291,22 @@ internal object CombatSetting : Module(
             overrideRange = if (it is KillAura) it.range else targetRange
         }
 
+        val overrideTarget = CombatManager.targetOverride?.get()
+
         val eyePos = player.eyePosition
         val ignoreWall = shouldIgnoreWall()
         val set = getTargetList()
 
         val wallRangeSq = wallRange.sq
-        val newTarget = set.firstOrNull {
-            (overrideRange == targetRange || it.distanceTo(eyePos) < overrideRange)
-                && (ignoreWall || (player.canEntityBeSeen(it) && player.distanceSqTo(it) <= wallRangeSq))
-        }
+        val newTarget =
+            if (overrideTarget != null && overrideTarget.distanceTo(eyePos) < overrideRange) {
+                overrideTarget
+            } else {
+                set.firstOrNull {
+                    (overrideRange == targetRange || it.distanceTo(eyePos) < overrideRange)
+                        && (ignoreWall || (player.canEntityBeSeen(it) && player.distanceSqTo(it) <= wallRangeSq))
+                }
+            }
         val tracker = CombatManager.trackerTarget?.takeIf { it.entity === newTarget }
             ?: newTarget?.let { MotionTracker(it) }
 

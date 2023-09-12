@@ -44,6 +44,7 @@ import net.minecraft.network.play.server.*
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
+import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
@@ -58,6 +59,7 @@ object CombatManager : Manager() {
     private val hurtTimeMap = Int2LongMaps.synchronize(Int2LongOpenHashMap()).apply { defaultReturnValue(-1L) }
     private val healthMap = Int2FloatMaps.synchronize(Int2FloatOpenHashMap()).apply { defaultReturnValue(Float.NaN) }
 
+    var targetOverride: WeakReference<EntityLivingBase>? = null
     var target: EntityLivingBase? = null
         get() {
             if (field?.isEntityAlive == false) {
