@@ -12,20 +12,6 @@ object GlStateUtils {
     private var lastScissor: Quad<Int, Int, Int, Int>? = null
     private val scissorList = ArrayList<Quad<Int, Int, Int, Int>>()
 
-    private var bindProgram = 0
-
-    fun useProgramForce(id: Int) {
-        glUseProgram(id)
-        bindProgram = id
-    }
-
-    fun useProgram(id: Int) {
-        if (id != bindProgram) {
-            glUseProgram(id)
-            bindProgram = id
-        }
-    }
-
     fun scissor(x: Int, y: Int, width: Int, height: Int) {
         lastScissor = Quad(x, y, width, height)
         glScissor(x, y, width, height)

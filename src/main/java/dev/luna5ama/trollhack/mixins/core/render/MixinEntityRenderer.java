@@ -25,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static org.lwjgl.opengl.GL20.glUseProgram;
+
 @Mixin(value = EntityRenderer.class, priority = Integer.MAX_VALUE)
 public class MixinEntityRenderer {
     @Shadow
@@ -47,7 +49,7 @@ public class MixinEntityRenderer {
         GlStateUtils.INSTANCE.popMatrixAll();
         GlStateUtils.INSTANCE.alpha(true);
 
-        GlStateUtils.INSTANCE.useProgramForce(0);
+        glUseProgram(0);
         Wrapper.getMinecraft().profiler.endSection();
     }
 
@@ -55,7 +57,7 @@ public class MixinEntityRenderer {
     public void updateCameraAndRender$Inject$RETURN(float partialTicks, long nanoTime, CallbackInfo ci) {
         Wrapper.getMinecraft().profiler.endStartSection("trollNotification");
         Notification.INSTANCE.render();
-        GlStateUtils.INSTANCE.useProgramForce(0);
+        glUseProgram(0);
     }
 
     @ModifyVariable(method = "orientCamera", at = @At(value = "STORE", ordinal = 0), ordinal = 0)

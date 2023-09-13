@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.GL20.glUseProgram
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
@@ -43,7 +44,7 @@ internal object ForgeEventProcessor : ListenerOwner() {
                 prevWidth = mc.displayWidth
                 prevHeight = mc.displayHeight
                 ResolutionUpdateEvent(mc.displayWidth, mc.displayHeight).post()
-                GlStateUtils.useProgramForce(0)
+                glUseProgram(0)
             }
         }
     }
@@ -54,7 +55,7 @@ internal object ForgeEventProcessor : ListenerOwner() {
         RenderUtils3D.prepareGL()
         Render3DEvent.post()
         RenderUtils3D.releaseGL()
-        GlStateUtils.useProgramForce(0)
+        glUseProgram(0)
     }
 
     @SubscribeEvent

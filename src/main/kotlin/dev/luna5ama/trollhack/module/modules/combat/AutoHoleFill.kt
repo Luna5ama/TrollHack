@@ -56,7 +56,6 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import java.util.*
 
 internal object AutoHoleFill : Module(
     name = "Auto Hole Fill",

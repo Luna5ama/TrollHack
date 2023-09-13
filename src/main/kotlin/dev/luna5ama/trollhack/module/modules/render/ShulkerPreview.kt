@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.module.modules.render
 
-import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.mixins.core.gui.MixinGuiScreen
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -15,6 +14,7 @@ import net.minecraft.item.ItemShulkerBox
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.NonNullList
+import org.lwjgl.opengl.GL20.glUseProgram
 
 /**
  * @see MixinGuiScreen.renderToolTip
@@ -96,7 +96,7 @@ internal object ShulkerPreview : Module(
     }
 
     private fun renderShulkerItems(shulkerInventory: NonNullList<ItemStack>, originalX: Int, originalY: Int) {
-        GlStateUtils.useProgram(0)
+        glUseProgram(0)
 
         for (i in 0 until shulkerInventory.size) {
             val x = originalX + i % 9 * 16 + 11

@@ -99,6 +99,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import net.minecraft.world.EnumDifficulty
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL20.glUseProgram
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -532,7 +533,7 @@ internal object ZealotCrystalPlus : Module(
                     }
                 }
 
-                GlStateUtils.useProgram(0)
+                glUseProgram(0)
                 tessellator.draw()
                 buffer.setTranslation(0.0, 0.0, 0.0)
 

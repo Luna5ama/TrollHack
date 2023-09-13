@@ -45,6 +45,7 @@ import net.minecraft.util.EnumHandSide
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.opengl.GL11.GL_QUADS
 import org.lwjgl.opengl.GL11.glColor4f
+import org.lwjgl.opengl.GL20.glUseProgram
 import java.util.*
 import kotlin.collections.set
 import kotlin.math.max
@@ -369,7 +370,7 @@ internal object Nametags : Module(
             val scale = calcScale(camPos, pos)
 
             GlStateManager.pushMatrix()
-             GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
+            GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
             GlStateManager.scale(scale, scale, 1.0f)
 
             drawNametag(screenPos, scale, textComponent)
@@ -392,7 +393,7 @@ internal object Nametags : Module(
             val scale = calcScale(camPos, pos)
 
             GlStateManager.pushMatrix()
-             GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
+            GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
             GlStateManager.scale(scale, scale, 1.0f)
 
             drawNametag(screenPos, scale, textComponent)
@@ -451,18 +452,18 @@ internal object Nametags : Module(
             val scale = calcScale(camPos, pos)
 
             GlStateManager.pushMatrix()
-             GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
+            GlStateManager.translate(screenPos.x.toFloat(), screenPos.y.toFloat(), 0.0f)
             GlStateManager.scale(scale, scale, 1.0f)
 
             if (drawNametagLiving(screenPos, scale, entity, textComponent) && !empty) {
                 GlStateManager.pushMatrix()
-                 GlStateManager.translate(0.0f, -halfHeight, 0.0f) // Translate to top of nametag
+                GlStateManager.translate(0.0f, -halfHeight, 0.0f) // Translate to top of nametag
                 GlStateManager.scale(itemScale.value, itemScale.value, 1f) // Scale to item scale
-                 GlStateManager.translate(0.0f, -margins.value - 2.0f, 0.0f)
+                GlStateManager.translate(0.0f, -margins.value - 2.0f, 0.0f)
 
-                 GlStateManager.translate(-halfWidth + 4f, -16f, 0.0f)
+                GlStateManager.translate(-halfWidth + 4f, -16f, 0.0f)
                 if (drawDura) {
-                     GlStateManager.translate(0.0f, -MainFontRenderer.getHeight() - 2.0f, 0.0f)
+                    GlStateManager.translate(0.0f, -MainFontRenderer.getHeight() - 2.0f, 0.0f)
                 }
 
                 for ((itemStack, enchantmentText) in itemList) {
@@ -498,7 +499,7 @@ internal object Nametags : Module(
         GlStateUtils.depth(true)
         mc.renderItem.zLevel = -100.0f
         RenderHelper.enableGUIStandardItemLighting()
-        GlStateUtils.useProgram(0)
+        glUseProgram(0)
         mc.renderItem.renderItemAndEffectIntoGUI(itemStack, 0, 0)
         RenderHelper.disableStandardItemLighting()
         mc.renderItem.zLevel = 0.0f
@@ -514,19 +515,23 @@ internal object Nametags : Module(
 
         if (count.value && itemStack.count > 1) {
             val itemCount = itemStack.count.toString()
-             GlStateManager.translate(0.0f, 0.0f, 60.0f)
+            GlStateManager.translate(0.0f, 0.0f, 60.0f)
             val stringWidth = 17.0f - MainFontRenderer.getWidth(itemCount)
             MainFontRenderer.drawString(itemCount, stringWidth, 9.0f)
-             GlStateManager.translate(0.0f, 0.0f, -60.0f)
+            GlStateManager.translate(0.0f, 0.0f, -60.0f)
         }
 
-         GlStateManager.translate(0.0f, -2.0f, 0.0f)
+        GlStateManager.translate(0.0f, -2.0f, 0.0f)
         if (enchantment.value) {
             val scale = 0.6f
-            enchantmentText.draw(lineSpace = 2, scale = scale, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.BOTTOM)
+            enchantmentText.draw(
+                lineSpace = 2,
+                scale = scale,
+                verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.BOTTOM
+            )
         }
 
-         GlStateManager.translate(28.0f, 2.0f, 0.0f)
+        GlStateManager.translate(28.0f, 2.0f, 0.0f)
     }
 
     private fun drawNametagLiving(
@@ -587,7 +592,11 @@ internal object Nametags : Module(
         RenderUtils2D.draw(GL_QUADS)
         RenderUtils2D.releaseGL()
 
-        textComponent.draw(skipEmptyLine = true, horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
+        textComponent.draw(
+            skipEmptyLine = true,
+            horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER,
+            verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER
+        )
 
         return true
     }
@@ -622,7 +631,11 @@ internal object Nametags : Module(
 
         RenderUtils2D.releaseGL()
 
-        textComponent.draw(skipEmptyLine = true, horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER, verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER)
+        textComponent.draw(
+            skipEmptyLine = true,
+            horizontalAlign = dev.luna5ama.trollhack.graphics.HAlign.CENTER,
+            verticalAlign = dev.luna5ama.trollhack.graphics.VAlign.CENTER
+        )
     }
 
     private fun getEnchantmentText(itemStack: ItemStack): TextComponent {

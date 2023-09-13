@@ -29,6 +29,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL20.glUseProgram
 import org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP
 
 abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner(), IGuiScreen {
@@ -280,7 +281,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         mc.profiler.endSection()
 
         mc.profiler.endSection()
-        GlStateUtils.useProgramForce(0)
+        glUseProgram(0)
     }
 
     private fun drawBackground(partialTicks: Float) {
@@ -292,7 +293,7 @@ abstract class AbstractTrollGui : GuiScreen(), IListenerOwner by ListenerOwner()
         // Blur effect
         if (GuiSetting.backGroundBlur > 0.0f) {
             GlStateManager.pushMatrix()
-            GlStateUtils.useProgramForce(0)
+            glUseProgram(0)
             blurShader.shader?.render(partialTicks)
             mc.framebuffer.bindFramebuffer(true)
             blurShader.getFrameBuffer("final")?.framebufferRenderExt(mc.displayWidth, mc.displayHeight, false)

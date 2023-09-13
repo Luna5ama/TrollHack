@@ -8,6 +8,7 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.math.MathHelper
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL20.glUseProgram
 
 internal object PlayerModel : HudElement(
     name = "Player Model",
@@ -31,11 +32,11 @@ internal object PlayerModel : HudElement(
             val pitch = if (emulatePitch) interpolateAndWrap(player.prevRotationPitch, player.rotationPitch) else 0.0f
 
             GlStateManager.pushMatrix()
-             GlStateManager.translate(renderWidth / scale / 2.0f, renderHeight / scale - 8.0f, 0.0f)
+            GlStateManager.translate(renderWidth / scale / 2.0f, renderHeight / scale - 8.0f, 0.0f)
             GlStateUtils.depth(true)
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
 
-            GlStateUtils.useProgram(0)
+            glUseProgram(0)
             GuiInventory.drawEntityOnScreen(0, 0, 35, -yaw, -pitch, player)
 
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f)

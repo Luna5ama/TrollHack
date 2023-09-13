@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.color.ColorUtils
 import dev.luna5ama.trollhack.module.modules.client.CustomFont
+import org.lwjgl.opengl.GL20.glUseProgram
 import java.awt.Font
 
 object MainFontRenderer : IFontRenderer {
@@ -46,7 +47,7 @@ object MainFontRenderer : IFontRenderer {
         GlStateUtils.alpha(false)
         drawString(string, posX, posY - 1.0f, ColorRGB(ColorUtils.argbToRgba(adjustedColor)), scale, drawShadow)
         GlStateUtils.alpha(true)
-        GlStateUtils.useProgramForce(0)
+        glUseProgram(0)
     }
 
     override fun drawString(

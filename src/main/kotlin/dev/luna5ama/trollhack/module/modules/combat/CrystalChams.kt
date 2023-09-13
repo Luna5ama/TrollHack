@@ -17,6 +17,7 @@ import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.item.EntityEnderCrystal
+import org.lwjgl.opengl.GL20.glUseProgram
 
 internal object CrystalChams : Module(
     name = "Crystal Chams",
@@ -51,7 +52,7 @@ internal object CrystalChams : Module(
 
             GlStateUtils.alpha(true)
             GlStateManager.glLineWidth(width)
-            GlStateUtils.useProgram(0)
+            glUseProgram(0)
 
             for (crystal in EntityManager.entity) {
                 if (crystal !is EntityEnderCrystal) continue

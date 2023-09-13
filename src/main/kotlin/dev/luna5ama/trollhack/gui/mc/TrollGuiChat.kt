@@ -4,7 +4,6 @@ import dev.luna5ama.trollhack.command.CommandManager
 import dev.luna5ama.trollhack.command.args.AbstractArg
 import dev.luna5ama.trollhack.command.args.AutoComplete
 import dev.luna5ama.trollhack.command.args.GreedyStringArg
-import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.graphics.RenderUtils2D
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.shaders.WindowBlurShader
@@ -16,6 +15,7 @@ import kotlinx.coroutines.launch
 import net.minecraft.client.gui.GuiChat
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.glEnable
+import org.lwjgl.opengl.GL20.glUseProgram
 import org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP
 import kotlin.math.min
 
@@ -184,7 +184,7 @@ class TrollGuiChat(
         WindowBlurShader.render(2.0f, height - 14.0f, width - 2.0f, height - 2.0f)
         RenderUtils2D.drawRectFilled(2.0f, height - 14.0f, width - 2.0f, height - 2.0f, ColorRGB(0, 0, 0, 128))
 
-        GlStateUtils.useProgramForce(0)
+        glUseProgram(0)
 
         // Draw predict string
         if (predictString.isNotBlank()) {

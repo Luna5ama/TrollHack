@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.item.ItemStack
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL20.glUseProgram
 import org.lwjgl.opengl.GL30.glBindVertexArray
 import kotlin.math.*
 
@@ -25,7 +26,7 @@ object RenderUtils2D {
     var vertexSize = 0
 
     fun drawItem(itemStack: ItemStack, x: Int, y: Int, text: String? = null, drawOverlay: Boolean = true) {
-        GlStateUtils.useProgram(0)
+        glUseProgram(0)
         GlStateUtils.blend(true)
         GlStateUtils.depth(true)
         RenderHelper.enableGUIStandardItemLighting()

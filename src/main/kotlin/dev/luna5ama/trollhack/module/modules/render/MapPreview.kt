@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.module.modules.render
 
-import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.graphics.RenderUtils2D.drawRectFilled
 import dev.luna5ama.trollhack.graphics.RenderUtils2D.drawRectOutline
 import dev.luna5ama.trollhack.mixins.core.gui.MixinGuiScreen
@@ -15,6 +14,7 @@ import net.minecraft.item.ItemMap
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.world.storage.MapData
+import org.lwjgl.opengl.GL20.glUseProgram
 import java.awt.Color
 
 /**
@@ -73,7 +73,7 @@ internal object MapPreview : Module(
         bufBuilder.pos(135.0, -7.0, 0.0).tex(1.0, 0.0).endVertex()
         bufBuilder.pos(-7.0, -7.0, 0.0).tex(0.0, 0.0).endVertex()
 
-        GlStateUtils.useProgram(0)
+        glUseProgram(0)
         tessellator.draw()
     }
 

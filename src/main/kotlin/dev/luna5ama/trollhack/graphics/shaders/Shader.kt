@@ -2,7 +2,6 @@ package dev.luna5ama.trollhack.graphics.shaders
 
 import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.graphics.GLObject
-import dev.luna5ama.trollhack.graphics.GlStateUtils
 import dev.luna5ama.trollhack.util.interfaces.Helper
 import dev.luna5ama.trollhack.util.readText
 import org.lwjgl.opengl.GL20.*
@@ -54,11 +53,11 @@ open class Shader(vertShaderPath: String, fragShaderPath: String) : GLObject, He
     }
 
     override fun bind() {
-        GlStateUtils.useProgram(id)
+        glUseProgram(id)
     }
 
     override fun unbind() {
-        GlStateUtils.useProgram(0)
+        glUseProgram(0)
     }
 
     override fun destroy() {
@@ -74,5 +73,5 @@ inline fun <T : Shader> T.use(block: T.() -> Unit) {
 
     bind()
     block.invoke(this)
-    GlStateUtils.useProgramForce(0)
+    glUseProgram(0)
 }

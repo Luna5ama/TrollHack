@@ -56,7 +56,6 @@ import dev.luna5ama.trollhack.util.math.VectorUtils
 import dev.luna5ama.trollhack.util.math.vector.*
 import dev.luna5ama.trollhack.util.pause.OffhandPause
 import dev.luna5ama.trollhack.util.pause.withPause
-import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.ConcurrentScope
 import dev.luna5ama.trollhack.util.threads.TimerScope
 import dev.luna5ama.trollhack.util.threads.runSafe
@@ -926,7 +925,7 @@ internal object BedAura : Module(
                     }
 
                     RenderUtils3D.resetTranslation()
-                    renderer.render(false, cull = false)
+                    renderer.render(false)
                     RenderUtils3D.setTranslation(
                         -mc.renderManager.renderPosX,
                         -mc.renderManager.renderPosY,

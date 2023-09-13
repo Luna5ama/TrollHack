@@ -2,13 +2,7 @@ package dev.luna5ama.trollhack.graphics
 
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
-import dev.luna5ama.trollhack.util.Wrapper
-import dev.luna5ama.trollhack.util.accessor.renderPosX
-import dev.luna5ama.trollhack.util.accessor.renderPosY
-import dev.luna5ama.trollhack.util.accessor.renderPosZ
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.culling.Frustum
-import net.minecraft.client.renderer.culling.ICamera
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
@@ -16,7 +10,6 @@ import org.lwjgl.opengl.GL11.GL_LINES
 import org.lwjgl.opengl.GL11.GL_QUADS
 
 class ESPRenderer {
-    private val frustumCamera: ICamera = Frustum()
     private var toRender0: MutableList<Info> = ArrayList()
 
     val toRender: List<Info>
@@ -73,19 +66,11 @@ class ESPRenderer {
         toRender0.clear()
     }
 
-    fun render(clear: Boolean, cull: Boolean = true) {
+    fun render(clear: Boolean) {
         val filled = aFilled != 0
         val outline = aOutline != 0
         val tracer = aTracer != 0
         if (toRender0.isEmpty() || (!filled && !outline && !tracer)) return
-
-        if (cull) {
-            frustumCamera.setPosition(
-                Wrapper.minecraft.renderManager.renderPosX,
-                Wrapper.minecraft.renderManager.renderPosY,
-                Wrapper.minecraft.renderManager.renderPosZ
-            )
-        }
 
         if (through) GlStateManager.disableDepth()
         GlStateManager.glLineWidth(thickness)
@@ -93,9 +78,7 @@ class ESPRenderer {
         if (filled) {
             for ((box, color, sides) in toRender0) {
                 val a = (aFilled * (color.a / 255.0f)).toInt()
-                if (frustumCamera.isBoundingBoxInFrustum(box)) {
-                    RenderUtils3D.drawBox(box, color.alpha(a), sides)
-                }
+                RenderUtils3D.drawBox(box, color.alpha(a), sides)
             }
             RenderUtils3D.draw(GL_QUADS)
         }
@@ -104,9 +87,7 @@ class ESPRenderer {
             if (outline) {
                 for ((box, color, _) in toRender0) {
                     val a = (aOutline * (color.a / 255.0f)).toInt()
-                    if (frustumCamera.isBoundingBoxInFrustum(box)) {
-                        RenderUtils3D.drawOutline(box, color.alpha(a))
-                    }
+                    RenderUtils3D.drawOutline(box, color.alpha(a))
                 }
             }
             if (tracer) {
