@@ -20,6 +20,7 @@ import dev.luna5ama.trollhack.graphics.RenderUtils3D
 import dev.luna5ama.trollhack.graphics.color.ColorRGB
 import dev.luna5ama.trollhack.graphics.font.renderer.MainFontRenderer
 import dev.luna5ama.trollhack.graphics.mask.EnumFacingMask
+import dev.luna5ama.trollhack.gui.hudgui.elements.client.Notification
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
@@ -179,7 +180,7 @@ internal object BedAura : Module(
     private val forcePlaceBind by setting("Force Place Bind", Bind(), {
         if (isEnabled && it) {
             toggleForcePlace = !toggleForcePlace
-            NoSpamMessage.sendMessage("$chatName Force placing" + if (toggleForcePlace) " §aenabled" else " §cdisabled")
+            Notification.send(BedAura, "$chatName Force placing" + if (toggleForcePlace) " §aenabled" else " §cdisabled")
         }
     }, page.atValue(Page.FORCE_PLACE))
     private val forcePlaceHealth by setting(
