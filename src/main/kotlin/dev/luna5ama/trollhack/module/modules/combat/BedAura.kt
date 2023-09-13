@@ -325,7 +325,7 @@ internal object BedAura : Module(
                     val placeInfo = placeInfo ?: return@safeListener
                     if (packet.category != SoundCategory.BLOCKS) return@safeListener
                     if (packet.sound != SoundEvents.ENTITY_GENERIC_EXPLODE) return@safeListener
-                    if (placeInfo.center.distanceSqTo(packet.x, packet.y, packet.z) > 0.2) return@safeListener
+                    if (placeInfo.center.distanceSqTo(packet.x, packet.y, packet.z) > 4.0) return@safeListener
 
                     explosionCount++
                 }
