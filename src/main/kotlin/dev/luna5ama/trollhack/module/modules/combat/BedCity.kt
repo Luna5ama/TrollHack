@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.util.world.canBreakBlock
 import dev.luna5ama.trollhack.util.world.checkBlockCollision
 import dev.luna5ama.trollhack.util.world.isAir
 import dev.luna5ama.trollhack.util.world.isFullBox
+import net.minecraft.block.BlockBed
 import net.minecraft.block.BlockConcretePowder
 import net.minecraft.block.BlockFalling
 import net.minecraft.block.BlockSand
@@ -85,11 +86,10 @@ internal object BedCity : Module(
 
             val blockState = world.getBlockState(pos)
             val block = blockState.block
+            if (block is BlockBed) return true
             if (block is BlockFalling) return true
-            if (blockState.isAir) return true
-            if (ignoreNonFullBox && !blockState.isFullBox) return false
 
-            return false
+            return if (ignoreNonFullBox) !world.getBlockState(pos).isFullBox else world.isAir(pos)
         }
 
         fun minePos(minePos: BlockPos?): Boolean {
