@@ -16,7 +16,7 @@ object MessageDetection {
         },
         ANY {
             override val prefixes: Array<out CharSequence>
-                get() = arrayOf("/", ",", ".", "-", ";", "?", "*", "^", "&", "#", "$", CommandManager.prefix)
+                get() = arrayOf("/", ",", ".", "-", ";", "?", "*", "^", "&", "#", "$", "!", CommandManager.prefix)
         }
     }
 
