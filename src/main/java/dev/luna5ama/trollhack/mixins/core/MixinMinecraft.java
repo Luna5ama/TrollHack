@@ -59,7 +59,7 @@ public abstract class MixinMinecraft {
     @Shadow
     protected abstract void init() throws LWJGLException, IOException;
 
-    @Redirect(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
+    @Redirect(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false), require = 0)
     public void Redirect$createDisplay$INVOKE$Display$create(PixelFormat pixel_format) throws LWJGLException {
         Display.create(pixel_format, new ContextAttribs(4, 5).withProfileCompatibility(true));
     }
