@@ -18,6 +18,7 @@ import dev.luna5ama.trollhack.module.modules.exploit.Bypass
 import dev.luna5ama.trollhack.module.modules.player.InventorySorter
 import dev.luna5ama.trollhack.module.modules.player.Kit
 import dev.luna5ama.trollhack.util.Bind
+import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.EntityUtils.isFriend
 import dev.luna5ama.trollhack.util.EntityUtils.isSelf
 import dev.luna5ama.trollhack.util.EntityUtils.spoofSneak
@@ -187,6 +188,8 @@ internal object AutoRegear : Module(
             if (!placeShulker) return@safeParallelListener
             placeShulker = false
 
+            Notification.send(AutoRegear, "$chatName Regearing...")
+
             val shulkerSlot = player.allSlotsPrioritized.firstBlock<BlockShulkerBox>() ?: return@safeParallelListener
 
             ConcurrentScope.launch {
@@ -207,7 +210,7 @@ internal object AutoRegear : Module(
                 val rangeSq = placeRange * placeRange
                 val mutable = BlockPos.MutableBlockPos()
 
-                VectorUtils.getBlockPosInSphere(player, placeRange)
+                VectorUtils.getBlockPosInSphere(player.eyePosition, placeRange + 3.0f)
                     .filterNot { world.getBlockState(it).isReplaceable }
                     .flatMap { pos ->
                         directions.asSequence().filter {
@@ -219,7 +222,7 @@ internal object AutoRegear : Module(
                             ) < rangeSq
                         }.filter {
                             world.getBlockState(mutable.setAndAdd(pos, it)).isReplaceable
-                                && EntityManager.checkEntityCollision(AxisAlignedBB(mutable))
+                                && EntityManager.checkNoEntityCollision(mutable)
                                 && world.isAir(mutable.move(it))
                         }.map {
                             pos to it

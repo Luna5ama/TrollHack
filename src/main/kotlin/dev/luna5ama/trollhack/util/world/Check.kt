@@ -117,7 +117,7 @@ fun SafeClientEvent.hasNeighbor(pos: BlockPos): Boolean {
  */
 fun World.isPlaceable(pos: BlockPos, ignoreSelfCollide: Boolean = false) =
     this.getBlockState(pos).isReplaceable
-        && EntityManager.checkEntityCollision(AxisAlignedBB(pos), if (ignoreSelfCollide) Wrapper.player else null)
+        && EntityManager.checkNoEntityCollision(AxisAlignedBB(pos), if (ignoreSelfCollide) Wrapper.player else null)
 
 fun World.checkBlockCollision(pos: BlockPos, box: AxisAlignedBB, tolerance: Double = 0.005): Boolean {
     val blockBox = getCollisionBox(pos) ?: return false

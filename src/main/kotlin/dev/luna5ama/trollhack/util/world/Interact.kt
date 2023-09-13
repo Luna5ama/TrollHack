@@ -185,12 +185,12 @@ fun interface PlacementSearchOption {
 
         @JvmField
         val ENTITY_COLLISION = PlacementSearchOption { _, _, to ->
-            EntityManager.checkEntityCollision(AxisAlignedBB(to))
+            EntityManager.checkNoEntityCollision(to)
         }
 
         @JvmField
         val ENTITY_COLLISION_IGNORE_SELF = PlacementSearchOption { _, _, to ->
-            EntityManager.checkEntityCollision(AxisAlignedBB(to))
+            EntityManager.checkNoEntityCollision(to)
         }
     }
 }

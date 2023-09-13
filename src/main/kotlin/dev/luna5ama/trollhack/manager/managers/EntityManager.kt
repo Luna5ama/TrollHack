@@ -6,6 +6,7 @@ import dev.luna5ama.trollhack.event.events.WorldEvent
 import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeParallelListener
 import dev.luna5ama.trollhack.manager.Manager
+import dev.luna5ama.trollhack.util.math.intersectsBlock
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
@@ -13,6 +14,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.util.math.BlockPos
 
 object EntityManager : Manager() {
     private var entity0 = emptyList<Entity>()
@@ -110,7 +112,7 @@ object EntityManager : Manager() {
 
     fun getPlayerByID(id: Int): EntityPlayer? = playersByID[id]
 
-    fun checkEntityCollision(box: AxisAlignedBB, predicate: (Entity) -> Boolean): Boolean {
+    fun checkNoEntityCollision(box: AxisAlignedBB, predicate: (Entity) -> Boolean): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.preventEntitySpawning }
@@ -119,8 +121,8 @@ object EntityManager : Manager() {
             .none()
     }
 
-    fun checkEntityCollision(box: AxisAlignedBB, ignoreEntity: Entity?): Boolean {
-        if (ignoreEntity == null) return checkEntityCollision(box)
+    fun checkNoEntityCollision(box: AxisAlignedBB, ignoreEntity: Entity?): Boolean {
+        if (ignoreEntity == null) return checkNoEntityCollision(box)
 
         return entity.asSequence()
             .filter { it.isEntityAlive }
@@ -130,7 +132,18 @@ object EntityManager : Manager() {
             .none()
     }
 
-    fun checkEntityCollision(box: AxisAlignedBB): Boolean {
+    fun checkNoEntityCollision(pos: BlockPos, ignoreEntity: Entity?): Boolean {
+        if (ignoreEntity == null) return checkNoEntityCollision(pos)
+
+        return entity.asSequence()
+            .filter { it.isEntityAlive }
+            .filter { it.preventEntitySpawning }
+            .filter { it != ignoreEntity || it.isRidingSameEntity(ignoreEntity) }
+            .filter { it.entityBoundingBox.intersectsBlock(pos) }
+            .none()
+    }
+
+    fun checkNoEntityCollision(box: AxisAlignedBB): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.preventEntitySpawning }
@@ -138,7 +151,15 @@ object EntityManager : Manager() {
             .none()
     }
 
-    fun checkAnyEntity(box: AxisAlignedBB, predicate: (Entity) -> Boolean): Boolean {
+    fun checkNoEntityCollision(pos: BlockPos): Boolean {
+        return entity.asSequence()
+            .filter { it.isEntityAlive }
+            .filter { it.preventEntitySpawning }
+            .filter { it.entityBoundingBox.intersectsBlock(pos) }
+            .none()
+    }
+
+    fun checkNoEntity(box: AxisAlignedBB, predicate: (Entity) -> Boolean): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.entityBoundingBox.intersects(box) }
@@ -146,7 +167,7 @@ object EntityManager : Manager() {
             .none()
     }
 
-    fun checkAnyEntity(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
+    fun checkNoEntity(box: AxisAlignedBB, ignoreEntity: Entity): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it != ignoreEntity }
@@ -154,10 +175,17 @@ object EntityManager : Manager() {
             .none()
     }
 
-    fun checkAnyEntity(box: AxisAlignedBB): Boolean {
+    fun checkNoEntity(box: AxisAlignedBB): Boolean {
         return entity.asSequence()
             .filter { it.isEntityAlive }
             .filter { it.entityBoundingBox.intersects(box) }
+            .none()
+    }
+
+    fun checkNoEntity(pos: BlockPos): Boolean {
+        return entity.asSequence()
+            .filter { it.isEntityAlive }
+            .filter { it.entityBoundingBox.intersectsBlock(pos) }
             .none()
     }
 }

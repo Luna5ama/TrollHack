@@ -148,7 +148,7 @@ internal object AutoTrap : Module(
             val pos = center.add(offset)
             if (toIgnore.contains(pos)) continue
             if (!world.getBlockState(pos).isReplaceable) continue
-            if (!EntityManager.checkEntityCollision(AxisAlignedBB(pos))) continue
+            if (!EntityManager.checkNoEntityCollision(AxisAlignedBB(pos))) continue
 
             return getPlacement(
                 pos,

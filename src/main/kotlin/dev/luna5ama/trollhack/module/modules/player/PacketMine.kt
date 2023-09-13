@@ -25,7 +25,6 @@ import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.translation.TranslateType
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
-import dev.luna5ama.trollhack.util.MovementUtils.applySpeedPotionEffects
 import dev.luna5ama.trollhack.util.SwingMode
 import dev.luna5ama.trollhack.util.extension.synchronized
 import dev.luna5ama.trollhack.util.interfaces.DisplayEnum
