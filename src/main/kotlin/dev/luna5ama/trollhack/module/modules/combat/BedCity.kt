@@ -10,9 +10,13 @@ import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.module.modules.player.PacketMine
 import dev.luna5ama.trollhack.util.EntityUtils.betterPosition
 import dev.luna5ama.trollhack.util.math.VectorUtils.setAndAdd
+import dev.luna5ama.trollhack.util.world.canBreakBlock
 import dev.luna5ama.trollhack.util.world.checkBlockCollision
 import dev.luna5ama.trollhack.util.world.isAir
 import dev.luna5ama.trollhack.util.world.isFullBox
+import net.minecraft.block.BlockConcretePowder
+import net.minecraft.block.BlockFalling
+import net.minecraft.block.BlockSand
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.BlockPos
 
@@ -77,7 +81,15 @@ internal object BedCity : Module(
         )
 
         fun checkEmpty(pos: BlockPos): Boolean {
-            return if (ignoreNonFullBox) !world.getBlockState(pos).isFullBox else world.isAir(pos)
+            if (!world.canBreakBlock(pos)) return true
+
+            val blockState = world.getBlockState(pos)
+            val block = blockState.block
+            if (block is BlockFalling) return true
+            if (blockState.isAir) return true
+            if (ignoreNonFullBox && !blockState.isFullBox) return false
+
+            return false
         }
 
         fun minePos(minePos: BlockPos?): Boolean {
