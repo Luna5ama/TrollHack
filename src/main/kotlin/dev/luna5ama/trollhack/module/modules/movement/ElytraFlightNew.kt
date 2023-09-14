@@ -27,9 +27,12 @@ internal object ElytraFlightNew : Module(
     private val fallTimer by setting("Fall Timer", 0.25f, 0.1f..2.0f, 0.01f)
     private val boostTimer by setting("Boost Timer", 1.08f, 1.0f..2.0f, 0.01f)
     private val minTakeoffHeight by setting("Min Takeoff Height", 0.8f, 0.0f..1.5f, 0.1f)
-    private val speed by setting("Speed", 2.5f, 0.1f..10.0f, 0.05f)
-    private val upSpeed by setting("Up Speed", 2.5f, 0.1f..10.0f, 0.05f)
-    private val downSpeed by setting("Down Speed", 2.5f, 0.1f..10.0f, 0.05f)
+    private val speed by setting("Speed", 1.5f, 0.1f..10.0f, 0.05f)
+    private val speedFast by setting("Speed Fast", 2.5f, 0.1f..10.0f, 0.05f)
+    private val upSpeed by setting("Up Speed", 1.5f, 0.1f..10.0f, 0.05f)
+    private val upSpeedFast by setting("Up Speed Fast", 2.5f, 0.1f..10.0f, 0.05f)
+    private val downSpeed by setting("Down Speed", 1.5f, 0.1f..10.0f, 0.05f)
+    private val downSpeedFast by setting("Down Speed Fast", 2.5f, 0.1f..10.0f, 0.05f)
 
     private var state = State.ON_GROUND
 
@@ -82,8 +85,11 @@ internal object ElytraFlightNew : Module(
     private fun SafeClientEvent.fly(event: PlayerMoveEvent.Pre) {
         player.motionY = 0.0
 
+        val sprint = mc.gameSettings.keyBindSprint.isKeyDown
+
         if (MovementUtils.isInputting()) {
             val yaw = player.calcMoveYaw()
+            val speed = if (sprint) speedFast else speed
             event.x = -sin(yaw) * speed
             event.z = cos(yaw) * speed
             modifyTimer(50.0f / boostTimer)
@@ -98,9 +104,9 @@ internal object ElytraFlightNew : Module(
 
         if (jump xor sneak) {
             if (jump) {
-                event.y = upSpeed.toDouble()
+                event.y = (if (sprint) upSpeedFast else upSpeed).toDouble()
             } else {
-                event.y = -downSpeed.toDouble()
+                event.y = -(if (sprint) downSpeedFast else downSpeed).toDouble()
             }
         }
 
