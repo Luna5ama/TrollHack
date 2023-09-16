@@ -18,10 +18,12 @@ import kotlin.math.max
 open class Component(
     open val screen: IGuiScreen,
     final override val name: CharSequence,
-    val settingGroup: SettingGroup,
+    val uiSettingGroup: UiSettingGroup,
     val config: AbstractConfig<out Nameable> = GuiConfig
 ) : Nameable {
     override val internalName = rootName.replace(" ", "")
+
+    val settingGroup get() = config.getGroupOrPut(uiSettingGroup.groupName).getGroupOrPut(internalName)
 
     // Basic info
     protected val visibleSetting = setting("Visible", true, { false }, { _, it -> it || !closeable })
@@ -234,7 +236,7 @@ open class Component(
 
     open fun onPostRender(absolutePos: Vec2f) {}
 
-    enum class SettingGroup(val groupName: String) {
+    enum class UiSettingGroup(val groupName: String) {
         NONE(""),
         CLICK_GUI("click_gui"),
         HUD_GUI("hud_gui")

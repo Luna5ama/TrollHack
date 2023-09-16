@@ -25,7 +25,7 @@ class ColorPicker(
 ) : TitledWindow(
     screen,
     "Color Picker",
-    SettingGroup.NONE
+    UiSettingGroup.NONE
 ) {
     override val resizable: Boolean get() = false
     override val minimizable: Boolean get() = false

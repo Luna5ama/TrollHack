@@ -15,9 +15,9 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
 open class BasicWindow(
     screen: IGuiScreen,
     name: CharSequence,
-    settingGroup: SettingGroup,
+    uiSettingGroup: UiSettingGroup,
     config: AbstractConfig<out Nameable> = GuiConfig
-) : CleanWindow(name, screen, settingGroup, config) {
+) : CleanWindow(name, screen, uiSettingGroup, config) {
     override fun onRender(absolutePos: Vec2f) {
         super.onRender(absolutePos)
         WindowBlurShader.render(renderWidth, renderHeight)

@@ -37,7 +37,7 @@ object TrollClickGui : AbstractTrollGui() {
         var posY = 0.0f
 
         for (category in Category.values()) {
-            val window = ListWindow(this, category.displayName, Component.SettingGroup.CLICK_GUI)
+            val window = ListWindow(this, category.displayName, Component.UiSettingGroup.CLICK_GUI)
             window.forcePosX = posX
             window.forcePosY = posY
             window.forceWidth = 80.0f

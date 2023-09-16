@@ -1,8 +1,12 @@
 package dev.luna5ama.trollhack.gui.rgui.windows
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
+import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.gui.IGuiScreen
 import dev.luna5ama.trollhack.gui.rgui.component.*
 import dev.luna5ama.trollhack.module.modules.client.GuiSetting
+import dev.luna5ama.trollhack.setting.groups.SettingGroup
 import dev.luna5ama.trollhack.setting.settings.AbstractSetting
 import dev.luna5ama.trollhack.setting.settings.impl.number.NumberSetting
 import dev.luna5ama.trollhack.setting.settings.impl.other.BindSetting
@@ -10,7 +14,9 @@ import dev.luna5ama.trollhack.setting.settings.impl.other.ColorSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.BooleanSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.EnumSetting
 import dev.luna5ama.trollhack.setting.settings.impl.primitive.StringSetting
+import dev.luna5ama.trollhack.util.ClipboardUtils
 import dev.luna5ama.trollhack.util.math.vector.Vec2f
+import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import org.lwjgl.input.Keyboard
 import kotlin.math.max
@@ -20,8 +26,8 @@ abstract class SettingWindow<T : Any>(
     screen: IGuiScreen,
     name: CharSequence,
     val element: T,
-    settingGroup: SettingGroup
-) : ListWindow(screen, name, settingGroup) {
+    uiSettingGroup: UiSettingGroup
+) : ListWindow(screen, name, uiSettingGroup) {
 
     override val minWidth get() = max(super.minWidth, optimalWidth)
     override val minHeight by ::optimalHeight
@@ -29,7 +35,8 @@ abstract class SettingWindow<T : Any>(
 
     override val minimizable get() = false
 
-    protected abstract fun getSettingList(): List<AbstractSetting<*>>
+    protected abstract val elementSettingGroup: SettingGroup
+    protected abstract val elementSettingList: List<AbstractSetting<*>>
 
     private val colorPickers = Object2ObjectOpenHashMap<ColorSetting, ColorPicker>()
     private var activeColorPicker: ColorPicker? = null
@@ -48,7 +55,7 @@ abstract class SettingWindow<T : Any>(
         screen.lastClicked = this
 
         children.clear()
-        for (setting in getSettingList()) {
+        for (setting in elementSettingList) {
             when (setting) {
                 is BooleanSetting -> SettingButton(screen, setting)
                 is NumberSetting -> SettingSlider(screen, setting)
@@ -119,6 +126,34 @@ abstract class SettingWindow<T : Any>(
     }
 
     override fun onKeyInput(keyCode: Int, keyState: Boolean) {
-        keybordListening?.onKeyInput(keyCode, keyState)
+        val listening = keybordListening
+        if (listening != null) {
+            listening.onKeyInput(keyCode, keyState)
+        } else {
+            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                try {
+                    when (keyCode) {
+                        Keyboard.KEY_C -> {
+                            val jsonString = gson.toJson(elementSettingGroup.write())
+                            ClipboardUtils.copyToClipboard(jsonString)
+                        }
+                        Keyboard.KEY_V -> {
+                            val jsonString = ClipboardUtils.pasteFromClipboard()
+                            if (jsonString.isNotBlank()) {
+                                val jsonObject = gson.fromJson(jsonString, JsonObject::class.java)
+                                elementSettingGroup.read(jsonObject)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    NoSpamMessage.sendError("Failed to copy/paste settings")
+                    TrollHackMod.logger.error("Failed to copy/paste settings", e)
+                }
+            }
+        }
+    }
+
+    private companion object {
+        val gson = GsonBuilder().setPrettyPrinting().create()
     }
 }

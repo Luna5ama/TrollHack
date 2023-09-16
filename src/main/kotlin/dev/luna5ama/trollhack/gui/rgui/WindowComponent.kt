@@ -16,9 +16,9 @@ import kotlin.math.min
 open class WindowComponent(
     screen: IGuiScreen,
     name: CharSequence,
-    settingGroup: SettingGroup,
+    uiSettingGroup: UiSettingGroup,
     config: AbstractConfig<out Nameable>
-) : InteractiveComponent(screen, name, settingGroup, config) {
+) : InteractiveComponent(screen, name, uiSettingGroup, config) {
 
     // Basic info
     private val minimizedSetting = setting("Minimized", false,

@@ -15,7 +15,7 @@ internal object GuiConfig : AbstractConfig<Component>(
     override val backup get() = File("$filePath/${Configurations.guiPreset}.bak")
 
     override fun addSettingToConfig(owner: Component, setting: AbstractSetting<*>) {
-        val groupName = owner.settingGroup.groupName
+        val groupName = owner.uiSettingGroup.groupName
         if (groupName.isNotEmpty()) {
             getGroupOrPut(groupName).getGroupOrPut(owner.internalName).addSetting(setting)
         }

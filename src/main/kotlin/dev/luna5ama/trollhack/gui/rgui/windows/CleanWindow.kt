@@ -12,6 +12,6 @@ import dev.luna5ama.trollhack.util.interfaces.Nameable
 open class CleanWindow(
     name: CharSequence,
     screen: IGuiScreen,
-    settingGroup: SettingGroup,
+    uiSettingGroup: UiSettingGroup,
     config: AbstractConfig<out Nameable> = GuiConfig
-) : WindowComponent(screen, name, settingGroup, config)
+) : WindowComponent(screen, name, uiSettingGroup, config)

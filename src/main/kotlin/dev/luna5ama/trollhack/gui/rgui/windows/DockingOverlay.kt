@@ -15,7 +15,7 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
 class DockingOverlay(screen: IGuiScreen, private val parent: WindowComponent) : WindowComponent(
     screen,
     "Docking Overlay",
-    SettingGroup.NONE,
+    UiSettingGroup.NONE,
     GuiConfig
 ) {
     override var posX: Float

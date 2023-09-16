@@ -70,6 +70,7 @@ open class AbstractModule(
         DISABLE(TranslateType.COMMON commonKey "Disable")
     }
 
+    val settingGroup get() = config.getGroupOrPut(this.internalName)
     val fullSettingList get() = config.getSettings(this)
     val settingList: List<AbstractSetting<*>> get() = fullSettingList.filter { it != bind && it != enabled && it != enabled && it != visible && it != default }
 

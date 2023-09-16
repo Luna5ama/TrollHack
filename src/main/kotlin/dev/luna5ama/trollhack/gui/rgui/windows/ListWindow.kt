@@ -25,7 +25,7 @@ import kotlin.math.pow
 open class ListWindow(
     screen: IGuiScreen,
     name: CharSequence,
-    saveToConfig: SettingGroup,
+    saveToConfig: UiSettingGroup,
     vararg childrenIn: Component
 ) : TitledWindow(screen, name, saveToConfig) {
     val children = ArrayList<Component>()

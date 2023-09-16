@@ -45,7 +45,7 @@ object TrollHudGui : AbstractTrollGui() {
         var posY = 0.0f
 
         for (category in AbstractHudElement.Category.values()) {
-            val window = ListWindow(this, category.displayName, Component.SettingGroup.HUD_GUI)
+            val window = ListWindow(this, category.displayName, Component.UiSettingGroup.HUD_GUI)
             window.forcePosX = posX
             window.forcePosY = posY
             window.forceWidth = 80.0f

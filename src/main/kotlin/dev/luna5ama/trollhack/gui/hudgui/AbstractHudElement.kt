@@ -31,7 +31,7 @@ abstract class AbstractHudElement(
     val alwaysListening: Boolean,
     enabledByDefault: Boolean,
     config: AbstractConfig<out Nameable>
-) : BasicWindow(TrollHudGui, name, SettingGroup.HUD_GUI, config),
+) : BasicWindow(TrollHudGui, name, UiSettingGroup.HUD_GUI, config),
     Alias,
     IListenerOwner by ListenerOwner() {
 
@@ -51,7 +51,7 @@ abstract class AbstractHudElement(
     open val hudHeight get() = 10f
 
     val settingList
-        get() = GuiConfig.getGroupOrPut(SettingGroup.HUD_GUI.groupName).getGroupOrPut(internalName).getSettings()
+        get() = GuiConfig.getGroupOrPut(UiSettingGroup.HUD_GUI.groupName).getGroupOrPut(internalName).getSettings()
 
     init {
         safeParallelListener<TickEvent.Pre> {

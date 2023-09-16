@@ -9,9 +9,9 @@ import dev.luna5ama.trollhack.util.math.vector.Vec2f
 open class InteractiveComponent(
     screen: IGuiScreen,
     name: CharSequence,
-    settingGroup: SettingGroup,
+    uiSettingGroup: UiSettingGroup,
     config: AbstractConfig<out Nameable> = GuiConfig
-) : Component(screen, name, settingGroup, config) {
+) : Component(screen, name, uiSettingGroup, config) {
 
     // Interactive info
     protected var lastMousePos = Vec2f.ZERO

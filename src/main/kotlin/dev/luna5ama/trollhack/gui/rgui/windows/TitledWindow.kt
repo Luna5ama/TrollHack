@@ -13,8 +13,8 @@ import net.minecraft.util.text.TextFormatting
 open class TitledWindow(
     screen: IGuiScreen,
     name: CharSequence,
-    settingGroup: SettingGroup
-) : BasicWindow(screen, name, settingGroup) {
+    uiSettingGroup: UiSettingGroup
+) : BasicWindow(screen, name, uiSettingGroup) {
     override val draggableHeight: Float get() = MainFontRenderer.getHeight() + 6.0f
 
     override val minimizable get() = true

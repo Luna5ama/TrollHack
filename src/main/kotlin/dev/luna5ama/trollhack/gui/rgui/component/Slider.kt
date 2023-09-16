@@ -22,7 +22,7 @@ open class Slider(
     name: CharSequence,
     private val description: CharSequence = "",
     private val visibility: (() -> Boolean)?
-) : InteractiveComponent(screen, name, SettingGroup.NONE) {
+) : InteractiveComponent(screen, name, UiSettingGroup.NONE) {
 
     override var posY: Float
         get() = if (!visible) super.posY + 100.0f else super.posY
