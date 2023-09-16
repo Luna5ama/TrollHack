@@ -150,7 +150,11 @@ internal object PacketLogger : Module(
         }
 
         private fun getHandler(event: PacketEvent): Handler {
-            return handlers[event.packet.javaClass] ?: unknownHandler
+            return handlers.getOrPut(event.packet.javaClass) {
+                handlers.entries.find { (clazz, _) ->
+                    clazz.isInstance(event.packet)
+                }?.value ?: unknownHandler
+            }
         }
 
         fun handle(event: PacketEvent) {
