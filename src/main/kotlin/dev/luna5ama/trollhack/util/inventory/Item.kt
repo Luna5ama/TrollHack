@@ -47,6 +47,12 @@ val Item.baseAttackDamage
         else -> 1.0f
     }
 
+val Item.regName: String
+    get() = this.registryName?.toString() ?: "minecraft:air"
+
+val ItemStack.regName: String
+    get() = this.item.regName
+
 val ItemStack.durability: Int
     get() = this.maxDamage - this.itemDamage
 

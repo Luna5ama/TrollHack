@@ -329,7 +329,7 @@ internal object AutoRegear : Module(
 
     private fun doRegear(
         openContainer: Container,
-        itemArray: Array<Item>
+        itemArray: Array<Kit.ItemEntry>
     ): Boolean {
         val windowID = openContainer.windowId
         val currentTime = System.currentTimeMillis()
@@ -349,7 +349,7 @@ internal object AutoRegear : Module(
             if (currentTime <= moveTimeMap.get(slotTo.slotNumber)) continue
 
             val targetItem = itemArray[index]
-            if (targetItem is ItemShulkerBox) continue
+            if (targetItem.item is ItemShulkerBox) continue
 
             val isHotbar = index in playerSlot.size - 9 until playerSlot.size
 

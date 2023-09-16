@@ -16,7 +16,7 @@ object KitCommand : ClientCommand(
                 executeSafe {
                     val slots = player.inventorySlots
                     val array = List(36) {
-                        slots[it].stack.item.registryName?.toString() ?: "minecraft:air"
+                        Kit.ItemEntry.fromStack(slots[it].stack).toString()
                     }
 
                     val name = nameArg.value

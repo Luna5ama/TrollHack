@@ -1,5 +1,6 @@
 package dev.luna5ama.trollhack.util.inventory.slot
 
+import dev.luna5ama.trollhack.module.modules.player.Kit
 import dev.luna5ama.trollhack.util.inventory.id
 import net.minecraft.block.Block
 import net.minecraft.inventory.Slot
@@ -171,6 +172,39 @@ fun Iterable<Slot>.getCompatibleStack(slotTo: Slot): Slot? {
 
 fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot): Slot? {
     return getMaxCompatibleStack(slotTo, slotTo.stack.item)
+}
+
+internal fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot, targetItem: Kit.ItemEntry): Slot? {
+    var maxSlot: Slot? = null
+    var maxSize = 0
+
+    val stackTo = slotTo.stack
+    val isEmpty = stackTo.isEmpty
+    val neededSize = if (isEmpty) 64 else stackTo.maxStackSize - stackTo.count
+    if (neededSize <= 0) return null
+
+    for (slotFrom in this) {
+        if (slotFrom.slotNumber == slotTo.slotNumber) continue
+
+        val stackFrom = slotFrom.stack
+        if (!targetItem.equals(stackFrom)) continue
+
+        val size = stackFrom.count
+        if (!isEmpty && targetItem.equals(stackFrom)) {
+            if (!stackTo.isItemEqual(stackFrom)) continue
+            if (!ItemStack.areItemStackTagsEqual(stackTo, stackFrom)) continue
+            if (size == neededSize) return slotFrom
+        }
+
+        if (size == stackFrom.maxStackSize) {
+            return slotFrom
+        } else if (size > maxSize) {
+            maxSlot = slotFrom
+            maxSize = size
+        }
+    }
+
+    return maxSlot ?: getMaxCompatibleStack(slotTo, targetItem.item)
 }
 
 fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot, targetItem: Item): Slot? {

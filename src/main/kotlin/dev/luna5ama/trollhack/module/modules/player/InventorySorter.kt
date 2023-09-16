@@ -28,7 +28,7 @@ internal object InventorySorter : Module(
     private val postDelay by setting("Post Delay", 50, 0..1000, 1)
 
     private val checkSet = DynamicBitSet()
-    private var itemArray: Array<Item>? = null
+    private var itemArray: Array<Kit.ItemEntry>? = null
     private var lastTask: InventoryTask? = null
     private var lastIndex = 35
 
@@ -73,7 +73,7 @@ internal object InventorySorter : Module(
         }
     }
 
-    private fun SafeClientEvent.runSorting(itemArray: Array<Item>) {
+    private fun SafeClientEvent.runSorting(itemArray: Array<Kit.ItemEntry>) {
         val slots = mutableListOf<Slot>()
         player.inventorySlots.filterNotTo(slots) { checkSet.contains(it.slotNumber - 9) }
 
@@ -82,13 +82,15 @@ internal object InventorySorter : Module(
             if (checkSet.contains(index)) continue
 
             val targetItem = itemArray[index]
-            if (targetItem == Items.AIR) continue
+            if (targetItem.item == Items.AIR) continue
             val slotTo = slots[index]
             val stackTo = slotTo.stack
 
-            val slot = if (stackTo.item != targetItem) {
+            val slot = if (!targetItem.equals(stackTo)) {
                 slots.find {
-                    it.slotNumber != slotTo.slotNumber && it.stack.item == targetItem
+                    it.slotNumber != slotTo.slotNumber && targetItem.equals(it.stack)
+                } ?: slots.find {
+                    it.slotNumber != slotTo.slotNumber && targetItem.item == it.stack.item
                 }
             } else {
                 slots.getMaxCompatibleStack(slotTo, targetItem)
