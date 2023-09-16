@@ -82,7 +82,7 @@ object HotbarSwitchManager : Manager() {
                 }
 
                 val prevSlot = serverSideHotbar
-                connection.sendPacket(CPacketHeldItemChange(targetSlot.slotNumber - 36))
+                connection.sendPacket(CPacketHeldItemChange(targetSlot.hotbarIndex))
                 block.invoke()
                 connection.sendPacket(CPacketHeldItemChange(prevSlot))
             }

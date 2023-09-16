@@ -9,6 +9,8 @@ import dev.luna5ama.trollhack.event.listener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.EntityManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
+import dev.luna5ama.trollhack.manager.managers.InventoryTaskManager
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
 import dev.luna5ama.trollhack.util.EntityUtils.isFakeOrSelf
@@ -28,10 +30,7 @@ import dev.luna5ama.trollhack.util.inventory.inventoryTaskNow
 import dev.luna5ama.trollhack.util.inventory.isWeapon
 import dev.luna5ama.trollhack.util.inventory.operation.moveTo
 import dev.luna5ama.trollhack.util.inventory.operation.swapToItemOrMove
-import dev.luna5ama.trollhack.util.inventory.slot.craftingSlots
-import dev.luna5ama.trollhack.util.inventory.slot.hotbarSlots
-import dev.luna5ama.trollhack.util.inventory.slot.inventorySlots
-import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
+import dev.luna5ama.trollhack.util.inventory.slot.*
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.pause.MainHandPause
 import dev.luna5ama.trollhack.util.pause.withPause
@@ -48,6 +47,7 @@ import net.minecraft.init.MobEffects
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
+import net.minecraft.network.play.client.CPacketHeldItemChange
 import net.minecraft.potion.PotionUtils
 import kotlin.math.ceil
 import kotlin.math.max
@@ -193,7 +193,7 @@ internal object AutoOffhand : Module(
         }
 
         safeListener<RunGameLoopEvent.Tick>(1100) {
-            if (player.isDead || player.health <= 0.0f || !lastTask.confirmedOrTrue || !timer.tickAndReset(10L)) return@safeListener
+            if (player.isDead || player.health <= 0.0f || !lastTask.confirmedOrTrue) return@safeListener
 
             DefaultScope.launch {
                 updateDamage()
@@ -259,6 +259,10 @@ internal object AutoOffhand : Module(
                 if (player.heldItemMainhand.item != Items.TOTEM_OF_UNDYING) {
                     MainHandPause.withPause(AutoOffhand, damageTimeout) {
                         swapToItemOrMove(Items.TOTEM_OF_UNDYING)
+                    }
+                } else {
+                    synchronized(InventoryTaskManager) {
+                        connection.sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
                     }
                 }
             } else {
