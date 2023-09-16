@@ -518,27 +518,20 @@ internal object BedAura : Module(
         inactiveTicks = 0
     }
 
-    private fun SafeClientEvent.placeBed(placeInfo: PlaceInfo) {
+    private fun SafeClientEvent.placeBed(placeInfo: PlaceInfo
+                                         ) {
         val shouldSneak = !player.isSneaking
         if (shouldSneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
-        val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, handMode, 0.5f, 1.0f, 0.5f)
 
-        if (handMode == EnumHand.MAIN_HAND) {
-            ghostSwitch(ghostSwitchBypass, bedSlot - 1) {
+        if (player.heldItemOffhand.item == Items.BED) {
+            val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, EnumHand.OFF_HAND, 0.5f, 1.0f, 0.5f)
+            OffhandPause.withPause(BedAura) {
                 connection.sendPacket(placePacket)
             }
         } else {
-            OffhandPause.withPause(BedAura) {
-                connection.sendPacket(
-                    CPacketPlayerTryUseItemOnBlock(
-                        placeInfo.basePos,
-                        EnumFacing.UP,
-                        handMode,
-                        0.5f,
-                        1.0f,
-                        0.5f
-                    )
-                )
+            val placePacket = CPacketPlayerTryUseItemOnBlock(placeInfo.basePos, EnumFacing.UP, EnumHand.MAIN_HAND, 0.5f, 1.0f, 0.5f)
+            ghostSwitch(ghostSwitchBypass, bedSlot - 1) {
+                connection.sendPacket(placePacket)
             }
         }
 
