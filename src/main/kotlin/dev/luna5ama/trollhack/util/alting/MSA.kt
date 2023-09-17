@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.mojang.util.UUIDTypeAdapter
+import dev.luna5ama.trollhack.TrollHackMod
 import dev.luna5ama.trollhack.util.readText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -39,7 +40,7 @@ class MSA {
 
     private val urlRegex = "<a href=\"(.*?)\">.*?</a>".toRegex()
     private val tagRegex = "<([A-Za-z]*?).*?>(.*?)</\\1>".toRegex()
-    private val tokenFile = File("DevLoginCache.json")
+    private val tokenFile = File(System.getenv("MSA_TOKEN_FILE") ?: "${TrollHackMod.DIRECTORY}/dev_login_token.json")
 
     private var proxy = Proxy.NO_PROXY
     private var noDialog = false
