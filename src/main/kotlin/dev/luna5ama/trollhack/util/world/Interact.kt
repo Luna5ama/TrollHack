@@ -10,11 +10,12 @@ import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
 import dev.luna5ama.trollhack.util.EntityUtils.eyePosition
 import dev.luna5ama.trollhack.util.collections.EnumSet
 import dev.luna5ama.trollhack.util.inventory.blockBlacklist
-import dev.luna5ama.trollhack.util.inventory.slot.HotbarSlot
+import dev.luna5ama.trollhack.util.inventory.slot.offhandSlot
 import dev.luna5ama.trollhack.util.math.isInSight
 import dev.luna5ama.trollhack.util.math.vector.Vec3f
 import dev.luna5ama.trollhack.util.math.vector.distanceSqTo
 import dev.luna5ama.trollhack.util.math.vector.toVec3dCenter
+import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue
 import net.minecraft.init.Blocks
@@ -329,14 +330,16 @@ fun SafeClientEvent.placeBlock(
         EnumHand.MAIN_HAND
     )
     val soundType = blockState.block.getSoundType(blockState, world, placeInfo.pos, player)
-    world.playSound(
-        player,
-        placeInfo.pos,
-        soundType.placeSound,
-        SoundCategory.BLOCKS,
-        (soundType.getVolume() + 1.0f) / 2.0f,
-        soundType.getPitch() * 0.8f
-    )
+    onMainThreadSafe {
+        world.playSound(
+            player,
+            placeInfo.pos,
+            soundType.placeSound,
+            SoundCategory.BLOCKS,
+            (soundType.getVolume() + 1.0f) / 2.0f,
+            soundType.getPitch() * 0.8f
+        )
+    }
 }
 
 fun SafeClientEvent.isSideVisible(
@@ -387,14 +390,21 @@ fun SafeClientEvent.placeBlock(
 ) {
     if (!world.isPlaceable(placeInfo.placedPos)) return
 
+    val hand = if (slot == player.offhandSlot) EnumHand.OFF_HAND else EnumHand.MAIN_HAND
+
     val sneak = !player.isSneaking && blockBlacklist.contains(world.getBlock(placeInfo.pos))
     if (sneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
-    val packet = placeInfo.toPlacePacket(EnumHand.MAIN_HAND)
+    val placePacket = placeInfo.toPlacePacket(hand)
 
-    ghostSwitch(slot) {
-        connection.sendPacket(packet)
+    if (hand == EnumHand.OFF_HAND) {
+         connection.sendPacket(placePacket)
+    } else {
+        ghostSwitch(slot) {
+            connection.sendPacket(placePacket)
+        }
     }
-    player.swingArm(EnumHand.MAIN_HAND)
+
+    player.swingArm(hand)
 
     if (sneak) connection.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.STOP_SNEAKING))
 
@@ -410,17 +420,20 @@ fun SafeClientEvent.placeBlock(
         placeInfo.hitVecOffset.z,
         metaData,
         player,
-        EnumHand.MAIN_HAND
+        hand
     )
     val soundType = blockState.block.getSoundType(blockState, world, placeInfo.pos, player)
-    world.playSound(
-        player,
-        placeInfo.pos,
-        soundType.placeSound,
-        SoundCategory.BLOCKS,
-        (soundType.getVolume() + 1.0f) / 2.0f,
-        soundType.getPitch() * 0.8f
-    )
+
+    onMainThreadSafe {
+        world.playSound(
+            player,
+            placeInfo.pos,
+            soundType.placeSound,
+            SoundCategory.BLOCKS,
+            (soundType.getVolume() + 1.0f) / 2.0f,
+            soundType.getPitch() * 0.8f
+        )
+    }
 }
 
 fun PlaceInfo.toPlacePacket(hand: EnumHand) =
