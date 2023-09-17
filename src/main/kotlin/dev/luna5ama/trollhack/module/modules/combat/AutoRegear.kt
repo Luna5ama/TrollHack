@@ -52,14 +52,12 @@ import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.ContainerShulkerBox
 import net.minecraft.inventory.Slot
-import net.minecraft.item.Item
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemShulkerBox
 import net.minecraft.network.play.client.CPacketPlayer
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
-import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 
 internal object AutoRegear : Module(
@@ -355,7 +353,7 @@ internal object AutoRegear : Module(
 
             if (isHotbar && slotToStack.item is ItemArmor) continue
 
-            val slotFrom = containerSlots.getMaxCompatibleStack(slotTo, targetItem) ?: continue
+            val slotFrom = containerSlots.findMaxCompatibleStack(slotTo, targetItem) ?: continue
 
             lastTask = if (!hasEmptyBefore && slotToStack.isStackable(slotFrom.stack)) {
                 inventoryTask {

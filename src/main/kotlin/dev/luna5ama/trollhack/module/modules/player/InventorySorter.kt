@@ -10,13 +10,13 @@ import dev.luna5ama.trollhack.util.inventory.InventoryTask
 import dev.luna5ama.trollhack.util.inventory.executedOrTrue
 import dev.luna5ama.trollhack.util.inventory.inventoryTask
 import dev.luna5ama.trollhack.util.inventory.operation.pickUp
-import dev.luna5ama.trollhack.util.inventory.slot.getMaxCompatibleStack
+import dev.luna5ama.trollhack.util.inventory.slot.findFirstCompatibleStack
+import dev.luna5ama.trollhack.util.inventory.slot.findMaxCompatibleStack
 import dev.luna5ama.trollhack.util.inventory.slot.inventorySlots
 import dev.luna5ama.trollhack.util.text.NoSpamMessage
 import dev.luna5ama.trollhack.util.threads.runSafe
 import net.minecraft.init.Items
 import net.minecraft.inventory.Slot
-import net.minecraft.item.Item
 
 internal object InventorySorter : Module(
     name = "Inventory Sorter",
@@ -93,7 +93,7 @@ internal object InventorySorter : Module(
                     it.slotNumber != slotTo.slotNumber && targetItem.item == it.stack.item
                 }
             } else {
-                slots.getMaxCompatibleStack(slotTo, targetItem)
+                slots.findFirstCompatibleStack(slotTo, targetItem)
             }
 
             if (slot == null) {

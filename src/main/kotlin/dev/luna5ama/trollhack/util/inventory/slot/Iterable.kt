@@ -170,11 +170,11 @@ fun Iterable<Slot>.getCompatibleStack(slotTo: Slot): Slot? {
 }
 
 
-fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot): Slot? {
-    return getMaxCompatibleStack(slotTo, slotTo.stack.item)
+fun Iterable<Slot>.findMaxCompatibleStack(slotTo: Slot): Slot? {
+    return findMaxCompatibleStack(slotTo, slotTo.stack.item)
 }
 
-internal fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot, targetItem: Kit.ItemEntry): Slot? {
+internal fun Iterable<Slot>.findMaxCompatibleStack(slotTo: Slot, targetItem: Kit.ItemEntry): Slot? {
     var maxSlot: Slot? = null
     var maxSize = 0
 
@@ -204,10 +204,10 @@ internal fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot, targetItem: Kit.
         }
     }
 
-    return maxSlot ?: getMaxCompatibleStack(slotTo, targetItem.item)
+    return maxSlot ?: findMaxCompatibleStack(slotTo, targetItem.item)
 }
 
-fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot, targetItem: Item): Slot? {
+fun Iterable<Slot>.findMaxCompatibleStack(slotTo: Slot, targetItem: Item): Slot? {
     var maxSlot: Slot? = null
     var maxSize = 0
 
@@ -238,4 +238,55 @@ fun Iterable<Slot>.getMaxCompatibleStack(slotTo: Slot, targetItem: Item): Slot? 
     }
 
     return maxSlot
+}
+
+
+fun Iterable<Slot>.findFirstCompatibleStack(slotTo: Slot): Slot? {
+    return findFirstCompatibleStack(slotTo, slotTo.stack.item)
+}
+
+internal fun Iterable<Slot>.findFirstCompatibleStack(slotTo: Slot, targetItem: Kit.ItemEntry): Slot? {
+    val stackTo = slotTo.stack
+    val isEmpty = stackTo.isEmpty
+    val neededSize = if (isEmpty) 64 else stackTo.maxStackSize - stackTo.count
+    if (neededSize <= 0) return null
+
+    for (slotFrom in this) {
+        if (slotFrom.slotNumber == slotTo.slotNumber) continue
+
+        val stackFrom = slotFrom.stack
+        if (!targetItem.equals(stackFrom)) continue
+
+        if (!isEmpty && targetItem.equals(stackFrom)) {
+            if (!stackTo.isItemEqual(stackFrom)) continue
+            if (!ItemStack.areItemStackTagsEqual(stackTo, stackFrom)) continue
+        }
+
+        return slotFrom
+    }
+
+    return findFirstCompatibleStack(slotTo, targetItem.item)
+}
+
+fun Iterable<Slot>.findFirstCompatibleStack(slotTo: Slot, targetItem: Item): Slot? {
+    val stackTo = slotTo.stack
+    val isEmpty = stackTo.isEmpty
+    val neededSize = if (isEmpty) 64 else stackTo.maxStackSize - stackTo.count
+    if (neededSize <= 0) return null
+
+    for (slotFrom in this) {
+        if (slotFrom.slotNumber == slotTo.slotNumber) continue
+
+        val stackFrom = slotFrom.stack
+        if (stackFrom.item != targetItem) continue
+
+        if (!isEmpty && stackTo.item == targetItem) {
+            if (!stackTo.isItemEqual(stackFrom)) continue
+            if (!ItemStack.areItemStackTagsEqual(stackTo, stackFrom)) continue
+        }
+
+        return slotFrom
+    }
+
+    return null
 }
