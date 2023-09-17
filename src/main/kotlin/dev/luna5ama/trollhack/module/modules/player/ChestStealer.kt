@@ -1,7 +1,9 @@
 package dev.luna5ama.trollhack.module.modules.player
 
 import dev.luna5ama.trollhack.event.SafeClientEvent
+import dev.luna5ama.trollhack.event.events.RunGameLoopEvent
 import dev.luna5ama.trollhack.event.events.TickEvent
+import dev.luna5ama.trollhack.event.safeConcurrentListener
 import dev.luna5ama.trollhack.event.safeListener
 import dev.luna5ama.trollhack.module.Category
 import dev.luna5ama.trollhack.module.Module
@@ -60,7 +62,7 @@ internal object ChestStealer : Module(
     private var lastTask: InventoryTask? = null
 
     init {
-        safeListener<TickEvent.Pre> {
+        safeConcurrentListener<RunGameLoopEvent.Tick> {
             val flag = isContainerOpen()
 
             stealing = flag && (stealing || mode == Mode.ALWAYS) && stealOrStore(getStealingSlot(), ContainerMode.STEAL)
