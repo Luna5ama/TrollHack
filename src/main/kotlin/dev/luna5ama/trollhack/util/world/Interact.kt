@@ -19,6 +19,7 @@ import dev.luna5ama.trollhack.util.threads.onMainThreadSafe
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue
 import net.minecraft.init.Blocks
+import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemBlock
 import net.minecraft.network.play.client.CPacketEntityAction
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
@@ -232,6 +233,17 @@ private data class SearchData(
     }
 }
 
+fun SafeClientEvent.getClosestSide(pos: BlockPos): EnumFacing {
+    val dx = player.posX - pos.x
+    val dy = player.posY - pos.y
+    val dz = player.posZ - pos.z
+
+    return EnumFacing.VALUES.maxBy {
+        val vec = it.directionVec
+        dx * vec.x + dy * vec.y + dz * vec.z
+    }
+}
+
 
 fun SafeClientEvent.getMiningSide(pos: BlockPos): EnumFacing? {
     val eyePos = player.eyePosition
@@ -386,7 +398,7 @@ fun SafeClientEvent.isSideVisible(
  */
 fun SafeClientEvent.placeBlock(
     placeInfo: PlaceInfo,
-    slot: HotbarSlot
+    slot: Slot
 ) {
     if (!world.isPlaceable(placeInfo.placedPos)) return
 

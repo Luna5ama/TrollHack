@@ -1,5 +1,7 @@
 package dev.luna5ama.trollhack.util.collections
 
+import it.unimi.dsi.fastutil.longs.LongCollection
+
 
 inline fun <T> compareFloatBy(crossinline block: (T) -> Float): Comparator<T> {
     return Comparator { a, b ->
@@ -114,4 +116,16 @@ fun Iterable<Double>.averageOrZero(): Double {
         count++
     }
     return if (count == 0) 0.0 else sum / count
+}
+
+inline fun LongCollection.removeBy(predicate: (Long) -> Boolean): Boolean {
+    val it = iterator()
+    var changed = false
+    while (it.hasNext()) {
+        if (predicate(it.nextLong())) {
+            it.remove()
+            changed = true
+        }
+    }
+    return changed
 }
