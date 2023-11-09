@@ -2,10 +2,8 @@ rootProject.name = "TrollHack"
 
 pluginManagement {
     repositories {
-        mavenLocal()
         gradlePluginPortal()
         maven("https://maven.luna5ama.dev/")
-        maven("https://maven.fastmc.dev/")
         maven("https://files.minecraftforge.net/maven")
     }
 

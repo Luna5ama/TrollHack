@@ -16,6 +16,14 @@ System.getenv("OVERRIDE_VERSION")?.let {
 allprojects {
     group = modGroup
     version = modVersion
+
+    repositories {
+        mavenCentral()
+        maven("https://maven.luna5ama.dev/")
+        maven("https://repo.spongepowered.org/repository/maven-public/")
+        maven("https://jitpack.io/")
+        maven("https://impactdevelopment.github.io/maven/")
+    }
 }
 
 plugins {
@@ -37,22 +45,7 @@ allprojects {
     apply {
         plugin("kotlin")
     }
-
-    repositories {
-        mavenCentral()
-        maven("https://maven.luna5ama.dev/")
-        maven("https://maven.fastmc.dev/")
-    }
 }
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://repo.spongepowered.org/repository/maven-public/")
-    maven("https://jitpack.io/")
-    maven("https://impactdevelopment.github.io/maven/")
-}
-
 val jarLibImplementation: Configuration by configurations.creating
 
 configurations.implementation {
