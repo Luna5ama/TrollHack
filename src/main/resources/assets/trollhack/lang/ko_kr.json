@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "마인크래프트 기본 언어",
+
+  "options.languagereload.title": "Language Reload Options",
+  "options.languagereload.multilingualItemSearch": "Multilingual Search",
+  "options.languagereload.multilingualItemSearch.tooltip": "Enables searching in any of selected languages in the creative inventory and the recipe book.",
+
+  "debug.reload_languages.help": "F3 + J = 언어 새로 고침 (Shift로 언어 번경)",
+  "debug.reload_languages.message": "언어를 새로 고쳤습니다",
+  "debug.reload_languages.switch.success": "언어를 %s(으)로 설정",
+  "debug.reload_languages.switch.failure": "언어를 변경할 수 없습니다. 설정에서 다른 언어로 변경하고 다시 시도하세요.",
+
+  "modmenu.summaryTranslation.languagereload": "로드 시간을 줄이고 언어에 대한 대체를 추가합니다.",
+  "modmenu.descriptionTranslation.languagereload": "언어를 즉시 전환하고 언어 메뉴에 검색 상자 및 다중 선택을 추가하고 Shift + F3 + J를 사용하여 언어 변경을 디버그 기능을 추가하고 F3 + J를 사용하여 다시 로드합니다. Also, makes item search multilingual."
+}

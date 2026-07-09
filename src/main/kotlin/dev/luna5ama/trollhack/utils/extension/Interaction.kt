@@ -1,0 +1,8 @@
+package dev.luna5ama.trollhack.utils.extension
+
+import dev.luna5ama.trollhack.utils.NonNullContext
+import net.minecraft.client.multiplayer.MultiPlayerGameMode
+import net.minecraft.client.multiplayer.prediction.PredictiveAction
+
+context (NonNullContext)
+fun MultiPlayerGameMode.sendSequencedPacket(f: PredictiveAction) = startPrediction(world, f)

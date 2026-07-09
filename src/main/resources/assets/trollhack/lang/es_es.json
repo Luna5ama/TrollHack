@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "El idioma de Minecraft por defecto",
+
+  "options.languagereload.title": "Opciones de recarga de idioma",
+  "options.languagereload.multilingualItemSearch": "Búsqueda multilingüe",
+  "options.languagereload.multilingualItemSearch.tooltip": "Permite buscar en cualquiera de los idiomas seleccionados en el inventario de creativo y el libro de recetas.",
+
+  "debug.reload_languages.help": "F3 + J = Recargar idiomas (Mayús para alternar idiomas)",
+  "debug.reload_languages.message": "Idiomas recargados",
+  "debug.reload_languages.switch.success": "Idioma establecido a %s",
+  "debug.reload_languages.switch.failure": "No se pudieron alternar idiomas. Cambie a otro idioma en la configuración y vuelva a intentarlo",
+
+  "modmenu.summaryTranslation.languagereload": "Reduce los tiempos de carga y agrega alternativas a los idiomas.",
+  "modmenu.descriptionTranslation.languagereload": "Acelera el cambio de idiomas, introduce un cuadro de búsqueda y selección múltiple en el menú de idioma, hace que la búsqueda de elementos sea multilingüe, agrega funciones de depuración para alternar idiomas con Mayús + F3 + J y recargarlos con F3 + J."
+}

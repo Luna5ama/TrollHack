@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Minecrafti vaikimisi keel",
+
+  "options.languagereload.title": "Language Reload valikud",
+  "options.languagereload.multilingualItemSearch": "Mitmekeelne otsing",
+  "options.languagereload.multilingualItemSearch.tooltip": "Lubab loomingurežiimi seljakotist ja retseptiraamatust otsida mistahes valitud keeltes.",
+
+  "debug.reload_languages.help": "F3 + J = Laadi keeled uuesti (tsüklina vahetamiseks hoia shifti)",
+  "debug.reload_languages.message": "Keeled taaslaaditud",
+  "debug.reload_languages.switch.success": "Keeleks on määratud %s",
+  "debug.reload_languages.switch.failure": "Keeli ei saanud tsüklina vahetada. Lülita seadetes teisele keelele ja proovi uuesti",
+
+  "modmenu.summaryTranslation.languagereload": "Vähendab keelte laadimisaegu ja lisab varuvalikuid.",
+  "modmenu.descriptionTranslation.languagereload": "Kiirendab keelevahetust, lisab keelemenüüsse otsingukasti ja mitmikvaliku, muudab esemeotsingu mitmekeelseks, lisab silumisvalikuid, vahetamaks keeli tsüklina kasutades Shift + F3 + J ning taaslaadida kasutades F3 + J."
+}

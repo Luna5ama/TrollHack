@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Мова Minecraft за замовчуванням",
+
+  "options.languagereload.title": "Language Reload Options",
+  "options.languagereload.multilingualItemSearch": "Multilingual Search",
+  "options.languagereload.multilingualItemSearch.tooltip": "Enables searching in any of selected languages in the creative inventory and the recipe book.",
+
+  "debug.reload_languages.help": "F3 + J = Перезавантажити мови (Shift для швидкого перемикання мов)",
+  "debug.reload_languages.message": "Перезавантажено мови",
+  "debug.reload_languages.switch.success": "Встановити мову на %s",
+  "debug.reload_languages.switch.failure": "Не вдалося перемкнути мови. Перейдіть на іншу мову в налаштуваннях і повторіть спробу",
+
+  "modmenu.summaryTranslation.languagereload": "Зменшує час завантаження та додає запасні мови.",
+  "modmenu.descriptionTranslation.languagereload": "Здійснює миттєве перемикання мов, додає вікно пошуку та множинний вибір у меню мов, додає налагоджувальні функції для швидкого перемикання мов за допомогою Shift + F3 + J і їх перезавантаження за допомогою F3 + J. Also, makes item search multilingual."
+}

@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Minecraft төп теле",
+
+  "options.languagereload.title": "Language Reload көйләүләре",
+  "options.languagereload.multilingualItemSearch": "Күптелле эзләү",
+  "options.languagereload.multilingualItemSearch.tooltip": "Сайланган телләрнең һәрберсендә иҗат инвентарендә һәм рецептлар китабында эзләргә рөхсәт итә.",
+
+  "debug.reload_languages.help": "F3 + J = Телләрне яңадан йөкләү (Shift — узган телгә үзгәртү)",
+  "debug.reload_languages.message": "Телләр яңадан йөкләтелде",
+  "debug.reload_languages.switch.success": "%s теленә тел үзгәртелде",
+  "debug.reload_languages.switch.failure": "Тел үзгәртеп булмады. Башка телне көйләүләрдә сайлагыз һәм соңрак кабатлап карагыз",
+
+  "modmenu.summaryTranslation.languagereload": "Берничә телне сайларга рөхсәт итә, аларның алыштыруны тизләтә.",
+  "modmenu.descriptionTranslation.languagereload": "Тел алыштыруны тизләтә, телләр көйләүләрендә эзләүне һәм күпсанлы сайлауны өсти, предметлар эзләүне күптелле итә, Shift + F3 + J кулланган телләр тизле алыштыруның һәм F3 + J кулланган аның яңадан йөкләүнең төзәтү функцияләрне ясый."
+}

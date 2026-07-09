@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Minecraftのデフォルト言語",
+
+  "options.languagereload.title": "Language Reload 設定",
+  "options.languagereload.multilingualItemSearch": "多言語検索",
+  "options.languagereload.multilingualItemSearch.tooltip": "クリエイティブインベントリやレシピ本で、選択した複数の言語で検索できるようになります。",
+
+  "debug.reload_languages.help": "F3 + J = 言語を再読み込み（Shiftと同時押しで言語を入れ替え)",
+  "debug.reload_languages.message": "言語を再読み込みしました。",
+  "debug.reload_languages.switch.success": "言語を %s に設定しました。",
+  "debug.reload_languages.switch.failure": "言語の入れ替えに失敗しました。設定で他の言語を選択してからもう一度試してください。",
+
+  "modmenu.summaryTranslation.languagereload": "言語のフォールバックを追加し、ロード時間を短縮します。",
+  "modmenu.descriptionTranslation.languagereload": "言語の切り替えを高速化、言語メニューに検索ボックスと複数選択を導入、アイテム検索を多言語化、\nShift + F3 + J で言語を入れ替え、\nF3 + J で言語を再読み込みするデバッグ機能を追加します。"
+}

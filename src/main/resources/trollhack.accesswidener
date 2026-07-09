@@ -1,0 +1,33 @@
+accessWidener	v1	named
+
+accessible field net/minecraft/client/renderer/GameRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
+accessible field com/mojang/blaze3d/opengl/GlStateManager TEXTURES [Lcom/mojang/blaze3d/opengl/GlStateManager$TextureState;
+accessible field com/mojang/blaze3d/opengl/GlStateManager$TextureState binding I
+extendable method net/minecraft/client/gui/components/AbstractSelectionList getEntryAtPosition (DD)Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
+accessible field net/minecraft/client/multiplayer/ClientLevel players Ljava/util/List;
+accessible class net/minecraft/network/protocol/game/ServerboundInteractPacket$ActionType
+accessible method net/minecraft/network/protocol/game/ServerboundInteractPacket write (Lnet/minecraft/network/FriendlyByteBuf;)V
+accessible field net/minecraft/world/entity/LivingEntity attackStrengthTicker I
+accessible field net/minecraft/network/protocol/game/ServerboundInteractPacket action Lnet/minecraft/network/protocol/game/ServerboundInteractPacket$Action;
+accessible method net/minecraft/network/protocol/game/ServerboundInteractPacket$Action getType ()Lnet/minecraft/network/protocol/game/ServerboundInteractPacket$ActionType;
+accessible class net/minecraft/network/protocol/game/ServerboundInteractPacket$Action
+accessible field net/minecraft/network/protocol/game/ServerboundInteractPacket entityId I
+accessible field net/minecraft/world/damagesource/DamageSource causingEntity Lnet/minecraft/world/entity/Entity;
+accessible field net/minecraft/client/player/LocalPlayer usingItemHand Lnet/minecraft/world/InteractionHand;
+accessible field net/minecraft/client/multiplayer/ClientLevel blockStatePredictionHandler Lnet/minecraft/client/multiplayer/prediction/BlockStatePredictionHandler;
+accessible field net/minecraft/client/multiplayer/prediction/BlockStatePredictionHandler currentSequenceNr I
+accessible method net/minecraft/network/protocol/game/ServerboundInteractPacket <init> (IZLnet/minecraft/network/protocol/game/ServerboundInteractPacket$Action;)V
+accessible field net/minecraft/network/protocol/game/ServerboundInteractPacket ATTACK_ACTION Lnet/minecraft/network/protocol/game/ServerboundInteractPacket$Action;
+accessible field net/minecraft/client/User uuid Ljava/util/UUID;
+accessible method net/minecraft/world/entity/Entity setSharedFlag (IZ)V
+accessible field net/minecraft/world/level/chunk/PalettedContainer data Lnet/minecraft/world/level/chunk/PalettedContainer$Data;
+accessible field net/minecraft/world/level/chunk/PalettedContainer$Data storage Lnet/minecraft/util/BitStorage;
+accessible field net/minecraft/world/level/chunk/PalettedContainer$Data palette Lnet/minecraft/world/level/chunk/Palette;
+accessible field net/minecraft/world/level/block/state/BlockBehaviour hasCollision Z
+accessible method net/minecraft/client/multiplayer/MultiPlayerGameMode startPrediction (Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V
+accessible field net/minecraft/world/item/Item components Lnet/minecraft/core/component/DataComponentMap;
+accessible field net/minecraft/client/Minecraft metricsRecorder Lnet/minecraft/util/profiling/metrics/profiling/MetricsRecorder;
+accessible method net/minecraft/client/multiplayer/MultiPlayerGameMode ensureHasSentCarriedItem ()V
+accessible field net/minecraft/client/gui/screens/inventory/CreativeModeInventoryScreen selectedTab Lnet/minecraft/world/item/CreativeModeTab;
+accessible field net/minecraft/world/inventory/AbstractMountInventoryMenu mount Lnet/minecraft/world/entity/LivingEntity;
+accessible class net/minecraft/client/multiplayer/ClientChunkCache$Storage

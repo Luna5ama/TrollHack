@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Ngôn ngữ mặc định của Minecraft",
+
+  "options.languagereload.title": "Tuỳ chọn Language Reload",
+  "options.languagereload.multilingualItemSearch": "Tìm kiếm đa ngôn ngữ",
+  "options.languagereload.multilingualItemSearch.tooltip": "Cho phép tìm kiếm bằng bất kỳ ngôn ngữ nào đã chọn trong túi đồ sáng tạo và sách công thức.",
+
+  "debug.reload_languages.help": "F3 + J = Tải lại ngôn ngữ (thêm shift để chuyển đổi ngôn ngữ quay vòng)",
+  "debug.reload_languages.message": "Đã tải lại ngôn ngữ",
+  "debug.reload_languages.switch.success": "Đặt ngôn ngữ thành %s",
+  "debug.reload_languages.switch.failure": "Không thể quay vòng ngôn ngữ. Chuyển sang ngôn ngữ khác trong cài đặt và thử lại",
+
+  "modmenu.summaryTranslation.languagereload": "Giảm thời gian tải và thêm dự phòng cho các ngôn ngữ.",
+  "modmenu.descriptionTranslation.languagereload": "Tăng tốc độ chuyển đổi ngôn ngữ, giới thiệu hộp tìm kiếm và nhiều lựa chọn trong menu ngôn ngữ, giúp tìm kiếm mục bằng nhiều ngôn ngữ, thêm tính năng gỡ lỗi cho các ngôn ngữ xoay vòng bằng Shift + F3 + J và tải lại chúng bằng F3 + J."
+}

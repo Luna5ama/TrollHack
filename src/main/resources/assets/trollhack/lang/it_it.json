@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "La lingua default di Minecraft!",
+
+  "options.languagereload.title": "Opzioni di Language Reload",
+  "options.languagereload.multilingualItemSearch": "Ricerca Multilingua",
+  "options.languagereload.multilingualItemSearch.tooltip": "Permette di cercare oggetti nel menu creativa ed il menù delle ricette in qualsiasi lingua",
+
+  "debug.reload_languages.help": "F3 + J = Ricarica lingua, Premi Shift per cambiare lingua",
+  "debug.reload_languages.message": "Lingua Ricaricata",
+  "debug.reload_languages.switch.success": "Lingua impostata su %s",
+  "debug.reload_languages.switch.failure": "Impossibile cambiare lingua. Cambia la lingua dal menu e riprova",
+
+  "modmenu.summaryTranslation.languagereload": "Riduce la durata del caricamento delle lingue e aggiunge dei miglioramenti.",
+  "modmenu.descriptionTranslation.languagereload": "Rende più veloce il cambio di lingua, introduce una casella di ricerca e multi-selezione nel menu della lingua, rende la ricerca di item multilingue, aggiunge la feature per cambiare lingua con with Shift + F3 + J e rircaricare la lingua con F3 + J."
+}

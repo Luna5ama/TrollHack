@@ -1,0 +1,36 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        mavenCentral()
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Fabric"
+                    url = uri("https://maven.fabricmc.net")
+                }
+            }
+            filter {
+                includeGroupAndSubgroups("net.fabricmc")
+                includeGroup("fabric-loom")
+            }
+        }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Sponge"
+                    url = uri("https://repo.spongepowered.org/repository/maven-public")
+                }
+            }
+            filter {
+                includeGroupAndSubgroups("org.spongepowered")
+            }
+        }
+    }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+}
+
+rootProject.name = "TrollHack"

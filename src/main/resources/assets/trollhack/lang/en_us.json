@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "The default language of Minecraft",
+
+  "options.languagereload.title": "Language Reload Options",
+  "options.languagereload.multilingualItemSearch": "Multilingual Search",
+  "options.languagereload.multilingualItemSearch.tooltip": "Enables searching in any of selected languages in the creative inventory and the recipe book.",
+
+  "debug.reload_languages.help": "F3 + J = Reload languages (shift to cycle languages)",
+  "debug.reload_languages.message": "Reloaded languages",
+  "debug.reload_languages.switch.success": "Set language to %s",
+  "debug.reload_languages.switch.failure": "Couldn't cycle languages. Switch to another language in the settings and try again",
+
+  "modmenu.summaryTranslation.languagereload": "Reduces load times and adds fallbacks for languages.",
+  "modmenu.descriptionTranslation.languagereload": "Speeds up language switching, introduces a search box and multi-selection in the language menu, makes item search multilingual, adds debug features to cycle languages with Shift + F3 + J and to reload them with F3 + J."
+}

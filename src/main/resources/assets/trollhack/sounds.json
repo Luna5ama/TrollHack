@@ -1,0 +1,62 @@
+{
+  "keypress": {
+    "sounds": [
+      "nullhack:keypress"
+    ]
+  },
+  "keyrelease": {
+    "sounds": [
+      "nullhack:keyrelease"
+    ]
+  },
+  "uwu": {
+    "sounds": [
+      "nullhack:uwu"
+    ]
+  },
+  "disable": {
+    "sounds": [
+      "nullhack:disable"
+    ]
+  },
+  "enable": {
+    "sounds": [
+      "nullhack:enable"
+    ]
+  },
+  "moan1": {
+    "sounds": [
+      "nullhack:moan1"
+    ]
+  },
+  "moan2": {
+    "sounds": [
+      "nullhack:moan2"
+    ]
+  },
+  "moan3": {
+    "sounds": [
+      "nullhack:moan3"
+    ]
+  },
+  "moan4": {
+    "sounds": [
+      "nullhack:moan4"
+    ]
+  },
+  "moan5": {
+    "sounds": [
+      "nullhack:moan4"
+    ]
+  },
+  "skeet": {
+    "sounds": [
+      "nullhack:skeet"
+    ]
+  },
+  "orthodox": {
+    "sounds": [
+      "nullhack:orthodox"
+    ]
+  }
+}

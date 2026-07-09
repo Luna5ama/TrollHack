@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Domyślny język Minecrafta",
+
+  "options.languagereload.title": "Opcje Language Reload",
+  "options.languagereload.multilingualItemSearch": "Wyszukiw. wielojęzyczne",
+  "options.languagereload.multilingualItemSearch.tooltip": "Włącza wyszukiwanie w dowolnym z wybranych języków w ekwipunku trybu kreatywnego i księdze receptur.",
+
+  "debug.reload_languages.help": "F3 + J = Ponowne wczytanie języków (shift, aby przełączać się między językami)",
+  "debug.reload_languages.message": "Języki zostały wczytane ponownie",
+  "debug.reload_languages.switch.success": "Ustawiono język na %s",
+  "debug.reload_languages.switch.failure": "Nie udało się przełączyć języka. Zmień język w ustawieniach i spróbuj ponownie",
+
+  "modmenu.summaryTranslation.languagereload": "Skraca czas ładowania i dodaje opcje języków zastępczych.",
+  "modmenu.descriptionTranslation.languagereload": "Sprawia, że języki przełączają się natychmiastowo, dodaje pole wyszukiwania i możliwość wielokrotnego wyboru w menu języków, dodaje funkcje debugowania, by przełączać się między językami, używając Shift + F3 + J, i by je wczytać ponownie, używając F3 + J. Ponadto daje możliwość wielojęzycznego wyszukiwania przedmiotów."
+}

@@ -1,0 +1,15 @@
+{
+  "language.default.tooltip": "Minecraft 預設語言",
+
+  "options.languagereload.title": "Language Reload 選項",
+  "options.languagereload.multilingualItemSearch": "多語言搜尋",
+  "options.languagereload.multilingualItemSearch.tooltip": "啟用在創造物品欄和配方手冊的所選語言搜尋。",
+
+  "debug.reload_languages.help": "F3 + J = 重新載入語言（同時按住 Shift 來循環切換語言）",
+  "debug.reload_languages.message": "已重新載入語言",
+  "debug.reload_languages.switch.success": "設置語言到 %s",
+  "debug.reload_languages.switch.failure": "無法循環切換語言。在設定中切換至另一種語言後再試一次",
+
+  "modmenu.summaryTranslation.languagereload": "降低載入時間並增加了後備語言。",
+  "modmenu.descriptionTranslation.languagereload": "加速語言切換速度，並在語言選單內引進了搜尋框和多重選擇，也讓你可以多語言搜尋物品，並增加了透過 Shift + F3 + J 循環切換語言與 F3 + J 重新載入語言的除錯功能。"
+}
