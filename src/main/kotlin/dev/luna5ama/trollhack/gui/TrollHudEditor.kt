@@ -11,7 +11,7 @@ import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
-object NullHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
+object TrollHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
     fun open() {
         TrollHackCompose.show(TrollHackCompose.Mode.HUD_EDITOR)
         mc.setScreen(this)

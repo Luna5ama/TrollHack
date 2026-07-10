@@ -1,7 +1,7 @@
 ﻿package dev.luna5ama.trollhack.modules.impl.client
 
-import dev.luna5ama.trollhack.gui.NullClickGui
-import dev.luna5ama.trollhack.gui.NullHudEditor
+import dev.luna5ama.trollhack.gui.TrollClickGui
+import dev.luna5ama.trollhack.gui.TrollHudEditor
 import dev.luna5ama.trollhack.i18n.Lang
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.modules.Category
@@ -58,8 +58,8 @@ object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
     val toggleSound by setting("Toggle Sound", true, { page == Page.MISC })
     val modLanguage by setting("Mod Language", Lang.ENGLISH, { page == Page.MISC }).apply {
         register { _, _ ->
-            NullClickGui.reloadPanel()
-            NullHudEditor.reloadPanel()
+            TrollClickGui.reloadPanel()
+            TrollHudEditor.reloadPanel()
             true
         }
     }

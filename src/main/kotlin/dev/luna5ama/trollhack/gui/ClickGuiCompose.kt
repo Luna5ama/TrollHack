@@ -40,6 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -53,9 +55,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.luna5ama.trollhack.config.settings.ColorSetting
 import dev.luna5ama.trollhack.manager.managers.ModuleManager
 import dev.luna5ama.trollhack.modules.AbstractModule
 import dev.luna5ama.trollhack.modules.Category
+import dev.luna5ama.trollhack.modules.impl.client.ClickGui
 import kotlin.math.roundToInt
 
 internal object ClickGuiState {
@@ -63,19 +67,34 @@ internal object ClickGuiState {
     var settingsModule by mutableStateOf<AbstractModule?>(null)
     var settingsPosition by mutableStateOf(Offset.Zero)
     var settingsBounds by mutableStateOf<Rect?>(null)
+    var colorPickerSetting by mutableStateOf<ColorSetting?>(null)
+    var colorPickerBounds by mutableStateOf<Rect?>(null)
     var textInputFocused by mutableStateOf(false)
 
     fun openSettings(module: AbstractModule, position: Offset) {
         if (settingsModule === module) {
             closeSettings()
         } else {
+            closeColorPicker()
             settingsModule = module
             settingsPosition = position
             settingsBounds = null
         }
     }
 
+    fun openColorPicker(setting: ColorSetting) {
+        colorPickerSetting = setting
+        colorPickerBounds = null
+        textInputFocused = false
+    }
+
+    fun closeColorPicker() {
+        colorPickerSetting = null
+        colorPickerBounds = null
+    }
+
     fun closeSettings() {
+        closeColorPicker()
         settingsModule = null
         settingsPosition = Offset.Zero
         settingsBounds = null
@@ -83,6 +102,10 @@ internal object ClickGuiState {
     }
 
     fun handleEscape(): Boolean {
+        if (colorPickerSetting != null) {
+            closeColorPicker()
+            return true
+        }
         if (settingsModule != null) {
             closeSettings()
             return true
@@ -96,46 +119,84 @@ internal object ClickGuiState {
 }
 
 private val legacyCategoryOrder = listOf(
-    Category.VISUAL,
+    Category.COMBAT,
+    Category.MISC,
     Category.PLAYER,
     Category.MOVEMENT,
-    Category.MISC,
-    Category.COMBAT,
+    Category.RENDER,
     Category.CLIENT,
-    Category.HUD
+    Category.HUD,
 )
 
 @Composable
 internal fun ClickGuiContent() {
+    TrollHackCompose.observeRevision()
+    val guiScale = ClickGui.scale / 100f
     BoxWithConstraints(
         Modifier.fillMaxSize().pointerInput(Unit) {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent(PointerEventPass.Initial)
-                    if (event.type != PointerEventType.Press || ClickGuiState.settingsModule == null) continue
+                    if (event.type != PointerEventType.Press) continue
                     val position = event.changes.firstOrNull()?.position ?: continue
-                    val bounds = ClickGuiState.settingsBounds
-                    if (bounds != null && !bounds.contains(position)) ClickGuiState.closeSettings()
+
+                    if (ClickGuiState.colorPickerSetting != null) {
+                        val pickerBounds = ClickGuiState.colorPickerBounds ?: continue
+                        if (pickerBounds.contains(position)) continue
+                        ClickGuiState.closeColorPicker()
+                    }
+
+                    if (ClickGuiState.settingsModule != null) {
+                        val settingsBounds = ClickGuiState.settingsBounds
+                        if (settingsBounds != null && !settingsBounds.contains(position)) {
+                            ClickGuiState.closeSettings()
+                        }
+                    }
                 }
             }
         }
     ) {
-        Row(
-            Modifier.offset(50.dp, 65.dp).height(400.dp)
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(0.dp)
+        val viewportWidth = constraints.maxWidth
+        val viewportHeight = constraints.maxHeight
+        val density = LocalDensity.current
+        val logicalWidth = with(density) { (viewportWidth / guiScale).toDp() }
+        val logicalHeight = with(density) { (viewportHeight / guiScale).toDp() }
+        Box(
+            Modifier.width(logicalWidth).height(logicalHeight).graphicsLayer {
+                scaleX = guiScale
+                scaleY = guiScale
+                transformOrigin = TransformOrigin(0f, 0f)
+            }
         ) {
-            legacyCategoryOrder.forEach { category -> CategoryWindow(category) }
-        }
+            Row(
+                Modifier.offset(50.dp, 65.dp).height(400.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                legacyCategoryOrder.forEach { category -> CategoryWindow(category, guiScale) }
+            }
 
-        ClickGuiState.settingsModule?.let { module ->
-            ModuleSettingsWindow(module, constraints.maxWidth, constraints.maxHeight)
+            ClickGuiState.settingsModule?.let { module ->
+                ModuleSettingsWindow(
+                    module,
+                    (viewportWidth / guiScale).roundToInt(),
+                    (viewportHeight / guiScale).roundToInt()
+                )
+            }
+
+            ClickGuiState.colorPickerSetting?.let { setting ->
+                ColorPickerWindow(
+                    setting,
+                    (viewportWidth / guiScale).roundToInt(),
+                    (viewportHeight / guiScale).roundToInt()
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun CategoryWindow(category: Category) {
+private fun CategoryWindow(category: Category, guiScale: Float) {
     TrollHackCompose.observeRevision()
     var expanded by remember(category) { mutableStateOf(false) }
     LaunchedEffect(category) { expanded = true }
@@ -155,7 +216,7 @@ private fun CategoryWindow(category: Category) {
             .border(0.5.dp, LegacyPalette.Accent)
     ) {
         Row(
-            Modifier.fillMaxWidth().height(16.dp).padding(horizontal = 4.dp),
+            Modifier.fillMaxWidth().height(16.dp).padding(horizontal = 3.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -165,17 +226,18 @@ private fun CategoryWindow(category: Category) {
                 fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
+                style = LegacyTextStyle
             )
         }
         LazyColumn(Modifier.fillMaxSize()) {
-            items(modules, key = { it.moduleId }) { module -> ModuleEntry(module) }
+            items(modules, key = { it.moduleId }) { module -> ModuleEntry(module, guiScale) }
         }
     }
 }
 
 @Composable
-private fun ModuleEntry(module: AbstractModule) {
+private fun ModuleEntry(module: AbstractModule, guiScale: Float) {
     TrollHackCompose.observeRevision()
     var rootPosition by remember(module) { mutableStateOf(Offset.Zero) }
     var rowWidth by remember(module) { mutableStateOf(0) }
@@ -207,7 +269,10 @@ private fun ModuleEntry(module: AbstractModule) {
                             PointerButton.Secondary -> {
                                 ClickGuiState.openSettings(
                                     module,
-                                    Offset(rootPosition.x + rowWidth + 2.dp.toPx(), rootPosition.y)
+                                    Offset(
+                                        rootPosition.x / guiScale + rowWidth + 2.dp.toPx(),
+                                        rootPosition.y / guiScale
+                                    )
                                 )
                             }
                         }
@@ -218,7 +283,7 @@ private fun ModuleEntry(module: AbstractModule) {
         contentAlignment = Alignment.CenterStart
     ) {
         Box(
-            Modifier.fillMaxSize().padding(horizontal = 4.dp).background(
+            Modifier.fillMaxWidth().height(12.dp).padding(horizontal = 4.dp).background(
                 if (selected) LegacyPalette.Selected else Color.Transparent
             )
         ) {
@@ -226,11 +291,12 @@ private fun ModuleEntry(module: AbstractModule) {
         }
         Text(
             module.nameAsString,
-            modifier = Modifier.padding(horizontal = 5.dp),
+            modifier = Modifier.padding(horizontal = 6.dp),
             color = LegacyPalette.Text,
             fontSize = 8.5.sp,
             maxLines = 1,
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
+            style = LegacyTextStyle
         )
     }
 }
@@ -241,7 +307,7 @@ private fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth:
     val density = LocalDensity.current.density
     val visibleCount = module.filteredSettings.count { it.isVisible }
     val widthDp = 122.dp
-    val heightDp = (16 + visibleCount.coerceIn(1, 22) * 13).dp
+    val heightDp = (20 + visibleCount.coerceIn(1, 22) * 13).dp
     var opening by remember(module) { mutableStateOf(true) }
     var heightTarget by remember(module) { mutableStateOf(16.dp) }
     LaunchedEffect(module) {
@@ -288,7 +354,7 @@ private fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth:
                             change.consume()
                             ClickGuiState.settingsPosition += amount
                         }
-                    }.padding(start = 4.dp),
+                    }.padding(start = 3.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
@@ -296,7 +362,8 @@ private fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth:
                     color = LegacyPalette.Text,
                     fontSize = 8.5.sp,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 1
+                    maxLines = 1,
+                    style = LegacyTextStyle
                 )
             }
             Box(
@@ -313,7 +380,7 @@ private fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth:
                 },
                 contentAlignment = Alignment.Center
             ) {
-                Text("x", color = LegacyPalette.TextMuted, fontSize = 8.sp)
+                Text("x", color = LegacyPalette.TextMuted, fontSize = 8.sp, style = LegacyTextStyle)
             }
         }
         SettingsList(module)
@@ -321,21 +388,16 @@ private fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth:
 }
 
 internal object LegacyPalette {
-    val Accent = Color(0xFFD86E96)
-    val Enabled = Color(0xFFE277A0)
-    val Selected = Color(0x664B2836)
-    val Window = Color(0xD9231D20)
-    val WindowStrong = Color(0xF0272024)
-    val Row = Color(0x9E251D21)
-    val RowAlt = Color(0xB31D181B)
-    val Track = Color(0xFF55454C)
-    val Text = Color(0xFFF4F1F2)
-    val TextMuted = Color(0xFFC2B8BC)
+    val Accent = Color(255, 140, 180, 220)
+    val Enabled = Accent
+    val Selected = Color(255, 255, 255, 32)
+    val Window = Color(40, 32, 36, 160)
+    val WindowStrong = Window
+    val Row = Color.Transparent
+    val RowAlt = Color.Transparent
+    val Track = Color(255, 255, 255, 32)
+    val Text = Color(255, 250, 253, 255)
+    val TextMuted = Color(255, 250, 253, 190)
 }
 
-private fun legacyCategoryName(category: Category) = when (category) {
-    Category.VISUAL -> "Render"
-    Category.COMBAT -> "Combat"
-    Category.MISC -> "Misc"
-    else -> category.displayName.toString()
-}
+private fun legacyCategoryName(category: Category) = category.displayString

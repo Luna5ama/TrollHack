@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -51,7 +50,6 @@ import dev.luna5ama.trollhack.config.settings.LabelSetting
 import dev.luna5ama.trollhack.config.settings.StringListSetting
 import dev.luna5ama.trollhack.config.settings.StringSetSetting
 import dev.luna5ama.trollhack.config.settings.StringSetting
-import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.modules.AbstractModule
 import dev.luna5ama.trollhack.utils.Displayable
 import java.util.Locale
@@ -93,11 +91,13 @@ private fun LegacyRow(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
-    Row(
-        modifier.fillMaxWidth().height(13.dp).background(background).padding(horizontal = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        content = content
-    )
+    Box(modifier.fillMaxWidth().height(13.dp)) {
+        Row(
+            Modifier.fillMaxWidth().height(12.dp).background(background).padding(horizontal = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            content = content
+        )
+    }
 }
 
 @Composable
@@ -108,7 +108,8 @@ private fun SettingName(setting: AbstractSetting<*, *>, modifier: Modifier = Mod
         color = LegacyPalette.Text,
         fontSize = 8.sp,
         maxLines = 1,
-        overflow = TextOverflow.Clip
+        overflow = TextOverflow.Clip,
+        style = LegacyTextStyle
     )
 }
 
@@ -119,10 +120,12 @@ private fun LegacyProgressRow(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
-    Box(modifier.fillMaxWidth().height(13.dp).background(rowColor(index))) {
-        Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).fillMaxHeight().background(LegacyPalette.Enabled))
+    Box(modifier.fillMaxWidth().height(13.dp)) {
+        Box(Modifier.fillMaxWidth().height(12.dp).background(rowColor(index))) {
+            Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).fillMaxHeight().background(LegacyPalette.Enabled))
+        }
         Row(
-            Modifier.fillMaxSize().padding(horizontal = 2.dp),
+            Modifier.fillMaxWidth().height(12.dp).padding(horizontal = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             content = content
         )
@@ -240,10 +243,12 @@ private fun RangedControl(setting: AbstractRangedSetting<*, *>, revision: Int, i
             }
         }
     }
-    Box(Modifier.fillMaxWidth().height(13.dp).background(rowColor(index)).then(modifier)) {
-        Box(Modifier.fillMaxWidth(fillProgress).fillMaxHeight().background(LegacyPalette.Enabled))
+    Box(Modifier.fillMaxWidth().height(13.dp).then(modifier)) {
+        Box(Modifier.fillMaxWidth().height(12.dp).background(rowColor(index))) {
+            Box(Modifier.fillMaxWidth(fillProgress).fillMaxHeight().background(LegacyPalette.Enabled))
+        }
         Row(
-            Modifier.fillMaxSize().padding(horizontal = 2.dp),
+            Modifier.fillMaxWidth().height(12.dp).padding(horizontal = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             SettingName(setting, Modifier.weight(1f))
@@ -312,7 +317,8 @@ private fun LegacyStringRow(
             textStyle = TextStyle(
                 color = LegacyPalette.Text,
                 fontSize = 8.sp,
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                shadow = LegacyTextStyle.shadow
             ),
             modifier = Modifier.width(66.dp).onFocusChanged {
                 focused = it.isFocused
@@ -326,56 +332,15 @@ private fun LegacyStringRow(
 @Composable
 private fun ColorControl(setting: ColorSetting, revision: Int, index: Int) {
     var color by remember(setting) { mutableStateOf(setting.value) }
-    var expanded by remember(setting) { mutableStateOf(false) }
     LaunchedEffect(revision) { color = setting.value }
-    Column {
-        LegacyRow(index, modifier = Modifier.legacyPress(setting) { expanded = !expanded }) {
-            SettingName(setting, Modifier.weight(1f))
-            Box(Modifier.width(20.dp).height(8.dp).background(Color(color.r, color.g, color.b, color.a)))
-        }
-        if (expanded) {
-            listOf("R" to color.r, "G" to color.g, "B" to color.b, "A" to color.a)
-                .forEachIndexed { channel, pair ->
-                    ColorChannel(pair.first, pair.second, index + channel + 1) { value ->
-                        setting.value = color.withChannel(channel, value)
-                        color = setting.value
-                        TrollHackCompose.refresh()
-                    }
-                }
-        }
-    }
-}
-
-@Composable
-private fun ColorChannel(name: String, value: Int, index: Int, onChange: (Int) -> Unit) {
-    val ratio = value / 255f
-    val fillProgress by animateFloatAsState(
-        ratio,
-        tween(LegacyFillDuration, easing = LegacyOutQuart),
-        label = "Legacy color fill"
-    )
-    Box(
-        Modifier.fillMaxWidth().height(13.dp).background(rowColor(index))
-            .pointerInput(name) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val change = event.changes.firstOrNull() ?: continue
-                        if (event.type == PointerEventType.Press && event.button == PointerButton.Primary ||
-                            event.type == PointerEventType.Move && event.buttons.isPrimaryPressed
-                        ) {
-                            onChange(((change.position.x / size.width) * 255f).roundToInt().coerceIn(0, 255))
-                            change.consume()
-                        }
-                    }
-                }
-            }
-    ) {
-        Box(Modifier.fillMaxWidth(fillProgress).fillMaxHeight().background(LegacyPalette.Enabled))
-        Row(Modifier.fillMaxSize().padding(horizontal = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(name, modifier = Modifier.weight(1f), color = LegacyPalette.Text, fontSize = 8.sp)
-            LegacyValue(value.toString())
-        }
+    LegacyRow(index, modifier = Modifier.legacyPress(setting) {
+        ClickGuiState.openColorPicker(setting)
+    }) {
+        SettingName(setting, Modifier.weight(1f))
+        Box(
+            Modifier.width(20.dp).height(8.dp)
+                .background(Color(color.r, color.g, color.b, color.a))
+        )
     }
 }
 
@@ -384,7 +349,7 @@ private fun LabelControl(setting: LabelSetting, revision: Int, index: Int) {
     var label by remember(setting) { mutableStateOf(setting.label()) }
     LaunchedEffect(revision) { label = setting.label() }
     LegacyRow(index) {
-        Text(label, color = LegacyPalette.TextMuted, fontSize = 8.sp, maxLines = 1)
+        Text(label, color = LegacyPalette.TextMuted, fontSize = 8.sp, maxLines = 1, style = LegacyTextStyle)
     }
 }
 
@@ -396,7 +361,8 @@ private fun LegacyValue(value: String) {
         fontSize = 7.5.sp,
         maxLines = 1,
         overflow = TextOverflow.Clip,
-        textAlign = TextAlign.End
+        textAlign = TextAlign.End,
+        style = LegacyTextStyle
     )
 }
 
@@ -454,11 +420,4 @@ private fun formatSettingValue(value: Any?) = when (value) {
     is Float -> String.format(Locale.ROOT, "%.3f", value).trimEnd('0').trimEnd('.')
     is Double -> String.format(Locale.ROOT, "%.3f", value).trimEnd('0').trimEnd('.')
     else -> value.toString()
-}
-
-private fun ColorRGBA.withChannel(index: Int, value: Int) = when (index) {
-    0 -> red(value)
-    1 -> green(value)
-    2 -> blue(value)
-    else -> alpha(value)
 }

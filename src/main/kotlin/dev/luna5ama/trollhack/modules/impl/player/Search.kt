@@ -42,7 +42,7 @@ import net.minecraft.world.level.chunk.ChunkAccess
 object Search : Module(
     "Search",
     description = "Highlights blocks in the world",
-    category = Category.VISUAL
+    category = Category.RENDER
 ) {
     private val defaultSearchList = linkedSetOf("minecraft:red_bed")
 

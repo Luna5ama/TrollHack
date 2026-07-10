@@ -8,8 +8,8 @@ import dev.luna5ama.trollhack.event.impl.player.PlayerClickBlockEvent
 import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
-import dev.luna5ama.trollhack.gui.NullClickGui
-import dev.luna5ama.trollhack.gui.NullHudEditor
+import dev.luna5ama.trollhack.gui.TrollClickGui
+import dev.luna5ama.trollhack.gui.TrollHudEditor
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
@@ -333,7 +333,7 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
             return
         }
         if (switchMode == NONE && mc.screen != null && mc.screen !is ChatScreen
-            && mc.screen !is InventoryScreen && mc.screen !== NullClickGui && mc.screen !== NullHudEditor) {
+            && mc.screen !is InventoryScreen && mc.screen !== TrollClickGui && mc.screen !== TrollHudEditor) {
             return
         }
         val slot = getTool(pos) ?: player.hotbarSlots[HotbarSwitchManager.serverSideHotbar]

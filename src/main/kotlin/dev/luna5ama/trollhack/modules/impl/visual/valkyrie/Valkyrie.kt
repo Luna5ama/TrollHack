@@ -16,7 +16,7 @@ import dev.luna5ama.trollhack.utils.compat.armorStacksCompat
 import net.minecraft.world.item.Items
 import kotlin.math.absoluteValue
 
-object Valkyrie : Module("Valkyrie", category = Category.VISUAL) {
+object Valkyrie : Module("Valkyrie", category = Category.RENDER) {
     private val onElytraOnly by setting("Elytra Only", false)
     val reverseRoll by setting("Reverse Roll", false)
     val degreesPerBar by setting("Degrees Per Bar", 15)

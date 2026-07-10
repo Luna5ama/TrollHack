@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 
-object BlockHighlight : Module("Block Highlight", category = Category.VISUAL) {
+object BlockHighlight : Module("Block Highlight", category = Category.RENDER) {
     private val color by setting("Color", ColorRGBA.WHITE.alpha(128))
     private val lineColor by setting("Line Color", ColorRGBA.WHITE)
     private val lineWidth by setting("Line Width", 1.0f, 0.1f..4.0f)

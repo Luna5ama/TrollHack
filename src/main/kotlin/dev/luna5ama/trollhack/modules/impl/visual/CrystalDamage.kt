@@ -13,7 +13,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal
 import net.minecraft.world.phys.Vec3
 
-object CrystalDamage : Module("Crystal Damage", description = "不能代表真实伤害", category = Category.VISUAL) {
+object CrystalDamage : Module("Crystal Damage", description = "不能代表真实伤害", category = Category.RENDER) {
     init {
         nonNullHandler<Skia2DEvent> { event ->
             EntityManager.entity.filterIsInstance<EndCrystal>()

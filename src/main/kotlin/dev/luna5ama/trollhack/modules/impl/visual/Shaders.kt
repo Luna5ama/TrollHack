@@ -1,13 +1,8 @@
 package dev.luna5ama.trollhack.modules.impl.visual
 
-import com.mojang.blaze3d.opengl.GlStateManager
-import dev.luna5ama.trollhack.RenderSystem
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.MinecraftWrapper
-import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PMVBObjects
-import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PMVBObjects.draw
-import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.graphics.matrix.getFloatArray
 import dev.luna5ama.trollhack.graphics.shader.Shader
 import dev.luna5ama.trollhack.graphics.shader.useShader
@@ -17,7 +12,7 @@ import org.joml.Matrix4f
 import org.lwjgl.opengl.GL20.*
 import org.lwjgl.opengl.GL30.*
 
-object Shaders : Module("Shaders", category = Category.VISUAL) {
+object Shaders : Module("Shaders", category = Category.RENDER) {
 
     fun shouldRender(entity: Entity): Boolean {
         return isEnabled && entity != MinecraftWrapper.mc.player

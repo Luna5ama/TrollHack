@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.manager
 
 import dev.luna5ama.trollhack.command.CommandManager
-import dev.luna5ama.trollhack.gui.NullClickGui
-import dev.luna5ama.trollhack.gui.NullHudEditor
+import dev.luna5ama.trollhack.gui.TrollClickGui
+import dev.luna5ama.trollhack.gui.TrollHudEditor
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.utils.Profiler
 
@@ -28,7 +28,7 @@ object ManagerLoader {
                 it().load(this)
             }
         }
-        NullHudEditor.reloadPanel()
-        NullClickGui.reloadPanel()
+        TrollHudEditor.reloadPanel()
+        TrollClickGui.reloadPanel()
     }
 }

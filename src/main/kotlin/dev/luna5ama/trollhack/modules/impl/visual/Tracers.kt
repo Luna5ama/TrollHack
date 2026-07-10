@@ -24,7 +24,7 @@ import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
 
-object Tracers : Module("Tracers", category = Category.VISUAL) {
+object Tracers : Module("Tracers", category = Category.RENDER) {
     private val players by setting("Players", true)
     private val items by setting("Items", true)
     private val mobs by setting("Mobs", false)

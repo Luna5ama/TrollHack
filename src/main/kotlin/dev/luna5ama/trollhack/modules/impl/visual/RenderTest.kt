@@ -6,7 +6,7 @@ import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 
-object RenderTest : Module("Render Test", category = Category.VISUAL) {
+object RenderTest : Module("Render Test", category = Category.RENDER) {
     private val string by setting("String", "Hello world!")
 
     init {

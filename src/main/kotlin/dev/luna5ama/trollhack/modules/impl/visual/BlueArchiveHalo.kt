@@ -22,7 +22,7 @@ import dev.luna5ama.trollhack.utils.world.EntityUtils
 import org.lwjgl.opengl.GL11.*
 import kotlin.math.sin
 
-object BlueArchiveHalo : Module("Blue Archive Halo", category = Category.VISUAL, hidden = false) {
+object BlueArchiveHalo : Module("Blue Archive Halo", category = Category.RENDER, hidden = false) {
     val floatingSpeed by setting("Floating Speed", 0.5f)
     val color by setting("Color" ,ColorRGBA(0x78d1c7))
     val circle1 = VertexCache.createCircle(Vec2d(0.0, 0.0), 0.38)
