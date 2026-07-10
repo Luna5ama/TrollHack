@@ -1,5 +1,3 @@
-@file:Suppress("CONTEXT_RECEIVERS_DEPRECATED")
-
 package dev.luna5ama.trollhack.modules.impl.visual.valkyrie
 
 import dev.luna5ama.trollhack.event.api.AlwaysListening
@@ -52,8 +50,8 @@ class FlightComputer : AlwaysListening {
     var distanceFromGround = 0.0f
     var elytraHealth = 0.0f
 
-    context(NonNullContext)
-    fun update(partial: Float) {
+    context(ctx: NonNullContext)
+    fun update(partial: Float): Unit = ctx.run {
         velocity = interpolate(lastVelocity, currentVelocity, partial)
         pitch = computePitch(partial)
         speed = computeSpeed(partial)
@@ -67,8 +65,8 @@ class FlightComputer : AlwaysListening {
         elytraHealth = computeElytraHealth()
     }
 
-    context(NonNullContext)
-    private fun computeElytraHealth(): Float {
+    context(ctx: NonNullContext)
+    private fun computeElytraHealth(): Float = ctx.run {
         val stack = player.getItemBySlot(EquipmentSlot.CHEST)
         if (stack != null && stack.item == Items.ELYTRA) {
             val remain = (stack.maxDamage.toFloat() - stack.damageValue.toFloat()) / stack.maxDamage.toFloat()
@@ -105,8 +103,8 @@ class FlightComputer : AlwaysListening {
      * https://github.com/Jorbon/cool_elytra/blob/main/src/main/java/edu/jorbonism/cool_elytra/mixin/GameRendererMixin.java
      * to enable both mods will sync up when used together.
      */
-    context(NonNullContext)
-    private fun computeRoll(partial: Float): Float {
+    context(ctx: NonNullContext)
+    private fun computeRoll(partial: Float): Float = ctx.run {
         val wingPower = Valkyrie.rollTurningForce
         val rollSmoothing = Valkyrie.rollSmoothing
         val interpolatedRotation = interpolate(Vec2f(player.xRotO, player.yRotO), Vec2f(player.pitch, player.yaw), partial)
@@ -131,18 +129,18 @@ class FlightComputer : AlwaysListening {
         return rollAngle
     }
 
-    context(NonNullContext)
-    private fun computePitch(partial: Float): Float {
+    context(ctx: NonNullContext)
+    private fun computePitch(partial: Float): Float = ctx.run {
         return (player.pitch + (player.pitch - player.prevPitch) * partial) * -1
     }
 
-    context(NonNullContext)
-    private fun isGround(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    private fun isGround(pos: BlockPos): Boolean = ctx.run {
         return !pos.state.isAir
     }
 
-    context(NonNullContext)
-    fun findGround(): BlockPos? {
+    context(ctx: NonNullContext)
+    fun findGround(): BlockPos? = ctx.run {
         var pos = player.blockPosition()
         while (pos.y >= world.minY) {
             pos = pos.below()
@@ -153,8 +151,8 @@ class FlightComputer : AlwaysListening {
         return null
     }
 
-    context(NonNullContext)
-    private fun computeGroundLevel(): Int {
+    context(ctx: NonNullContext)
+    private fun computeGroundLevel(): Int = ctx.run {
         return findGround()?.y ?: 0
     }
 
@@ -165,18 +163,18 @@ class FlightComputer : AlwaysListening {
         return max(0.0, (altitude - groundLevel).toDouble()).toFloat()
     }
 
-    context(NonNullContext)
-    private fun computeAltitude(): Float {
+    context(ctx: NonNullContext)
+    private fun computeAltitude(): Float = ctx.run {
         return player.y.toFloat()
     }
 
-    context(NonNullContext)
-    private fun computeHeading(): Float {
+    context(ctx: NonNullContext)
+    private fun computeHeading(): Float = ctx.run {
         return toHeading(player.yaw)
     }
 
-    context(NonNullContext)
-    private fun computeSpeed(partial: Float): Float {
+    context(ctx: NonNullContext)
+    private fun computeSpeed(partial: Float): Float = ctx.run {
         var speed = 0f
         speed = if (player.isPassenger) {
             interpolate(lastVehicleVelocity, currentVehicleVelocity, partial).length().toFloat() * TICKS_PER_SECOND

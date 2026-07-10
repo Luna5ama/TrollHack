@@ -46,18 +46,18 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
         }
     }
 
-    context (NonNullContext)
-    fun ghostSwitch(slot: Slot, block: () -> Unit) {
+    context(ctx: NonNullContext)
+    fun ghostSwitch(slot: Slot, block: () -> Unit): Unit = ctx.run {
         ghostSwitch(Override.DEFAULT, slot, block)
     }
 
-    context (NonNullContext)
-    fun ghostSwitch(slot: Int, block: () -> Unit) {
+    context(ctx: NonNullContext)
+    fun ghostSwitch(slot: Int, block: () -> Unit): Unit = ctx.run {
         ghostSwitch(Override.DEFAULT, slot, block)
     }
 
-    context (NonNullContext)
-    fun ghostSwitch(override: Override, slot: Slot, block: () -> Unit) {
+    context(ctx: NonNullContext)
+    fun ghostSwitch(override: Override, slot: Slot, block: () -> Unit): Unit = ctx.run {
         synchronized(InventoryManager) {
             if (slot.index != serverSideHotbar) {
                 override.mode.run {
@@ -69,21 +69,21 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
         block.invoke()
     }
 
-    context(NonNullContext)
-    fun ghostSwitchc( slot: Int, block: () -> Unit) {
+    context(ctx: NonNullContext)
+    fun ghostSwitchc( slot: Int, block: () -> Unit): Unit = ctx.run {
       val  i =  player.inventory.selectedSlot
         doSwap(slot)
         block.invoke()
         doSwap(i)
     }
-    context(NonNullContext)
-    fun doSwap(slot: Int) {
+    context(ctx: NonNullContext)
+    fun doSwap(slot: Int): Unit = ctx.run {
         player.inventory.selectedSlot = slot
         netHandler.send(ServerboundSetCarriedItemPacket(slot))
     }
 
-    context (NonNullContext)
-    fun ghostSwitch(override: Override, slot: Int, block: () -> Unit) {
+    context(ctx: NonNullContext)
+    fun ghostSwitch(override: Override, slot: Int, block: () -> Unit): Unit = ctx.run {
         ghostSwitch(override, player.inventoryMenu.getSlot(slot), block)
     }
 

@@ -6,5 +6,5 @@ import dev.luna5ama.trollhack.modules.Module
 object NoCameraClip : Module(
     "No Camera Clip",
     "NoCameraClip",
-    Category.VISUAL
+    Category.RENDER
 )

@@ -43,8 +43,8 @@ object HitSound  : Module(
         }
     }
 
-    context(NonNullContext)
-    private fun playSound(s: SoundEvent) {
+    context(ctx: NonNullContext)
+    private fun playSound(s: SoundEvent): Unit = ctx.run {
         world.playSound(
             player,
             player.blockPosition(),

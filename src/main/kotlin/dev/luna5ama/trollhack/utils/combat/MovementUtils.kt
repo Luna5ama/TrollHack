@@ -1,7 +1,6 @@
 package dev.luna5ama.trollhack.utils.combat
 
-import dev.fastmc.common.toDegree
-import dev.fastmc.common.toRadians
+import dev.luna5ama.trollhack.utils.math.toDegree
 import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.compat.forwardImpulseCompat
 import dev.luna5ama.trollhack.utils.compat.leftImpulseCompat
@@ -16,12 +15,12 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 object MovementUtils {
-    context(NonNullContext)
+    context(ctx: NonNullContext)
     fun isInputting(
-        movementInput: ClientInput = player.input,
+        movementInput: ClientInput = ctx.player.input,
         jump: Boolean = false,
         sneak: Boolean = false
-    ): Boolean {
+    ): Boolean = ctx.run {
         return movementInput.forwardImpulseCompat != 0.0f
                 || movementInput.leftImpulseCompat != 0.0f
                 || jump && movementInput.keyPresses.jump
@@ -44,11 +43,11 @@ object MovementUtils {
     ): Double {
         val moveYaw = if (moveForward == 0.0f && moveStrafe == 0.0f) 0.0
         else atan2(moveForward, moveStrafe).toDegree() - 90.0
-        return RotationUtils.normalizeAngle(yaw + moveYaw).toRadians()
+        return Math.toRadians(RotationUtils.normalizeAngle(yaw + moveYaw))
     }
 
-    context(NonNullContext)
-    fun directionSpeed(speed: Double): DoubleArray {
+    context(ctx: NonNullContext)
+    fun directionSpeed(speed: Double): DoubleArray = ctx.run {
         var forward: Float = player.input.forwardImpulseCompat
         var side: Float = player.input.leftImpulseCompat
         var yaw: Float = player.prevYaw + (player.yaw - player.prevYaw) * mc.deltaTracker.getGameTimeDeltaPartialTick(false)

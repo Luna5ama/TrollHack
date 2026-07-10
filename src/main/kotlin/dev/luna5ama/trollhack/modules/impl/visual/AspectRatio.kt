@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 
 
-object AspectRatio : Module("Aspect Ratio", "AspectRatio", Category.VISUAL) {
+object AspectRatio : Module("Aspect Ratio", "AspectRatio", Category.RENDER) {
     @JvmStatic
     val ratio by setting("Ratio", 1.78f, 0.1f..8f)
 }

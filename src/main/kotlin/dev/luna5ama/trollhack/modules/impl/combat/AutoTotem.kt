@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.modules.impl.combat
 import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.UpdateEvent
 import dev.luna5ama.trollhack.event.impl.player.OnUpdateWalkingPlayerEvent
-import dev.luna5ama.trollhack.gui.NullClickGui
+import dev.luna5ama.trollhack.gui.TrollClickGui
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.NonNullContext
@@ -27,8 +27,8 @@ object AutoTotem : Module("Auto Totem", category = Category.COMBAT) {
         nonNullHandler<UpdateEvent> { update() }
     }
 
-    context(NonNullContext)
-    private fun findItemInventorySlot(item: Item): Int {
+    context(ctx: NonNullContext)
+    private fun findItemInventorySlot(item: Item): Int = ctx.run {
         for (i in 0..44) {
             val stack = player.inventory.getItem(i)
             if (stack.item == item) return if (i < 9) i + 36 else i
@@ -36,10 +36,10 @@ object AutoTotem : Module("Auto Totem", category = Category.COMBAT) {
         return -1
     }
 
-    context(NonNullContext)
-     fun update() {
+    context(ctx: NonNullContext)
+     fun update(): Unit = ctx.run {
         if (mc.screen != null && mc.screen !is ChatScreen && mc.screen !is InventoryScreen
-            && mc.screen !is NullClickGui) return
+            && mc.screen !is TrollClickGui) return
         if (!timer.tick(200)) return
         if (player.health + player.absorptionAmount > health) return
         if (player.mainHandItem.item == Items.TOTEM_OF_UNDYING

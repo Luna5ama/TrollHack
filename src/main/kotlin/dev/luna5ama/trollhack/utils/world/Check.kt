@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.utils.world
+﻿package dev.luna5ama.trollhack.utils.world
 
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.utils.ImplicitOverriding
@@ -12,12 +12,12 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.shapes.VoxelShape
 
-context(NonNullContext)
+context(ctx: NonNullContext)
 fun Level.getGroundPos(entity: Entity): BlockPos {
     return getGroundPos(entity.boundingBox)
 }
 
-context(NonNullContext)
+context(ctx: NonNullContext)
 fun Level.getGroundPos(boundingBox: AABB): BlockPos {
     val heights = mutableListOf<BlockPos>()
     val pos = BlockPos.MutableBlockPos()
@@ -40,9 +40,9 @@ fun Level.getGroundPos(boundingBox: AABB): BlockPos {
     }
 
     return heights.distinct().sortedWith { pos1, pos2 ->
-        if (pos1.y == pos2.y) player.distanceSqTo(pos1.x + 0.5, pos1.y.toDouble(), pos1.z + 0.5)
-            .compareTo(player.distanceSqTo(pos2.x + 0.5, pos2.y.toDouble(), pos2.z + 0.5))
-        else (player.y - pos1.y).compareTo(player.y - pos2.y)
+        if (pos1.y == pos2.y) ctx.player.distanceSqTo(pos1.x + 0.5, pos1.y.toDouble(), pos1.z + 0.5)
+            .compareTo(ctx.player.distanceSqTo(pos2.x + 0.5, pos2.y.toDouble(), pos2.z + 0.5))
+        else (ctx.player.y - pos1.y).compareTo(ctx.player.y - pos2.y)
     }.firstOrNull() ?: BlockPos(boundingBox.minX.toInt(), minY, boundingBox.minZ.toInt())
 }
 

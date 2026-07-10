@@ -8,16 +8,15 @@ import dev.luna5ama.trollhack.utils.IEnumEntriesProvider
 sealed class Category(
     override val displayName: CharSequence
 ) : LocalizedNameable(ModuleManager.resolve(displayName.toString()), ModuleManager.i18N, displayName.toString()), Displayable {
-    data object COMBAT : Category("Fight")
+    data object COMBAT : Category("Combat")
     data object PLAYER : Category("Player")
     data object MOVEMENT : Category("Movement")
-    data object VISUAL : Category("Visual")
-    data object MISC : Category("Miscellaneous")
+    data object RENDER : Category("Render")
+    data object MISC : Category("Misc")
     data object CLIENT : Category("Client")
-    data object SCRIPT : Category("Script")
     data object HUD : Category("Hud")
 
     companion object : IEnumEntriesProvider<Category> {
-        override val entries get() = listOf(COMBAT, PLAYER, MOVEMENT, VISUAL, MISC, CLIENT, SCRIPT, HUD)
+        override val entries get() = listOf(COMBAT, PLAYER, MOVEMENT, RENDER, MISC, CLIENT, HUD)
     }
 }

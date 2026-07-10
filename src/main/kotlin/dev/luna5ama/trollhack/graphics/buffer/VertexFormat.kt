@@ -5,21 +5,7 @@ import dev.luna5ama.trollhack.graphics.GLDataType
 open class VertexFormat(vararg val elements: Element) {
 
     data object Pos2f : VertexFormat(Element.Position2f)
-    data object Pos2fColor : VertexFormat(Element.Position2f, Element.Color) // 12
-    data object Pos3fColor : VertexFormat(Element.Position3f, Element.Color) // 16
-    data object Pos2fColorTex : VertexFormat(Element.Position2f, Element.Color, Element.Texture) // 20
-    data object Pos2fColorTexArray : VertexFormat(Element.Position2f, Element.Color, Element.TextureArray) // 24
     data object Pos3fColorTex : VertexFormat(Element.Position3f, Element.Color, Element.Texture) // 24
-    data object Pos3fTex : VertexFormat(Element.Position3f, Element.Texture)
-    data object Pos2dColor : VertexFormat(Element.Position2d, Element.Color) // 20
-    data object Pos3dColor : VertexFormat(Element.Position3d, Element.Color) // 28
-    data object Pos2dColorTex : VertexFormat(Element.Position2d, Element.Color, Element.Texture) // 28
-    data object Pos3dColorTex : VertexFormat(Element.Position3d, Element.Color, Element.Texture) // 36
-    data object Pos2iColor : VertexFormat(Element.Position2i, Element.Color) // 12
-    data object Pos3iColor : VertexFormat(Element.Position3i, Element.Color) // 16
-    data object Pos2iTex : VertexFormat(Element.Position2i, Element.Color, Element.Texture) // 20
-    data object Pos3iTex : VertexFormat(Element.Position3i, Element.Color, Element.Texture) // 24
-    data object Pos3fNormalTex : VertexFormat(Element.Position3f, Element.Position3f, Element.Texture) // 32
 
     private val totalLength: Int
 

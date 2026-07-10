@@ -10,8 +10,8 @@ import kotlin.math.roundToInt
 import kotlin.times
 
 class ElytraHealthIndicator(private val computer: FlightComputer, private val dim: Dimensions) : HudComponent() {
-    context(NonNullContext)
-    override fun render(partial: Float) {
+    context(ctx: NonNullContext)
+    override fun render(partial: Float): Unit = ctx.run {
         val x = dim.wScreen * 0.5f
         val y = dim.hScreen * 0.8f
 

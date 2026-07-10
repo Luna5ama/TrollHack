@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.manager.managers
 
-import kotlinx.coroutines.*
 import dev.luna5ama.trollhack.I18NManager
 import dev.luna5ama.trollhack.TrollHackMod as TrollHackMod
 import dev.luna5ama.trollhack.TrollHackMod.resolve
@@ -56,12 +55,9 @@ import dev.luna5ama.trollhack.modules.impl.visual.RenderTest
 import dev.luna5ama.trollhack.modules.impl.visual.Shaders
 import dev.luna5ama.trollhack.modules.impl.visual.Tracers
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.Valkyrie
-import dev.luna5ama.trollhack.script.FabricPlatform
 import dev.luna5ama.trollhack.utils.Profiler
 import dev.luna5ama.trollhack.utils.input.KeyBind
 import dev.luna5ama.trollhack.utils.runSafe
-import dev.luna5ama.trollhack.utils.threads.Coroutine
-import org.luaj.vm2.compiler.LuaC
 
 object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameable(resolve("modules"), I18NManager.i18N) {
     val modules by lazy { mutableListOf(
@@ -73,8 +69,6 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         HurtTimeDebug,
         PacketDebug,
         Presets,
-        RefreshFontCache,
-        ReloadScript,
         Watermark,
 
         ZealotCrystal,
@@ -163,35 +157,6 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
                 }
             }
 
-    fun loadScript() {
-        val scriptsFolder = TrollHackMod.FOLDER.resolve("scripts")
-        if (!scriptsFolder.exists()) {
-            scriptsFolder.mkdirs()
-            return
-        }
-        runBlocking {
-            scriptsFolder.listFiles()?.filter { it.extension.lowercase() == "lua" }?.map { f ->
-                Coroutine.async {
-                    try {
-                        f.inputStream().use { source ->
-                            val code = f.readText()
-                            if (code.startsWith("-- trollhack-scripts")) {
-                                val prototype = LuaC.instance.compile(source, f.name)
-                                val initialEnv = FabricPlatform.emptyGlobals()
-                                initialEnv.loader.load(prototype, f.name, initialEnv).call()
-                                val module = LuaModule(code, prototype, initialEnv)
-                                TrollHackMod.LOGGER.info("Loaded script ${module.name}")
-                                modules.add(module)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        TrollHackMod.LOGGER.warn("Failed to load script ${f.name}, skipping", e)
-                    }
-                }
-            }?.awaitAll() ?: TrollHackMod.LOGGER.warn("Cannot read script folder")
-        }
-    }
-
     override fun load(profilerScope: Profiler.ProfilerScope) {
         modules.forEach {
             it.apply {
@@ -207,7 +172,6 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
                 if (enableByDefault) enable = true
             }
         }
-        loadScript()
         val m = modules.distinctBy { it.moduleId }
         modules.clear()
         modules.addAll(m)

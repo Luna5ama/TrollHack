@@ -119,8 +119,8 @@ object MaceSpoof : Module("Mace Spoof", category = Category.COMBAT) {
         }
     }
 
-    context(NonNullContext)
-    private fun getMaxHeightAbovePlayer(): Int {
+    context(ctx: NonNullContext)
+    private fun getMaxHeightAbovePlayer(): Int = ctx.run {
         val playerPos = player.blockPosition()
         val maxHeight = playerPos.y + fallDistance
 
@@ -134,8 +134,8 @@ object MaceSpoof : Module("Mace Spoof", category = Category.COMBAT) {
         return 0 // Return 0 if no suitable position is found
     }
 
-    context(NonNullContext)
-    private fun isSafeBlock(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    private fun isSafeBlock(pos: BlockPos): Boolean = ctx.run {
         return world.getBlockState(pos).canBeReplaced()
                 && world.getFluidState(pos).isEmpty
                 && !world.getBlockState(pos).`is`(Blocks.POWDER_SNOW)

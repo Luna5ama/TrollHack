@@ -1,36 +1,37 @@
 pluginManagement {
+    val versions = file("gradle/libs.versions.toml").readLines()
+
+    fun catalogVersion(alias: String): String {
+        val key = "$alias = "
+        return versions
+            .dropWhile { it.trim() != "[versions]" }
+            .drop(1)
+            .takeWhile { !it.trim().startsWith("[") }
+            .firstNotNullOfOrNull { line ->
+                line.trim().takeIf { it.startsWith(key) }
+                    ?.substringAfter('"')
+                    ?.substringBefore('"')
+            } ?: error("Missing version catalog entry: $alias")
+    }
+
     repositories {
-        mavenLocal()
         gradlePluginPortal()
         mavenCentral()
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = "Fabric"
-                    url = uri("https://maven.fabricmc.net")
-                }
-            }
-            filter {
-                includeGroupAndSubgroups("net.fabricmc")
-                includeGroup("fabric-loom")
-            }
-        }
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = "Sponge"
-                    url = uri("https://repo.spongepowered.org/repository/maven-public")
-                }
-            }
-            filter {
-                includeGroupAndSubgroups("org.spongepowered")
-            }
-        }
+        maven("https://maven.fabricmc.net")
+        maven("https://maven.neoforged.net/releases")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    }
+
+    plugins {
+        id("org.gradle.toolchains.foojay-resolver-convention") version catalogVersion("foojay")
     }
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("org.gradle.toolchains.foojay-resolver-convention")
 }
 
 rootProject.name = "TrollHack"
+
+include("fabric")
+include("neoforge")

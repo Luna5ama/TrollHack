@@ -68,8 +68,8 @@ class DamageReduction(val entity: LivingEntity, val updateDelay: Long = 100) {
                 else genericMultiplier
     }
 
-    context (NonNullContext)
-    private fun getDamageMultiplied(damage: Float): Float {
+    context(ctx: NonNullContext)
+    private fun getDamageMultiplied(damage: Float): Float = ctx.run {
         val diff = world.difficulty.id
         return damage * if (diff == 0) 0f else if (diff == 2) 1f else if (diff == 1) 0.5f else 1.5f
     }

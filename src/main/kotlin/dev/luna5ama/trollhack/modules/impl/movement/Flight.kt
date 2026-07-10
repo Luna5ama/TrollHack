@@ -48,8 +48,8 @@ object Flight : Module("Flight", category = Category.MOVEMENT) {
         nonNullHandler<IsPlayerInWaterEvent> { it.inWater = false }
     }
 
-    context (NonNullContext)
-    private fun doAntiKick(velocity: Vec3) {
+    context(ctx: NonNullContext)
+    private fun doAntiKick(velocity: Vec3): Unit = ctx.run {
         if (tickCounter > antiKickInterval + 1) tickCounter = 0
 
         when (tickCounter) {

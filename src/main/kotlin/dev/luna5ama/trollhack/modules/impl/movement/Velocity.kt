@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.LoopEvent
 import dev.luna5ama.trollhack.event.impl.PacketEvent
 import dev.luna5ama.trollhack.event.impl.player.PlayerPushOutOfBlockEvent
+import dev.luna5ama.trollhack.mixins.accessor.IClientboundExplodePacketAccessor
 import dev.luna5ama.trollhack.mixins.accessor.IEntityVelocityUpdateS2CPacketAccessor
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
@@ -89,7 +90,7 @@ object Velocity : Module("Velocity", category = Category.MOVEMENT), Helper {
                     if (isZero())
                         it.cancel()
                     else {
-                        (it.packet.center).apply {
+                        it.packet.playerKnockback.ifPresent { knockback ->
                             netHandler.send(
                                 ServerboundMovePlayerPacket.Pos(
                                     player.x,
@@ -108,9 +109,15 @@ object Velocity : Module("Velocity", category = Category.MOVEMENT), Helper {
                                     player.horizontalCollision
                                 )
                             )
-                            x = it.packet.playerKnockback.get().x * this@Velocity.horizontal
-                            y = it.packet.playerKnockback.get().y * this@Velocity.vertical
-                            z = it.packet.playerKnockback.get().z * this@Velocity.horizontal
+                            (it.packet as IClientboundExplodePacketAccessor).setPlayerKnockback(
+                                Optional.of(
+                                    Vec3(
+                                        knockback.x * this@Velocity.horizontal,
+                                        knockback.y * this@Velocity.vertical,
+                                        knockback.z * this@Velocity.horizontal
+                                    )
+                                )
+                            )
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.modules.impl.combat.zc
 
-import dev.fastmc.common.BlockPosUtil.toLong
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntArrayList
@@ -14,7 +13,7 @@ import dev.luna5ama.trollhack.event.impl.LoopEvent
 import dev.luna5ama.trollhack.event.impl.PacketEvent
 import dev.luna5ama.trollhack.event.impl.TickEvent
 import dev.luna5ama.trollhack.event.impl.player.OnUpdateWalkingPlayerEvent
-import dev.luna5ama.trollhack.event.impl.render.Render2DEvent
+import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.manager.managers.*
@@ -408,10 +407,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             Renderer.onRender3D()
         }
 
-        nonNullHandler<Render2DEvent> {
-            with(it.context) {
-                Renderer.onRender2D()
-            }
+        nonNullHandler<Skia2DEvent> {
+            Renderer.onRender2D(it.draw)
         }
     }
 
@@ -515,7 +512,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                     }
 
                     if (attackedPosMap.containsKey(
-                            toLong(
+                            BlockPos.asLong(
                                 packet.x.floorToInt(),
                                 packet.y.floorToInt(),
                                 packet.z.floorToInt()
@@ -586,8 +583,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
     }
 
-    context (NonNullContext)
-    private fun checkPausing(): Boolean {
+    context(ctx: NonNullContext)
+    private fun checkPausing(): Boolean = ctx.run {
         return eatingPause && player.usingItemHand != null && player.useItem.item.isFood
     }
 
@@ -606,8 +603,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             .none()
     }
 
-    context (NonNullContext)
-    private fun doBreak(placeInfo: PlaceInfo) {
+    context(ctx: NonNullContext)
+    private fun doBreak(placeInfo: PlaceInfo): Unit = ctx.run {
         val crystalList = getCrystalList()
 
         val crystal = when (breakMode) {
@@ -637,8 +634,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
     }
 
-    context (NonNullContext)
-    private fun placeDirect(placeInfo: PlaceInfo) {
+    context(ctx: NonNullContext)
+    private fun placeDirect(placeInfo: PlaceInfo): Unit = ctx.run {
         if (player.everySlots.countItem(Items.END_CRYSTAL) == 0) return
 
         val hand = getHandNullable()
@@ -684,8 +681,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
     }
 
-    context (NonNullContext)
-    private fun sendSequencedPacket(packetCreator: PredictiveAction) {
+    context(ctx: NonNullContext)
+    private fun sendSequencedPacket(packetCreator: PredictiveAction): Unit = ctx.run {
         world.blockStatePredictionHandler.startPredicting().use { pendingUpdateManager ->
             val i = pendingUpdateManager.currentSequenceNr
             val packet = packetCreator.predict(i)
@@ -699,8 +696,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         )
     }
 
-    context (NonNullContext)
-    private fun breakDirect(x: Double, y: Double, z: Double, entityID: Int) {
+    context(ctx: NonNullContext)
+    private fun breakDirect(x: Double, y: Double, z: Double, entityID: Int): Unit = ctx.run {
         if (System.currentTimeMillis() - HotbarSwitchManager.swapTime < swapDelay * 50L) return
 
         if (player.isWeaknessActive() && !isHoldingTool()) {
@@ -735,7 +732,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
 //        swingHand()
 
         attackedCrystalMap[entityID] = System.currentTimeMillis() + 1000L
-        attackedPosMap[toLong(x.floorToInt(), y.floorToInt(), z.floorToInt())] = System.currentTimeMillis() + 1000L
+        attackedPosMap[BlockPos.asLong(x.floorToInt(), y.floorToInt(), z.floorToInt())] = System.currentTimeMillis() + 1000L
         breakTimer.reset()
 
         lastActiveTime = System.currentTimeMillis()
@@ -806,8 +803,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
 
     }
 
-    context (NonNullContext)
-    private fun getCrystalList(): List<EndCrystal> {
+    context(ctx: NonNullContext)
+    private fun getCrystalList(): List<EndCrystal> = ctx.run {
         val eyePos = PlayerPacketManager.position.add(0.0, player.eyeY - player.y, 0.0)
         val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
         val mutableBlockPos = BlockPos.MutableBlockPos()
@@ -839,9 +836,9 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     @Suppress("DuplicatedCode")
-    private fun getCrystal(crystalList: List<EndCrystal>): EndCrystal? {
+    private fun getCrystal(crystalList: List<EndCrystal>): EndCrystal? = ctx.run {
         val max = BreakInfo.Mutable()
         val safe = BreakInfo.Mutable()
         val lethal = BreakInfo.Mutable()
@@ -918,8 +915,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         return valid?.crystal
     }
 
-    context (NonNullContext)
-    private fun getRawPosList(): List<BlockPos> {
+    context(ctx: NonNullContext)
+    private fun getRawPosList(): List<BlockPos> = ctx.run {
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
         val range = placeRange
@@ -967,8 +964,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         return list
     }
 
-    context (NonNullContext)
-    private fun getPlaceableBlocks(checkRotation: Boolean, mutableBlockPos: BlockPos.MutableBlockPos): List<BlockPos> {
+    context(ctx: NonNullContext)
+    private fun getPlaceableBlocks(checkRotation: Boolean, mutableBlockPos: BlockPos.MutableBlockPos): List<BlockPos> = ctx.run {
         val rangeSq = placeRange.sq
         val single = placeMode == PlaceMode.Single
         val feetPos = PlayerPacketManager.position
@@ -990,18 +987,18 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun isPlaceable(
         pos: BlockPos
-    ): Boolean {
+    ): Boolean = ctx.run {
         if (!CrystalUtils.canPlaceCrystalOn(pos)) {
             return false
         }
         return CrystalUtils.hasValidSpaceForCrystal(pos, true)
     }
 
-    context (NonNullContext)
-    private fun getTargets(): Sequence<TargetInfo> {
+    context(ctx: NonNullContext)
+    private fun getTargets(): Sequence<TargetInfo> = ctx.run {
         val rangeSq = targetRange.sq
         val ticks = if (motionPredict) predictTicks else 0
         val list = ArrayList<TargetInfo>()
@@ -1051,8 +1048,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             .take(maxTargets)
     }
 
-    context (NonNullContext)
-    private fun getTargetInfo(entity: LivingEntity, ticks: Int): TargetInfo {
+    context(ctx: NonNullContext)
+    private fun getTargetInfo(entity: LivingEntity, ticks: Int): TargetInfo = ctx.run {
         val motionX = (entity.x - entity.xo).coerceIn(-0.6, 0.6)
         val motionY = (entity.y - entity.yo).coerceIn(-0.5, 0.5)
         val motionZ = (entity.z - entity.zo).coerceIn(-0.6, 0.6)
@@ -1096,21 +1093,21 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         return minDura
     }
 
-    context (NonNullContext)
-    private fun shouldForcePlace(entity: LivingEntity): Boolean {
+    context(ctx: NonNullContext)
+    private fun shouldForcePlace(entity: LivingEntity): Boolean = ctx.run {
         return (!forcePlaceWhileSwording || !player.mainHandItem.isSwordCompat)
                 && (entity.totalHealth <= forcePlaceHealth
                 || entity.realSpeed >= forcePlaceMotion
                 || entity.getMinArmorRate() <= forcePlaceArmorRate)
     }
 
-    context (NonNullContext)
-    private fun canMove(box: AABB, x: Double, y: Double, z: Double): AABB? {
+    context(ctx: NonNullContext)
+    private fun canMove(box: AABB, x: Double, y: Double, z: Double): AABB? = ctx.run {
         return box.move(x, y, z).takeIf { !world.checkBlockCollision(it) }
     }
 
-    context (NonNullContext)
-    private fun calcPlaceInfo(checkRotation: Boolean): PlaceInfo? {
+    context(ctx: NonNullContext)
+    private fun calcPlaceInfo(checkRotation: Boolean): PlaceInfo? = ctx.run {
         var placeInfo: PlaceInfo.Mutable? = null
         val time = measureNanoTime {
             val targets = targets.get(25L).toList()
@@ -1220,7 +1217,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         return max
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun calcDamage(
         entity: LivingEntity,
         entityPos: Vec3,
@@ -1229,7 +1226,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         crystalY: Double,
         crystalZ: Double,
         mutableBlockPos: BlockPos.MutableBlockPos
-    ): Float {
+    ): Float = ctx.run {
         val isPlayer = entity is Player
         if (isPlayer && world.difficulty == Difficulty.PEACEFUL) return 0.0f
         var damage: Float
@@ -1299,7 +1296,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
     private const val DOUBLE_SIZE = 12.0f
     private const val DAMAGE_FACTOR = 42.0f
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun calcRawDamage(
         entityPos: Vec3,
         entityBox: AABB,
@@ -1307,7 +1304,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         posY: Double,
         posZ: Double,
         mutableBlockPos: BlockPos.MutableBlockPos
-    ): Float {
+    ): Float = ctx.run {
         val scaledDist = entityPos.distanceTo(posX, posY, posZ).toFloat() / DOUBLE_SIZE
         if (scaledDist > 1.0f) return 0.0f
 
@@ -1329,14 +1326,14 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                 || !PacketMine.isMine(pos))
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun getExposureAmount(
         entityBox: AABB,
         posX: Double,
         posY: Double,
         posZ: Double,
         mutableBlockPos: BlockPos.MutableBlockPos
-    ): Float {
+    ): Float = ctx.run {
         val width = entityBox.maxX - entityBox.minX
         val height = entityBox.maxY - entityBox.minY
 
@@ -1402,7 +1399,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun getCollidingEntities(
         rangeSq: Float,
         feetXInt: Int,
@@ -1410,7 +1407,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         feetZInt: Int,
         single: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos
-    ): List<Entity> {
+    ): List<Entity> = ctx.run {
         val collidingEntities = ArrayList<Entity>()
         val rangeSqCeil = rangeSq.ceilToInt()
 
@@ -1449,8 +1446,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                 && checkRotationDiff(RotationUtils.getRotationTo(eyePos, pos.toVec3Center()), placeRotationRange)
     }
 
-    context (NonNullContext)
-    private fun checkCrystalRotation(x: Double, y: Double, z: Double): Boolean {
+    context(ctx: NonNullContext)
+    private fun checkCrystalRotation(x: Double, y: Double, z: Double): Boolean = ctx.run {
         if (!crystalRotation) return true
 
         val eyePos = PlayerPacketManager.position.add(0.0, player.eyeY - player.y, 0.0)
@@ -1481,21 +1478,21 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                 && RotationUtils.calcAbsAngleDiff(rotation.y, serverSide.y) <= range
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun checkBreakRange(
         entity: EndCrystal,
         mutableBlockPos: BlockPos.MutableBlockPos
-    ): Boolean {
+    ): Boolean = ctx.run {
         return checkBreakRange(entity.x, entity.y, entity.z, mutableBlockPos)
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun checkBreakRange(
         x: Double,
         y: Double,
         z: Double,
         mutableBlockPos: BlockPos.MutableBlockPos
-    ): Boolean {
+    ): Boolean = ctx.run {
         return player.breakDistanceSq(x, y, z) <= breakRange.sq
                 && (player.distanceSqTo(x, y, z) <= wallRange.sq
                 || world.rayTraceVisible(
@@ -1572,8 +1569,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                 update(player, BlockPos.ZERO, Float.MAX_VALUE, forcePlaceMinDamage)
             }
 
-            context (NonNullContext)
-            fun calcPlacement() {
+            context(ctx: NonNullContext)
+            fun calcPlacement(): Unit = ctx.run {
                 when (placeBypass) {
                     PlaceBypass.Up -> {
                         side = Direction.UP
@@ -1804,8 +1801,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             lastTargetDamage = 0.0f
         }
 
-        context(NonNullContext)
-        fun onRender3D() {
+        context(ctx: NonNullContext)
+        fun onRender3D(): Unit = ctx.run {
             val filled = filledAlpha > 0
             val outline = outlineAlpha > 0
             val flag = filled || outline
@@ -1838,8 +1835,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             }
         }
 
-        context(NonNullContext)
-        fun onRender2D() {
+        context(ctx: NonNullContext)
+        fun onRender2D(draw: dev.luna5ama.trollhack.graphics.skia.SkiaDrawScope): Unit = ctx.run {
             if (scale != 0.0f && (targetDamage || selfDamage)) {
                 lastRenderPos?.let {
                     val text = buildString {
@@ -1858,12 +1855,12 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                         val alpha = (255.0f * scale).toInt()
                         val color = if (scale == 1.0f) ColorRGBA(255, 255, 255) else ColorRGBA(255, 255, 255, alpha)
 
-                        UnicodeFontManager.CURRENT_FONT.drawString(
+                        draw.centeredText(
                             text,
-                            screenPos.x.toFloat() - UnicodeFontManager.CURRENT_FONT.getWidth(text, 2.0f) * 0.5f,
-                            screenPos.y.toFloat() - UnicodeFontManager.CURRENT_FONT.getHeight(2.0f) * 0.5f,
-                            color.awt,
-                            2.0f
+                            screenPos.x.toFloat(),
+                            screenPos.y.toFloat() - 9f,
+                            size = 18f,
+                            color = color
                         )
                     }
                 }

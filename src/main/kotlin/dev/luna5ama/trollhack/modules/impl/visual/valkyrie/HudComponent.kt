@@ -1,28 +1,30 @@
 package dev.luna5ama.trollhack.modules.impl.visual.valkyrie
 
-import dev.luna5ama.trollhack.RS
-import dev.luna5ama.trollhack.graphics.buffer.Render2DUtils
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
-import dev.luna5ama.trollhack.graphics.matrix.rotatef
-import dev.luna5ama.trollhack.graphics.matrix.scope
-import dev.luna5ama.trollhack.graphics.matrix.translatef
-import dev.luna5ama.trollhack.manager.managers.UnicodeFontManager
+import dev.luna5ama.trollhack.graphics.skia.SkiaDrawScope
 import dev.luna5ama.trollhack.utils.NonNullContext
-import dev.luna5ama.trollhack.utils.math.vectors.Vec3f
 import kotlin.math.roundToInt
 
 abstract class HudComponent {
-    context(NonNullContext)
+    protected lateinit var draw: SkiaDrawScope
+
+    context(ctx: NonNullContext)
     abstract fun render(partial: Float)
+
+    context(ctx: NonNullContext)
+    fun renderWith(draw: SkiaDrawScope, partial: Float) {
+        this.draw = draw
+        render(partial)
+    }
 
     protected fun i(d: Double): Int {
         return d.roundToInt().toInt()
     }
 
     protected fun drawPointer(x: Float, y: Float, rot: Float) {
-        RS.matrixLayer.scope {
-            translatef(x, y, 0f)
-            rotatef(rot + 45, Vec3f(0.0f, 0.0f, 1.0f))
+        draw.saved {
+            translate(x, y)
+            rotate(rot + 45)
             drawVerticalLine(0f, 0f, 5f)
             drawHorizontalLine(0f, 5f, 0f)
         }
@@ -42,10 +44,10 @@ abstract class HudComponent {
     }
 
     protected fun drawFont(s: String, x: Float, y: Float, color: ColorRGBA) {
-        UnicodeFontManager.CURRENT_FONT.drawString(s, x, y - 3, color.awt)
+        draw.text(s, x, y - 3f, color = color)
     }
 
-    protected fun getFontWidth(s: String) = UnicodeFontManager.CURRENT_FONT.getWidth(s)
+    protected fun getFontWidth(s: String) = draw.measureText(s)
 
     protected fun drawRightAlignedFont(s: String, x: Float, y: Float) {
         val w = getFontWidth(s)
@@ -103,8 +105,7 @@ abstract class HudComponent {
         fill(x - Valkyrie.halfThickness, y1 + Valkyrie.halfThickness, x + Valkyrie.halfThickness, y2 - Valkyrie.halfThickness)
     }
 
-    companion object {
-        fun fill(x1: Float, y1: Float, x2: Float, y2: Float) {
+    protected fun fill(x1: Float, y1: Float, x2: Float, y2: Float) {
             var x1 = x1
             var y1 = y1
             var x2 = x2
@@ -123,7 +124,6 @@ abstract class HudComponent {
                 y2 = j
             }
             val color = Valkyrie.color
-            Render2DUtils.drawRect(x1, y1, x2, y2, color)
-        }
+        draw.rect(x1, y1, x2, y2, color)
     }
 }

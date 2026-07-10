@@ -16,7 +16,7 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownExperienceBottle
 import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion
 
-object NoRender : Module("No Render", category = Category.VISUAL) {
+object NoRender : Module("No Render", category = Category.RENDER) {
     val potions by setting("Potions", true)
     val xp by setting("XP", true)
     val arrows by setting("Arrows", true)

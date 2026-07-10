@@ -67,8 +67,8 @@ class ESPRenderer {
         toRender0.clear()
     }
 
-    context(NonNullContext)
-    fun render(clear: Boolean) {
+    context(ctx: NonNullContext)
+    fun render(clear: Boolean): Unit = ctx.run {
         val filled = aFilled != 0
         val outline = aOutline != 0
         val tracer = aTracer != 0

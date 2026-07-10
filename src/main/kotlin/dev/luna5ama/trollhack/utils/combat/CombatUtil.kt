@@ -23,8 +23,8 @@ object CombatUtil {
 
     private val breakTimer = TickTimer()
 
-    context(NonNullContext)
-    fun getEnemies(range: Double): List<Player> {
+    context(ctx: NonNullContext)
+    fun getEnemies(range: Double): List<Player> = ctx.run {
         val list: MutableList<Player> = ArrayList()
         for (player in world.players) {
             if (!isValid(player, range)) continue
@@ -33,8 +33,8 @@ object CombatUtil {
         return list
     }
 
-    context(NonNullContext)
-    fun isValid(entity: Entity, range: Double): Boolean {
+    context(ctx: NonNullContext)
+    fun isValid(entity: Entity, range: Double): Boolean = ctx.run {
         val invalid = !entity.isAlive || entity == player || entity is Player && FriendManager.isFriend(
             entity.getName().string
         ) || player.distanceToSqr(entity) > MathUtils.square(range)
@@ -42,8 +42,8 @@ object CombatUtil {
         return !invalid
     }
 
-    context(NonNullContext)
-    fun getClosestEnemy(distance: Double): Player? {
+    context(ctx: NonNullContext)
+    fun getClosestEnemy(distance: Double): Player? = ctx.run {
         var closest: Player? = null
 
         for (player in getEnemies(distance)) {
@@ -59,24 +59,24 @@ object CombatUtil {
         return closest
     }
 
-    context(NonNullContext)
-    fun attackCrystal(pos: BlockPos, rotate: Boolean, eatingPause: Boolean) {
+    context(ctx: NonNullContext)
+    fun attackCrystal(pos: BlockPos, rotate: Boolean, eatingPause: Boolean): Unit = ctx.run {
         for (entity in world.getEntitiesOfClass(EndCrystal::class.java, AABB(pos))) {
             attackCrystal(entity, rotate, eatingPause)
             break
         }
     }
 
-    context(NonNullContext)
-    fun attackCrystal(box: AABB, rotate: Boolean, eatingPause: Boolean) {
+    context(ctx: NonNullContext)
+    fun attackCrystal(box: AABB, rotate: Boolean, eatingPause: Boolean): Unit = ctx.run {
         for (entity in world.getEntitiesOfClass(EndCrystal::class.java, box)) {
             attackCrystal(entity, rotate, eatingPause)
             break
         }
     }
 
-    context(NonNullContext)
-    fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean) {
+    context(ctx: NonNullContext)
+    fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean): Unit = ctx.run {
         if (!breakTimer.tickAndReset((ClientSettings.attackDelay * 1000).toLong())) return
         if (usingPause && player.isUsingItem) return
         breakTimer.reset()
@@ -95,8 +95,8 @@ object CombatUtil {
         player.swing(InteractionHand.MAIN_HAND)
     }
 
-    context(NonNullContext)
-    fun isHard(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun isHard(pos: BlockPos): Boolean = ctx.run {
         val block: Block = pos.block
         return block === Blocks.OBSIDIAN || block === Blocks.NETHERITE_BLOCK || block === Blocks.ENDER_CHEST || block === Blocks.BEDROCK
     }

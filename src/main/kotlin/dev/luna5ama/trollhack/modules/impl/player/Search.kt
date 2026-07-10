@@ -1,10 +1,7 @@
 package dev.luna5ama.trollhack.modules.impl.player
 
-import dev.fastmc.common.ConcurrentObjectPool
-import dev.fastmc.common.DoubleBuffered
-import dev.fastmc.common.collection.FastObjectArrayList
-import dev.fastmc.common.isCompletedOrNull
-import dev.fastmc.common.sort.ObjectIntrosort
+import dev.luna5ama.trollhack.utils.DoubleBuffered
+import dev.luna5ama.trollhack.utils.collections.FastObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSet
 import kotlinx.coroutines.Job
@@ -13,6 +10,7 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentLinkedQueue
 import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
@@ -44,7 +42,7 @@ import net.minecraft.world.level.chunk.ChunkAccess
 object Search : Module(
     "Search",
     description = "Highlights blocks in the world",
-    category = Category.VISUAL
+    category = Category.RENDER
 ) {
     private val defaultSearchList = linkedSetOf("minecraft:red_bed")
 
@@ -133,7 +131,7 @@ object Search : Module(
 
             val playerPos = player.flooredPosition
 
-            if (lastUpdateJob.isCompletedOrNull &&
+            if ((lastUpdateJob == null || lastUpdateJob?.isCompleted == true) &&
                 (updateTimer.tick(forceUpdateDelay)
                         || updateTimer.tick(updateDelay) && (dirty || playerPos != lastUpdatePos))
             ) {
@@ -319,7 +317,7 @@ object Search : Module(
         if (list.isEmpty) {
             cachedSublistPool.put(list)
         } else {
-            ObjectIntrosort.sort(list.elements(), 0, list.size)
+            list.elements().sort(0, list.size)
             actor.send(list)
         }
     }
@@ -345,6 +343,16 @@ object Search : Module(
 
     private fun newRenderInfoList(): FastObjectArrayList<BlockRenderInfo> {
         return FastObjectArrayList.typed()
+    }
+
+    private class ConcurrentObjectPool<T>(private val supplier: () -> T) {
+        private val values = ConcurrentLinkedQueue<T>()
+
+        fun get(): T = values.poll() ?: supplier()
+
+        fun put(value: T) {
+            values.offer(value)
+        }
     }
 
     init {

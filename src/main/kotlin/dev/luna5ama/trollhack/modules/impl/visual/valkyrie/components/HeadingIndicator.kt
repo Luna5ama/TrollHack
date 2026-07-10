@@ -6,8 +6,8 @@ import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.HudComponent
 import dev.luna5ama.trollhack.utils.NonNullContext
 
 class HeadingIndicator(private val computer: FlightComputer, private val dim: Dimensions) : HudComponent() {
-    context(NonNullContext)
-    override fun render(partial: Float) {
+    context(ctx: NonNullContext)
+    override fun render(partial: Float): Unit = ctx.run {
         val left: Float = dim.lFrame
         val right: Float = dim.rFrame
         val top: Float = dim.tFrame - 10

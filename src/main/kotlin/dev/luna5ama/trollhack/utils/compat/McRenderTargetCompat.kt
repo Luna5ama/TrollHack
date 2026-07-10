@@ -1,15 +1,19 @@
 package dev.luna5ama.trollhack.utils.compat
 
+import com.mojang.blaze3d.opengl.GlDevice
 import com.mojang.blaze3d.opengl.GlTexture
 import com.mojang.blaze3d.pipeline.RenderTarget
+import com.mojang.blaze3d.systems.RenderSystem
 import org.lwjgl.opengl.GL11.glViewport
 import org.lwjgl.opengl.GL30.GL_FRAMEBUFFER
-import org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_BINDING
 import org.lwjgl.opengl.GL30.glBindFramebuffer
-import org.lwjgl.opengl.GL30.glGetInteger
 
 val RenderTarget.frameBufferId: Int
-    get() = glGetInteger(GL_FRAMEBUFFER_BINDING)
+    get() {
+        val device = RenderSystem.getDevice() as? GlDevice ?: return 0
+        val color = getColorTexture() as? GlTexture ?: return 0
+        return color.getFbo(device.directStateAccess(), getDepthTexture())
+    }
 
 val RenderTarget.colorTextureId: Int
     get() = (getColorTexture() as? GlTexture)?.glId() ?: 0

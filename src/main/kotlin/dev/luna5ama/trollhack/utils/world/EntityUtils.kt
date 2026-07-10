@@ -38,8 +38,8 @@ import kotlin.math.sqrt
 
 object EntityUtils {
 
-    context(NonNullContext)
-    fun facePosSide(pos: BlockPos, side: Direction) {
+    context(ctx: NonNullContext)
+    fun facePosSide(pos: BlockPos, side: Direction): Unit = ctx.run {
         val hitVec = pos.center.add(Vec3(side.unitVec3.x * 0.5, side.unitVec3.y * 0.5, side.unitVec3.z * 0.5))
         faceVector(hitVec)
     }
@@ -71,14 +71,14 @@ object EntityUtils {
         return false
     }
 
-    context(NonNullContext)
+    context(ctx: NonNullContext)
     fun Player.isInsideBlock(): Boolean {
-        if (world.getBlockState(position().toBlockPos()).block == Blocks.ENDER_CHEST) return true
-        return world.collidesWithSuffocatingBlock(this, this.boundingBox)
+        if (ctx.world.getBlockState(position().toBlockPos()).block == Blocks.ENDER_CHEST) return true
+        return ctx.world.collidesWithSuffocatingBlock(this, this.boundingBox)
     }
 
-    context(NonNullContext)
-    fun hasEntity(pos: AABB, breakCrystal: Boolean = true): Boolean {
+    context(ctx: NonNullContext)
+    fun hasEntity(pos: AABB, breakCrystal: Boolean = true): Boolean = ctx.run {
         for (entity in world.getEntitiesOfClass(Entity::class.java, pos)) {
             if (entity == player) continue
             if (!entity.isAlive || entity is ItemEntity || entity is ExperienceOrb
@@ -90,8 +90,8 @@ object EntityUtils {
         return false
     }
 
-    context(NonNullContext)
-    fun hasEntity(pos: BlockPos, ignoreCrystal: Boolean): Boolean {
+    context(ctx: NonNullContext)
+    fun hasEntity(pos: BlockPos, ignoreCrystal: Boolean): Boolean = ctx.run {
         for (entity in world.getEntitiesOfClass(Entity::class.java, AABB(pos))) {
             if (!entity.isAlive || entity is ItemEntity || entity is ExperienceOrb || entity is ThrownExperienceBottle || entity is Arrow || ignoreCrystal && entity is EndCrystal) continue
             return true
@@ -107,16 +107,16 @@ object EntityUtils {
         )
     }
 
-    context(NonNullContext)
+    context(ctx: NonNullContext)
     inline fun Player.spoofSneak(block: () -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
 
         if (!this.isShiftKeyDown) {
-            netHandler.send(ServerboundPlayerInputPacket(Input(false, false, false, false, false, true, player.isSprinting)))
+            ctx.netHandler.send(ServerboundPlayerInputPacket(Input(false, false, false, false, false, true, ctx.player.isSprinting)))
             block.invoke()
-            netHandler.send(ServerboundPlayerInputPacket(Input.EMPTY))
+            ctx.netHandler.send(ServerboundPlayerInputPacket(Input.EMPTY))
 
         } else {
             block.invoke()
@@ -129,20 +129,20 @@ object EntityUtils {
         )
     }
 
-    context(NonNullContext)
-    fun sendLook(lookAndOnGround: ServerboundMovePlayerPacket.Rot) {
+    context(ctx: NonNullContext)
+    fun sendLook(lookAndOnGround: ServerboundMovePlayerPacket.Rot): Unit = ctx.run {
         netHandler.send(lookAndOnGround)
     }
 
-    context(NonNullContext)
-    fun faceVector(directionVec: Vec3) {
+    context(ctx: NonNullContext)
+    fun faceVector(directionVec: Vec3): Unit = ctx.run {
 
         val angle: FloatArray = getLegitRotations(directionVec)
         sendLook(ServerboundMovePlayerPacket.Rot(angle[0], angle[1], player.onGround(), player.horizontalCollision))
     }
 
-    context (NonNullContext)
-    fun canSee(pos: BlockPos, side: Direction): Boolean {
+    context(ctx: NonNullContext)
+    fun canSee(pos: BlockPos, side: Direction): Boolean = ctx.run {
         val testVec = pos.center.add(side.unitVec3.x * 0.5, side.unitVec3.y * 0.5, side.unitVec3.z * 0.5)
         val result = world.clip(
             ClipContext(
@@ -157,13 +157,13 @@ object EntityUtils {
         return result.type == HitResult.Type.MISS
     }
 
-    context (NonNullContext)
-    fun getEyesPos(): Vec3 {
+    context(ctx: NonNullContext)
+    fun getEyesPos(): Vec3 = ctx.run {
         return player.eyePosition
     }
 
-    context (NonNullContext)
-    fun getLegitRotations(vec: Vec3): FloatArray {
+    context(ctx: NonNullContext)
+    fun getLegitRotations(vec: Vec3): FloatArray = ctx.run {
         val eyesPos: Vec3 = getEyesPos()
         val diffX = vec.x - eyesPos.x
         val diffY = vec.y - eyesPos.y
@@ -226,8 +226,8 @@ object EntityUtils {
         return CLionPos(entity.position())
     }
 
-    context(NonNullContext)
-    fun getPlayerCLionPos(fix: Boolean): BlockPos {
+    context(ctx: NonNullContext)
+    fun getPlayerCLionPos(fix: Boolean): BlockPos = ctx.run {
         return CLionPos(player.position(), fix)
     }
 
@@ -235,8 +235,8 @@ object EntityUtils {
         return CLionPos(entity.position(), fix)
     }
 
-    context(NonNullContext)
-    fun isInsideBlock(): Boolean {
+    context(ctx: NonNullContext)
+    fun isInsideBlock(): Boolean = ctx.run {
         if (BlockUtils.getBlock(getPlayerCLionPos(true)) === Blocks.ENDER_CHEST) return true
         return world.collidesWithSuffocatingBlock(player, player.boundingBox)
     }

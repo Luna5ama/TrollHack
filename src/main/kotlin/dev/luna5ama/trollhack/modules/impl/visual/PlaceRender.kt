@@ -14,7 +14,7 @@ import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.timing.TimeUnit
 import net.minecraft.core.BlockPos
 
-object PlaceRender : Module("Place Render", category = Category.VISUAL) {
+object PlaceRender : Module("Place Render", category = Category.RENDER) {
     private val delay by setting("Show Time S", 1.0f, 0.1f..2.0f, 0.1f)
     private val color by setting("Color", ColorRGBA.WHITE.alpha(128))
     private val lineColor by setting("Line Color", ColorRGBA.WHITE)

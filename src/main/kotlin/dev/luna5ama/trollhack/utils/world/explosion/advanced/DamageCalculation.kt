@@ -138,7 +138,7 @@ class DamageCalculation(
             damage
         }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun calcRawDamage(
         crystalX: Double,
         crystalY: Double,
@@ -147,7 +147,7 @@ class DamageCalculation(
         predict: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos,
         function: FastRayTraceFunction
-    ): Float {
+    ): Float = ctx.run {
         val entityPos = if (predict) predictPos else currentPos
         val doubleSize = size * 2.0f
         val scaledDist = entityPos.distanceTo(crystalX, crystalY, crystalZ).toFloat() / doubleSize
@@ -158,7 +158,7 @@ class DamageCalculation(
         return floor((factor * factor + factor) * doubleSize * 3.5f + 1.0f)
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun getExposureAmount(
         crystalX: Double,
         crystalY: Double,
@@ -166,7 +166,7 @@ class DamageCalculation(
         predict: Boolean,
         mutableBlockPos: BlockPos.MutableBlockPos,
         function: FastRayTraceFunction
-    ): Float {
+    ): Float = ctx.run {
         val box = if (predict) predictBox else currentBox
         if (!clipped && box.isInside(crystalX, crystalY, crystalZ)) return 1.0f
 
@@ -178,7 +178,7 @@ class DamageCalculation(
         }
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun countSamplePoints(
         samplePoints: Array<Vec3>,
         crystalX: Double,
@@ -186,7 +186,7 @@ class DamageCalculation(
         crystalZ: Double,
         blockPos: BlockPos.MutableBlockPos,
         function: FastRayTraceFunction
-    ): Float {
+    ): Float = ctx.run {
         var count = 0
 
         for (i in samplePoints.indices) {
@@ -199,7 +199,7 @@ class DamageCalculation(
         return count.toFloat() / samplePoints.size
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun countSamplePointsOptimized(
         samplePoints: Array<Vec3>,
         box: AABB,
@@ -208,7 +208,7 @@ class DamageCalculation(
         crystalZ: Double,
         mutableBlockPos: BlockPos.MutableBlockPos,
         function: FastRayTraceFunction
-    ): Float {
+    ): Float = ctx.run {
         var count = 0
         var total = 0
 
