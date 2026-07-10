@@ -13,6 +13,7 @@ import dev.luna5ama.trollhack.event.impl.render.Render2DEvent
 import dev.luna5ama.trollhack.graphics.animations.AnimationFlag
 import dev.luna5ama.trollhack.graphics.animations.Easing
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
+import dev.luna5ama.trollhack.graphics.color.ColorUtils
 import dev.luna5ama.trollhack.graphics.font.FontRenderer
 import dev.luna5ama.trollhack.gui.NullClickGui
 import dev.luna5ama.trollhack.manager.managers.ModuleManager
@@ -347,8 +348,12 @@ object LegacyClickGui : AlwaysListening {
                     width = max(WINDOW_WIDTH, mx - x)
                     height = max(80f, my - y)
                 }
-                else -> children.firstOrNull { it.contains(mx, my) }?.mouseMoved(mx, my)
+                else -> mouseMoved(mx, my)
             }
+        }
+
+        open fun mouseMoved(mx: Float, my: Float) {
+            children.firstOrNull { it.contains(mx, my) }?.mouseMoved(mx, my)
         }
 
         fun stopDrag() {
@@ -651,7 +656,7 @@ object LegacyClickGui : AlwaysListening {
     private class ColorComponent(owner: LegacyWindow, private val setting: ColorSetting) :
         LegacyComponent(owner, setting.localizedName.toString(), setting.description) {
         override fun isVisible() = setting.isVisible
-        override fun valueText() = "${setting.value.r},${setting.value.g},${setting.value.b},${setting.value.a}"
+        override fun valueText() = "#%02X%02X%02X".format(setting.value.r, setting.value.g, setting.value.b)
         override fun drawContent(context: GuiGraphics, hover: Float) {
             super.drawContent(context, hover)
             fill(context, x + width - 35f, y + 2f, 10f, height - 4f, argb(setting.value))
@@ -663,51 +668,292 @@ object LegacyClickGui : AlwaysListening {
     }
 
     private class ColorWindow(owner: LegacyWindow, private val setting: ColorSetting, x: Float, y: Float) :
-        LegacyWindow(setting.localizedName.toString(), x, y, 120f, 80f) {
-        init {
-            children.add(ColorChannelComponent(this, "Red", setting, 0))
-            children.add(ColorChannelComponent(this, "Green", setting, 1))
-            children.add(ColorChannelComponent(this, "Blue", setting, 2))
-            children.add(ColorChannelComponent(this, "Alpha", setting, 3))
-        }
-    }
+        LegacyWindow("Color Picker", x, y, 288f, 152f) {
+        private val parent = owner
+        private val originalColor = setting.value
+        private var red = originalColor.r
+        private var green = originalColor.g
+        private var blue = originalColor.b
+        private var alpha = originalColor.a
+        private var hue = 0f
+        private var saturation = 1f
+        private var brightness = 1f
+        private var dragging: DragTarget? = null
 
-    private class ColorChannelComponent(
-        owner: LegacyWindow,
-        label: String,
-        private val setting: ColorSetting,
-        private val channel: Int
-    ) : LegacyComponent(owner, label) {
-        private var sliding = false
-        override val progress: Float get() = value() / 255f
-        override fun valueText() = value().toString()
+        init {
+            updateHSBFromRGB()
+        }
+
+        override fun onDisplayed() {
+            super.onDisplayed()
+            val maxX = max(0f, NullClickGui.width - width)
+            val maxY = max(0f, NullClickGui.height - height)
+            super.x = super.x.coerceIn(0f, maxX)
+            super.y = super.y.coerceIn(0f, maxY)
+        }
+
+        override fun renderChildren(context: GuiGraphics, rx: Float, baseY: Float, rw: Float) {
+            val fieldX = rx + 4f
+            val fieldY = baseY + 4f
+            val fieldSize = 128f
+            val hueX = fieldX + fieldSize + 6f
+            val hueW = 8f
+            val controlX = hueX + hueW + 10f
+            val controlW = 128f
+
+            drawColorField(context, fieldX, fieldY, fieldSize)
+            drawHueSlider(context, hueX, fieldY, hueW, fieldSize)
+
+            var y = fieldY
+            drawSlider(context, "Red", red, controlX, y, controlW, Channel.RED)
+            y += 15f
+            drawSlider(context, "Green", green, controlX, y, controlW, Channel.GREEN)
+            y += 15f
+            drawSlider(context, "Blue", blue, controlX, y, controlW, Channel.BLUE)
+            y += 15f
+            drawSlider(context, "Alpha", alpha, controlX, y, controlW, Channel.ALPHA)
+
+            val previewY = fieldY + 64f
+            drawPreview(context, controlX, previewY, controlW)
+
+            val buttonY = fieldY + 106f
+            drawButton(context, "Okay", controlX, buttonY, 40f, 14f)
+            drawButton(context, "Cancel", controlX + 44f, buttonY, 40f, 14f)
+            drawButton(context, "Apply", controlX + 88f, buttonY, 40f, 14f)
+        }
+
         override fun mouseClicked(mx: Float, my: Float, button: Int) {
-            super.mouseClicked(mx, my, button)
-            sliding = true
-            update(mx)
-        }
-        override fun mouseMoved(mx: Float, my: Float) {
-            if (sliding) update(mx)
-        }
-        override fun mouseReleased(mx: Float, my: Float, button: Int) {
-            super.mouseReleased(mx, my, button)
-            sliding = false
-        }
-        private fun value() = when (channel) {
-            0 -> setting.value.r
-            1 -> setting.value.g
-            2 -> setting.value.b
-            else -> setting.value.a
-        }
-        private fun update(mx: Float) {
-            val value = (((mx - x) / width).coerceIn(0f, 1f) * 255f).roundToInt()
-            val color = setting.value
-            setting.value = when (channel) {
-                0 -> color.red(value)
-                1 -> color.green(value)
-                2 -> color.blue(value)
-                else -> color.alpha(value)
+            if (my <= super.y + TITLE_HEIGHT) {
+                super.mouseClicked(mx, my, button)
+                return
             }
+            if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT) return
+
+            val layout = layout()
+            dragging = when {
+                inRect(mx, my, layout.fieldX, layout.fieldY, layout.fieldSize, layout.fieldSize) -> DragTarget.FIELD
+                inRect(mx, my, layout.hueX, layout.fieldY, layout.hueW, layout.fieldSize) -> DragTarget.HUE
+                inRect(mx, my, layout.controlX, layout.redY, layout.controlW, 13f) -> DragTarget.RED
+                inRect(mx, my, layout.controlX, layout.greenY, layout.controlW, 13f) -> DragTarget.GREEN
+                inRect(mx, my, layout.controlX, layout.blueY, layout.controlW, 13f) -> DragTarget.BLUE
+                inRect(mx, my, layout.controlX, layout.alphaY, layout.controlW, 13f) -> DragTarget.ALPHA
+                inRect(mx, my, layout.controlX, layout.buttonY, 40f, 14f) -> {
+                    applyColor()
+                    closeWindow(this)
+                    activeWindow = parent
+                    null
+                }
+                inRect(mx, my, layout.controlX + 44f, layout.buttonY, 40f, 14f) -> {
+                    closeWindow(this)
+                    activeWindow = parent
+                    null
+                }
+                inRect(mx, my, layout.controlX + 88f, layout.buttonY, 40f, 14f) -> {
+                    applyColor()
+                    null
+                }
+                else -> null
+            }
+            dragging?.let { updateDrag(it, mx, my, layout) }
+        }
+
+        override fun mouseMoved(mx: Float, my: Float) {
+            val target = dragging ?: return
+            updateDrag(target, mx, my, layout())
+        }
+
+        override fun mouseReleased(mx: Float, my: Float, button: Int) {
+            dragging = null
+            super.mouseReleased(mx, my, button)
+        }
+
+        override fun onClosed() {
+            dragging = null
+            super.onClosed()
+        }
+
+        private fun drawColorField(context: GuiGraphics, x: Float, y: Float, size: Float) {
+            val steps = size.roundToInt().coerceAtLeast(1)
+            for (i in 0 until steps) {
+                val sat = i / (steps - 1f).coerceAtLeast(1f)
+                val color = ColorUtils.hsbToRGB(hue, sat, 1f, 1f)
+                fill(context, x + i, y, 1f, size, argb(255, color.r, color.g, color.b))
+            }
+            for (i in 0 until steps) {
+                val darkness = (i / (steps - 1f).coerceAtLeast(1f) * 255f).roundToInt()
+                fill(context, x, y + i, size, 1f, argb(darkness, 0, 0, 0))
+            }
+            stroke(context, x, y, size, size, argb(210, 235, 245, 255))
+
+            val pointerX = x + saturation * size
+            val pointerY = y + (1f - brightness) * size
+            stroke(context, pointerX - 3f, pointerY - 3f, 6f, 6f, argb(255, 20, 20, 20))
+            stroke(context, pointerX - 2f, pointerY - 2f, 4f, 4f, argb(255, 245, 245, 245))
+        }
+
+        private fun drawHueSlider(context: GuiGraphics, x: Float, y: Float, w: Float, h: Float) {
+            val steps = h.roundToInt().coerceAtLeast(1)
+            for (i in 0 until steps) {
+                val color = ColorUtils.hsbToRGB(i / (steps - 1f).coerceAtLeast(1f), 1f, 1f, 1f)
+                fill(context, x, y + i, w, 1f, argb(255, color.r, color.g, color.b))
+            }
+            stroke(context, x, y, w, h, argb(210, 235, 245, 255))
+            val pointerY = y + hue * h
+            fill(context, x - 4f, pointerY - 1f, 3f, 2f, argb(255, 245, 250, 255))
+            fill(context, x + w + 1f, pointerY - 1f, 3f, 2f, argb(255, 245, 250, 255))
+        }
+
+        private fun drawSlider(context: GuiGraphics, label: String, value: Int, x: Float, y: Float, w: Float, channel: Channel) {
+            val ratio = value / 255f
+            fill(context, x, y, w, 13f, argb(55, 255, 255, 255))
+            fill(context, x, y, w * ratio, 13f, sliderColor(channel))
+            stroke(context, x, y, w, 13f, argb(110, 235, 245, 255))
+            text(context, label, x + 3f, y + 2f, argb(255, 230, 235, 242))
+            val valueText = value.toString()
+            text(context, valueText, x + w - fontWidth(valueText) - 3f, y + 2f, argb(255, 235, 245, 255))
+        }
+
+        private fun drawPreview(context: GuiGraphics, x: Float, y: Float, w: Float) {
+            text(context, "Previous", x, y, argb(255, 210, 225, 235))
+            text(context, "Current", x + 66f, y, argb(255, 210, 225, 235))
+            drawChecker(context, x, y + 12f, 58f, 26f)
+            drawChecker(context, x + 66f, y + 12f, 58f, 26f)
+            fill(context, x, y + 12f, 58f, 26f, argb(originalColor))
+            fill(context, x + 66f, y + 12f, 58f, 26f, argb(currentColor()))
+            stroke(context, x, y + 12f, 58f, 26f, argb(150, 235, 245, 255))
+            stroke(context, x + 66f, y + 12f, 58f, 26f, argb(150, 235, 245, 255))
+        }
+
+        private fun drawButton(context: GuiGraphics, label: String, x: Float, y: Float, w: Float, h: Float) {
+            val hovered = inRect(mouseX, mouseY, x, y, w, h)
+            fill(context, x, y, w, h, if (hovered) argb(170, 55, 155, 210) else argb(100, 35, 95, 140))
+            stroke(context, x, y, w, h, argb(170, 120, 210, 255))
+            text(context, label, x + (w - fontWidth(label)) / 2f, y + 3f, argb(255, 245, 250, 255))
+        }
+
+        private fun drawChecker(context: GuiGraphics, x: Float, y: Float, w: Float, h: Float) {
+            val size = 4f
+            var iy = 0
+            while (iy * size < h) {
+                var ix = 0
+                while (ix * size < w) {
+                    val color = if ((ix + iy) % 2 == 0) argb(255, 70, 74, 82) else argb(255, 42, 46, 54)
+                    fill(context, x + ix * size, y + iy * size, min(size, w - ix * size), min(size, h - iy * size), color)
+                    ix++
+                }
+                iy++
+            }
+        }
+
+        private fun sliderColor(channel: Channel): Int {
+            return when (channel) {
+                Channel.RED -> argb(180, 255, 70, 80)
+                Channel.GREEN -> argb(180, 85, 220, 120)
+                Channel.BLUE -> argb(180, 80, 150, 255)
+                Channel.ALPHA -> argb(max(80, alpha), red, green, blue)
+            }
+        }
+
+        private fun updateDrag(target: DragTarget, mx: Float, my: Float, layout: PickerLayout) {
+            when (target) {
+                DragTarget.FIELD -> {
+                    saturation = ((mx - layout.fieldX) / layout.fieldSize).coerceIn(0f, 1f)
+                    brightness = (1f - (my - layout.fieldY) / layout.fieldSize).coerceIn(0f, 1f)
+                    updateRGBFromHSB()
+                }
+                DragTarget.HUE -> {
+                    hue = ((my - layout.fieldY) / layout.fieldSize).coerceIn(0f, 1f)
+                    updateRGBFromHSB()
+                }
+                DragTarget.RED -> {
+                    red = sliderValue(mx, layout)
+                    updateHSBFromRGB()
+                }
+                DragTarget.GREEN -> {
+                    green = sliderValue(mx, layout)
+                    updateHSBFromRGB()
+                }
+                DragTarget.BLUE -> {
+                    blue = sliderValue(mx, layout)
+                    updateHSBFromRGB()
+                }
+                DragTarget.ALPHA -> alpha = sliderValue(mx, layout)
+            }
+        }
+
+        private fun sliderValue(mx: Float, layout: PickerLayout): Int {
+            return (((mx - layout.controlX) / layout.controlW).coerceIn(0f, 1f) * 255f).roundToInt()
+        }
+
+        private fun applyColor() {
+            setting.value = currentColor()
+        }
+
+        private fun currentColor() = ColorRGBA(red, green, blue, alpha)
+
+        private fun updateRGBFromHSB() {
+            val color = ColorUtils.hsbToRGB(hue, saturation, brightness, alpha / 255f)
+            red = color.r
+            green = color.g
+            blue = color.b
+        }
+
+        private fun updateHSBFromRGB() {
+            val hsb = ColorUtils.rgbToHSB(red, green, blue, alpha)
+            hue = hsb.h
+            saturation = hsb.s
+            brightness = hsb.b
+        }
+
+        private fun layout(): PickerLayout {
+            val fieldX = super.x + 4f
+            val fieldY = super.y + TITLE_HEIGHT + 4f
+            val fieldSize = 128f
+            val hueX = fieldX + fieldSize + 6f
+            val hueW = 8f
+            val controlX = hueX + hueW + 10f
+            val controlW = 128f
+            return PickerLayout(
+                fieldX,
+                fieldY,
+                fieldSize,
+                hueX,
+                hueW,
+                controlX,
+                controlW,
+                fieldY,
+                fieldY + 15f,
+                fieldY + 30f,
+                fieldY + 45f,
+                fieldY + 106f
+            )
+        }
+
+        private enum class DragTarget {
+            FIELD, HUE, RED, GREEN, BLUE, ALPHA
+        }
+
+        private enum class Channel {
+            RED, GREEN, BLUE, ALPHA
+        }
+
+        private data class PickerLayout(
+            val fieldX: Float,
+            val fieldY: Float,
+            val fieldSize: Float,
+            val hueX: Float,
+            val hueW: Float,
+            val controlX: Float,
+            val controlW: Float,
+            val redY: Float,
+            val greenY: Float,
+            val blueY: Float,
+            val alphaY: Float,
+            val buttonY: Float
+        )
+
+        private fun inRect(mx: Float, my: Float, x: Float, y: Float, w: Float, h: Float): Boolean {
+            return mx in x..(x + w) && my in y..(y + h)
         }
     }
 
