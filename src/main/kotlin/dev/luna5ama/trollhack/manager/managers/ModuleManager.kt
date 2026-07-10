@@ -69,7 +69,6 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         HurtTimeDebug,
         PacketDebug,
         Presets,
-        RefreshFontCache,
         Watermark,
 
         ZealotCrystal,

@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.event.impl.LoopEvent
 import dev.luna5ama.trollhack.event.impl.PacketEvent
 import dev.luna5ama.trollhack.event.impl.TickEvent
 import dev.luna5ama.trollhack.event.impl.player.OnUpdateWalkingPlayerEvent
-import dev.luna5ama.trollhack.event.impl.render.Render2DEvent
+import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.manager.managers.*
@@ -407,10 +407,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             Renderer.onRender3D()
         }
 
-        nonNullHandler<Render2DEvent> {
-            with(it.context) {
-                Renderer.onRender2D()
-            }
+        nonNullHandler<Skia2DEvent> {
+            Renderer.onRender2D(it.draw)
         }
     }
 
@@ -1838,7 +1836,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
 
         context(ctx: NonNullContext)
-        fun onRender2D(): Unit = ctx.run {
+        fun onRender2D(draw: dev.luna5ama.trollhack.graphics.skia.SkiaDrawScope): Unit = ctx.run {
             if (scale != 0.0f && (targetDamage || selfDamage)) {
                 lastRenderPos?.let {
                     val text = buildString {
@@ -1857,12 +1855,12 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                         val alpha = (255.0f * scale).toInt()
                         val color = if (scale == 1.0f) ColorRGBA(255, 255, 255) else ColorRGBA(255, 255, 255, alpha)
 
-                        UnicodeFontManager.CURRENT_FONT.drawString(
+                        draw.centeredText(
                             text,
-                            screenPos.x.toFloat() - UnicodeFontManager.CURRENT_FONT.getWidth(text, 2.0f) * 0.5f,
-                            screenPos.y.toFloat() - UnicodeFontManager.CURRENT_FONT.getHeight(2.0f) * 0.5f,
-                            color.awt,
-                            2.0f
+                            screenPos.x.toFloat(),
+                            screenPos.y.toFloat() - 9f,
+                            size = 18f,
+                            color = color
                         )
                     }
                 }

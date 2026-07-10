@@ -2,16 +2,16 @@ package dev.luna5ama.trollhack.modules.impl.visual
 
 import dev.luna5ama.trollhack.RenderSystem
 import dev.luna5ama.trollhack.event.api.nonNullHandler
-import dev.luna5ama.trollhack.event.impl.render.CoreRender2DEvent
+import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.FriendManager
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.Displayable
 import dev.luna5ama.trollhack.utils.NonNullContext
-import dev.luna5ama.trollhack.graphics.buffer.Render2DUtils
 import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
+import dev.luna5ama.trollhack.graphics.skia.SkiaDrawScope
 import dev.luna5ama.trollhack.utils.math.RotationUtils
 import dev.luna5ama.trollhack.utils.math.vectors.HAlign.*
 import dev.luna5ama.trollhack.utils.math.vectors.VAlign
@@ -38,13 +38,13 @@ object Tracers : Module("Tracers", category = Category.VISUAL) {
     private val friendColor by setting("Friend Color", ColorRGBA.BLUE)
 
     init {
-        nonNullHandler<CoreRender2DEvent> {
+        nonNullHandler<Skia2DEvent> { event ->
             EntityManager.entity.forEach { entity ->
-                val interpolatedPos = EntityUtils.getInterpolatedPos(entity, it.ticksDelta)
+                val interpolatedPos = EntityUtils.getInterpolatedPos(entity, event.ticksDelta)
                 when {
                     entity is Player && players -> {
                         if (entity != player) {
-                            drawLineTo(
+                            drawLineTo(event.draw,
                                 interpolatedPos,
                                 if (FriendManager.isFriend(player.displayName?.string ?: player.name.string))
                                     friendColor else color
@@ -52,11 +52,11 @@ object Tracers : Module("Tracers", category = Category.VISUAL) {
                         }
                     }
                     entity is ItemEntity && items -> {
-                        drawLineTo(interpolatedPos, color)
+                        drawLineTo(event.draw, interpolatedPos, color)
                     }
                     entity is LivingEntity -> {
                         if (EntityUtils.mobTypeSettings(entity, mobs, passive, neutral, hostile)) {
-                            drawLineTo(interpolatedPos, color)
+                            drawLineTo(event.draw, interpolatedPos, color)
                         }
                     }
                 }
@@ -65,7 +65,7 @@ object Tracers : Module("Tracers", category = Category.VISUAL) {
     }
 
     context(ctx: NonNullContext)
-    private fun drawLineTo(pos: Vec3, color: ColorRGBA): Unit = ctx.run {
+    private fun drawLineTo(draw: SkiaDrawScope, pos: Vec3, color: ColorRGBA): Unit = ctx.run {
         val camera = mc.entityRenderDispatcher.camera ?: return
         val cameraPos = camera.position()
         val x = when (hAlign) {
@@ -82,7 +82,10 @@ object Tracers : Module("Tracers", category = Category.VISUAL) {
                 Vec2f(camera.yRot(), camera.xRot()),
                 RotationUtils.getRotationTo(cameraPos, pos)) < mc.options.fov().get()) {
             val screenPos = Render3DUtils.worldToScreen(pos)
-            Render2DUtils.drawLine(screenPos.x, screenPos.y, x, y, thickness, color)
+            draw.line(
+                screenPos.x.toFloat(), screenPos.y.toFloat(),
+                x.toFloat(), y.toFloat(), thickness, color
+            )
         }
     }
 

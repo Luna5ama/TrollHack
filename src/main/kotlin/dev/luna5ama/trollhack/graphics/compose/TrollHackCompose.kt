@@ -27,7 +27,10 @@ import dev.luna5ama.trollhack.config.settings.*
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge
 import dev.luna5ama.trollhack.gui.HudModule
-import dev.luna5ama.trollhack.gui.hud.impl.HudFPS
+import dev.luna5ama.trollhack.gui.hud.PlainTextHud
+import dev.luna5ama.trollhack.gui.hud.impl.ActiveModules
+import dev.luna5ama.trollhack.gui.hud.impl.HudArrayList
+import dev.luna5ama.trollhack.gui.hud.impl.Notification
 import dev.luna5ama.trollhack.manager.managers.ModuleManager
 import dev.luna5ama.trollhack.modules.AbstractModule
 import dev.luna5ama.trollhack.modules.Category
@@ -411,7 +414,7 @@ private fun BoxScope.DraggableHudModule(module: HudModule) {
                 }
             }.padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
-        Text(hudText(module), fontSize = 12.sp)
+        HudModuleContent(module, editor = true)
     }
 }
 
@@ -428,15 +431,33 @@ private fun HudOverlay() {
                     }
                         .background(Color(0x8F101418)).padding(horizontal = 5.dp, vertical = 3.dp)
                 ) {
-                    Text(hudText(module), color = Color.White, fontSize = 11.sp)
+                    HudModuleContent(module, editor = false)
                 }
             }
     }
 }
 
-private fun hudText(module: HudModule): String = when (module) {
-    HudFPS -> "FPS: ${mc.fps}"
-    else -> module.nameAsString
+@Composable
+private fun HudModuleContent(module: HudModule, editor: Boolean) {
+    val lines = when (module) {
+        is PlainTextHud -> module.lines()
+        ActiveModules -> ActiveModules.lines()
+        HudArrayList -> HudArrayList.lines()
+        Notification -> Notification.messages(showExample = editor)
+        else -> listOf(module.nameAsString)
+    }.ifEmpty { if (editor) listOf(module.nameAsString) else emptyList() }
+
+    val alignRight = when (module) {
+        ActiveModules -> ActiveModules.alignRight()
+        HudArrayList -> HudArrayList.alignRight()
+        Notification -> Notification.alignRight()
+        else -> false
+    }
+    Column(horizontalAlignment = if (alignRight) Alignment.End else Alignment.Start) {
+        lines.forEach { line ->
+            Text(line, color = Color.White, fontSize = 11.sp, maxLines = 1)
+        }
+    }
 }
 
 private fun settingRatio(setting: AbstractRangedSetting<*, *>): Float = when (val value = setting.value) {

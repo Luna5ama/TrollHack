@@ -1,16 +1,11 @@
 package dev.luna5ama.trollhack.modules.impl.visual.valkyrie.components
 
-import dev.luna5ama.trollhack.RS
-import dev.luna5ama.trollhack.graphics.matrix.rotatef
-import dev.luna5ama.trollhack.graphics.matrix.scope
-import dev.luna5ama.trollhack.graphics.matrix.translatef
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.Dimensions
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.FlightComputer
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.HudComponent
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.Valkyrie
 import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.math.fastFloorToFloat
-import dev.luna5ama.trollhack.utils.math.vectors.Vec3f
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -30,10 +25,8 @@ class PitchIndicator(private val computer: FlightComputer, private val dim: Dime
 
         val roll = computer.roll * (if (Valkyrie.reverseRoll) -1 else 1)
 
-        RS.matrixLayer.scope {
-            translatef(b, a, 0f)
-            rotatef(roll, Vec3f(0f, 0f ,1f))
-            translatef(-b, -a, 0f)
+        draw.saved {
+            rotate(roll, b, a)
 
             drawLadder(yHorizon)
 

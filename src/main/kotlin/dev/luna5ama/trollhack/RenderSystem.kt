@@ -7,17 +7,12 @@ import dev.luna5ama.trollhack.event.api.AlwaysListening
 import dev.luna5ama.trollhack.event.api.handler
 import dev.luna5ama.trollhack.event.impl.LoopEvent
 import dev.luna5ama.trollhack.event.impl.render.*
-import dev.luna5ama.trollhack.manager.managers.TextureManager
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.Helper
 import dev.luna5ama.trollhack.utils.compat.bindWrite
-import dev.luna5ama.trollhack.utils.compat.frameBufferId
 import dev.luna5ama.trollhack.graphics.*
 import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PMVBObjects
-import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PersistentMappedVBO
-import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.graphics.matrix.*
-import dev.luna5ama.trollhack.graphics.texture.ResizableFramebuffer
 import org.joml.Matrix4f
 import org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor
 import org.lwjgl.glfw.GLFW.glfwGetVideoModes
@@ -44,22 +39,17 @@ object RenderSystem : AlwaysListening, Helper {
 
     val render3DTasks = LinkedBlockingQueue<(Float) -> Unit>()
 
-    val useFramebuffer get() = false
-
-    lateinit var framebuffer: ResizableFramebuffer
-    lateinit var defaultRenderLayer: ResizableFramebuffer.ResizableColorLayer
-
     val guiProjection = OrthoProjection()
     private val currentGuiProjection: OrthoProjection
         get() = guiProjection.update(width, height, ClientSettings.guiScale)
     val renderScaleF get() = currentGuiProjection.scale
     val renderScale get() = renderScaleF.toDouble()
-    val width get() = if (useFramebuffer) framebuffer.width else mc.window.width
-    val height get() = if (useFramebuffer) framebuffer.height else mc.window.height
-    val widthF get() = if (useFramebuffer) framebuffer.width.toFloat() else mc.window.width.toFloat()
-    val heightF get() = if (useFramebuffer) framebuffer.height.toFloat() else mc.window.height.toFloat()
-    val widthD get() = if (useFramebuffer) framebuffer.width.toDouble() else mc.window.width.toDouble()
-    val heightD get() = if (useFramebuffer) framebuffer.height.toDouble() else mc.window.height.toDouble()
+    val width get() = mc.window.width
+    val height get() = mc.window.height
+    val widthF get() = mc.window.width.toFloat()
+    val heightF get() = mc.window.height.toFloat()
+    val widthD get() = mc.window.width.toDouble()
+    val heightD get() = mc.window.height.toDouble()
     val scaledWidth get() = currentGuiProjection.width.toDouble()
     val scaledHeight get() = currentGuiProjection.height.toDouble()
     val scaledWidthF get() = currentGuiProjection.width
@@ -69,18 +59,9 @@ object RenderSystem : AlwaysListening, Helper {
     val mouseY get() = mc.mouseHandler.ypos() / renderScale
     val mouseYF get() = mouseY.toFloat()
 
-    val particleSystem by lazy {
-        ParticleSystem(
-            speed = 0.1f,
-            initialColor = ColorRGBA(164, 255, 255).alpha(128)
-        )
-    }
-
     val modelView: Matrix4f = Matrix4f()
     val projection: Matrix4f = Matrix4f()
     val matrixLayer = MatrixLayerStack()
-
-    var msaaLevel = ClientSettings.msaaSamples
 
     fun coerceLineWidth(width: Float): Float {
         return width.coerceIn(Float.MIN_VALUE, if (forwardCompatibility) 1.0f else width)
@@ -100,15 +81,7 @@ object RenderSystem : AlwaysListening, Helper {
         handler<LoopEvent.Render> {
             initDebugCallbacks()
             PMVBObjects.onSync()
-            PersistentMappedVBO.onSync()
-            msaaLevel = ClientSettings.msaaSamples
-            framebuffer.msaaLevel = msaaLevel
             mc.mainRenderTarget.bindWrite(false)
-        }
-
-        handler<ResolutionUpdateEvent> { event ->
-            if (!::framebuffer.isInitialized) return@handler
-            framebuffer.resize(event.framebufferWidth, event.framebufferHeight)
         }
     }
 
@@ -120,11 +93,7 @@ object RenderSystem : AlwaysListening, Helper {
         }
         forwardCompatibility =
             (glGetInteger(GL_CONTEXT_FLAGS) and GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) == GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT
-        framebuffer = ResizableFramebuffer(mc.window.width, mc.window.width, true, msaaLevel)
-        defaultRenderLayer = framebuffer.generateColorLayer()
         mc.mainRenderTarget.bindWrite(false)
-
-        TextureManager.resume()
 
         val monitor = glfwGetPrimaryMonitor()
         val mode = glfwGetVideoModes(monitor)!!.last()
@@ -141,21 +110,8 @@ object RenderSystem : AlwaysListening, Helper {
         GLHelper.unbindProgram()
         GLHelper.bindFBO = -1
         GLHelper.bindVAO = -1
-        if (useFramebuffer) {
-            framebuffer.bindFramebuffer()
-            glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
-            OpenGLWrapper.glBlitNamedFramebuffer(
-                mc.mainRenderTarget.frameBufferId, framebuffer.fbo,
-                0, 0, framebuffer.width, framebuffer.height,
-                0, 0, framebuffer.width, framebuffer.height,
-                GL_COLOR_BUFFER_BIT, GL_NEAREST
-            )
-            defaultRenderLayer.bindLayer()
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-        } else {
-            mc.mainRenderTarget.bindWrite(false)
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-        }
+        mc.mainRenderTarget.bindWrite(false)
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
         glActiveTexture(GL_TEXTURE0)
         lastDepthMask = glGetBoolean(GL_DEPTH_WRITEMASK)
     }
@@ -163,17 +119,6 @@ object RenderSystem : AlwaysListening, Helper {
     fun postRender() {
         GLHelper.blend = true
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        if (useFramebuffer) {
-            GLHelper.bindFramebuffer(mc.mainRenderTarget.frameBufferId, true)
-            glDrawBuffer(GL_COLOR_ATTACHMENT0)
-            OpenGLWrapper.glBlitNamedFramebuffer(
-                framebuffer.fbo, mc.mainRenderTarget.frameBufferId,
-                0, 0, framebuffer.width, framebuffer.height,
-                0, 0, framebuffer.width, framebuffer.height,
-                GL_COLOR_BUFFER_BIT, GL_NEAREST
-            )
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0)
-        }
         glDepthMask(lastDepthMask)
         glDisable(GL_SCISSOR_TEST)
         glDisable(GL_STENCIL_TEST)

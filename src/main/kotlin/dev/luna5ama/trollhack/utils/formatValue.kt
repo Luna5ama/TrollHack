@@ -17,6 +17,3 @@ infix fun ChatFormatting.format(value: Int) = "$this$value${ChatFormatting.RESET
 
 infix fun TextColor.format(value: Any) = "$this$value${ChatFormatting.RESET}"
 
-//val ITextComponent.unformatted get() = TextChatFormatting.getTextWithoutChatFormattingCodes(this.unformattedText)!!
-
-//val ITextComponent.unformattedComponent get() = TextChatFormatting.getTextWithoutChatFormattingCodes(this.unformattedComponentText)!!

@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.PacketEvent
 import dev.luna5ama.trollhack.event.impl.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.impl.player.PlayerClickBlockEvent
-import dev.luna5ama.trollhack.event.impl.render.Render2DEvent
+import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.gui.NullClickGui
@@ -13,7 +13,6 @@ import dev.luna5ama.trollhack.gui.NullHudEditor
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
-import dev.luna5ama.trollhack.manager.managers.UnicodeFontManager
 import dev.luna5ama.trollhack.mixins.accessor.IPlayerMoveC2SPacketAccessor
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
@@ -139,7 +138,7 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
             secondPos = null
         }
 
-        nonNullHandler<Render2DEvent> {
+        nonNullHandler<Skia2DEvent> { event ->
             if (!text) return@nonNullHandler
             breakPos?.let { pos ->
                 val slot = getTool(pos) ?: player.hotbarSlots[HotbarSwitchManager.serverSideHotbar]
@@ -157,12 +156,13 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                         ColorRGBA(255, 255, 255)
                     else ColorRGBA(255, 255, 255, alpha)
 
-                    UnicodeFontManager.CURRENT_FONT.drawStringWithShadow(
+                    event.draw.centeredText(
                         text,
-                        screenPos.x.toFloat() - UnicodeFontManager.CURRENT_FONT.getWidth(text, 2.0f) * 0.5f,
-                        screenPos.y.toFloat() - UnicodeFontManager.CURRENT_FONT.getHeight(2.0f) * 0.5f,
-                        color.awt,
-                        2.0f
+                        screenPos.x.toFloat(),
+                        screenPos.y.toFloat() - 9f,
+                        size = 18f,
+                        color = color,
+                        shadow = true
                     )
                 }
             }

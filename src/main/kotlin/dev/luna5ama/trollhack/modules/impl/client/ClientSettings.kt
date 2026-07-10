@@ -4,7 +4,6 @@ import dev.luna5ama.trollhack.gui.NullClickGui
 import dev.luna5ama.trollhack.gui.NullHudEditor
 import dev.luna5ama.trollhack.i18n.Lang
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
-import dev.luna5ama.trollhack.manager.managers.UnicodeFontManager
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.Displayable
@@ -14,19 +13,11 @@ import java.util.*
 
 object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
     private val page by setting("Page", Page.FAKE_PLAYER)
-    val windowBlurPass by setting("Blur Passes", 2, 0..10, 1, { page == Page.RENDER })
-    val staticGlyphCache by setting("Static Glyph Cache", true, { page == Page.RENDER })
-    val onlyInClickGui by setting("ClickGui Only", true, { page == Page.RENDER && staticGlyphCache })
-    val guiFont by setting("Gui Font", UnicodeFontManager.GuiFont.PING_FANG, { page == Page.RENDER })
     val guiScale by setting("GUI Scale", 2.0f, 0.5f..8.0f, 0.25f, { page == Page.RENDER })
-    val framebuffer get() = true // disabling dedicated framebuffer is not allowed now
     val useGlLineSmooth by setting("GL Line Smooth", false, { page == Page.RENDER })
     val glDebugVerbose by setting("GL Debug Verbose", true, { page == Page.RENDER })
     val glDebugStacktrace by setting("GL Debug Stacktrace", false, { page == Page.RENDER })
-    val msaaSamples by setting("MSAA Samples", 4, 1..32, 1, { page == Page.RENDER })
     val uid by setting("Origin鈩?ID", true, { page == Page.RENDER })
-    val alien by setting("Alien Dance", false, { page == Page.RENDER })
-    val backgroundType by setting("Background", BackgroundType.PARTICLES, { page == Page.RENDER })
 
     val customUUID by setting("Custom UUID", false, { page == Page.FAKE_PLAYER })
     val uuid by setting("UUID", UUID.randomUUID().toString(), { page == Page.FAKE_PLAYER && customUUID })

@@ -12,8 +12,6 @@ import dev.luna5ama.trollhack.event.EventClasses
 import dev.luna5ama.trollhack.event.EventProcessor
 import dev.luna5ama.trollhack.event.api.AlwaysListening
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
-import dev.luna5ama.trollhack.graphics.font.TextComponent
-import dev.luna5ama.trollhack.graphics.font.UnicodeFontRenderer
 import dev.luna5ama.trollhack.graphics.compose.TrollHackCompose
 import dev.luna5ama.trollhack.i18n.LocalizedNameable
 import dev.luna5ama.trollhack.interfaces.IAdvancementsScreen
@@ -66,7 +64,7 @@ object TrollHackMod : LocalizedNameable(
     var shouldSetSystemLanguage = false
 
     var showMessageDialog = false
-    lateinit var messageDialog: TextComponent
+    var messageDialog = mutableListOf<String>()
 
     val profiler = Profiler()
 
@@ -81,14 +79,13 @@ object TrollHackMod : LocalizedNameable(
     }
 
     fun addMessage(text: String, color: ColorRGBA = ColorRGBA(255, 255, 255)) {
-        if (!::messageDialog.isInitialized) messageDialog = TextComponent()
-        messageDialog.addLine(text, color)
+        messageDialog.add(text)
     }
 
     fun onKeyPressed(keyCode: KeyBind) {
         if (keyCode.keyCode == GLFW.GLFW_KEY_DELETE) {
             showMessageDialog = false
-            messageDialog = TextComponent()
+            messageDialog.clear()
         }
         ModuleManager.onKeyPressed(keyCode)
     }
@@ -131,14 +128,6 @@ object TrollHackMod : LocalizedNameable(
         LOGGER.info("Initializing Managers")
         ManagerLoader.load()
         TrollHackCompose.start()
-
-        Profiler.BootstrapProfiler("Refresh FontManager") {
-            UnicodeFontRenderer.refresh()
-        }
-
-        Profiler.BootstrapProfiler("PostInitialize RenderSystem") {
-            RenderSystem.framebuffer.resize(mc.window.width, mc.window.height)
-        }
 
         Profiler.BootstrapProfiler("Initialize I18N") {
             I18NManager.read(Metadata.ID)

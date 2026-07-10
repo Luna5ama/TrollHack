@@ -10,7 +10,6 @@ import dev.luna5ama.trollhack.utils.Nameable
 import dev.luna5ama.trollhack.utils.Supervisor
 import dev.luna5ama.trollhack.utils.extension.listFilesRecursively
 import dev.luna5ama.trollhack.utils.extension.recreateAndBackup
-import dev.luna5ama.trollhack.graphics.font.TextComponent
 
 @Suppress("LoggingSimilarMessage")
 class NamespacedConfigurationManager(override val name: CharSequence) : Nameable {
@@ -51,9 +50,9 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
         if (!folder.exists() || !namedFolder.exists()) save()
         else {
             val supervisor = Supervisor()
-            val warningMessage = TextComponent()
+            val warningMessage = mutableListOf<String>()
             with(warningMessage) {
-                addLine("Configurations of the terms following cannot be loaded properly:")
+                add("Configurations of the terms following cannot be loaded properly:")
                 TrollHackMod.LOGGER.debug(namedFolder.path.toString())
                 val namedConfigJsons = namedFolder.listFilesRecursively().filter { it.name.endsWith(".json") }
                     .associateBy {
@@ -72,7 +71,7 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
                         } catch (e: Exception) {
                             val message = "  Failed to load configurable object ${named.nameAsString}"
                             TrollHackMod.LOGGER.warn(message, e)
-                            addLine(message)
+                            add(message)
                             errorOccurred = true
                         }
                     }
@@ -89,7 +88,7 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
                         } catch (e: Exception) {
                             val message = "  Failed to load configurable object ${anonymous.nameAsString}"
                             TrollHackMod.LOGGER.warn(message)
-                            addLine(message)
+                            add(message)
                             errorOccurred = true
                         }
                     }
@@ -138,7 +137,7 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
         }
     }
 
-    context(supervisor: Supervisor, text: TextComponent)
+    context(supervisor: Supervisor, text: MutableList<String>)
     private fun readJsonObject(json: JsonObject, configurable: Configurable) {
         configurable.settings.forEach { setting ->
             try {
@@ -149,7 +148,7 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
                 val warningMessage = "  Failed to load setting '${setting.nameAsString}'" +
                         " in configurable object $configurable"
                 TrollHackMod.LOGGER.warn(warningMessage)
-                text.addLine("\t$warningMessage")
+                text.add("\t$warningMessage")
                 supervisor.errorOccurred = true
             }
         }

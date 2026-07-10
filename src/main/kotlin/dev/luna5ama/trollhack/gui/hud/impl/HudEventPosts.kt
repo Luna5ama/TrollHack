@@ -3,7 +3,6 @@
 import dev.luna5ama.trollhack.event.api.handler
 import dev.luna5ama.trollhack.event.impl.LoopEvent
 import dev.luna5ama.trollhack.gui.hud.PlainTextHud
-import dev.luna5ama.trollhack.graphics.font.TextComponent
 import java.util.concurrent.CopyOnWriteArraySet
 
 object HudEventPosts : PlainTextHud("Event Posts") {
@@ -21,10 +20,5 @@ object HudEventPosts : PlainTextHud("Event Posts") {
         }
     }
 
-    context(textInfo: TextInfo)
-    override fun TextComponent.buildText() {
-        eventsCache.forEach {
-            addLine(it)
-        }
-    }
+    override fun lines(): List<String> = eventsCache
 }
