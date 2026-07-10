@@ -44,6 +44,7 @@ bin/
 .DS_Store
 
 run/
+**/runs/
 .idea/**
 
 *.log
@@ -51,5 +52,4 @@ run/
 accounts.json
 .architectury-transformer
 .kotlin
-/nullhack-native/native/.vs/
 .vs
