@@ -9,13 +9,15 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import dev.luna5ama.trollhack.RenderSystem
-import dev.luna5ama.trollhack.graphics.compose.TrollHackCompose
+import dev.luna5ama.trollhack.gui.TrollHackCompose
 import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
 import dev.luna5ama.trollhack.utils.Helper
 import dev.luna5ama.trollhack.utils.compat.bindWrite
@@ -50,6 +52,9 @@ object SkiaMinecraftBridge : Helper {
     private var composeSurface: Surface? = null
     private var composeContent: (@Composable () -> Unit)? = null
     private var composeScale = Float.NaN
+    private val pressedButtons = BooleanArray(5)
+    private var lastPointerPosition = Offset.Zero
+    private var inputActive = false
 
     fun setComposeContent(content: (@Composable () -> Unit)?) {
         composeContent = content
@@ -61,52 +66,103 @@ object SkiaMinecraftBridge : Helper {
         enabled = content != null || Skia2DEvent.hasListeners
     }
 
-    fun sendPointerMove(x: Float, y: Float) {
-        composeScene?.sendPointerEvent(PointerEventType.Move, Offset(x, y))
+    fun activateInput() {
+        inputActive = true
     }
 
-    fun sendPointerButton(x: Float, y: Float, button: Int, pressed: Boolean): Boolean {
+    fun deactivateInput() {
+        inputActive = false
+        composeScene?.sendPointerEvent(
+            eventType = PointerEventType.Exit,
+            position = lastPointerPosition,
+            buttons = pointerButtons(),
+            keyboardModifiers = pointerModifiers(currentGlfwModifiers())
+        )
+        composeScene?.cancelPointerInput()
+        composeScene?.focusManager?.releaseFocus()
+        pressedButtons.fill(false)
+    }
+
+    fun sendPointerMove(x: Float, y: Float, modifiers: Int = currentGlfwModifiers()): Boolean {
+        if (!inputActive) return false
+        lastPointerPosition = Offset(x, y)
+        val result = composeScene?.sendPointerEvent(
+            eventType = PointerEventType.Move,
+            position = lastPointerPosition,
+            buttons = pointerButtons(),
+            keyboardModifiers = pointerModifiers(modifiers)
+        )
+        return result != null
+    }
+
+    fun sendPointerButton(
+        x: Float,
+        y: Float,
+        button: Int,
+        pressed: Boolean,
+        modifiers: Int = currentGlfwModifiers()
+    ): Boolean {
+        if (!inputActive) return false
+        lastPointerPosition = Offset(x, y)
+        if (button in pressedButtons.indices) pressedButtons[button] = pressed
         val result = composeScene?.sendPointerEvent(
             eventType = if (pressed) PointerEventType.Press else PointerEventType.Release,
-            position = Offset(x, y),
+            position = lastPointerPosition,
+            buttons = pointerButtons(),
+            keyboardModifiers = pointerModifiers(modifiers),
             button = button.toComposeButton()
         )
         return result != null
     }
 
-    fun sendScroll(x: Float, y: Float, horizontal: Float, vertical: Float): Boolean {
+    fun sendScroll(
+        x: Float,
+        y: Float,
+        horizontal: Float,
+        vertical: Float,
+        modifiers: Int = currentGlfwModifiers()
+    ): Boolean {
+        if (!inputActive) return false
+        lastPointerPosition = Offset(x, y)
         val result = composeScene?.sendPointerEvent(
             eventType = PointerEventType.Scroll,
-            position = Offset(x, y),
+            position = lastPointerPosition,
+            buttons = pointerButtons(),
+            keyboardModifiers = pointerModifiers(modifiers),
             scrollDelta = Offset(-horizontal * 48f, -vertical * 48f)
         )
         return result != null
     }
 
-    fun sendKey(keyCode: Int, codePoint: Int = 0, pressed: Boolean): Boolean {
-        val modifiers = mc.window.handle().let { window ->
-            booleanArrayOf(
-                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS ||
-                    GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS,
-                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SUPER) == GLFW.GLFW_PRESS ||
-                    GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SUPER) == GLFW.GLFW_PRESS,
-                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_ALT) == GLFW.GLFW_PRESS ||
-                    GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_ALT) == GLFW.GLFW_PRESS,
-                GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS ||
-                    GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS
-            )
+    fun sendKey(
+        keyCode: Int,
+        codePoint: Int = 0,
+        pressed: Boolean,
+        modifiers: Int = currentGlfwModifiers()
+    ): Boolean {
+        if (!inputActive) return false
+        val composeKey = if (keyCode == GLFW.GLFW_KEY_UNKNOWN || keyCode == AwtKeyEvent.VK_UNDEFINED) {
+            Key.Unknown
+        } else {
+            Key(keyCode.toAwtKeyCode())
         }
         return composeScene?.sendKeyEvent(
             KeyEvent(
-                key = Key(keyCode.toAwtKeyCode().toLong()),
+                key = composeKey,
                 type = if (pressed) KeyEventType.KeyDown else KeyEventType.KeyUp,
                 codePoint = codePoint,
-                isCtrlPressed = modifiers[0],
-                isMetaPressed = modifiers[1],
-                isAltPressed = modifiers[2],
-                isShiftPressed = modifiers[3]
+                isCtrlPressed = modifiers and GLFW.GLFW_MOD_CONTROL != 0,
+                isMetaPressed = modifiers and GLFW.GLFW_MOD_SUPER != 0,
+                isAltPressed = modifiers and GLFW.GLFW_MOD_ALT != 0,
+                isShiftPressed = modifiers and GLFW.GLFW_MOD_SHIFT != 0
             )
         ) == true
+    }
+
+    fun sendCharacter(codePoint: Int, modifiers: Int = currentGlfwModifiers()): Boolean {
+        val consumed = sendKey(AwtKeyEvent.VK_UNDEFINED, codePoint, true, modifiers)
+        sendKey(AwtKeyEvent.VK_UNDEFINED, codePoint, false, modifiers)
+        return consumed
     }
 
     fun render2D(ticksDelta: Float) {
@@ -234,6 +290,41 @@ object SkiaMinecraftBridge : Helper {
         GLFW.GLFW_MOUSE_BUTTON_4 -> PointerButton.Back
         GLFW.GLFW_MOUSE_BUTTON_5 -> PointerButton.Forward
         else -> PointerButton(this)
+    }
+
+    private fun pointerButtons() = PointerButtons(
+        isPrimaryPressed = pressedButtons[GLFW.GLFW_MOUSE_BUTTON_LEFT],
+        isSecondaryPressed = pressedButtons[GLFW.GLFW_MOUSE_BUTTON_RIGHT],
+        isTertiaryPressed = pressedButtons[GLFW.GLFW_MOUSE_BUTTON_MIDDLE],
+        isBackPressed = pressedButtons[GLFW.GLFW_MOUSE_BUTTON_4],
+        isForwardPressed = pressedButtons[GLFW.GLFW_MOUSE_BUTTON_5]
+    )
+
+    private fun pointerModifiers(modifiers: Int) = PointerKeyboardModifiers(
+        isCtrlPressed = modifiers and GLFW.GLFW_MOD_CONTROL != 0,
+        isMetaPressed = modifiers and GLFW.GLFW_MOD_SUPER != 0,
+        isAltPressed = modifiers and GLFW.GLFW_MOD_ALT != 0,
+        isShiftPressed = modifiers and GLFW.GLFW_MOD_SHIFT != 0,
+        isCapsLockOn = modifiers and GLFW.GLFW_MOD_CAPS_LOCK != 0,
+        isNumLockOn = modifiers and GLFW.GLFW_MOD_NUM_LOCK != 0
+    )
+
+    private fun currentGlfwModifiers(): Int {
+        val window = mc.window.handle()
+        var modifiers = 0
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS ||
+            GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS
+        ) modifiers = modifiers or GLFW.GLFW_MOD_SHIFT
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS ||
+            GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS
+        ) modifiers = modifiers or GLFW.GLFW_MOD_CONTROL
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_ALT) == GLFW.GLFW_PRESS ||
+            GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_ALT) == GLFW.GLFW_PRESS
+        ) modifiers = modifiers or GLFW.GLFW_MOD_ALT
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SUPER) == GLFW.GLFW_PRESS ||
+            GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SUPER) == GLFW.GLFW_PRESS
+        ) modifiers = modifiers or GLFW.GLFW_MOD_SUPER
+        return modifiers
     }
 
     private fun Int.toAwtKeyCode() = when (this) {

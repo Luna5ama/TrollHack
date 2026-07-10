@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.gui
 
-import dev.luna5ama.trollhack.graphics.compose.TrollHackCompose
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge
 import dev.luna5ama.trollhack.modules.impl.client.ClickGui
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
@@ -13,7 +12,13 @@ import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
 object NullClickGui : Screen(Component.literal("TrollHack ClickGui")) {
+    private var ignoreOpeningBindPress = false
+
     fun open() {
+        val bind = ClickGui.bind
+        ignoreOpeningBindPress = bind.category == dev.luna5ama.trollhack.utils.input.KeyBind.Category.KEYBOARD &&
+            bind.keyCode != GLFW.GLFW_KEY_UNKNOWN &&
+            GLFW.glfwGetKey(mc.window.handle(), bind.keyCode) == GLFW.GLFW_PRESS
         TrollHackCompose.show(TrollHackCompose.Mode.CLICK_GUI)
         mc.setScreen(this)
     }
@@ -26,15 +31,26 @@ object NullClickGui : Screen(Component.literal("TrollHack ClickGui")) {
         SkiaMinecraftBridge.sendPointerMove(pointerX(mouseX.toDouble()), pointerY(mouseY.toDouble()))
     }
 
+    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) = Unit
+
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
         SkiaMinecraftBridge.sendPointerMove(pointerX(mouseX), pointerY(mouseY))
     }
 
-    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean =
-        SkiaMinecraftBridge.sendPointerButton(pointerX(event.x()), pointerY(event.y()), event.button(), true)
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        if (TrollHackCompose.consumeMouseBind(event.button())) return true
+        return SkiaMinecraftBridge.sendPointerButton(
+            pointerX(event.x()), pointerY(event.y()), event.button(), true, event.modifiers()
+        )
+    }
 
     override fun mouseReleased(event: MouseButtonEvent): Boolean =
-        SkiaMinecraftBridge.sendPointerButton(pointerX(event.x()), pointerY(event.y()), event.button(), false)
+        SkiaMinecraftBridge.sendPointerButton(
+            pointerX(event.x()), pointerY(event.y()), event.button(), false, event.modifiers()
+        )
+
+    override fun mouseDragged(event: MouseButtonEvent, dragX: Double, dragY: Double): Boolean =
+        SkiaMinecraftBridge.sendPointerMove(pointerX(event.x()), pointerY(event.y()), event.modifiers())
 
     override fun mouseScrolled(
         mouseX: Double,
@@ -47,19 +63,29 @@ object NullClickGui : Screen(Component.literal("TrollHack ClickGui")) {
 
     override fun keyPressed(event: KeyEvent): Boolean {
         if (TrollHackCompose.consumeBind(event.key(), event.scancode())) return true
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE) {
+        if (ignoreOpeningBindPress && event.key() == ClickGui.bind.keyCode) {
+            ignoreOpeningBindPress = false
+            return true
+        }
+        val closeKey = event.key() == GLFW.GLFW_KEY_ESCAPE ||
+            event.key() == ClickGui.bind.keyCode && !TrollHackCompose.isTextInputFocused()
+        if (closeKey &&
+            !TrollHackCompose.handleEscape()
+        ) {
             ClickGui.disable()
             minecraft?.setScreen(null)
             return true
         }
-        return SkiaMinecraftBridge.sendKey(event.key(), pressed = true)
+        return SkiaMinecraftBridge.sendKey(event.key(), pressed = true, modifiers = event.modifiers())
     }
 
-    override fun keyReleased(event: KeyEvent): Boolean =
-        SkiaMinecraftBridge.sendKey(event.key(), pressed = false)
+    override fun keyReleased(event: KeyEvent): Boolean {
+        if (event.key() == ClickGui.bind.keyCode) ignoreOpeningBindPress = false
+        return SkiaMinecraftBridge.sendKey(event.key(), pressed = false, modifiers = event.modifiers())
+    }
 
     override fun charTyped(event: CharacterEvent): Boolean =
-        SkiaMinecraftBridge.sendKey(GLFW.GLFW_KEY_UNKNOWN, event.codepoint(), true)
+        SkiaMinecraftBridge.sendCharacter(event.codepoint(), event.modifiers())
 
     override fun removed() {
         TrollHackCompose.hide()

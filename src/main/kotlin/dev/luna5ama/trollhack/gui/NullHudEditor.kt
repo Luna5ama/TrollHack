@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.gui
 
-import dev.luna5ama.trollhack.graphics.compose.TrollHackCompose
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge
 import dev.luna5ama.trollhack.modules.impl.client.HudEditor
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
@@ -26,15 +25,26 @@ object NullHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
         SkiaMinecraftBridge.sendPointerMove(pointerX(mouseX.toDouble()), pointerY(mouseY.toDouble()))
     }
 
+    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) = Unit
+
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
         SkiaMinecraftBridge.sendPointerMove(pointerX(mouseX), pointerY(mouseY))
     }
 
-    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean =
-        SkiaMinecraftBridge.sendPointerButton(pointerX(event.x()), pointerY(event.y()), event.button(), true)
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        if (TrollHackCompose.consumeMouseBind(event.button())) return true
+        return SkiaMinecraftBridge.sendPointerButton(
+            pointerX(event.x()), pointerY(event.y()), event.button(), true, event.modifiers()
+        )
+    }
 
     override fun mouseReleased(event: MouseButtonEvent): Boolean =
-        SkiaMinecraftBridge.sendPointerButton(pointerX(event.x()), pointerY(event.y()), event.button(), false)
+        SkiaMinecraftBridge.sendPointerButton(
+            pointerX(event.x()), pointerY(event.y()), event.button(), false, event.modifiers()
+        )
+
+    override fun mouseDragged(event: MouseButtonEvent, dragX: Double, dragY: Double): Boolean =
+        SkiaMinecraftBridge.sendPointerMove(pointerX(event.x()), pointerY(event.y()), event.modifiers())
 
     override fun mouseScrolled(
         mouseX: Double,
@@ -47,19 +57,19 @@ object NullHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
 
     override fun keyPressed(event: KeyEvent): Boolean {
         if (TrollHackCompose.consumeBind(event.key(), event.scancode())) return true
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE) {
+        if (event.key() == GLFW.GLFW_KEY_ESCAPE && !TrollHackCompose.handleEscape()) {
             HudEditor.disable()
             minecraft?.setScreen(null)
             return true
         }
-        return SkiaMinecraftBridge.sendKey(event.key(), pressed = true)
+        return SkiaMinecraftBridge.sendKey(event.key(), pressed = true, modifiers = event.modifiers())
     }
 
     override fun keyReleased(event: KeyEvent): Boolean =
-        SkiaMinecraftBridge.sendKey(event.key(), pressed = false)
+        SkiaMinecraftBridge.sendKey(event.key(), pressed = false, modifiers = event.modifiers())
 
     override fun charTyped(event: CharacterEvent): Boolean =
-        SkiaMinecraftBridge.sendKey(GLFW.GLFW_KEY_UNKNOWN, event.codepoint(), true)
+        SkiaMinecraftBridge.sendCharacter(event.codepoint(), event.modifiers())
 
     override fun removed() {
         TrollHackCompose.hide()

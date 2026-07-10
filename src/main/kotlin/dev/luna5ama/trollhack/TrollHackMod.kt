@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.event.EventClasses
 import dev.luna5ama.trollhack.event.EventProcessor
 import dev.luna5ama.trollhack.event.api.AlwaysListening
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
-import dev.luna5ama.trollhack.graphics.compose.TrollHackCompose
+import dev.luna5ama.trollhack.gui.TrollHackCompose
 import dev.luna5ama.trollhack.i18n.LocalizedNameable
 import dev.luna5ama.trollhack.interfaces.IAdvancementsScreen
 import dev.luna5ama.trollhack.language.Config

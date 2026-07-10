@@ -5,6 +5,7 @@ import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.gui.NullHudEditor
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
+import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
 import org.lwjgl.glfw.GLFW
 
 object HudEditor : Module("Hud Editor", category = Category.CLIENT, defaultBind = GLFW.GLFW_KEY_UNKNOWN) {
@@ -24,10 +25,7 @@ object HudEditor : Module("Hud Editor", category = Category.CLIENT, defaultBind 
         }
 
         onDisabled {
-//            MinecraftClient.getInstance().setScreenAndRender(null)
-//            Coroutine.launch {
-//                ConfigManager.save()
-//            }
+            if (mc.screen === NullHudEditor) mc.setScreen(null)
         }
     }
 }
