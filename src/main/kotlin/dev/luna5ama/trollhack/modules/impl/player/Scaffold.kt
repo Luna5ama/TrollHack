@@ -1,7 +1,5 @@
 package dev.luna5ama.trollhack.modules.impl.player
 
-import dev.fastmc.common.floorToInt
-import dev.fastmc.common.sort.ObjectInsertionSort
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import dev.luna5ama.trollhack.event.api.handler
@@ -31,6 +29,7 @@ import dev.luna5ama.trollhack.utils.extension.yaw
 import dev.luna5ama.trollhack.utils.inventory.HotbarSlot
 import dev.luna5ama.trollhack.utils.inventory.hotbarSlots
 import dev.luna5ama.trollhack.utils.math.RotationUtils
+import dev.luna5ama.trollhack.utils.math.floorToInt
 import dev.luna5ama.trollhack.utils.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2d
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
@@ -333,9 +332,9 @@ object Scaffold : Module(
         val bZ = player.z.floorToInt() + 0.5
         val oX = player.x - bX
         val oZ = player.z - bZ
-        ObjectInsertionSort.sort(results, 1, results.size, compareByDescending {
+        results.sortWith(compareByDescending {
             oX * (it.x - bX) + oZ * (it.y - bZ)
-        })
+        }, 1, results.size)
         return results
     }
 
@@ -355,8 +354,8 @@ object Scaffold : Module(
         return towerMode && player.input.keyPresses.jump
     }
 
-    context(NonNullContext)
-    private fun isOffsetBBEmpty(x: Double, z: Double): Boolean {
+    context(ctx: NonNullContext)
+    private fun isOffsetBBEmpty(x: Double, z: Double): Boolean = ctx.run {
         return !world.getBlockCollisions(
             player,
             player.boundingBox.inflate(-0.1, 0.1, -0.1).move(x, -2.0, z)

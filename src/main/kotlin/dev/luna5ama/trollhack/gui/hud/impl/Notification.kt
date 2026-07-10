@@ -136,8 +136,8 @@ object Notification : HudModule(
             width0.updateLazy()
         }
 
-        context(MatrixLayerStack.MatrixScope)
-        fun render(): Float {
+        context(matrixScope: MatrixLayerStack.MatrixScope)
+        fun render(): Float = matrixScope.run {
             if (dockingH != HAlign.LEFT && width > width) {
                  translatef(width - width, 0.0f, 0.0f)
             }

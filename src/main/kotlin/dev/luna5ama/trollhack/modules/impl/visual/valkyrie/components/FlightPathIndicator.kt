@@ -8,8 +8,8 @@ import dev.luna5ama.trollhack.utils.NonNullContext
 import kotlin.math.roundToInt
 
 class FlightPathIndicator(private val computer: FlightComputer, private val dim: Dimensions) : HudComponent() {
-    context(NonNullContext)
-    override fun render(partial: Float) {
+    context(ctx: NonNullContext)
+    override fun render(partial: Float): Unit = ctx.run {
         val deltaPitch = computer.pitch - computer.flightPitch
         var deltaHeading = wrapHeading(computer.flightHeading) - wrapHeading(computer.heading)
 

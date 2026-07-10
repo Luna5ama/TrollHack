@@ -68,8 +68,8 @@ internal object InventoryUtils {
     var lastSlot = -1
     var lastSelect = -1
 
-    context(NonNullContext)
-    fun doSwap(slot: Int) {
+    context(ctx: NonNullContext)
+    fun doSwap(slot: Int): Unit = ctx.run {
         player.inventory.selectedSlot = slot
         netHandler.send(ServerboundSetCarriedItemPacket(slot))
     }
@@ -226,8 +226,8 @@ internal object InventoryUtils {
         return fullInventorySlots
     }
 
-    context(NonNullContext)
-    fun inventorySwap(slot: Int, selectedSlot: Int) {
+    context(ctx: NonNullContext)
+    fun inventorySwap(slot: Int, selectedSlot: Int): Unit = ctx.run {
         if (slot == lastSlot) {
             doSwap(lastSelect)
             lastSlot = -1

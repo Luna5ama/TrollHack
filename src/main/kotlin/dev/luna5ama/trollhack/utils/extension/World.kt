@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.utils.extension
+﻿package dev.luna5ama.trollhack.utils.extension
 
 import dev.luna5ama.trollhack.mixins.accessor.IClientLevelAccessor
 import dev.luna5ama.trollhack.utils.NonNullContext
@@ -29,9 +29,9 @@ fun Level.checkBlockCollision(bb: AABB): Boolean {
     return false
 }
 
-context(NonNullContext)
+context(ctx: NonNullContext)
 inline fun Level.getActionId(): Int {
-    val pendingUpdateManager = (world as IClientLevelAccessor).acquirePendingUpdateManager()
+    val pendingUpdateManager = (ctx.world as IClientLevelAccessor).acquirePendingUpdateManager()
     val actionId = pendingUpdateManager.currentSequence()
     pendingUpdateManager.close()
     return actionId

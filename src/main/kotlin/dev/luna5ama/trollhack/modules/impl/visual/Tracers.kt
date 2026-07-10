@@ -64,8 +64,8 @@ object Tracers : Module("Tracers", category = Category.VISUAL) {
         }
     }
 
-    context (NonNullContext)
-    private fun drawLineTo(pos: Vec3, color: ColorRGBA) {
+    context(ctx: NonNullContext)
+    private fun drawLineTo(pos: Vec3, color: ColorRGBA): Unit = ctx.run {
         val camera = mc.entityRenderDispatcher.camera ?: return
         val cameraPos = camera.position()
         val x = when (hAlign) {

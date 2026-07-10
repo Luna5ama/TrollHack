@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2021-2022, SagiriXiguajerry. All rights reserved.
  * This repository will be transformed to SuperMic_233.
  *
@@ -74,7 +74,7 @@ fun Entity.predicted(predictFactor: Int): Vec3 {
         ?: (this.position() + this.offset * predictFactor.toDouble())
 }
 
-context (NonNullContext)
+context(ctx: NonNullContext)
 fun Entity.predictHorizontally(ticks: Int, smooth: Boolean = false): Vec3 {
     val entity = this
     val motionX = (entity.x - entity.xo).coerceIn(-0.6, 0.6)
@@ -84,8 +84,8 @@ fun Entity.predictHorizontally(ticks: Int, smooth: Boolean = false): Vec3 {
     var targetBox = entityBox
 
     for (tick in 0..<ticks) {
-        targetBox = canMove(targetBox, motionX, 0.0, motionZ,entity)
-                    ?: canMove(targetBox, 0.0, 0.0, 0.0,entity)
+        targetBox = ctx.canMove(targetBox, motionX, 0.0, motionZ, entity)
+                    ?: ctx.canMove(targetBox, 0.0, 0.0, 0.0, entity)
                     ?: break
     }
 
@@ -194,7 +194,7 @@ var Entity.pitch
         xRot = value
     }
 
-context(NonNullContext)
+context(ctx: NonNullContext)
 fun Entity.getSpeedKpH(): Double {
     val distTraveledLastTickX: Double = this.x - this.xo
     val distTraveledLastTickZ: Double = this.z - this.zo
@@ -206,7 +206,7 @@ fun Entity.getSpeedKpH(): Double {
     return speedOMeterKPHD
 }
 
-context (NonNullContext)
+context(ctx: NonNullContext)
 fun Entity.collisionPredict(ticks: Int, smooth: Boolean = false): Vec3 {
     val entity = this
     val motionX = (entity.x - entity.xo).coerceIn(-0.6, 0.6)
@@ -218,9 +218,9 @@ fun Entity.collisionPredict(ticks: Int, smooth: Boolean = false): Vec3 {
 
 
     for (tick in 0..ticks) {
-        targetBox = canMove(targetBox, motionX, motionY, motionZ,entity)
-            ?: canMove(targetBox, motionX, 0.0, motionZ,entity)
-                    ?: canMove(targetBox, 0.0, motionY, 0.0,entity)
+        targetBox = ctx.canMove(targetBox, motionX, motionY, motionZ, entity)
+            ?: ctx.canMove(targetBox, motionX, 0.0, motionZ, entity)
+                    ?: ctx.canMove(targetBox, 0.0, motionY, 0.0, entity)
                     ?: break
 
     }

@@ -53,23 +53,23 @@ object CrystalUtils {
         return d3
     }
 
-    context (NonNullContext)
-    fun canPlaceCrystal(pos: BlockPos, entity: LivingEntity? = null): Boolean {
+    context(ctx: NonNullContext)
+    fun canPlaceCrystal(pos: BlockPos, entity: LivingEntity? = null): Boolean = ctx.run {
         return canPlaceCrystalOn(pos)
                 && (entity == null || !getCrystalPlacingBB(pos).intersects(entity.boundingBox))
                 && hasValidSpaceForCrystal(pos, true)
     }
 
-    context(NonNullContext)
-    fun attackCrystal(box: AABB, rotate: Boolean, eatingPause: Boolean) {
+    context(ctx: NonNullContext)
+    fun attackCrystal(box: AABB, rotate: Boolean, eatingPause: Boolean): Unit = ctx.run {
         for (entity in world.getEntitiesOfClass(EndCrystal::class.java, box)) {
             attackCrystal(entity, rotate, eatingPause)
             break
         }
     }
 
-    context(NonNullContext)
-    fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean) {
+    context(ctx: NonNullContext)
+    fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean): Unit = ctx.run {
         if (!breakTimer.tickAndReset(1000)) return
         if (usingPause && player.isUsingItem) return
         netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
@@ -92,20 +92,20 @@ object CrystalUtils {
         return sqrt(xl * xl + yl * yl + zl * zl)
     }
 
-    context (NonNullContext)
-    fun hasValidSpaceForCrystal(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun hasValidSpaceForCrystal(pos: BlockPos): Boolean = ctx.run {
         return hasValidSpaceForCrystal(pos, false)
     }
 
-    context (NonNullContext)
-    fun hasValidSpaceForCrystal(pos: BlockPos, newPlace: Boolean): Boolean {
+    context(ctx: NonNullContext)
+    fun hasValidSpaceForCrystal(pos: BlockPos, newPlace: Boolean): Boolean = ctx.run {
         val mutableBlockPos = BlockPos.MutableBlockPos()
         return isValidMaterial(mutableBlockPos.setAndAdd(pos, 0, 1, 0).state)
                 && (isValidMaterial(mutableBlockPos.offset(0, 1, 0).state) || newPlace)
     }
 
-    context (NonNullContext)
-    fun canPlaceCrystalOn(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun canPlaceCrystalOn(pos: BlockPos): Boolean = ctx.run {
         val block = world.getBlockState(pos).block
         return block == Blocks.BEDROCK || block == Blocks.OBSIDIAN
     }

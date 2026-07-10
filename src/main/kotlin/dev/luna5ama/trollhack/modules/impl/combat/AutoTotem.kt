@@ -27,8 +27,8 @@ object AutoTotem : Module("Auto Totem", category = Category.COMBAT) {
         nonNullHandler<UpdateEvent> { update() }
     }
 
-    context(NonNullContext)
-    private fun findItemInventorySlot(item: Item): Int {
+    context(ctx: NonNullContext)
+    private fun findItemInventorySlot(item: Item): Int = ctx.run {
         for (i in 0..44) {
             val stack = player.inventory.getItem(i)
             if (stack.item == item) return if (i < 9) i + 36 else i
@@ -36,8 +36,8 @@ object AutoTotem : Module("Auto Totem", category = Category.COMBAT) {
         return -1
     }
 
-    context(NonNullContext)
-     fun update() {
+    context(ctx: NonNullContext)
+     fun update(): Unit = ctx.run {
         if (mc.screen != null && mc.screen !is ChatScreen && mc.screen !is InventoryScreen
             && mc.screen !is NullClickGui) return
         if (!timer.tick(200)) return

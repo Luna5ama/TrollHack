@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.utils.extension
+﻿package dev.luna5ama.trollhack.utils.extension
 
 interface BoolComputing<T> {
     fun bAnd(t1: T, t2: T): T
@@ -16,8 +16,12 @@ object BooleanBoolComputing : BoolComputing<Boolean> {
     }
 }
 
-context (BoolComputing<R>)
-fun <P0, R> ((P0) -> R).and(other: (P0) -> R): (P0) -> R = { bAnd(this(it), other(it)) }
+context(computing: BoolComputing<R>)
+fun <P0, R> ((P0) -> R).and(other: (P0) -> R): (P0) -> R = {
+    computing.bAnd(this(it), other(it))
+}
 
-context (BoolComputing<R>)
-fun <P0, R> ((P0) -> R).or(other: (P0) -> R): (P0) -> R = { bOr(this(it), other(it)) }
+context(computing: BoolComputing<R>)
+fun <P0, R> ((P0) -> R).or(other: (P0) -> R): (P0) -> R = {
+    computing.bOr(this(it), other(it))
+}

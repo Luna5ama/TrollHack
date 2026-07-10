@@ -39,8 +39,8 @@ object SlotRanges {
     val ARMOR = 36..39
     const val OFFHAND = 45
 
-    context (NonNullContext)
-    fun indexToId(i: Int): Int {
+    context(ctx: NonNullContext)
+    fun indexToId(i: Int): Int = ctx.run {
         val handler: AbstractContainerMenu = player.containerMenu
         return when (handler) {
             is InventoryMenu -> survivalInventory(i)

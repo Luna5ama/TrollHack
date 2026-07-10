@@ -1,8 +1,8 @@
 package dev.luna5ama.trollhack.utils.world
 
-import dev.fastmc.common.collection.FastObjectArrayList
-import dev.fastmc.common.floorToInt
-import dev.fastmc.common.toDegree
+import dev.luna5ama.trollhack.utils.collections.FastObjectArrayList
+import dev.luna5ama.trollhack.utils.math.floorToInt
+import dev.luna5ama.trollhack.utils.math.toDegree
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue
 import dev.luna5ama.trollhack.manager.managers.EntityManager
@@ -49,8 +49,8 @@ fun NonNullContext.checkPlaceRotation(placeInfo: PlaceInfo): Boolean {
     )
 }
 
-context (NonNullContext)
-private fun sendSequencedPacket(packetCreator: PredictiveAction) {
+context(ctx: NonNullContext)
+private fun sendSequencedPacket(packetCreator: PredictiveAction): Unit = ctx.run {
     world.blockStatePredictionHandler.startPredicting().use { pendingUpdateManager ->
         val i = pendingUpdateManager.currentSequence()
         val packet = packetCreator.predict(i)
@@ -58,7 +58,7 @@ private fun sendSequencedPacket(packetCreator: PredictiveAction) {
     }
 }
 
-context(NonNullContext)
+context(ctx: NonNullContext)
 fun PlaceInfo.sendPlacePacket(hand: InteractionHand) =
     sendSequencedPacket {
         ServerboundUseItemOnPacket(

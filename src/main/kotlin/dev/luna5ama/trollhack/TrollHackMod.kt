@@ -11,44 +11,30 @@ import kotlinx.coroutines.launch
 import dev.luna5ama.trollhack.event.EventClasses
 import dev.luna5ama.trollhack.event.EventProcessor
 import dev.luna5ama.trollhack.event.api.AlwaysListening
-import dev.luna5ama.trollhack.event.api.nonNullHandler
-import dev.luna5ama.trollhack.event.impl.render.CoreRender2DEvent
-import dev.luna5ama.trollhack.graphics.GLHelper
-import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PMVBObjects
-import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PMVBObjects.draw
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.graphics.font.TextComponent
 import dev.luna5ama.trollhack.graphics.font.UnicodeFontRenderer
-import dev.luna5ama.trollhack.graphics.matrix.scope
-import dev.luna5ama.trollhack.graphics.matrix.translatef
+import dev.luna5ama.trollhack.graphics.compose.TrollHackCompose
 import dev.luna5ama.trollhack.i18n.LocalizedNameable
 import dev.luna5ama.trollhack.interfaces.IAdvancementsScreen
 import dev.luna5ama.trollhack.language.Config
-import dev.luna5ama.trollhack.libraries.LibraryLoader
 import dev.luna5ama.trollhack.manager.ManagerLoader
-import dev.luna5ama.trollhack.manager.managers.GuiManager
 import dev.luna5ama.trollhack.manager.managers.ModuleManager
-import dev.luna5ama.trollhack.manager.managers.UnicodeFontManager
 import dev.luna5ama.trollhack.mixins.accessor.*
-import dev.luna5ama.trollhack.modules.impl.client.ClientSettings.uid
 import dev.luna5ama.trollhack.utils.Helper
 import dev.luna5ama.trollhack.utils.Profiler
 import dev.luna5ama.trollhack.utils.SafeLogger
 import dev.luna5ama.trollhack.utils.input.KeyBind
 import dev.luna5ama.trollhack.utils.threads.Coroutine
-import dev.luna5ama.trollhack.utils.threads.pool0
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen
 import net.minecraft.client.gui.screens.inventory.BookViewScreen
 import net.minecraft.world.entity.Display
 import net.minecraft.world.level.block.entity.SignBlockEntity
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11.*
 import org.slf4j.LoggerFactory
-import java.awt.Color
 import java.io.File
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -85,66 +71,8 @@ object TrollHackMod : LocalizedNameable(
     val profiler = Profiler()
 
     init {
-        Profiler.BootstrapProfiler("Load Library") {
-            var flag = false
-            LibraryLoader.load()
-            Coroutine.launch {
-                EventClasses.classes
-                flag = true
-            }
-            val time = System.currentTimeMillis()
-            if (pool0.activeCount == 0) {
-                nonblocking = System.currentTimeMillis() - time
-                LOGGER.info("Library finished loading within 2s")
-            } else {
-                thread {
-                    while (true) {
-                        if (!flag || LibraryLoader.loadFlags.none()) Thread.sleep(1)
-                        else {
-                            nonblocking = System.currentTimeMillis() - time
-                            break
-                        }
-                    }
-                    LOGGER.info(toString())
-                }
-            }
-        }
-
-        nonNullHandler<CoreRender2DEvent>(Int.MIN_VALUE) {
-            if (uid && UID.isNotBlank()) {
-                GLHelper.blend = true
-                GLHelper.depth = false
-                val text = "UID: $UID          "
-                val font = UnicodeFontManager.GENSHIN_9
-                val width = font.getWidth(text)
-                val y = RenderSystem.scaledHeightF - font.height
-                val x = RenderSystem.scaledWidthF - width
-                font.drawStringShadowed0(text, x, y, Color.WHITE, 1f)
-            }
-
-            if (!::messageDialog.isInitialized) return@nonNullHandler
-            val warningMessage = this@TrollHackMod.messageDialog
-            if (showMessageDialog && warningMessage.isNotEmpty()) {
-                val messageWidth = warningMessage.getWidth()
-                val messageHeight = warningMessage.getHeight(1)
-                val font = warningMessage.font
-                val tabTitle = "$NAME Dialog(Press ENTER to close)"
-                val tabHeight = font.height
-                RS.matrixLayer.scope {
-                    translatef(10f, 10f, 0f)
-                    GL_TRIANGLES.draw(PMVBObjects.VertexMode.Universal) {
-                        rectSeparate(messageWidth, tabHeight, GuiManager.getColor())
-                        rectSeparate(
-                            0f, tabHeight, messageWidth,
-                            tabHeight + messageHeight,
-                            ColorRGBA(GuiManager.background)
-                        )
-                    }
-                    font.drawStringWithShadow(tabTitle, ColorRGBA.WHITE)
-                    translatef(0f, tabHeight, 0f)
-                    warningMessage.draw()
-                }
-            }
+        Profiler.BootstrapProfiler("Discover Events") {
+            Coroutine.launch { EventClasses.classes }
         }
 
 //        handler<LoopEvent.Start> {
@@ -202,6 +130,7 @@ object TrollHackMod : LocalizedNameable(
 
         LOGGER.info("Initializing Managers")
         ManagerLoader.load()
+        TrollHackCompose.start()
 
         Profiler.BootstrapProfiler("Refresh FontManager") {
             UnicodeFontRenderer.refresh()

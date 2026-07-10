@@ -5,8 +5,7 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.luna5ama.trollhack.RenderSystem;
 import dev.luna5ama.trollhack.event.impl.render.ResolutionUpdateEvent;
-import dev.luna5ama.trollhack.gui.NullClickGui;
-import dev.luna5ama.trollhack.graphics.skija.SkijaMinecraftBridge;
+import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge;
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings;
 import dev.luna5ama.trollhack.modules.impl.player.NoEntityTrace;
 import dev.luna5ama.trollhack.modules.impl.visual.AspectRatio;
@@ -93,10 +92,8 @@ public class MixinGameRenderer {
             )
     )
     private void onRender2D(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci, @Local GuiGraphics guiGraphics) {
-        if (Minecraft.getInstance().screen != NullClickGui.INSTANCE) return;
         float tickDelta = deltaTracker.getGameTimeDeltaPartialTick(true);
-        RenderSystem.INSTANCE.render2D(guiGraphics, tickDelta);
-        SkijaMinecraftBridge.INSTANCE.render2D(tickDelta);
+        SkiaMinecraftBridge.INSTANCE.render2D(tickDelta);
     }
 
     @Inject(method = "bobHurt", at = @At("HEAD"), cancellable = true)

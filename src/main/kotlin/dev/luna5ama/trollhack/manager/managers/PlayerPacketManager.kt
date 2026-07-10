@@ -258,8 +258,8 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
                 ) else null
         }
 
-        context(NonNullContext)
-        fun interpolateRotation(): Packet {
+        context(ctx: NonNullContext)
+        fun interpolateRotation(): Packet = ctx.run {
             val currentRotation = PlayerPacketManager.rotation
             return Packet(
                 priority, position,

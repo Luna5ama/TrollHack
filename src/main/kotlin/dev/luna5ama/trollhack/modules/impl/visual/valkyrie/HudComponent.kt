@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.utils.math.vectors.Vec3f
 import kotlin.math.roundToInt
 
 abstract class HudComponent {
-    context(NonNullContext)
+    context(ctx: NonNullContext)
     abstract fun render(partial: Float)
 
     protected fun i(d: Double): Int {

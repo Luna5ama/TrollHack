@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.gui.hud
+﻿package dev.luna5ama.trollhack.gui.hud
 
 import dev.luna5ama.trollhack.gui.HudModule
 import dev.luna5ama.trollhack.manager.managers.UnicodeFontManager
@@ -28,7 +28,7 @@ abstract class PlainTextHud(
     override val width: Float get() = textWidth
     override val height: Float get() = textHeight
 
-    context (TextInfo)
+    context(textInfo: TextInfo)
     abstract fun TextComponent.buildText()
 
     override fun onRender2D(x: Float, y: Float) {
@@ -49,7 +49,7 @@ abstract class PlainTextHud(
         font.cache(prevUsingCache)
     }
 
-    protected data class TextInfo(
+    data class TextInfo(
         var lineSpace: Int = 0, var alpha: Float = 1f, var scale: Float = 1f,
         var skipEmptyLine: Boolean = true,
         var horizontalAlign: HAlign = HAlign.LEFT,

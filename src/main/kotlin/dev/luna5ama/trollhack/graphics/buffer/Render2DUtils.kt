@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.graphics.buffer
 
-import dev.fastmc.common.collection.mapArray
 import dev.luna5ama.trollhack.graphics.buffer.pmvbo.PMVBORenderer2D
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.math.MathUtils
@@ -109,13 +108,13 @@ object Render2DUtils : Renderer2D by PMVBORenderer2D {
         vertexArray: Array<Vec2d>,
         width: Float = 1F,
         color: ColorRGBA,
-    ) = drawLinesStrip0(vertexArray.mapArray { it.toVec2f() }, width, color)
+    ) = drawLinesStrip0(Array(vertexArray.size) { vertexArray[it].toVec2f() }, width, color)
 
     fun drawLinesLoop(
         vertexArray: Array<Vec2d>,
         width: Float = 1F,
         color: ColorRGBA,
-    ) = drawLinesLoop0(vertexArray.mapArray { it.toVec2f() }, width, color)
+    ) = drawLinesLoop0(Array(vertexArray.size) { vertexArray[it].toVec2f() }, width, color)
 
     fun drawLinesStrip(
         vertexArray: Array<Vec2f>,
@@ -1056,7 +1055,7 @@ object Render2DUtils : Renderer2D by PMVBORenderer2D {
         lineWidth: Float = 1f,
         color: ColorRGBA,
     ) = drawLinesStrip0(
-        vertices.mapArray { it.toVec2f() },
+        Array(vertices.size) { vertices[it].toVec2f() },
         lineWidth,
         color
     )

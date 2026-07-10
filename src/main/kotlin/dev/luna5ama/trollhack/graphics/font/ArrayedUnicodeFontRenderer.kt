@@ -1,8 +1,5 @@
 package dev.luna5ama.trollhack.graphics.font
 
-import imgui.ImFont
-import imgui.ImFontConfig
-import imgui.ImGui
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import dev.luna5ama.trollhack.TrollHackMod as TrollHackMod
@@ -752,21 +749,6 @@ class ArrayedUnicodeFontRenderer private constructor(
                 throw IllegalStateException(e)
             }
         }
-    }
-
-    private var imGuiInitialized = false
-    override lateinit var imGuiFont: ImFont
-
-    override fun initForImGui() {
-        if (imGuiInitialized) return
-        val io = ImGui.getIO()
-        val config = ImFontConfig()
-        config.fontDataOwnedByAtlas = false
-        config.setName(font.name.toCharArray().joinToString("", limit = 35).trim())
-        require(bytes.isNotEmpty())
-        TrollHackMod.LOGGER.info("Initializing font ${font.name} for ImGui, data size: ${bytes.size}, font size: ${height * 1.3f}px")
-        imGuiFont = io.fonts.addFontFromMemoryTTF(bytes, height * 1.3f, config, io.fonts.glyphRangesChineseFull)
-        config.destroy()
     }
 
     override fun drawText0(text: CharSequence, x: Double, y: Double, color: ColorRGBA, shadow: Boolean) {

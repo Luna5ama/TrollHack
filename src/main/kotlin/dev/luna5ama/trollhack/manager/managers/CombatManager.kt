@@ -1,7 +1,6 @@
 package dev.luna5ama.trollhack.manager.managers
 
 import com.google.common.collect.MapMaker
-import dev.fastmc.common.sort.ObjectIntrosort
 import it.unimi.dsi.fastutil.ints.Int2LongMaps
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap
 import kotlinx.coroutines.Job
@@ -316,19 +315,19 @@ object CombatManager : AbstractManager(), AlwaysListening {
         }
     }
 
-    context (NonNullContext)
-    private fun updateCrystalDamage() {
+    context(ctx: NonNullContext)
+    private fun updateCrystalDamage(): Unit = ctx.run {
         val flag1 = !placeJob.isActiveOrFalse
         val flag2 = !crystalJob.isActiveOrFalse
 
         if (flag1 || flag2) {
             val predictPosSelf = trackerSelf?.calcPosAhead(ClientSettings.selfPredictTicks) ?: player.position()
-            val contextSelf = CalcContext(this@NonNullContext, player, predictPosSelf)
+            val contextSelf = CalcContext(ctx, ctx.player, predictPosSelf)
 
             val target = CombatManager.target
             val contextTarget = target?.let {
                 val predictPos = trackerTarget?.calcPosAhead(ClientSettings.targetPredictTicks) ?: it.position()
-                CalcContext(this@NonNullContext, it, predictPos)
+                    CalcContext(ctx, it, predictPos)
             }
 
             val remove = removeTimer.tickAndReset(100)
@@ -353,8 +352,8 @@ object CombatManager : AbstractManager(), AlwaysListening {
         damageReductionTimer.reset(ClientSettings.crystalUpdateDelay / -4)
     }
 
-    context (NonNullContext)
-    private fun updatePlaceMap(contextSelf: CalcContext, contextTarget: CalcContext?, remove: Boolean) {
+    context(ctx: NonNullContext)
+    private fun updatePlaceMap(contextSelf: CalcContext, contextTarget: CalcContext?, remove: Boolean): Unit = ctx.run {
         val eyePos = player.eyePosition
         val flooredPos = player.flooredPosition
         val mutableBlockPos = BlockPos.MutableBlockPos()
@@ -415,12 +414,12 @@ object CombatManager : AbstractManager(), AlwaysListening {
         }
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun updateCrystalMap(
         contextSelf: CalcContext,
         contextTarget: CalcContext?,
         remove: Boolean
-    ) {
+    ): Unit = ctx.run {
         val eyePos = player.eyePosition
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
@@ -490,7 +489,7 @@ object CombatManager : AbstractManager(), AlwaysListening {
 
     private fun updatePlaceList() {
         val list = FastObjectArrayList.wrap(placeMap.values.toTypedArray())
-        ObjectIntrosort.sort(list.elements(), 0, list.size, compareFloatByDescending { it.targetDamage })
+        list.elements().sortWith(compareFloatByDescending { it.targetDamage }, 0, list.size)
         placeList = list
     }
 
@@ -500,7 +499,7 @@ object CombatManager : AbstractManager(), AlwaysListening {
         for ((crystal, crystalDamage) in entries) {
             list.add(crystal to crystalDamage)
         }
-        ObjectIntrosort.sort(list.elements(), 0, list.size, compareFloatByDescending { it.second.targetDamage })
+        list.elements().sortWith(compareFloatByDescending { it.second.targetDamage }, 0, list.size)
         crystalList = list
     }
 

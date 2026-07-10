@@ -51,7 +51,9 @@ object Render3DUtils {
 
         val displayHeight = mc.window.height
         return Vec3(
-            target.x.toDouble() / mc.window.guiScale, (displayHeight - target.y).toDouble() / mc.window.guiScale, target.z.toDouble()
+            target.x.toDouble() / RS.renderScale,
+            (displayHeight - target.y).toDouble() / RS.renderScale,
+            target.z.toDouble()
         )
     }
 

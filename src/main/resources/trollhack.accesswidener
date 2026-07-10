@@ -2,6 +2,7 @@ accessWidener	v1	named
 
 accessible field net/minecraft/client/renderer/GameRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
 accessible field com/mojang/blaze3d/opengl/GlStateManager TEXTURES [Lcom/mojang/blaze3d/opengl/GlStateManager$TextureState;
+accessible class com/mojang/blaze3d/opengl/GlStateManager$TextureState
 accessible field com/mojang/blaze3d/opengl/GlStateManager$TextureState binding I
 extendable method net/minecraft/client/gui/components/AbstractSelectionList getEntryAtPosition (DD)Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 accessible field net/minecraft/client/multiplayer/ClientLevel players Ljava/util/List;
@@ -21,8 +22,10 @@ accessible field net/minecraft/network/protocol/game/ServerboundInteractPacket A
 accessible field net/minecraft/client/User uuid Ljava/util/UUID;
 accessible method net/minecraft/world/entity/Entity setSharedFlag (IZ)V
 accessible field net/minecraft/world/level/chunk/PalettedContainer data Lnet/minecraft/world/level/chunk/PalettedContainer$Data;
+accessible class net/minecraft/world/level/chunk/PalettedContainer$Data
 accessible field net/minecraft/world/level/chunk/PalettedContainer$Data storage Lnet/minecraft/util/BitStorage;
 accessible field net/minecraft/world/level/chunk/PalettedContainer$Data palette Lnet/minecraft/world/level/chunk/Palette;
+accessible field net/minecraft/world/item/CreativeModeTabs INVENTORY Lnet/minecraft/resources/ResourceKey;
 accessible field net/minecraft/world/level/block/state/BlockBehaviour hasCollision Z
 accessible method net/minecraft/client/multiplayer/MultiPlayerGameMode startPrediction (Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V
 accessible field net/minecraft/world/item/Item components Lnet/minecraft/core/component/DataComponentMap;

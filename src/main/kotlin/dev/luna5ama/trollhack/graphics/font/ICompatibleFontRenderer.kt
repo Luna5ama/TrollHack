@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.graphics.font
 
-import imgui.ImFont
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import java.awt.Color
 
@@ -47,7 +46,4 @@ interface ICompatibleFontRenderer : IGradientFontRenderer {
 
     fun refresh()
 
-    /* ImGUI compatibility */
-    var imGuiFont: ImFont
-    fun initForImGui()
 }

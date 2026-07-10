@@ -7,8 +7,8 @@ import dev.luna5ama.trollhack.utils.NonNullContext
 import kotlin.math.roundToInt
 
 class AltitudeIndicator(private val computer: FlightComputer, private val dim: Dimensions) : HudComponent() {
-    context(NonNullContext)
-    override fun render(partial: Float) {
+    context(ctx: NonNullContext)
+    override fun render(partial: Float): Unit = ctx.run {
         val top = dim.tFrame
         val bottom = dim.bFrame
 
@@ -50,8 +50,8 @@ class AltitudeIndicator(private val computer: FlightComputer, private val dim: D
         }
     }
 
-    context(NonNullContext)
-    private fun drawHeightIndicator(x: Float, top: Float, h: Float) {
+    context(ctx: NonNullContext)
+    private fun drawHeightIndicator(x: Float, top: Float, h: Float): Unit = ctx.run {
         val bottom = top + h
         val blocksPerPixel: Float = h / (world.height + 64f)
         val yAlt = bottom - ((computer.altitude + 64) * blocksPerPixel).roundToInt()

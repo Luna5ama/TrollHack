@@ -1,6 +1,5 @@
 package dev.luna5ama.trollhack.gui.hud.impl
 
-import dev.fastmc.common.sort.ObjectIntrosort
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import dev.luna5ama.trollhack.RS
 import dev.luna5ama.trollhack.event.api.nonNullParallelHandler
@@ -159,14 +158,14 @@ object ActiveModules : HudModule(
         }
     }
 
-    context(MatrixLayerStack.MatrixScope)
-    private fun drawModuleList() {
+    context(matrixScope: MatrixLayerStack.MatrixScope)
+    private fun drawModuleList(): Unit = matrixScope.run {
         val sortArray = makeKeyPair(ModuleManager.modules, lastSorted)
         lastSorted = sortArray
         for (pair in sortArray) {
             pair.update()
         }
-        ObjectIntrosort.sort(sortArray)
+        sortArray.sort()
 
         if (rainbow) {
             val lengthMs = rainbowLength * 1000.0f

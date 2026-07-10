@@ -175,8 +175,8 @@ object BlockUtils {
         return BlockPos(floor(player.x).toInt(), player.y.roundToInt(), floor(player.z).toInt())
     }
 
-    context(NonNullContext)
-    fun getLegitRotations(vec: Vec3): FloatArray {
+    context(ctx: NonNullContext)
+    fun getLegitRotations(vec: Vec3): FloatArray = ctx.run {
         val eyesPos: Vec3 = getEyesPos()
         val diffX = vec.x - eyesPos.x
         val diffY = vec.y - eyesPos.y
@@ -190,8 +190,8 @@ object BlockUtils {
         )
     }
 
-    context (NonNullContext, AbstractModule)
-    fun NonNullContext.placeAnchor(
+    context(ctx: NonNullContext, module: AbstractModule)
+    fun placeAnchor(
         pos: BlockPos,
         hand: InteractionHand = InteractionHand.MAIN_HAND,
         rotate: Boolean = true,
@@ -200,7 +200,7 @@ object BlockUtils {
         glowstone: Int,
         noglowstone: Int,
         setAir :Boolean
-    ) {
+    ): Unit = ctx.run {
         if (world.getBlockState(pos).block == Blocks.RESPAWN_ANCHOR) {
             HotbarSwitchManager.ghostSwitch(glowstone) {
                 rightClickBlock(pos, hand, getClickSideToCc(pos)!!, packet, rotate)
@@ -223,8 +223,8 @@ object BlockUtils {
         if (setAir) world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState())
     }
 
-    context (NonNullContext, AbstractModule)
-    fun NonNullContext.place(
+    context(ctx: NonNullContext, module: AbstractModule)
+    fun place(
         pos: BlockPos,
         hand: InteractionHand = InteractionHand.MAIN_HAND,
         rotate: Boolean = true,
@@ -232,7 +232,7 @@ object BlockUtils {
         strict: Boolean = true,
         legit: Boolean = false,
         air: Boolean = false
-    ) {
+    ): Unit = ctx.run {
         if (air) {
             for (direction in Direction.entries) {
                 if (!world.isInWorldBounds(pos.relative(direction))) continue
@@ -253,8 +253,8 @@ object BlockUtils {
     }
 
 
-    context (NonNullContext)
-    fun getPlaceSide(pos: BlockPos, strict: Boolean = true, legit: Boolean = false, air: Boolean = false): Direction? {
+    context(ctx: NonNullContext)
+    fun getPlaceSide(pos: BlockPos, strict: Boolean = true, legit: Boolean = false, air: Boolean = false): Direction? = ctx.run {
         var dis = 114514.0
         var side: Direction? = null
         for (i in Direction.entries) {
@@ -284,16 +284,16 @@ object BlockUtils {
         return side
     }
 
-    context (NonNullContext)
-    fun isStrictDirection(pos: BlockPos, side: Direction): Boolean {
+    context(ctx: NonNullContext)
+    fun isStrictDirection(pos: BlockPos, side: Direction): Boolean = ctx.run {
         val blockState: BlockState = world.getBlockState(pos)
         val isFullBox = blockState.block == Blocks.AIR || blockState.isCollisionShapeFullBlock(world, pos)
                 || getBlock(pos) == Blocks.COBWEB
         return isStrictDirection(pos, side, isFullBox)
     }
 
-    context (NonNullContext)
-    fun isStrictDirection(pos: BlockPos, side: Direction, isFullBox: Boolean): Boolean {
+    context(ctx: NonNullContext)
+    fun isStrictDirection(pos: BlockPos, side: Direction, isFullBox: Boolean): Boolean = ctx.run {
         if (player.y - pos.y >= 0 && side == Direction.DOWN) return false
         if (getBlock(pos.relative(side)) == Blocks.OBSIDIAN || getBlock(
                 pos.relative(side)
@@ -349,8 +349,8 @@ object BlockUtils {
         return valid
     }
 
-    context (NonNullContext, AbstractModule)
-    fun NonNullContext.doPlace(pos: BlockPos, hand: InteractionHand, webSlot: Int, rotate: Boolean, packet: Boolean) {
+    context(ctx: NonNullContext, module: AbstractModule)
+    fun doPlace(pos: BlockPos, hand: InteractionHand, webSlot: Int, rotate: Boolean, packet: Boolean): Unit = ctx.run {
         if (world.isEmptyBlock(pos)) {
             HotbarSwitchManager.ghostSwitch(webSlot) {
                 place(pos, hand, rotate, packet)
@@ -371,27 +371,27 @@ object BlockUtils {
         return if (updated) maxY else Double.NaN
     }
 
-    context (NonNullContext)
-    fun canClick(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun canClick(pos: BlockPos): Boolean = ctx.run {
         return world.getBlockState(pos).isSolid && (!(blackList.contains(getBlock(pos)) ||
                 shulkerList.contains(getBlock(pos)) || getBlock(pos) is BedBlock) || player.isShiftKeyDown)
     }
 
-    context (NonNullContext)
-    fun getBlock(pos: BlockPos): Block {
+    context(ctx: NonNullContext)
+    fun getBlock(pos: BlockPos): Block = ctx.run {
         return getState(pos).block
     }
 
-    context (NonNullContext)
-    fun getState(pos: BlockPos): BlockState {
+    context(ctx: NonNullContext)
+    fun getState(pos: BlockPos): BlockState = ctx.run {
         return world.getBlockState(pos)
     }
 
-    context (NonNullContext)
-    fun canReplace(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun canReplace(pos: BlockPos): Boolean = ctx.run {
         return getState(pos).canBeReplaced()
     }
-//    context (NonNullContext)
+//    context(ctx: NonNullContext)
 //    private fun getPossibleSides(pos: BlockPos): List<Direction> =
 //        Direction.entries.filter {
 //            val neighbour = pos.offset(it)
@@ -399,11 +399,11 @@ object BlockUtils {
 //                    && !neighbour.material.isReplaceable
 //        }
 
-//    context (NonNullContext)
+//    context(ctx: NonNullContext)
 //    private fun getFirstFacing(pos: BlockPos): Direction? = getPossibleSides(pos).firstOrNull()
 
-    context (NonNullContext, AbstractModule)
-    fun rightClickBlock(pos: BlockPos, hand: InteractionHand, direction: Direction, packet: Boolean, rotate: Boolean) {
+    context(ctx: NonNullContext, module: AbstractModule)
+    fun rightClickBlock(pos: BlockPos, hand: InteractionHand, direction: Direction, packet: Boolean, rotate: Boolean): Unit = ctx.run {
         val hitVec = pos.toVec3().add(0.5, 0.5, 0.5).add(direction.unitVec3.scale(0.5))
 //        val directionVec = Vec3(
 //            pos.x  + direction.vector.x * 0.5,
@@ -437,8 +437,8 @@ object BlockUtils {
         player.swing(hand)
     }
 
-    context (NonNullContext)
-    fun getClickSideStrict(pos: BlockPos, strict: Boolean = false): Direction? {
+    context(ctx: NonNullContext)
+    fun getClickSideStrict(pos: BlockPos, strict: Boolean = false): Direction? = ctx.run {
         var side: Direction? = null
         var range = 100.0
         for (i in Direction.entries) {
@@ -461,8 +461,8 @@ object BlockUtils {
         return side
     }
 
-    context(NonNullContext)
-    fun getClickSideToCc(pos: BlockPos): Direction? {
+    context(ctx: NonNullContext)
+    fun getClickSideToCc(pos: BlockPos): Direction? = ctx.run {
         var i = 114514.0
         var d: Direction? = null
         for (direction in Direction.entries) {
@@ -477,8 +477,8 @@ object BlockUtils {
         return d
     }
 
-    context(NonNullContext)
-    fun getClickSide(pos: BlockPos, strict: Boolean = false): Direction? {
+    context(ctx: NonNullContext)
+    fun getClickSide(pos: BlockPos, strict: Boolean = false): Direction? = ctx.run {
         var side: Direction? = null
         var range = 100.0
         for (i in Direction.entries) {
@@ -512,13 +512,13 @@ object BlockUtils {
         return (world as IClientLevelAccessor).acquirePendingUpdateManager()
     }
 
-    context (NonNullContext)
-    fun sendYawAndPitch(yaw: Float, pitch: Float) {
+    context(ctx: NonNullContext)
+    fun sendYawAndPitch(yaw: Float, pitch: Float): Unit = ctx.run {
         netHandler.send(ServerboundMovePlayerPacket.Rot(yaw, pitch, player.onGround(), player.horizontalCollision))
     }
 
-    context(NonNullContext)
-    fun hasEntityBlockCrystal(pos: BlockPos, ignoreCrystal: Boolean, ignoreItem: Boolean): Boolean {
+    context(ctx: NonNullContext)
+    fun hasEntityBlockCrystal(pos: BlockPos, ignoreCrystal: Boolean, ignoreItem: Boolean): Boolean = ctx.run {
         for (entity in world.getEntitiesOfClass(Entity::class.java, AABB(pos))) {
             if (!entity.isAlive || ignoreItem && entity is ItemEntity || ignoreCrystal && entity is EndCrystal) continue
             return true
@@ -526,33 +526,33 @@ object BlockUtils {
         return false
     }
 
-    context(NonNullContext)
-    fun distanceToXZ(x: Double, z: Double): Double {
+    context(ctx: NonNullContext)
+    fun distanceToXZ(x: Double, z: Double): Double = ctx.run {
         val dx: Double = player.x - x
         val dz: Double = player.z - z
         return sqrt(dx * dx + dz * dz)
     }
 
-    context(NonNullContext)
-    fun canPlace(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun canPlace(pos: BlockPos): Boolean = ctx.run {
         return canPlace(pos, false)
     }
 
-    context(NonNullContext)
-    fun canPlace(pos: BlockPos, ignoreCrystal: Boolean): Boolean {
+    context(ctx: NonNullContext)
+    fun canPlace(pos: BlockPos, ignoreCrystal: Boolean): Boolean = ctx.run {
         if (!canReplace(pos)) return false
         return !EntityUtils.hasEntity(pos, ignoreCrystal)
     }
 
-    context(NonNullContext)
-    fun canPlace(pos: BlockPos, distance: Double): Boolean {
+    context(ctx: NonNullContext)
+    fun canPlace(pos: BlockPos, distance: Double): Boolean = ctx.run {
         if (getPlaceSide(pos, distance) == null) return false
         if (!canReplace(pos)) return false
         return !EntityUtils.hasEntity(pos, false)
     }
 
-    context(NonNullContext)
-    fun canPlace(pos: BlockPos, distance: Double, ignoreCrystal: Boolean): Boolean {
+    context(ctx: NonNullContext)
+    fun canPlace(pos: BlockPos, distance: Double, ignoreCrystal: Boolean): Boolean = ctx.run {
         if (getPlaceSide(pos, distance) == null) {
             return false
         }
@@ -562,8 +562,8 @@ object BlockUtils {
         return !EntityUtils.hasEntity(pos, ignoreCrystal)
     }
 
-    context(NonNullContext)
-    fun getPlaceSide(pos: BlockPos, distance: Double): Direction? {
+    context(ctx: NonNullContext)
+    fun getPlaceSide(pos: BlockPos, distance: Double): Direction? = ctx.run {
         var dis = 0.0
         var side: Direction? = null
         for (i in Direction.entries) {
@@ -595,8 +595,8 @@ object BlockUtils {
         return side
     }
 
-    context(NonNullContext)
-    fun getBestNeighboring(pos: BlockPos, facing: Direction): Direction? {
+    context(ctx: NonNullContext)
+    fun getBestNeighboring(pos: BlockPos, facing: Direction): Direction? = ctx.run {
         for (i in Direction.entries) {
             if (pos.relative(i) == pos.relative(facing, -1) || i == Direction.DOWN) continue
             if (getPlaceSide(pos, false, true) != null) return i
@@ -615,23 +615,23 @@ object BlockUtils {
         return bestFacing
     }
 
-    context(NonNullContext)
-    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean) {
+    context(ctx: NonNullContext)
+    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean): Unit = ctx.run {
         clickBlock(pos, side, rotate, InteractionHand.MAIN_HAND)
     }
 
-    context(NonNullContext)
-    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean, hand: InteractionHand) {
+    context(ctx: NonNullContext)
+    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean, hand: InteractionHand): Unit = ctx.run {
         clickBlock(pos, side, rotate, hand, ClientSettings.packetPlace)
     }
 
-    context(NonNullContext)
-    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean, packet: Boolean) {
+    context(ctx: NonNullContext)
+    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean, packet: Boolean): Unit = ctx.run {
         clickBlock(pos, side, rotate, InteractionHand.MAIN_HAND, packet)
     }
 
-    context(NonNullContext)
-    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean, hand: InteractionHand, packet: Boolean) {
+    context(ctx: NonNullContext)
+    fun clickBlock(pos: BlockPos, side: Direction, rotate: Boolean, hand: InteractionHand, packet: Boolean): Unit = ctx.run {
         val directionVec = Vec3(
             pos.x + 0.5 + side.unitVec3.x * 0.5,
             pos.y + 0.5 + side.unitVec3.y * 0.5, pos.z + 0.5 + side.unitVec3.z * 0.5
@@ -659,8 +659,8 @@ object BlockUtils {
     }
 
 //
-//    context (NonNullContext, AbstractModule)
-//    fun placeBlock(pos: BlockPos, hand: Hand, rotate: Boolean, packet: Boolean, isSneaking: Boolean = player.isSneaking): Boolean {
+//    context(ctx: NonNullContext, module: AbstractModule)
+//    fun placeBlock(pos: BlockPos, hand: Hand, rotate: Boolean, packet: Boolean, isSneaking: Boolean = player.isSneaking): Boolean = ctx.run {
 //        var sneaking = false
 //        val side = getFirstFacing(pos) ?: return false
 //        val neighbour = pos.offset(side)

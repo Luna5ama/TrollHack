@@ -80,8 +80,8 @@ object KillAura : Module("Kill Aura", category = Category.COMBAT) {
         }
     }
 
-    context(NonNullContext)
-    private fun doAura() {
+    context(ctx: NonNullContext)
+    private fun doAura(): Unit = ctx.run {
         if (!check()) {
             return
         }
@@ -99,8 +99,8 @@ object KillAura : Module("Kill Aura", category = Category.COMBAT) {
     }
 
 
-    context(NonNullContext)
-    private fun check(): Boolean {
+    context(ctx: NonNullContext)
+    private fun check(): Boolean = ctx.run {
         val at = player.attackStrengthTicker
 //        at = ((PlayerPacketManager.clientTps.toInt() / 20f) * at).toInt()
         if (!(max(

@@ -18,8 +18,8 @@ import kotlin.math.roundToInt
 class PitchIndicator(private val computer: FlightComputer, private val dim: Dimensions) : HudComponent() {
     private val pitchData = PitchIndicatorData()
 
-    context(NonNullContext)
-    override fun render(partial: Float) {
+    context(ctx: NonNullContext)
+    override fun render(partial: Float): Unit = ctx.run {
         pitchData.update(dim)
 
         val horizonOffset = computer.pitch * dim.degreesPerPixel
@@ -47,8 +47,8 @@ class PitchIndicator(private val computer: FlightComputer, private val dim: Dime
         }
     }
 
-    context(NonNullContext)
-    private fun drawLadder(yHorizon: Float) {
+    context(ctx: NonNullContext)
+    private fun drawLadder(yHorizon: Float): Unit = ctx.run {
         var degreesPerBar = Valkyrie.degreesPerBar
 
         if (degreesPerBar < 1) {

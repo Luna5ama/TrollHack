@@ -13,7 +13,6 @@ import dev.luna5ama.trollhack.utils.Profiler
 import dev.luna5ama.trollhack.graphics.font.ArrayedUnicodeFontRenderer
 import dev.luna5ama.trollhack.graphics.font.FontRenderer
 import dev.luna5ama.trollhack.graphics.font.UnicodeFontRenderer
-import dev.luna5ama.trollhack.graphics.imgui.ImGuiScreen
 import dev.luna5ama.trollhack.utils.threads.RenderThreadCoroutine
 
 object UnicodeFontManager : AbstractManager(), AlwaysListening {
@@ -40,12 +39,6 @@ object UnicodeFontManager : AbstractManager(), AlwaysListening {
         GENSHIN_11 = create("/assets/trollhack/Genshin.ttf", 11f)
         GENSHIN_18 = create("/assets/trollhack/Genshin.ttf", 18f, superSamplingLevel = 8)
 
-        ImGuiScreen.Companion
-        GuiFont.entries.forEach {
-            val font = it.font()
-            font.initForImGui()
-        }
-        ImGuiScreen.imGuiImplGl3.createFontsTexture()
     }
 
     private fun create(

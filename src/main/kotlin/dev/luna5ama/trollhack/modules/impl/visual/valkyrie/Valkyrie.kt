@@ -65,8 +65,8 @@ object Valkyrie : Module("Valkyrie", category = Category.VISUAL) {
         }
     }
 
-    context(NonNullContext)
-    private fun drawPitchLabel() {
+    context(ctx: NonNullContext)
+    private fun drawPitchLabel(): Unit = ctx.run {
 //        val font = UnicodeFontManager.MSYAHEI_12
 //        val centerOfScreen = Vec2d(RS.scaledWidth / 2, RS.scaledHeight / 2)
 //        val currentPitch = mc.gameRenderer.camera.pitch

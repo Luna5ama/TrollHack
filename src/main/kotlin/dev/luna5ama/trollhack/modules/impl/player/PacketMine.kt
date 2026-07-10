@@ -258,8 +258,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         }
     }
 
-    context(NonNullContext)
-    fun mine(pos: BlockPos) {
+    context(ctx: NonNullContext)
+    fun mine(pos: BlockPos): Unit = ctx.run {
         if (player.isCreative) {
 //            interaction.attackBlock(pos, BlockUtils.getClickSide(pos))
             return
@@ -282,8 +282,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         startMine()
     }
 
-    context(NonNullContext)
-    private fun update() {
+    context(ctx: NonNullContext)
+    private fun update(): Unit = ctx.run {
         if (player.isDeadOrDying) {
             secondPos = null
         }
@@ -410,8 +410,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         }
     }
 
-    context(NonNullContext)
-    private fun startMine() {
+    context(ctx: NonNullContext)
+    private fun startMine(): Unit = ctx.run {
         val pos = breakPos ?: return
         firstTimer.reset()
         firstAnim.forceUpdate(0f, 0f)
@@ -465,8 +465,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         }
     }
 
-    context(NonNullContext)
-    private fun placeCrystal(): Boolean {
+    context(ctx: NonNullContext)
+    private fun placeCrystal(): Boolean = ctx.run {
         findCrystal()?.let {
             swap(it) {
                 place(breakPos!!.above(), rotate = rotate)
@@ -477,8 +477,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         return true
     }
 
-    context(NonNullContext)
-    private fun swap(slot: Slot, func: () -> Unit) {
+    context(ctx: NonNullContext)
+    private fun swap(slot: Slot, func: () -> Unit): Unit = ctx.run {
         when (switchMode) {
             NONE -> return
             LEGIT -> MainHandPause.withPause(PacketMine) {
@@ -491,25 +491,26 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         }
     }
 
-    context (NonNullContext)
-    private fun canPlace(pos: BlockPos) =
+    context(ctx: NonNullContext)
+    private fun canPlace(pos: BlockPos) = ctx.run {
         getPlaceSide(pos, false, false) != null && isReplaceable(pos)
+    }
 
-    context (NonNullContext)
-    private fun isReplaceable(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    private fun isReplaceable(pos: BlockPos): Boolean = ctx.run {
         return world.getBlockState(pos).canBeReplaced()
     }
 
-    context(NonNullContext)
-    private fun attackCrystal(pos: BlockPos, rotate: Boolean, eatingPause: Boolean) {
+    context(ctx: NonNullContext)
+    private fun attackCrystal(pos: BlockPos, rotate: Boolean, eatingPause: Boolean): Unit = ctx.run {
         for (entity in world.getEntitiesOfClass(EndCrystal::class.java, AABB(pos))) {
             attackCrystal(entity, rotate, eatingPause)
             break
         }
     }
 
-    context(NonNullContext)
-    private fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean) {
+    context(ctx: NonNullContext)
+    private fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean): Unit = ctx.run {
         if (usingPause && player.usingItemHand != null) return
         netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
         player.resetAttackStrengthTicker()
@@ -523,8 +524,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         return crystal && (!onlyHeadBomber || CombatManager.target?.let { pos.isAbove(it) } == true)
     }
 
-    context(NonNullContext)
-    private fun getTool(pos: BlockPos): Slot? {
+    context(ctx: NonNullContext)
+    private fun getTool(pos: BlockPos): Slot? = ctx.run {
         val result = when (switchMode) {
             LEGIT, GHOST -> {
                 player.hotbarSlots.maxByOrNull { slot ->
@@ -554,8 +555,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         return df.format(progress * 100) + "%"
     }
 
-    context(NonNullContext)
-    private fun findCrystal(): Slot? {
+    context(ctx: NonNullContext)
+    private fun findCrystal(): Slot? = ctx.run {
         if (switchMode == LEGIT || switchMode == GHOST) {
             return player.hotbarSlots.firstItem(Items.END_CRYSTAL)
         } else if (switchMode == INVENTORY) {
@@ -564,8 +565,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         return null
     }
 
-    context(NonNullContext)
-    private fun findBlock(block: Block): Slot? {
+    context(ctx: NonNullContext)
+    private fun findBlock(block: Block): Slot? = ctx.run {
         if (switchMode == LEGIT || switchMode == GHOST) {
             return player.hotbarSlots.firstBlock(block)
         } else if (switchMode == INVENTORY) {
@@ -592,27 +593,27 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         )
     }
 
-    context(NonNullContext)
-    fun getBreakTime(pos: BlockPos, slot: Slot): Double {
+    context(ctx: NonNullContext)
+    fun getBreakTime(pos: BlockPos, slot: Slot): Double = ctx.run {
         return 50.0 * ((pos.state.getDestroySpeed(world, pos) * 30
                 / getDigSpeed(pos.state, slot.item)).fastCeil() + 1) / damage
     }
 
-    context(NonNullContext)
-    fun getBreakTime(pos: BlockPos, slot: Slot, damage: Double): Double {
+    context(ctx: NonNullContext)
+    fun getBreakTime(pos: BlockPos, slot: Slot, damage: Double): Double = ctx.run {
         return 50.0 * ((pos.state.getDestroySpeed(world, pos) * 30
                 / getDigSpeed(pos.state, slot.item)).fastCeil() + 1) / damage
     }
 
-    context(NonNullContext)
-    private fun canBreak(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    private fun canBreak(pos: BlockPos): Boolean = ctx.run {
         val blockState: BlockState = world.getBlockState(pos)
         val block = blockState.block
         return block.defaultDestroyTime() != -1f
     }
 
-    context(NonNullContext)
-    private fun getBlockStrength(position: BlockPos, itemStack: ItemStack): Float {
+    context(ctx: NonNullContext)
+    private fun getBlockStrength(position: BlockPos, itemStack: ItemStack): Float = ctx.run {
         val state: BlockState = world.getBlockState(position)
         val hardness = state.getDestroySpeed(world, position)
         if (hardness < 0) {
@@ -625,8 +626,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         }
     }
 
-    context(NonNullContext)
-    private fun getDigSpeed(state: BlockState, itemStack: ItemStack): Float {
+    context(ctx: NonNullContext)
+    private fun getDigSpeed(state: BlockState, itemStack: ItemStack): Float = ctx.run {
         var digSpeed = getDestroySpeed(state, itemStack)
 
         if (digSpeed > 1) {
@@ -664,13 +665,13 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         return max(str + if (str > 1.0) effect * effect + 1.0 else 0.0, 0.0).toFloat()
     }
 
-    context(NonNullContext)
-    private fun isAir(breakPos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    private fun isAir(breakPos: BlockPos): Boolean = ctx.run {
         return world.isEmptyBlock(breakPos) || breakPos.block == Blocks.FIRE && hasCrystal(breakPos)
     }
 
-    context(NonNullContext)
-    private fun hasCrystal(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    private fun hasCrystal(pos: BlockPos): Boolean = ctx.run {
         for (entity in world.getEntitiesOfClass(EndCrystal::class.java, AABB(pos))) {
             if (!entity.isAlive || entity !is EndCrystal) continue
             return true

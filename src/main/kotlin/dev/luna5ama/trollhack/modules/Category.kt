@@ -14,10 +14,9 @@ sealed class Category(
     data object VISUAL : Category("Visual")
     data object MISC : Category("Miscellaneous")
     data object CLIENT : Category("Client")
-    data object SCRIPT : Category("Script")
     data object HUD : Category("Hud")
 
     companion object : IEnumEntriesProvider<Category> {
-        override val entries get() = listOf(COMBAT, PLAYER, MOVEMENT, VISUAL, MISC, CLIENT, SCRIPT, HUD)
+        override val entries get() = listOf(COMBAT, PLAYER, MOVEMENT, VISUAL, MISC, CLIENT, HUD)
     }
 }

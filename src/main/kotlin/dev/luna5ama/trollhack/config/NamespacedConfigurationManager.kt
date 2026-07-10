@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.config
+﻿package dev.luna5ama.trollhack.config
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
@@ -138,7 +138,7 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
         }
     }
 
-    context(Supervisor, TextComponent)
+    context(supervisor: Supervisor, text: TextComponent)
     private fun readJsonObject(json: JsonObject, configurable: Configurable) {
         configurable.settings.forEach { setting ->
             try {
@@ -149,8 +149,8 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
                 val warningMessage = "  Failed to load setting '${setting.nameAsString}'" +
                         " in configurable object $configurable"
                 TrollHackMod.LOGGER.warn(warningMessage)
-                addLine("\t$warningMessage")
-                errorOccurred = true
+                text.addLine("\t$warningMessage")
+                supervisor.errorOccurred = true
             }
         }
     }

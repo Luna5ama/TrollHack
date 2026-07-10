@@ -12,18 +12,18 @@ import net.minecraft.world.item.enchantment.Enchantments
 import kotlin.math.max
 
 object MineUtils {
-    context (NonNullContext)
-    fun findBestTool(pos: BlockPos): Int {
+    context(ctx: NonNullContext)
+    fun findBestTool(pos: BlockPos): Int = ctx.run {
         return findBestTool(pos, world.getBlockState(pos))
     }
 
-    context (NonNullContext)
-    fun findBestTool2(pos: BlockPos): Int {
+    context(ctx: NonNullContext)
+    fun findBestTool2(pos: BlockPos): Int = ctx.run {
         return findBestTool2(pos, world.getBlockState(pos))
     }
 
-    context (NonNullContext)
-    fun findBestTool(pos: BlockPos, state: BlockState): Int {
+    context(ctx: NonNullContext)
+    fun findBestTool(pos: BlockPos, state: BlockState): Int = ctx.run {
         var result: Int = player.inventory.selectedSlot
         if (state.getDestroySpeed(world, pos) > 0) {
             var speed = getSpeed(state, player.mainHandItem)
@@ -39,8 +39,8 @@ object MineUtils {
         return result
     }
 
-    context (NonNullContext)
-    fun findBestTool2(pos: BlockPos, state: BlockState): Int {
+    context(ctx: NonNullContext)
+    fun findBestTool2(pos: BlockPos, state: BlockState): Int = ctx.run {
         var result: Int = player.inventory.selectedSlot
         if (state.getDestroySpeed(world, pos) > 0) {
             var speed = getSpeed(state, player.mainHandItem)
@@ -62,8 +62,8 @@ object MineUtils {
         return max(str + if (str > 1.0) effect * effect + 1.0 else 0.0, 0.0)
     }
 
-    context (NonNullContext)
-    fun getBlockStrength(position: BlockPos, itemStack: ItemStack, onGround: Boolean): Float {
+    context(ctx: NonNullContext)
+    fun getBlockStrength(position: BlockPos, itemStack: ItemStack, onGround: Boolean): Float = ctx.run {
         val state: BlockState = world.getBlockState(position)
         val hardness = state.getDestroySpeed(world, position)
         if (hardness < 0) {
@@ -76,8 +76,8 @@ object MineUtils {
         }
     }
 
-    context (NonNullContext)
-    fun getDigSpeed(stack: ItemStack, state: BlockState, onGround: Boolean): Float {
+    context(ctx: NonNullContext)
+    fun getDigSpeed(stack: ItemStack, state: BlockState, onGround: Boolean): Float = ctx.run {
         var digSpeed  = getSpeed(state, stack).toFloat()
 
         if (digSpeed > 1.0f) {
@@ -112,13 +112,13 @@ object MineUtils {
         return if (digSpeed < 0) 0f else digSpeed
     }
 
-    context (NonNullContext)
-    fun canBreak(pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun canBreak(pos: BlockPos): Boolean = ctx.run {
         return canBreak(world.getBlockState(pos), pos)
     }
 
-    context (NonNullContext)
-    fun canBreak(state: BlockState, pos: BlockPos): Boolean {
+    context(ctx: NonNullContext)
+    fun canBreak(state: BlockState, pos: BlockPos): Boolean = ctx.run {
         return (state.getDestroySpeed(world, pos) != -1f
                 || state.fluidState.isSource)
 

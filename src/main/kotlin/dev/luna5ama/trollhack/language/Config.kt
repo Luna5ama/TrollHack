@@ -35,7 +35,7 @@ class Config private constructor() {
                 INSTANCE = Config()
                 save()
             } else try {
-                INSTANCE = GSON.fromJson<Config?>(Files.readString(PATH), Config::class.java)
+                INSTANCE = GSON.fromJson<Config?>(Files.readString(PATH), Config::class.java) ?: Config()
             } catch (e: Exception) {
                 INSTANCE = Config()
                 TrollHackMod.LOGGER.error("Couldn't load config file: ", e)

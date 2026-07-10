@@ -1,0 +1,57 @@
+[versions]
+java = "21"
+minecraft = "1.21.11"
+minecraft-range = "[1.21.11]"
+neoform = "1.21.11-20251209.172050"
+neoforge = "21.11.42"
+neoforge-loader-range = "[4,)"
+fabric-api = "0.141.4+1.21.11"
+fabric-loader = "0.19.3"
+fabric-kotlin = "1.13.12+kotlin.2.4.0"
+kotlin = "2.4.0"
+kotlinforge = "6.3.0"
+fabric-loom = "1.17.13"
+neoforged-moddev = "2.0.140"
+shadow = "8.3.6"
+foojay = "1.0.0"
+compose = "1.11.1"
+skiko = "0.144.6"
+mixin = "0.8.5"
+coroutines = "1.10.2"
+reflections = "0.10.2"
+mixinextras = "0.4.1"
+asm = "9.6"
+okhttp = "4.12.0"
+reflect = "1.3.4"
+jcodec = "0.2.5"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-language-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
+kotlinforge = { module = "thedarkcolour:kotlinforforge-neoforge", version.ref = "kotlinforge" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+compose-desktop = { module = "org.jetbrains.compose.desktop:desktop", version.ref = "compose" }
+skiko-awt = { module = "org.jetbrains.skiko:skiko-awt", version.ref = "skiko" }
+skiko-runtime-linux-x64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-linux-x64", version.ref = "skiko" }
+skiko-runtime-macos-x64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-macos-x64", version.ref = "skiko" }
+skiko-runtime-macos-arm64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-macos-arm64", version.ref = "skiko" }
+skiko-runtime-windows-x64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-windows-x64", version.ref = "skiko" }
+mixinextras-common = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinextras" }
+mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+reflect = { module = "net.lenni0451:Reflect", version.ref = "reflect" }
+jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
+jcodec-javase = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+neoforged-moddev = { id = "net.neoforged.moddev", version.ref = "neoforged-moddev" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+foojay = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay" }

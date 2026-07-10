@@ -16,6 +16,7 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+**/runs/
 
 ### Eclipse ###
 .apt_generated

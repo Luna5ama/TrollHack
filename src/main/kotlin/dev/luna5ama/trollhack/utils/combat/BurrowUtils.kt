@@ -32,13 +32,13 @@ object BurrowUtils {
         return pos.toVec3().add(0.5, 0.5, 0.5)
     }
 
-    context (NonNullContext)
-    fun getFeetBlock(): List<BlockPos> {
+    context(ctx: NonNullContext)
+    fun getFeetBlock(): List<BlockPos> = ctx.run {
         return getFeetBlock(0).toList()
     }
 
-    context (NonNullContext)
-    fun getFeetBlock(yOff: Int): Set<BlockPos> {
+    context(ctx: NonNullContext)
+    fun getFeetBlock(yOff: Int): Set<BlockPos> = ctx.run {
         val pos = player.boundingBox
         return buildSet {
             add(player.blockPosition())
@@ -49,15 +49,16 @@ object BurrowUtils {
         }
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     fun Player.getFeetBlock(yOff: Int): Set<BlockPos> {
-        val pos = this.boundingBox
+        val target = this
+        val pos = target.boundingBox
         return buildSet {
-            add(getFlooredPosition(this@Player).relative(Direction.UP, yOff))
-            add(Vec3(pos.maxX - 0.1, this@Player.y + yOff, pos.maxZ - 0.1).toBlockPos())
-            add(Vec3(pos.maxX - 0.1, this@Player.y + yOff, pos.minZ + 0.1).toBlockPos())
-            add(Vec3(pos.minX + 0.1, this@Player.y + yOff, pos.maxZ - 0.1).toBlockPos())
-            add(Vec3(pos.minX + 0.1, this@Player.y + yOff, pos.minZ + 0.1).toBlockPos())
+            add(getFlooredPosition(target).relative(Direction.UP, yOff))
+            add(Vec3(pos.maxX - 0.1, target.y + yOff, pos.maxZ - 0.1).toBlockPos())
+            add(Vec3(pos.maxX - 0.1, target.y + yOff, pos.minZ + 0.1).toBlockPos())
+            add(Vec3(pos.minX + 0.1, target.y + yOff, pos.maxZ - 0.1).toBlockPos())
+            add(Vec3(pos.minX + 0.1, target.y + yOff, pos.minZ + 0.1).toBlockPos())
         }
     }
 
@@ -68,8 +69,8 @@ object BurrowUtils {
         return angle
     }
 
-    context(NonNullContext)
-    fun getLegitRotations(eyeVec: Vec3, vec: Vec3): FloatArray {
+    context(ctx: NonNullContext)
+    fun getLegitRotations(eyeVec: Vec3, vec: Vec3): FloatArray = ctx.run {
         val diffX = vec.x - eyeVec.x
         val diffY = vec.y - eyeVec.y
         val diffZ = vec.z - eyeVec.z
@@ -82,8 +83,8 @@ object BurrowUtils {
         )
     }
 
-    context (NonNullContext)
-    fun getFeetBlock(yOff: Int, headFill: Boolean): List<BlockPos> {
+    context(ctx: NonNullContext)
+    fun getFeetBlock(yOff: Int, headFill: Boolean): List<BlockPos> = ctx.run {
         // new calculation
         val set = getFeetBlock(yOff).toMutableSet()
         if (headFill && yOff == 0) {
@@ -129,7 +130,7 @@ object BurrowUtils {
         return offset
     }
 
-    context (NonNullContext)
+    context(ctx: NonNullContext)
     private fun BlockPos.isPassable(): Boolean {
         val state = this.state
         return state.canBeReplaced() && state.block != Blocks.COBWEB

@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.gui.hud.impl
+﻿package dev.luna5ama.trollhack.gui.hud.impl
 
 import dev.luna5ama.trollhack.event.api.handler
 import dev.luna5ama.trollhack.event.impl.LoopEvent
@@ -21,7 +21,7 @@ object HudEventPosts : PlainTextHud("Event Posts") {
         }
     }
 
-    context(TextInfo)
+    context(textInfo: TextInfo)
     override fun TextComponent.buildText() {
         eventsCache.forEach {
             addLine(it)

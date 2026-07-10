@@ -77,8 +77,8 @@ object RotationUtils {
      *
      * @param posTo Calculate rotation to this position vector
      */
-    context (NonNullContext)
-    fun getRotationTo(posTo: Vec3): Vec2f {
+    context(ctx: NonNullContext)
+    fun getRotationTo(posTo: Vec3): Vec2f = ctx.run {
         return getRotationTo(player.eyePosition, posTo)
     }
 

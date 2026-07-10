@@ -1,4 +1,4 @@
-package dev.luna5ama.trollhack.modules.impl.client
+﻿package dev.luna5ama.trollhack.modules.impl.client
 
 import dev.luna5ama.trollhack.gui.NullClickGui
 import dev.luna5ama.trollhack.gui.NullHudEditor
@@ -18,12 +18,13 @@ object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
     val staticGlyphCache by setting("Static Glyph Cache", true, { page == Page.RENDER })
     val onlyInClickGui by setting("ClickGui Only", true, { page == Page.RENDER && staticGlyphCache })
     val guiFont by setting("Gui Font", UnicodeFontManager.GuiFont.PING_FANG, { page == Page.RENDER })
+    val guiScale by setting("GUI Scale", 2.0f, 0.5f..8.0f, 0.25f, { page == Page.RENDER })
     val framebuffer get() = true // disabling dedicated framebuffer is not allowed now
     val useGlLineSmooth by setting("GL Line Smooth", false, { page == Page.RENDER })
     val glDebugVerbose by setting("GL Debug Verbose", true, { page == Page.RENDER })
     val glDebugStacktrace by setting("GL Debug Stacktrace", false, { page == Page.RENDER })
     val msaaSamples by setting("MSAA Samples", 4, 1..32, 1, { page == Page.RENDER })
-    val uid by setting("Origin�?ID", true, { page == Page.RENDER })
+    val uid by setting("Origin鈩?ID", true, { page == Page.RENDER })
     val alien by setting("Alien Dance", false, { page == Page.RENDER })
     val backgroundType by setting("Background", BackgroundType.PARTICLES, { page == Page.RENDER })
 
