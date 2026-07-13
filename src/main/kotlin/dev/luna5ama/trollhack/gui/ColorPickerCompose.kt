@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
+@file:OptIn(ExperimentalComposeUiApi::class)
 
 package dev.luna5ama.trollhack.gui
 
@@ -11,7 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isPrimaryPressed
@@ -47,12 +49,18 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.luna5ama.trollhack.config.settings.ColorSetting
 import dev.luna5ama.trollhack.graphics.color.ColorHSVA
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
+import dev.luna5ama.trollhack.i18n.I18N
+import dev.luna5ama.trollhack.i18n.Lang
+import dev.luna5ama.trollhack.utils.always
+import dev.luna5ama.trollhack.utils.reflBi
+import kotlin.collections.listOf
 import kotlin.math.roundToInt
 
 private val PickerWidth = 252.dp
@@ -63,11 +71,54 @@ private val PickerSliderWidth = 128.dp
 private val PickerComponentHeight = 12.dp
 private val PickerButtonWidth = 50.dp
 
+@Preview(
+    name = "Color Picker Preview",
+    widthDp = 300,
+    heightDp = 160,
+    showBackground = true,
+    backgroundColor = 0xFF101214
+)
 @Composable
-internal fun BoxScope.ColorPickerWindow(
+internal fun ColorPickerWindowPreview() {
+    TrollHackTheme {
+        val setting = remember {
+            ColorSetting(
+                "123",
+                I18N(mapOf()) { Lang.ENGLISH },
+                ColorRGBA(0xFFFFFFFF.toInt()),
+                "",
+                always(),
+                mutableListOf(),
+                reflBi()
+            )
+        }
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                Modifier.graphicsLayer {
+                    scaleX = 1.5f
+                    scaleY = 1.5f
+                }
+            ) {
+                ColorPickerWindow(
+                    setting = setting,
+                    viewportWidth = 300,
+                    viewportHeight = 160,
+                    initiallyExpanded = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun ColorPickerWindow(
     setting: ColorSetting,
     viewportWidth: Int,
-    viewportHeight: Int
+    viewportHeight: Int,
+    initiallyExpanded: Boolean = false
 ) {
     TrollHackCompose.observeRevision()
 
@@ -111,7 +162,7 @@ internal fun BoxScope.ColorPickerWindow(
         TrollHackCompose.refresh()
     }
 
-    var expanded by remember(setting) { mutableStateOf(false) }
+    var expanded by remember(setting, initiallyExpanded) { mutableStateOf(initiallyExpanded) }
     LaunchedEffect(setting) { expanded = true }
     val animatedHeight by animateDpAsState(
         if (expanded) PickerHeight else PickerTitleHeight,

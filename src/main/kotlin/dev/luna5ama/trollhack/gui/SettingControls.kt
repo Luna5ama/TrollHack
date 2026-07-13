@@ -268,7 +268,13 @@ private fun StringControl(setting: StringSetting, revision: Int, index: Int) {
 
 @Composable
 private fun StringListControl(setting: StringListSetting, revision: Int, index: Int) {
-    LegacyStringRow(setting, setting.value.joinToString(", "), revision, index) {
+    LegacyStringRow(
+        setting,
+        setting.value.joinToString(", "),
+        revision,
+        index,
+        commitOnFocusLost = true
+    ) {
         setting.value = splitCollection(it)
         TrollHackCompose.refresh()
     }
@@ -276,7 +282,13 @@ private fun StringListControl(setting: StringListSetting, revision: Int, index: 
 
 @Composable
 private fun StringSetControl(setting: StringSetSetting, revision: Int, index: Int) {
-    LegacyStringRow(setting, setting.value.joinToString(", "), revision, index) {
+    LegacyStringRow(
+        setting,
+        setting.value.joinToString(", "),
+        revision,
+        index,
+        commitOnFocusLost = true
+    ) {
         setting.value = splitCollection(it).toSet()
         TrollHackCompose.refresh()
     }
@@ -288,6 +300,7 @@ private fun LegacyStringRow(
     externalValue: String,
     revision: Int,
     index: Int,
+    commitOnFocusLost: Boolean = false,
     onValueChange: (String) -> Unit
 ) {
     var focused by remember(setting) { mutableStateOf(false) }
@@ -312,7 +325,7 @@ private fun LegacyStringRow(
             value = field,
             onValueChange = {
                 field = it
-                onValueChange(it.text)
+                if (!commitOnFocusLost) onValueChange(it.text)
             },
             singleLine = true,
             textStyle = TextStyle(
@@ -322,9 +335,13 @@ private fun LegacyStringRow(
                 shadow = LegacyTextStyle.shadow
             ),
             modifier = Modifier.width(66.dp).onFocusChanged {
+                val wasFocused = focused
                 focused = it.isFocused
                 fillTarget = if (focused) 0f else 1f
                 ClickGuiState.textInputFocused = it.isFocused
+                if (commitOnFocusLost && wasFocused && !it.isFocused) {
+                    onValueChange(field.text)
+                }
             }
         )
     }

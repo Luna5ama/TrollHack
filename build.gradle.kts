@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.neoforged.moddev)
     alias(libs.plugins.fabric.loom) apply false
-    alias(libs.plugins.shadow) apply false
     id("multiloader-common")
 }
 
@@ -51,15 +50,9 @@ dependencies {
     annotationProcessor(libs.mixinextras.common)
     compileOnly(libs.asm.tree)
 
-    implementation(libs.kotlin.stdlib)
     implementation(libs.coroutines.core)
     implementation(libs.reflections)
-    implementation(libs.okhttp)
-    implementation(libs.reflect)
-    implementation(libs.jcodec)
-    implementation(libs.jcodec.javase)
     implementation(libs.compose.desktop)
-    implementation(libs.skiko.awt)
     implementation(currentSkikoRuntime())
 }
 

@@ -53,6 +53,7 @@ object SkiaMinecraftBridge : Helper {
     private var composeContent: (@Composable () -> Unit)? = null
     private var composeScale = Float.NaN
     private val pressedButtons = BooleanArray(5)
+    private val pressedKeys = LinkedHashSet<Int>()
     private var lastPointerPosition = Offset.Zero
     private var inputActive = false
 
@@ -71,6 +72,11 @@ object SkiaMinecraftBridge : Helper {
     }
 
     fun deactivateInput() {
+        if (inputActive) {
+            pressedKeys.toList().forEach { keyCode ->
+                sendKey(keyCode, pressed = false)
+            }
+        }
         inputActive = false
         composeScene?.sendPointerEvent(
             eventType = PointerEventType.Exit,
@@ -81,6 +87,7 @@ object SkiaMinecraftBridge : Helper {
         composeScene?.cancelPointerInput()
         composeScene?.focusManager?.releaseFocus()
         pressedButtons.fill(false)
+        pressedKeys.clear()
     }
 
     fun sendPointerMove(x: Float, y: Float, modifiers: Int = currentGlfwModifiers()): Boolean {
@@ -141,6 +148,9 @@ object SkiaMinecraftBridge : Helper {
         modifiers: Int = currentGlfwModifiers()
     ): Boolean {
         if (!inputActive) return false
+        if (codePoint == 0) {
+            if (pressed) pressedKeys += keyCode else pressedKeys -= keyCode
+        }
         val composeKey = if (keyCode == GLFW.GLFW_KEY_UNKNOWN || keyCode == AwtKeyEvent.VK_UNDEFINED) {
             Key.Unknown
         } else {
@@ -160,9 +170,8 @@ object SkiaMinecraftBridge : Helper {
     }
 
     fun sendCharacter(codePoint: Int, modifiers: Int = currentGlfwModifiers()): Boolean {
-        val consumed = sendKey(AwtKeyEvent.VK_UNDEFINED, codePoint, true, modifiers)
-        sendKey(AwtKeyEvent.VK_UNDEFINED, codePoint, false, modifiers)
-        return consumed
+        if (codePoint == 0) return false
+        return sendKey(AwtKeyEvent.VK_UNDEFINED, codePoint, true, modifiers)
     }
 
     fun render2D(ticksDelta: Float) {
@@ -328,6 +337,10 @@ object SkiaMinecraftBridge : Helper {
     }
 
     private fun Int.toAwtKeyCode() = when (this) {
+        GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT -> AwtKeyEvent.VK_SHIFT
+        GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL -> AwtKeyEvent.VK_CONTROL
+        GLFW.GLFW_KEY_LEFT_ALT, GLFW.GLFW_KEY_RIGHT_ALT -> AwtKeyEvent.VK_ALT
+        GLFW.GLFW_KEY_LEFT_SUPER, GLFW.GLFW_KEY_RIGHT_SUPER -> AwtKeyEvent.VK_META
         GLFW.GLFW_KEY_ESCAPE -> AwtKeyEvent.VK_ESCAPE
         GLFW.GLFW_KEY_ENTER -> AwtKeyEvent.VK_ENTER
         GLFW.GLFW_KEY_TAB -> AwtKeyEvent.VK_TAB
@@ -347,6 +360,23 @@ object SkiaMinecraftBridge : Helper {
         GLFW.GLFW_KEY_NUM_LOCK -> AwtKeyEvent.VK_NUM_LOCK
         GLFW.GLFW_KEY_PRINT_SCREEN -> AwtKeyEvent.VK_PRINTSCREEN
         GLFW.GLFW_KEY_PAUSE -> AwtKeyEvent.VK_PAUSE
+        GLFW.GLFW_KEY_KP_0 -> AwtKeyEvent.VK_NUMPAD0
+        GLFW.GLFW_KEY_KP_1 -> AwtKeyEvent.VK_NUMPAD1
+        GLFW.GLFW_KEY_KP_2 -> AwtKeyEvent.VK_NUMPAD2
+        GLFW.GLFW_KEY_KP_3 -> AwtKeyEvent.VK_NUMPAD3
+        GLFW.GLFW_KEY_KP_4 -> AwtKeyEvent.VK_NUMPAD4
+        GLFW.GLFW_KEY_KP_5 -> AwtKeyEvent.VK_NUMPAD5
+        GLFW.GLFW_KEY_KP_6 -> AwtKeyEvent.VK_NUMPAD6
+        GLFW.GLFW_KEY_KP_7 -> AwtKeyEvent.VK_NUMPAD7
+        GLFW.GLFW_KEY_KP_8 -> AwtKeyEvent.VK_NUMPAD8
+        GLFW.GLFW_KEY_KP_9 -> AwtKeyEvent.VK_NUMPAD9
+        GLFW.GLFW_KEY_KP_DECIMAL -> AwtKeyEvent.VK_DECIMAL
+        GLFW.GLFW_KEY_KP_DIVIDE -> AwtKeyEvent.VK_DIVIDE
+        GLFW.GLFW_KEY_KP_MULTIPLY -> AwtKeyEvent.VK_MULTIPLY
+        GLFW.GLFW_KEY_KP_SUBTRACT -> AwtKeyEvent.VK_SUBTRACT
+        GLFW.GLFW_KEY_KP_ADD -> AwtKeyEvent.VK_ADD
+        GLFW.GLFW_KEY_KP_ENTER -> AwtKeyEvent.VK_ENTER
+        GLFW.GLFW_KEY_KP_EQUAL -> AwtKeyEvent.VK_EQUALS
         in GLFW.GLFW_KEY_F1..GLFW.GLFW_KEY_F25 -> AwtKeyEvent.VK_F1 + (this - GLFW.GLFW_KEY_F1)
         else -> this
     }

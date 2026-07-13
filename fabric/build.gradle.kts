@@ -1,8 +1,7 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import net.fabricmc.loom.task.RemapJarTask
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -10,13 +9,31 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     id("multiloader-loader")
     alias(libs.plugins.fabric.loom)
-    alias(libs.plugins.shadow)
 }
 
 val modId = project.property("mod_id").toString()
-val shade by configurations.creating
-configurations.named("implementation") { extendsFrom(shade) }
-
+val embedded by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    exclude(group = "org.jetbrains.kotlin")
+    exclude(group = "org.jetbrains.kotlinx")
+    exclude(group = "org.jetbrains")
+    exclude(group = "org.slf4j")
+    exclude(group = "org.jspecify")
+    exclude(group = "com.google.code.findbugs")
+}
+configurations.named("include") {
+    dependencies.addAllLater(provider {
+        embedded.incoming.artifacts.resolvedArtifacts.get()
+            .mapNotNull { it.id.componentIdentifier as? ModuleComponentIdentifier }
+            .distinctBy { "${it.group}:${it.module}:${it.version}" }
+            .map { id ->
+                project.dependencies.create("${id.group}:${id.module}:${id.version}").apply {
+                    isTransitive = false
+                }
+            }
+    })
+}
 dependencies {
     minecraft(libs.minecraft)
     mappings(loom.layered { officialMojangMappings() })
@@ -24,14 +41,13 @@ dependencies {
     modImplementation(libs.fabric.api)
     modImplementation(libs.fabric.language.kotlin)
 
-    shade(libs.reflections)
-    shade(libs.okhttp)
-    shade(libs.reflect)
-    shade(libs.jcodec)
-    shade(libs.jcodec.javase)
-    shade(libs.compose.desktop)
-    shade(libs.skiko.awt)
-    shade(currentSkikoRuntime())
+    implementation(libs.reflections)
+    implementation(libs.compose.desktop)
+    implementation(currentSkikoRuntime())
+
+    embedded(libs.reflections)
+    embedded(libs.compose.desktop)
+    embedded(currentSkikoRuntime())
     compileOnly(libs.mixinextras.common)
     annotationProcessor(libs.mixinextras.common)
     compileOnly(libs.asm.tree)
@@ -63,20 +79,6 @@ loom {
             runDir("runs/client")
         }
     }
-}
-
-tasks.named<ShadowJar>("shadowJar") {
-    configurations = listOf(shade)
-    archiveClassifier.set("dev-shadow")
-    dependencies {
-        exclude(dependency("org.jetbrains.kotlin:.*"))
-        exclude(dependency("org.jetbrains.kotlinx:.*"))
-    }
-}
-
-tasks.named<RemapJarTask>("remapJar") {
-    dependsOn(tasks.shadowJar)
-    inputFile.set(tasks.shadowJar.get().archiveFile)
 }
 
 val loaderAttribute = Attribute.of("dev.luna5ama.trollhack.loader", String::class.java)
