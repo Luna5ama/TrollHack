@@ -46,13 +46,11 @@ import dev.luna5ama.trollhack.modules.impl.visual.BlockHighlight
 import dev.luna5ama.trollhack.modules.impl.visual.BlueArchiveHalo
 import dev.luna5ama.trollhack.modules.impl.visual.CrystalDamage
 import dev.luna5ama.trollhack.modules.impl.visual.FullBright
-import dev.luna5ama.trollhack.modules.impl.visual.MotionBlur
 import dev.luna5ama.trollhack.modules.impl.visual.NameTags
 import dev.luna5ama.trollhack.modules.impl.visual.NoCameraClip
 import dev.luna5ama.trollhack.modules.impl.visual.NoRender
 import dev.luna5ama.trollhack.modules.impl.visual.PlaceRender
 import dev.luna5ama.trollhack.modules.impl.visual.RenderTest
-import dev.luna5ama.trollhack.modules.impl.visual.Shaders
 import dev.luna5ama.trollhack.modules.impl.visual.Tracers
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.Valkyrie
 import dev.luna5ama.trollhack.utils.Profiler
@@ -108,14 +106,12 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         BlueArchiveHalo,
         CrystalDamage,
         FullBright,
-        MotionBlur,
         NameTags,
         NoCameraClip,
         NoRender,
         Notification,
         PlaceRender,
         RenderTest,
-        Shaders,
         Tracers,
 
         ActiveModules,

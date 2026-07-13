@@ -2,10 +2,8 @@ package dev.luna5ama.trollhack.mixins.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.luna5ama.trollhack.event.impl.player.PlayerUpdateVelocityEvent;
-import dev.luna5ama.trollhack.modules.impl.client.ClientSettings;
 import dev.luna5ama.trollhack.modules.impl.visual.NameTags;
 import dev.luna5ama.trollhack.modules.impl.visual.NoRender;
-import dev.luna5ama.trollhack.modules.impl.visual.Shaders;
 import dev.luna5ama.trollhack.utils.MinecraftWrapper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -58,11 +56,6 @@ public abstract class MixinEntity {
                 mc.player.setDeltaMovement(mc.player.getDeltaMovement().add(event.getVelocity()));
             }
         }
-    }
-
-    @Inject(method = "isCurrentlyGlowing", at = @At("HEAD"), cancellable = true)
-    public void isGlowingHook(CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(Shaders.INSTANCE.shouldRender((Entity)(Object)this));
     }
 
     @ModifyReturnValue(method = "shouldShowName", at = @At(value = "RETURN"))

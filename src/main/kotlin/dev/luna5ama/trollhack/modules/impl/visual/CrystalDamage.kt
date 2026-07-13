@@ -2,9 +2,9 @@ package dev.luna5ama.trollhack.modules.impl.visual
 
 import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.render.Skia2DEvent
+import dev.luna5ama.trollhack.graphics.blaze3d.WorldProjection
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
-import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.utils.math.vectors.VectorUtils.minus
@@ -20,11 +20,17 @@ object CrystalDamage : Module("Crystal Damage", description = "不能代表真�
                 .forEach {
                     val damage = DamageCalculation(this, player, player.position())
                         .calcDamage(it.x, it.y, it.z, false, BlockPos.MutableBlockPos())
-                    val textPos = Render3DUtils.worldToScreen(it.position() - Vec3(.0, 0.5, .0))
+                    val textPos = WorldProjection.worldToScreen(
+                        it.position() - Vec3(.0, 0.5, .0),
+                        event.framebufferWidth,
+                        event.framebufferHeight,
+                        event.width,
+                        event.height,
+                    ) ?: return@forEach
                     event.draw.centeredText(
                         damage.toString(),
-                        textPos.x.toFloat(),
-                        textPos.y.toFloat(),
+                        textPos.x,
+                        textPos.y,
                         color = ColorRGBA.WHITE,
                         shadow = true
                     )

@@ -1,10 +1,6 @@
-package dev.luna5ama.trollhack.graphics.matrix
+package dev.luna5ama.trollhack.graphics.skia
 
-import org.joml.Matrix4f
-
-class OrthoProjection(initialScale: Float = 2.0f) {
-    val matrix = Matrix4f()
-
+class GuiProjection(initialScale: Float = 2.0f) {
     var scale = initialScale
         private set
     var framebufferWidth = 1
@@ -16,7 +12,7 @@ class OrthoProjection(initialScale: Float = 2.0f) {
     var height = 0.5f
         private set
 
-    fun update(framebufferWidth: Int, framebufferHeight: Int, requestedScale: Float): OrthoProjection {
+    fun update(framebufferWidth: Int, framebufferHeight: Int, requestedScale: Float): GuiProjection {
         val safeWidth = framebufferWidth.coerceAtLeast(1)
         val safeHeight = framebufferHeight.coerceAtLeast(1)
         val safeScale = requestedScale.coerceIn(0.5f, 8.0f)
@@ -30,7 +26,6 @@ class OrthoProjection(initialScale: Float = 2.0f) {
         scale = safeScale
         width = safeWidth / safeScale
         height = safeHeight / safeScale
-        matrix.setOrtho(0.0f, width, height, 0.0f, -1000.0f, 1000.0f)
         return this
     }
 }

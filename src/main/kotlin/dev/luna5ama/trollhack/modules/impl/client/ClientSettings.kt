@@ -8,15 +8,11 @@ import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.Displayable
 import dev.luna5ama.trollhack.utils.EnumGameMode
-import org.lwjgl.opengl.GL11.*
 import java.util.*
 
 object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
     private val page by setting("Page", Page.FAKE_PLAYER)
     val guiScale by setting("GUI Scale", 2.0f, 0.5f..8.0f, 0.25f, { page == Page.RENDER })
-    val useGlLineSmooth by setting("GL Line Smooth", false, { page == Page.RENDER })
-    val glDebugVerbose by setting("GL Debug Verbose", true, { page == Page.RENDER })
-    val glDebugStacktrace by setting("GL Debug Stacktrace", false, { page == Page.RENDER })
     val uid by setting("Origin鈩?ID", true, { page == Page.RENDER })
 
     val customUUID by setting("Custom UUID", false, { page == Page.FAKE_PLAYER })
@@ -84,11 +80,5 @@ object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
         STRICT("Strict"),
         LEGIT("Legit"),
         AIR_PLACE("Air Place")
-    }
-
-    enum class PolygonMode(override val displayName: CharSequence, val glInt: Int) : Displayable {
-        LINE("Line", GL_LINE),
-        FILL("Fill", GL_FILL),
-        POINT("Point", GL_POINT)
     }
 }

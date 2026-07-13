@@ -107,8 +107,6 @@ value class ColorRGBA(val rgba: Int) : ColorSpace.RGBA {
     }
 
     fun toHSB() = ColorUtils.rgbToHSB(r, g, b, a)
-    fun toGL() = GLColor(rFloat, gFloat, bFloat, aFloat)
-
     fun pure() = toHSB().brightness(1f).saturation(1f).alpha(1f).toRGBA()
 
     operator fun component1() = r

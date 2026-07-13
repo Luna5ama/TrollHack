@@ -11,12 +11,12 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
+import dev.luna5ama.trollhack.event.api.handler
 import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
-import dev.luna5ama.trollhack.graphics.GLHelper
-import dev.luna5ama.trollhack.graphics.StaticBoxRenderer
-import dev.luna5ama.trollhack.graphics.StaticTracerRenderer
+import dev.luna5ama.trollhack.graphics.blaze3d.Render3DScheduler
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.graphics.color.ColorUtils
 import dev.luna5ama.trollhack.modules.Category
@@ -37,6 +37,7 @@ import net.minecraft.core.SectionPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.chunk.ChunkAccess
+import net.minecraft.world.phys.Vec3
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 object Search : Module(
@@ -73,13 +74,16 @@ object Search : Module(
         }
     }
 
-    private val boxRenderer = StaticBoxRenderer()
-    private val tracerRenderer = StaticTracerRenderer()
+    @Volatile
+    private var renderSnapshot: List<Render3DScheduler.BoxEntry> = emptyList()
     private val updateTimer = TickTimer()
 
     private var dirty = false
     private var lastUpdatePos: BlockPos? = null
     private var lastUpdateJob: Job? = null
+    private val updateGeneration = AtomicInteger()
+    @Volatile
+    private var cacheResetPending = false
     private val gcTimer = TickTimer()
     private val cachedMainList =
         DoubleBuffered<FastObjectArrayList<BlockRenderInfo>>(::newRenderInfoList)
@@ -87,7 +91,7 @@ object Search : Module(
         ConcurrentObjectPool<FastObjectArrayList<BlockRenderInfo>>(::newRenderInfoList)
 
     override fun getDisplayInfo(): Any? {
-        return boxRenderer.size.toString()
+        return renderSnapshot.size.toString()
     }
 
     init {
@@ -96,14 +100,11 @@ object Search : Module(
         }
 
         onDisabled {
-            dirty = true
-            lastUpdatePos = null
+            invalidateRenderer()
+        }
 
-            boxRenderer.clear()
-            tracerRenderer.clear()
-            cachedMainList.front.clearAndTrim()
-            cachedMainList.back.clearAndTrim()
-            cachedSublistPool = ConcurrentObjectPool(::newRenderInfoList)
+        handler<WorldEvent.Unload> {
+            invalidateRenderer()
         }
 
         nonNullHandler<WorldEvent.ClientBlockUpdate> {
@@ -118,16 +119,24 @@ object Search : Module(
         }
 
         nonNullHandler<Render3DEvent> {
-            GLHelper.depth = false
-
             val filledAlpha = if (filled) filledAlpha else 0
             val outlineAlpha = if (outline) outlineAlpha else 0
             val tracerAlpha = if (tracer) tracerAlpha else 0
+            val camera = mc.gameRenderer.mainCamera
+            val forward = camera.forwardVector()
+            val tracerStart = camera.position().add(
+                Vec3(forward.x().toDouble(), forward.y().toDouble(), forward.z().toDouble()).scale(0.05)
+            )
 
-            boxRenderer.render(filledAlpha, outlineAlpha)
-            tracerRenderer.render(tracerAlpha)
-
-            GLHelper.depth = true
+            Render3DScheduler.addBoxBatch(
+                renderSnapshot,
+                filledAlpha,
+                outlineAlpha,
+                tracerAlpha,
+                tracerStart,
+                width,
+                through = true
+            )
 
             val playerPos = player.flooredPosition
 
@@ -145,6 +154,14 @@ object Search : Module(
 
     @OptIn(ObsoleteCoroutinesApi::class)
     private fun NonNullContext.updateRenderer() {
+        if (cacheResetPending) {
+            cachedMainList.front.clearAndTrim()
+            cachedMainList.back.clearAndTrim()
+            cachedSublistPool = ConcurrentObjectPool(::newRenderInfoList)
+            cacheResetPending = false
+        }
+
+        val generation = updateGeneration.get()
         lastUpdateJob = Coroutine.launch {
             val cleanList = gcTimer.tickAndReset(1000L)
 
@@ -170,20 +187,17 @@ object Search : Module(
 
                 val pos = BlockPos.MutableBlockPos()
 
-                tracerRenderer.update {
-                    boxRenderer.update {
-                        val mainList = cachedMainList.front
-                        for (index in 0 until mainList.size) {
-                            if (index >= maximumBlocks) break
-                            val info = mainList[index]
-                            pos.set(info.x, info.y, info.z)
-                            val blockState = world.getBlockState(pos)
-                            val box = (blockState.getShape(world, pos).takeUnless { it.isEmpty }?.bounds() ?: continue).move(pos)
-                            val color = getBlockColor(pos, blockState)
-                            putBox(box, color)
-                            putTracer(box, color)
-                        }
-                    }
+                val snapshot = ArrayList<Render3DScheduler.BoxEntry>(minOf(cachedMainList.front.size, maximumBlocks))
+                val mainList = cachedMainList.front
+                for (index in 0 until minOf(mainList.size, maximumBlocks)) {
+                    val info = mainList[index]
+                    pos.set(info.x, info.y, info.z)
+                    val blockState = world.getBlockState(pos)
+                    val box = (blockState.getShape(world, pos).takeUnless { it.isEmpty }?.bounds() ?: continue).move(pos)
+                    snapshot.add(Render3DScheduler.BoxEntry(box, getBlockColor(pos, blockState)))
+                }
+                if (generation == updateGeneration.get()) {
+                    renderSnapshot = snapshot
                 }
 
                 clearList(cleanList, cachedMainList.front)
@@ -209,6 +223,15 @@ object Search : Module(
 
             actor.close()
         }
+    }
+
+    private fun invalidateRenderer() {
+        dirty = true
+        lastUpdatePos = null
+        updateGeneration.incrementAndGet()
+        cacheResetPending = true
+        renderSnapshot = emptyList()
+        lastUpdateJob?.cancel()
     }
 
     private fun merge(

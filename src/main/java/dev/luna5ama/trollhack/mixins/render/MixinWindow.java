@@ -5,7 +5,6 @@ import com.mojang.blaze3d.platform.ScreenManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.platform.WindowEventHandler;
 import dev.luna5ama.trollhack.TrollHackMod;
-import dev.luna5ama.trollhack.RenderSystem;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,15 +19,6 @@ import static org.lwjgl.glfw.GLFW.*;
 @Mixin(Window.class)
 public class MixinWindow {
     @Shadow @Final private long handle;
-
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwWindowHint(II)V", ordinal = 5, shift = At.Shift.AFTER, remap = false))
-    public void hookInit(WindowEventHandler eventHandler, ScreenManager screenManager, DisplayData displayData, String preferredFullscreenVideoMode, String title, CallbackInfo ci) {
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, 0);
-        glfwWindowHint(GLFW_CONTEXT_DEBUG, 1);
-    }
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void hookInit$Return(WindowEventHandler eventHandler, ScreenManager screenManager, DisplayData displayData, String preferredFullscreenVideoMode, String title, CallbackInfo ci) {

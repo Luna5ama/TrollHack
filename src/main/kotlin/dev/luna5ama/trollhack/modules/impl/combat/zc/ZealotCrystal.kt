@@ -38,7 +38,7 @@ import dev.luna5ama.trollhack.utils.delegates.CachedValueN
 import dev.luna5ama.trollhack.utils.extension.*
 import dev.luna5ama.trollhack.graphics.ESPRenderer
 import dev.luna5ama.trollhack.graphics.animations.Easing
-import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils
+import dev.luna5ama.trollhack.graphics.blaze3d.WorldProjection
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.inventory.HotbarSlot
 import dev.luna5ama.trollhack.utils.inventory.everySlots
@@ -408,7 +408,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
 
         nonNullHandler<Skia2DEvent> {
-            Renderer.onRender2D(it.draw)
+            Renderer.onRender2D(it)
         }
     }
 
@@ -1836,7 +1836,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         }
 
         context(ctx: NonNullContext)
-        fun onRender2D(draw: dev.luna5ama.trollhack.graphics.skia.SkiaDrawScope): Unit = ctx.run {
+        fun onRender2D(event: Skia2DEvent): Unit = ctx.run {
             if (scale != 0.0f && (targetDamage || selfDamage)) {
                 lastRenderPos?.let {
                     val text = buildString {
@@ -1851,14 +1851,20 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
                     if (RotationUtils.getRotationDiff(
                             Vec2f(camera.yRot(), camera.xRot()),
                             RotationUtils.getRotationTo(it)) < mc.options.fov().get()) {
-                        val screenPos = Render3DUtils.worldToScreen(it)
+                        val screenPos = WorldProjection.worldToScreen(
+                            it,
+                            event.framebufferWidth,
+                            event.framebufferHeight,
+                            event.width,
+                            event.height,
+                        ) ?: return@let
                         val alpha = (255.0f * scale).toInt()
                         val color = if (scale == 1.0f) ColorRGBA(255, 255, 255) else ColorRGBA(255, 255, 255, alpha)
 
-                        draw.centeredText(
+                        event.draw.centeredText(
                             text,
-                            screenPos.x.toFloat(),
-                            screenPos.y.toFloat() - 9f,
+                            screenPos.x,
+                            screenPos.y - 9f,
                             size = 18f,
                             color = color
                         )

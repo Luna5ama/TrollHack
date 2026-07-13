@@ -8,7 +8,7 @@ import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.ChatUtils
 import dev.luna5ama.trollhack.graphics.animations.BlockEasingRender
-import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils
+import dev.luna5ama.trollhack.graphics.blaze3d.Render3DScheduler
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.timing.TimeUnit
@@ -42,8 +42,8 @@ object PlaceRender : Module("Place Render", category = Category.RENDER) {
 
         nonNullHandler<Render3DEvent> {
             val (box, _) = animation.updateVec3Box()
-            Render3DUtils.drawBox(box, color)
-            Render3DUtils.drawBoxOutline(box, lineWidth, lineColor)
+            Render3DScheduler.addFilledBox(box, color, through = true)
+            Render3DScheduler.addOutlineBox(box, lineColor, lineWidth, through = true)
         }
     }
 }

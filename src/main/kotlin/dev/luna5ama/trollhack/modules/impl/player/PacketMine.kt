@@ -22,7 +22,8 @@ import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.extension.*
 import dev.luna5ama.trollhack.graphics.animations.AnimationFlag
 import dev.luna5ama.trollhack.graphics.animations.Easing
-import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils
+import dev.luna5ama.trollhack.graphics.blaze3d.Render3DScheduler
+import dev.luna5ama.trollhack.graphics.blaze3d.WorldProjection
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.inventory.*
 import dev.luna5ama.trollhack.utils.inventory.pause.MainHandPause
@@ -150,7 +151,13 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                 if (RotationUtils.getRotationDiff(
                         Vec2f(camera.yRot(), camera.xRot()),
                         RotationUtils.getRotationTo(pos.toVec3Center())) < mc.options.fov().get()) {
-                    val screenPos = Render3DUtils.worldToScreen(pos.toVec3Center())
+                    val screenPos = WorldProjection.worldToScreen(
+                        pos.toVec3Center(),
+                        event.framebufferWidth,
+                        event.framebufferHeight,
+                        event.width,
+                        event.height
+                    ) ?: return@let
                     val alpha = (255.0f * firstAnim.getAndUpdate(100f) / 100).toInt()
                     val color = if (firstAnim.getAndUpdate(100f) / 100 >= 1.0f)
                         ColorRGBA(255, 255, 255)
@@ -158,8 +165,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
 
                     event.draw.centeredText(
                         text,
-                        screenPos.x.toFloat(),
-                        screenPos.y.toFloat() - 9f,
+                        screenPos.x,
+                        screenPos.y - 9f,
                         size = 18f,
                         color = color,
                         shadow = true
@@ -175,9 +182,17 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                         secondPos = null
                     } else {
                         val size = secondAnim.getAndUpdate(100f)
-                        if (box) Render3DUtils.drawBox(AABB(pos).scale(size / 2), doubleColor)
+                        val renderBox = AABB(pos).scale(size / 2)
+                        if (box) {
+                            Render3DScheduler.addFilledBox(renderBox, doubleColor, through = true)
+                        }
                         if (outline) {
-                            Render3DUtils.drawBoxOutline(AABB(pos).scale(size / 2), 1f, doubleColor.alpha(255))
+                            Render3DScheduler.addOutlineBox(
+                                renderBox,
+                                doubleColor.alpha(255),
+                                thickness = 1.0f,
+                                through = true
+                            )
                         }
                     }
                 }
@@ -188,9 +203,17 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                     breakLength1 = getBreakTime(pos, slot).toFloat()
                     val size = firstAnim.getAndUpdate(100f)
                     val color = interpolateColor(size / 100f)
-                    if (box) Render3DUtils.drawBox(AABB(pos).scale(size / 2), color)
+                    val renderBox = AABB(pos).scale(size / 2)
+                    if (box) {
+                        Render3DScheduler.addFilledBox(renderBox, color, through = true)
+                    }
                     if (outline) {
-                        Render3DUtils.drawBoxOutline(AABB(pos).scale(size / 2), 1f, color.alpha(255))
+                        Render3DScheduler.addOutlineBox(
+                            renderBox,
+                            color.alpha(255),
+                            thickness = 1.0f,
+                            through = true
+                        )
                     }
                 } ?: run {
                     progress = 0.0

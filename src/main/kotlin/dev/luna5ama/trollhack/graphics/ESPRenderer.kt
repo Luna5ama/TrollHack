@@ -1,13 +1,12 @@
 package dev.luna5ama.trollhack.graphics
 
-import com.mojang.blaze3d.systems.RenderSystem
+import dev.luna5ama.trollhack.graphics.blaze3d.Render3DScheduler
+import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.MinecraftWrapper
 import dev.luna5ama.trollhack.utils.NonNullContext
-import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils
-import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.world.DirectionMask
-import net.minecraft.world.entity.Entity
 import net.minecraft.core.BlockPos
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.AABB
 
 class ESPRenderer {
@@ -74,42 +73,37 @@ class ESPRenderer {
         val tracer = aTracer != 0
         if (toRender0.isEmpty() || (!filled && !outline && !tracer)) return
 
-        if (through) GLHelper.depth = false
-        org.lwjgl.opengl.GL11.glLineWidth(thickness)
-
         if (filled) {
             for ((box, color, sides) in toRender0) {
                 val a = (aFilled * (color.a / 255.0f)).toInt()
-                Render3DUtils.drawBox(box, color.alpha(a))
+                Render3DScheduler.addFilledBox(box, color.alpha(a), sides, through)
             }
-//            RenderUtils3D.draw(GL_QUADS)
         }
 
-        if (outline || tracer) {
-            if (outline) {
-                for ((box, color, _) in toRender0) {
-                    val a = (aOutline * (color.a / 255.0f)).toInt()
-                    Render3DUtils.drawBoxOutline(box, 1f, color.alpha(a))
-                }
+        if (outline) {
+            for ((box, color, sides) in toRender0) {
+                val a = (aOutline * (color.a / 255.0f)).toInt()
+                Render3DScheduler.addOutlineBox(box, color.alpha(a), thickness, sides, through)
             }
-//            if (tracer) {
-//                for ((box, color, _) in toRender0) {
-//                    val a = (aTracer * (color.a / 255.0f)).toInt()
-//                    val offset = (tracerOffset - 50) / 100.0 * (box.maxY - box.minY)
-//                    val offsetBox = box.center.add(0.0, offset, 0.0)
-//                    Render3DUtils.drawLineTo(offsetBox, color.alpha(a))
-//                }
-//            }
+        }
 
-//            RenderUtils3D.draw(GL_LINES)
+        if (tracer) {
+            val camera = MinecraftWrapper.mc.gameRenderer.mainCamera
+            val forward = camera.forwardVector()
+            val start = camera.position().add(
+                forward.x().toDouble() * 0.05,
+                forward.y().toDouble() * 0.05,
+                forward.z().toDouble() * 0.05
+            )
+            for ((box, color, _) in toRender0) {
+                val a = (aTracer * (color.a / 255.0f)).toInt()
+                val offset = (tracerOffset - 50) / 100.0 * (box.maxY - box.minY)
+                val target = box.center.add(0.0, offset, 0.0)
+                Render3DScheduler.addLine(start, target, color.alpha(a), thickness, through)
+            }
         }
 
         if (clear) clear()
-        GLHelper.depth = true
-    }
-
-    private enum class Type {
-        FILLED, OUTLINE, TRACER
     }
 
     data class Info(val box: AABB, val color: ColorRGBA, val sides: Int) {

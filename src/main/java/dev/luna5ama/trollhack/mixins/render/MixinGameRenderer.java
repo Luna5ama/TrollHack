@@ -1,17 +1,11 @@
 package dev.luna5ama.trollhack.mixins.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.luna5ama.trollhack.RenderSystem;
-import dev.luna5ama.trollhack.event.impl.render.ResolutionUpdateEvent;
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge;
-import dev.luna5ama.trollhack.modules.impl.client.ClientSettings;
 import dev.luna5ama.trollhack.modules.impl.player.NoEntityTrace;
 import dev.luna5ama.trollhack.modules.impl.visual.AspectRatio;
-import dev.luna5ama.trollhack.modules.impl.visual.MotionBlur;
 import dev.luna5ama.trollhack.modules.impl.visual.NoRender;
-import dev.luna5ama.trollhack.graphics.buffer.Render3DUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.HitResult;
 import org.joml.Matrix4f;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,55 +26,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static org.lwjgl.opengl.GL13C.glActiveTexture;
-import static org.lwjgl.opengl.GL11C.glGetInteger;
-import static org.lwjgl.opengl.GL13C.GL_ACTIVE_TEXTURE;
-
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer {
     @Shadow private float renderDistance;
-
-    @Inject(method = "resize", at = @At("HEAD"))
-    public void onResized$HEAD(int width, int height, CallbackInfo ci) {
-        new ResolutionUpdateEvent(width, height).post();
-        GlStateManager._glUseProgram(0);
-    }
-
-    @Inject(
-            at = @At(value = "FIELD",
-                    target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z",
-                    opcode = Opcodes.GETFIELD,
-                    ordinal = 0),
-            method = "renderLevel",
-            require = 0)
-    private void onRenderWorld(DeltaTracker deltaTracker,
-                               CallbackInfo ci,
-                               @Local(ordinal = 2) Matrix4f matrix4f2,
-                               @Local(ordinal = 0) float tickDelta
-    ) {
-        if (MotionBlur.INSTANCE.getEnable()) {
-            Matrix4f projectionMatrix = ((GameRenderer) (Object) this).getProjectionMatrix(tickDelta);
-            dev.luna5ama.trollhack.graphics.shader.MotionBlur.INSTANCE.updateMatrix(
-                    com.mojang.blaze3d.systems.RenderSystem.getModelViewMatrix(),
-                    new Matrix4f(projectionMatrix).mul(matrix4f2)
-            );
-            dev.luna5ama.trollhack.graphics.shader.MotionBlur.INSTANCE.draw();
-        }
-        PoseStack matrixStack = new PoseStack();
-        matrixStack.mulPose(matrix4f2);
-        Render3DUtils.INSTANCE.getLastProjectionMatrix().set(((GameRenderer) (Object) this).getProjectionMatrix(tickDelta));
-        Render3DUtils.INSTANCE.getLastModelViewMatrix().set(com.mojang.blaze3d.systems.RenderSystem.getModelViewMatrix());
-        Render3DUtils.INSTANCE.getLastWorldSpaceMatrix().set(matrixStack.last().pose());
-        var prevTex = glGetInteger(GL_ACTIVE_TEXTURE);
-        RenderSystem.INSTANCE.render3D(matrixStack, tickDelta);
-        GlStateManager._glUseProgram(0);
-        glActiveTexture(prevTex);
-        GlStateManager._enableBlend();
-        GlStateManager._blendFuncSeparate(770, 771, 1, 0);
-        GlStateManager._enableCull();
-        GlStateManager._enableDepthTest();
-//        com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-    }
 
     @Inject(
             method = "render",

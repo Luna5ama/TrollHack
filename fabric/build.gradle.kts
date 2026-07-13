@@ -47,7 +47,7 @@ dependencies {
 
     embedded(libs.reflections)
     embedded(libs.compose.desktop)
-    embedded(currentSkikoRuntime())
+    embedded(libs.skiko.runtime.windows.x64)
     compileOnly(libs.mixinextras.common)
     annotationProcessor(libs.mixinextras.common)
     compileOnly(libs.asm.tree)
@@ -65,6 +65,14 @@ kotlin {
     sourceSets.named("main") {
         kotlin.srcDir(rootProject.file("src/main/kotlin"))
     }
+}
+
+tasks.named<ProcessResources>("processResources") {
+    exclude("META-INF/accesstransformer.cfg")
+}
+
+tasks.named<Jar>("sourcesJar") {
+    exclude("META-INF/accesstransformer.cfg")
 }
 
 loom {
