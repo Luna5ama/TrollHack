@@ -51,6 +51,7 @@ jcodec-javase = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
 neoforged-moddev = { id = "net.neoforged.moddev", version.ref = "neoforged-moddev" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

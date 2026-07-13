@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.neoforged.moddev)
     alias(libs.plugins.fabric.loom) apply false
     alias(libs.plugins.shadow) apply false
@@ -71,18 +72,6 @@ kotlin {
         jvmDefault.set(JvmDefaultMode.ENABLE)
         optIn.addAll("kotlin.RequiresOptIn", "kotlin.contracts.ExperimentalContracts")
     }
-}
-
-configurations {
-    create("commonJava") { isCanBeResolved = false; isCanBeConsumed = true }
-    create("commonKotlin") { isCanBeResolved = false; isCanBeConsumed = true }
-    create("commonResources") { isCanBeResolved = false; isCanBeConsumed = true }
-}
-
-artifacts {
-    add("commonJava", file("src/main/java"))
-    add("commonKotlin", file("src/main/kotlin"))
-    add("commonResources", file("src/main/resources"))
 }
 
 val loaderAttribute = Attribute.of("dev.luna5ama.trollhack.loader", String::class.java)

@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.multiplatform)
     id("multiloader-loader")
     alias(libs.plugins.neoforged.moddev)
     alias(libs.plugins.shadow)
@@ -41,7 +42,7 @@ kotlin {
         optIn.addAll("kotlin.RequiresOptIn", "kotlin.contracts.ExperimentalContracts")
     }
     sourceSets.named("main") {
-        kotlin.srcDir(configurations.named("commonKotlin"))
+        kotlin.srcDir(rootProject.file("src/main/kotlin"))
     }
 }
 
