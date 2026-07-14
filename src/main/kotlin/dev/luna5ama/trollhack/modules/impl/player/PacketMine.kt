@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.gui.TrollClickGui
 import dev.luna5ama.trollhack.gui.TrollHudEditor
 import dev.luna5ama.trollhack.manager.managers.CombatManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.mixins.accessor.IPlayerMoveC2SPacketAccessor
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
@@ -34,6 +34,7 @@ import dev.luna5ama.trollhack.utils.math.scale
 import dev.luna5ama.trollhack.utils.math.sq
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
 import dev.luna5ama.trollhack.utils.math.vectors.toVec3Center
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.world.BlockUtils
 import dev.luna5ama.trollhack.utils.world.BlockUtils.getPlaceSide
@@ -394,9 +395,10 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
             if (firstTimer.tick(getBreakTime(pos, slot).toLong())) {
 
                 if (endRotate) {
-                    sendPlayerPacket {
-                        rotate(RotationUtils.getRotationTo(pos.toVec3Center()))
-                    }
+                    RotationManager.setRotations(
+                        RotationUtils.getRotationTo(pos.toVec3Center()),
+                        priority = Priority.High
+                    )
                 }
 
                 if (endSwing) player.swing(InteractionHand.MAIN_HAND)
@@ -441,16 +443,17 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         if (rotate) {
             val clickSide = BlockUtils.getClickSide(pos) ?: return
             val vec3i = clickSide.unitVec3
-            sendPlayerPacket {
-                rotate(RotationUtils.getRotationTo(
+            RotationManager.setRotations(
+                RotationUtils.getRotationTo(
                     pos.center.add(
                         Vec3(vec3i.x * 0.5,
                             vec3i.y * 0.5,
                             vec3i.z * 0.5
                         )
                     )
-                ))
-            }
+                ),
+                priority = Priority.High
+            )
         }
         netHandler.send(
             ServerboundPlayerActionPacket(

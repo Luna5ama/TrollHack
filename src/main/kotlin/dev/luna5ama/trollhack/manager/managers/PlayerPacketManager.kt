@@ -11,22 +11,18 @@ import dev.luna5ama.trollhack.event.impl.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.event.impl.render.RenderEntityEvent
 import dev.luna5ama.trollhack.manager.AbstractManager
 import dev.luna5ama.trollhack.modules.AbstractModule
-import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
-import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.extension.getValue
 import dev.luna5ama.trollhack.utils.extension.setValue
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
 import dev.luna5ama.trollhack.utils.runSafe
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
-import net.minecraft.util.Mth
 import net.minecraft.world.entity.Relative
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.math.*
 
 object PlayerPacketManager : AbstractManager(), AlwaysListening {
     private val ignoreUpdateSet = Collections.newSetFromMap<ServerboundMovePlayerPacket>(MapMaker().weakKeys().makeMap())
@@ -52,8 +48,6 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
     val x get() = position.x
     val y get() = position.y
     val z get() = position.z
-    val yawSpeed get() = ClientSettings.yawSpeedLimit
-
     private var clientSidePitch = Vec2f.ZERO
 
     init {
@@ -134,12 +128,8 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
 
     fun applyPacket(event: OnUpdateWalkingPlayerEvent.Pre) {
         runSafe {
-            val packet = pendingPacket.getAndSet(null)?.interpolateRotation()
+            val packet = pendingPacket.getAndSet(null)
             if (packet != null) {
-                packet.rotation?.let {
-//                    ChatUtils.sendMessage("Fixed rotation $it with step $yawSpeed")
-                    rotation = it
-                }
                 event.apply(packet)
             }
         }
@@ -169,32 +159,9 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
         }
     }
 
-    fun injectStep(angle: Vec2f, steps: Float): Vec2f {
-        return injectStep(rotation, angle, steps)
-    }
-
-    fun injectStep(rotation: Vec2f, targetRotation: Vec2f, steps0: Float): Vec2f {
-        val angle = floatArrayOf(targetRotation.x, targetRotation.y)
-        val steps = steps0.coerceIn(0.01f, 1f)
-        if (steps < 1) {
-            val packetYaw = rotation.x
-            var diff = Mth.degreesDifferenceAbs(angle[0], packetYaw)
-            if (abs(diff.toDouble()) > 180 * steps) {
-                angle[0] = (packetYaw + (diff * ((180 * steps) / abs(diff.toDouble())))).toFloat()
-            }
-            val packetPitch = rotation.y
-            diff = angle[1] - packetPitch
-            if (abs(diff.toDouble()) > 90 * steps) {
-                angle[1] = (packetPitch + (diff * ((90 * steps) / abs(diff.toDouble())))).toFloat()
-            }
-        }
-        return Vec2f(angle[0], angle[1])
-    }
-
     class Packet private constructor(
         val priority: Int,
         val position: Vec3?,
-        val rotation: Vec2f?,
         val onGround: Boolean?,
         val cancelMove: Boolean,
         val cancelRotate: Boolean,
@@ -202,7 +169,6 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
     ) {
         class Builder(private val priority: Int) {
             private var position: Vec3? = null
-            private var rotation: Vec2f? = null
             private var onGround: Boolean? = null
 
             private var cancelMove = false
@@ -221,12 +187,6 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
                 this.empty = false
             }
 
-            fun rotate(rotation: Vec2f) {
-                this.rotation = rotation
-                this.cancelRotate = false
-                this.empty = false
-            }
-
             fun cancelAll() {
                 this.cancelMove = true
                 this.cancelRotate = true
@@ -241,7 +201,6 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
             }
 
             fun cancelRotate() {
-                this.rotation = null
                 this.cancelRotate = true
                 this.empty = false
             }
@@ -250,7 +209,6 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
                 if (!empty) Packet(
                     priority,
                     position,
-                    rotation,
                     onGround,
                     cancelMove,
                     cancelRotate,
@@ -258,18 +216,5 @@ object PlayerPacketManager : AbstractManager(), AlwaysListening {
                 ) else null
         }
 
-        context(ctx: NonNullContext)
-        fun interpolateRotation(): Packet = ctx.run {
-            val currentRotation = PlayerPacketManager.rotation
-            return Packet(
-                priority, position,
-                rotation?.let {
-//                    Vec2f(currentRotation.x + RotationUtils.normalizeAngle(((it.x + 360) - (currentRotation.x + 360)))
-//                        .coerceIn(-yawSpeed..yawSpeed), it.y)
-                    injectStep(currentRotation, it, yawSpeed / 180f)
-                },
-                onGround, cancelMove, cancelRotate, cancelAll
-            )
-        }
     }
 }

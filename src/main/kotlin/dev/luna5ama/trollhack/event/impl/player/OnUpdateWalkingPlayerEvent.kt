@@ -38,9 +38,6 @@ sealed class OnUpdateWalkingPlayerEvent(
         packet.position?.let {
             this.position = it
         }
-        packet.rotation?.let {
-            this.rotation = it
-        }
         packet.onGround?.let {
             this.onGround = it
         }
@@ -48,6 +45,15 @@ sealed class OnUpdateWalkingPlayerEvent(
         this.cancelMove = packet.cancelMove
         this.cancelRotate = packet.cancelRotate
         this.cancelAll = packet.cancelAll
+    }
+
+    fun applyRotation(rotation: Vec2f): Boolean {
+        if (cancelAll || cancelRotate) return false
+
+        cancel()
+        this.rotation = rotation
+        this.cancelRotate = false
+        return true
     }
 
     class Pre(position: Vec3, rotation: Vec2f, onGround: Boolean) :

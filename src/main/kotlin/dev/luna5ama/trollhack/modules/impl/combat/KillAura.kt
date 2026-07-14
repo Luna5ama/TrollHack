@@ -4,7 +4,7 @@ import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.TickEvent
 import dev.luna5ama.trollhack.event.impl.player.OnUpdateWalkingPlayerEvent
 import dev.luna5ama.trollhack.manager.managers.EntityManager
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.Displayable
@@ -14,6 +14,7 @@ import dev.luna5ama.trollhack.utils.delegates.CachedValueN
 import dev.luna5ama.trollhack.utils.extension.realHealth
 import dev.luna5ama.trollhack.utils.math.RotationUtils
 import dev.luna5ama.trollhack.utils.math.sq
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.runSafe
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.world.EntityUtils
@@ -60,9 +61,10 @@ object KillAura : Module("Kill Aura", category = Category.COMBAT) {
             }
             if (rotate) {
                 val target = target ?: return@nonNullHandler
-                sendPlayerPacket {
-                    rotate(RotationUtils.getRotationTo(target.eyePosition))
-                }
+                RotationManager.setRotations(
+                    RotationUtils.getRotationTo(target.eyePosition),
+                    priority = Priority.Medium
+                )
             }
         }
 

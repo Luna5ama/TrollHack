@@ -28,6 +28,7 @@ import dev.luna5ama.trollhack.modules.impl.movement.ElytraFlight
 import dev.luna5ama.trollhack.modules.impl.movement.ElytraFlightNew
 import dev.luna5ama.trollhack.modules.impl.movement.Flight
 import dev.luna5ama.trollhack.modules.impl.movement.GuiMove
+import dev.luna5ama.trollhack.modules.impl.movement.MovementFix
 import dev.luna5ama.trollhack.modules.impl.movement.NoFall
 import dev.luna5ama.trollhack.modules.impl.movement.NoSlowDown
 import dev.luna5ama.trollhack.modules.impl.movement.SafeWalk
@@ -85,6 +86,7 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         ElytraFlightNew,
         Flight,
         GuiMove,
+        MovementFix,
         NoFall,
         NoSlowDown,
         SafeWalk,

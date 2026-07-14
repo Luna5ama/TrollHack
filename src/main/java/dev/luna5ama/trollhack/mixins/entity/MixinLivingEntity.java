@@ -1,8 +1,12 @@
 package dev.luna5ama.trollhack.mixins.entity;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.luna5ama.trollhack.event.impl.player.PlayerJumpEvent;
+import dev.luna5ama.trollhack.manager.managers.RotationManager;
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings;
+import dev.luna5ama.trollhack.modules.impl.movement.MovementFix;
+import dev.luna5ama.trollhack.modules.impl.movement.MovementFixJumpAdapter;
 import dev.luna5ama.trollhack.modules.impl.visual.NameTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,5 +39,22 @@ public class MixinLivingEntity {
                 return;
             PlayerJumpEvent.Post.INSTANCE.post();
         }
+    }
+
+    @ModifyExpressionValue(
+            method = "jumpFromGround",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getYRot()F")
+    )
+    private float trollhack$movementFixJumpYaw(float originalYaw) {
+        LivingEntity entity = (LivingEntity) (Object) this;
+        Minecraft minecraft = Minecraft.getInstance();
+        return MovementFixJumpAdapter.yaw(
+                originalYaw,
+                RotationManager.INSTANCE.getYaw(),
+                entity == minecraft.player,
+                MovementFix.INSTANCE.isEnabled(),
+                RotationManager.INSTANCE.isActive(),
+                entity.isFallFlying()
+        );
     }
 }

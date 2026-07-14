@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue
 import dev.luna5ama.trollhack.manager.managers.EntityManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.ChatUtils
 import dev.luna5ama.trollhack.utils.NonNullContext
@@ -45,7 +46,7 @@ fun NonNullContext.checkPlaceRotation(placeInfo: PlaceInfo): Boolean {
             0.0,
             eyeHeight.toDouble(),
             0.0
-        ), rotation = PlayerPacketManager.rotation
+        ), rotation = RotationManager.rotation
     )
 }
 

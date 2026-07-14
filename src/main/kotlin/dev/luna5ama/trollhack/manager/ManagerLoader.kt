@@ -16,6 +16,7 @@ object ManagerLoader {
         add { CommandManager }
         add { GuiManager }
         add { HotbarSwitchManager }
+        add { RotationManager }
         add { PlayerPacketManager }
         add { CombatManager }
         add { PlayerPopTotemManager }

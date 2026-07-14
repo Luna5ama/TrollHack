@@ -1,19 +1,22 @@
 package dev.luna5ama.trollhack.mixins.player;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.luna5ama.trollhack.event.impl.player.InputUpdateEvent;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.world.entity.player.Input;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardInput.class)
 public class MixinKeyboardInput {
-    @Inject(method = "tick", at = @At(value = "RETURN"), cancellable = true)
-    private void onSneak(CallbackInfo ci) {
-        InputUpdateEvent event = new InputUpdateEvent(Minecraft.getInstance().player.input);
+    @ModifyExpressionValue(method = "tick", at = @At(value = "NEW", target = "(ZZZZZZZ)Lnet/minecraft/world/entity/player/Input;"))
+    private Input trollhack$onInput(Input original) {
+        ClientInput input = (ClientInput) (Object) this;
+        input.keyPresses = original;
+
+        InputUpdateEvent event = new InputUpdateEvent(input);
         event.post();
-        if (event.getCancelled()) ci.cancel();
+        return event.getCancelled() ? original : input.keyPresses;
     }
 }

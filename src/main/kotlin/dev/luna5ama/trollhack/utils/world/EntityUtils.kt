@@ -1,14 +1,16 @@
 package dev.luna5ama.trollhack.utils.world
 
 import dev.luna5ama.trollhack.manager.managers.FriendManager
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
 import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.math.vectors.toBlockPos
+import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.entity.Entity
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.ExperienceOrb
@@ -130,15 +132,9 @@ object EntityUtils {
     }
 
     context(ctx: NonNullContext)
-    fun sendLook(lookAndOnGround: ServerboundMovePlayerPacket.Rot): Unit = ctx.run {
-        netHandler.send(lookAndOnGround)
-    }
-
-    context(ctx: NonNullContext)
     fun faceVector(directionVec: Vec3): Unit = ctx.run {
-
         val angle: FloatArray = getLegitRotations(directionVec)
-        sendLook(ServerboundMovePlayerPacket.Rot(angle[0], angle[1], player.onGround(), player.horizontalCollision))
+        RotationManager.setRotations(Vec2f(angle[0], angle[1]), priority = Priority.High)
     }
 
     context(ctx: NonNullContext)

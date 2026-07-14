@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.utils.extension
 
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
 import dev.luna5ama.trollhack.utils.math.vectors.VectorUtils.toViewVec
@@ -12,7 +13,7 @@ import net.minecraft.world.phys.Vec3
  */
 fun AABB.isInSight(
     posFrom: Vec3 = PlayerPacketManager.position,
-    rotation: Vec2f = PlayerPacketManager.rotation,
+    rotation: Vec2f = RotationManager.rotation,
     range: Double = 8.0
 ): Boolean {
     return isInSight(posFrom, rotation.toViewVec(), range)

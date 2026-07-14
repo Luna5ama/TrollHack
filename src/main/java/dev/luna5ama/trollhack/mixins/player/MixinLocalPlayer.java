@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import dev.luna5ama.trollhack.event.impl.UpdateEvent;
 import dev.luna5ama.trollhack.event.impl.player.*;
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager;
+import dev.luna5ama.trollhack.manager.managers.RotationManager;
 import dev.luna5ama.trollhack.modules.impl.movement.NoSlowDown;
 import dev.luna5ama.trollhack.modules.impl.movement.Velocity;
 import dev.luna5ama.trollhack.utils.MinecraftWrapper;
@@ -210,6 +211,7 @@ public abstract class MixinLocalPlayer extends AbstractClientPlayer {
         );
         eventPre.post();
         PlayerPacketManager.INSTANCE.applyPacket(eventPre);
+        RotationManager.INSTANCE.applyRotation(eventPre);
 
         if (eventPre.getCancelled()) {
             ci.cancel();

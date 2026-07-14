@@ -4,6 +4,7 @@ import dev.luna5ama.trollhack.event.api.nonNullHandler
 import dev.luna5ama.trollhack.event.impl.PacketEvent
 import dev.luna5ama.trollhack.event.impl.player.PlayerTravelEvent
 import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.manager.managers.TimerManager.modifyTimer
 import dev.luna5ama.trollhack.mixins.accessor.IPositionMoveRotationAccessor
 import dev.luna5ama.trollhack.modules.Category
@@ -20,6 +21,7 @@ import dev.luna5ama.trollhack.utils.extension.velocityZ
 import dev.luna5ama.trollhack.utils.math.toDegree
 import dev.luna5ama.trollhack.utils.math.toRadian
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.runSafe
 import dev.luna5ama.trollhack.utils.world.getGroundPos
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket
@@ -527,12 +529,12 @@ object ElytraFlight : Module(
             }
         }
 
-        sendPlayerPacket {
-            if (cancelRotation) {
+        if (cancelRotation) {
+            sendPlayerPacket {
                 cancelRotate()
-            } else {
-                rotate(rotation)
             }
+        } else {
+            RotationManager.setRotations(rotation, priority = Priority.Low)
         }
     }
 

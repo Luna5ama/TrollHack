@@ -562,6 +562,7 @@ nullhack-nextgen.modules.movement.movefix.bind=Bind
 nullhack-nextgen.modules.movement.movefix.enable=Enable
 nullhack-nextgen.modules.movement.movefix.visible=Visible
 nullhack-nextgen.modules.movement.movefix=Move Fix
+nullhack-nextgen.modules.movement.movementfix=Movement Fix
 nullhack-nextgen.modules.movement.nofall.bind=Bind
 nullhack-nextgen.modules.movement.nofall.distance=Distance
 nullhack-nextgen.modules.movement.nofall.enable=Enable

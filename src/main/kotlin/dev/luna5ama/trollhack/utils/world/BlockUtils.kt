@@ -1,7 +1,7 @@
 package dev.luna5ama.trollhack.utils.world
 
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.mixins.accessor.IClientLevelAccessor
 import dev.luna5ama.trollhack.modules.AbstractModule
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
@@ -9,9 +9,11 @@ import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.extension.pitch
 import dev.luna5ama.trollhack.utils.extension.yaw
 import dev.luna5ama.trollhack.utils.math.RotationUtils.getRotationTo
+import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
 import dev.luna5ama.trollhack.utils.math.vectors.distanceSqTo
 import dev.luna5ama.trollhack.utils.math.vectors.distanceTo
 import dev.luna5ama.trollhack.utils.math.vectors.toVec3
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.world.EntityUtils.canSee
 import dev.luna5ama.trollhack.utils.world.EntityUtils.getEyesPos
 import net.minecraft.client.Minecraft
@@ -23,7 +25,6 @@ import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Vec3i
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
@@ -245,10 +246,7 @@ object BlockUtils {
         val hitVec = pos.toVec3().add(0.5, 0.5, 0.5).add(side.unitVec3.scale(0.5))
         if (rotate) {
             val rotation = getRotationTo(hitVec)
-            PlayerPacketManager.sendPlayerPacket(Int.MAX_VALUE) {
-                cancelRotate()
-                rotate(rotation)
-            }
+            RotationManager.setRotations(rotation, priority = Priority.Highest)
         }
     }
 
@@ -413,10 +411,7 @@ object BlockUtils {
 
         if (rotate) {
             val rotation = getRotationTo(hitVec)
-            PlayerPacketManager.sendPlayerPacket(114514) {
-                cancelRotate()
-                rotate(rotation)
-            }
+            RotationManager.setRotations(rotation, priority = Priority.High)
         }
         val hit = BlockHitResult(hitVec, direction, pos, false)
         if (packet) {
@@ -514,7 +509,7 @@ object BlockUtils {
 
     context(ctx: NonNullContext)
     fun sendYawAndPitch(yaw: Float, pitch: Float): Unit = ctx.run {
-        netHandler.send(ServerboundMovePlayerPacket.Rot(yaw, pitch, player.onGround(), player.horizontalCollision))
+        RotationManager.setRotations(Vec2f(yaw, pitch), priority = Priority.High)
     }
 
     context(ctx: NonNullContext)
@@ -671,13 +666,6 @@ object BlockUtils {
 //            netHandler.sendPacket(CPacketEntityAction(player, CPacketEntityAction.Action.START_SNEAKING))
 //            player.isSneaking = true
 //            sneaking = true
-//        }
-//        if (rotate) {
-//            val rotation = this@NonNullContext.getRotationTo(hitVec)
-//            this@AbstractModule.sendPlayerPacket {
-//                cancelAll()
-//                rotate(rotation)
-//            }
 //        }
 //        rightClickBlock(neighbour, hitVec, hand, opposite, packet)
 //        return sneaking || isSneaking

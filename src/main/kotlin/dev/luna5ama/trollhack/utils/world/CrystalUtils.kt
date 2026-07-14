@@ -15,12 +15,15 @@
  */
 package dev.luna5ama.trollhack.utils.world
 
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.extension.state
 import dev.luna5ama.trollhack.utils.math.floorToInt
+import dev.luna5ama.trollhack.utils.math.RotationUtils
 import dev.luna5ama.trollhack.utils.math.toRadian
 import dev.luna5ama.trollhack.utils.math.vectors.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.utils.timing.TickTimer
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.world.InteractionHand
@@ -72,9 +75,14 @@ object CrystalUtils {
     fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean): Unit = ctx.run {
         if (!breakTimer.tickAndReset(1000)) return
         if (usingPause && player.isUsingItem) return
+        if (rotate) {
+            RotationManager.setRotations(
+                RotationUtils.getRotationTo(Vec3(crystal.x, crystal.y + 0.25, crystal.z)),
+                priority = Priority.High
+            )
+        }
         netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
         player.swing(InteractionHand.MAIN_HAND)
-        if (rotate) EntityUtils.faceVector(Vec3(crystal.x, crystal.y + 0.25, crystal.z))
     }
 
     fun getVectorForRotation(d: Double, d2: Double): Vec3 {

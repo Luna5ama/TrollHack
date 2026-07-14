@@ -18,7 +18,6 @@ import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.manager.managers.*
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.serverSideItem
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
@@ -50,6 +49,7 @@ import dev.luna5ama.trollhack.utils.inventory.swapToSlot
 import dev.luna5ama.trollhack.utils.math.*
 import dev.luna5ama.trollhack.utils.math.vectors.*
 import dev.luna5ama.trollhack.utils.math.vectors.VectorUtils.toViewVec
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.threads.Coroutine
 import dev.luna5ama.trollhack.utils.threads.RenderThreadExecutor
 import dev.luna5ama.trollhack.utils.threads.isActiveOrFalse
@@ -346,20 +346,11 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
             if (placing) {
                 lastRotation?.let {
                     val rotation = RotationUtils.getRotationTo(it.hitVec)
-                    val diff = RotationUtils.calcAngleDiff(rotation.x, PlayerPacketManager.rotation.x)
-
-                    if (abs(diff) <= yawSpeed) {
-                        sendPlayerPacket {
-                            rotate(rotation)
-                        }
-                    } else {
-                        val clamped = diff.coerceIn(-yawSpeed, yawSpeed)
-                        val newYaw = RotationUtils.normalizeAngle(PlayerPacketManager.rotation.x + clamped)
-
-                        sendPlayerPacket {
-                            rotate(Vec2f(newYaw, rotation.y))
-                        }
-                    }
+                    RotationManager.setRotations(
+                        rotation,
+                        yawSpeed.toDouble(),
+                        priority = Priority.High
+                    )
                 }
             } else {
                 lastRotation = null
@@ -806,7 +797,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
     context(ctx: NonNullContext)
     private fun getCrystalList(): List<EndCrystal> = ctx.run {
         val eyePos = PlayerPacketManager.position.add(0.0, player.eyeY - player.y, 0.0)
-        val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
+        val sight = eyePos.add(RotationManager.rotation.toViewVec().scale(8.0))
         val mutableBlockPos = BlockPos.MutableBlockPos()
 
         return EntityManager.entity.asSequence()
@@ -973,7 +964,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         val feetYInt = feetPos.y.floorToInt()
         val feetZInt = feetPos.z.floorToInt()
         val eyePos = PlayerPacketManager.eyePosition
-        val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
+        val sight = eyePos.add(RotationManager.rotation.toViewVec().scale(8.0))
         val collidingEntities = getCollidingEntities(rangeSq, feetXInt, feetYInt, feetZInt, single, mutableBlockPos)
         return buildList {
             BlockInteractionHelper.getSphere(player.blockPosition(), placeRange, placeRange.toInt(),
@@ -1451,7 +1442,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         if (!crystalRotation) return true
 
         val eyePos = PlayerPacketManager.position.add(0.0, player.eyeY - player.y, 0.0)
-        val sight = eyePos.add(PlayerPacketManager.rotation.toViewVec().scale(8.0))
+        val sight = eyePos.add(RotationManager.rotation.toViewVec().scale(8.0))
 
         return checkCrystalRotation(CrystalUtils.getCrystalBB(x, y, z), eyePos, sight)
     }
@@ -1473,7 +1464,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
     }
 
     private fun checkRotationDiff(rotation: Vec2f, range: Float): Boolean {
-        val serverSide = PlayerPacketManager.rotation
+        val serverSide = RotationManager.rotation
         return RotationUtils.calcAbsAngleDiff(rotation.x, serverSide.x) <= range
                 && RotationUtils.calcAbsAngleDiff(rotation.y, serverSide.y) <= range
     }

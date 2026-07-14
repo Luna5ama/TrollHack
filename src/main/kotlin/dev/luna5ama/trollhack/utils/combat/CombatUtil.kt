@@ -1,12 +1,13 @@
 package dev.luna5ama.trollhack.utils.combat
 
 import dev.luna5ama.trollhack.manager.managers.FriendManager
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.extension.block
 import dev.luna5ama.trollhack.utils.math.MathUtils
 import dev.luna5ama.trollhack.utils.math.RotationUtils
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
@@ -81,14 +82,14 @@ object CombatUtil {
         if (usingPause && player.isUsingItem) return
         breakTimer.reset()
         if (rotate && ClientSettings.attackRotate) {
-            PlayerPacketManager.sendPlayerPacket(114514) {
-                cancelRotate()
-                rotate(RotationUtils.getRotationTo(Vec3(
+            RotationManager.setRotations(
+                RotationUtils.getRotationTo(Vec3(
                     crystal.x,
                     crystal.y + 0.25,
                     crystal.z
-                )))
-            }
+                )),
+                priority = Priority.High
+            )
         }
         netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
         player.resetAttackStrengthTicker()

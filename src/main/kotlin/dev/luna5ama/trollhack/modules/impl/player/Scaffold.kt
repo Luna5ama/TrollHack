@@ -13,7 +13,7 @@ import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.manager.managers.EntityMovementManager
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
-import dev.luna5ama.trollhack.manager.managers.PlayerPacketManager.sendPlayerPacket
+import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.NonNullContext
@@ -33,6 +33,7 @@ import dev.luna5ama.trollhack.utils.math.floorToInt
 import dev.luna5ama.trollhack.utils.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2d
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
+import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.world.*
 import dev.luna5ama.trollhack.utils.world.EntityUtils.spoofSneak
@@ -180,11 +181,9 @@ object Scaffold : Module(
                 for (placeInfo in it) {
                     if (isSideVisible(player.eyePosition.x, player.eyePosition.y, player.eyePosition.z, placeInfo.pos, placeInfo.direction)) {
                         if (pendingPlace.containsKey(placeInfo.placedPos.asLong())) continue
-                        sendPlayerPacket {
-                            val rotation = getRotationTo(placeInfo.hitVec)
-                            lastRotation = rotation
-                            rotate(rotation)
-                        }
+                        val rotation = getRotationTo(placeInfo.hitVec)
+                        lastRotation = rotation
+                        RotationManager.setRotations(rotation, priority = Priority.High)
                         rotated = true
                         break
                     }
@@ -192,9 +191,7 @@ object Scaffold : Module(
             }
             if (!rotated) {
                 val fallbackRotation = lastRotation ?: Vec2f(RotationUtils.normalizeAngle(mc.cameraEntity!!.yaw - 180), 80f)
-                sendPlayerPacket {
-                    rotate(fallbackRotation)
-                }
+                RotationManager.setRotations(fallbackRotation, priority = Priority.High)
             }
         }
 
