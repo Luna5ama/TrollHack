@@ -7,6 +7,9 @@
     },
     "modules": {
       "_value": "Modules",
+      "bind": "Bind",
+      "enable": "Enable",
+      "visible": "Visible",
       "client": {
         "_value": "Client",
         "clickgui": {
@@ -14,16 +17,13 @@
           "anime height": "Anime Height",
           "anime offset x": "Anime Offset X",
           "anime type": "Anime Type",
-          "bind": "Bind",
           "bottom alpha": "Bottom Alpha",
           "clear buffer": "Clear Buffer",
           "color sync": "Color Sync",
-          "enable": "Enable",
           "mouse scroll speed": "Mouse Scroll Speed",
           "outline": "Outline",
           "pause game": "Pause Game",
           "reload": "Reload",
-          "visible": "Visible",
           "scale": "Scale",
           "color picker": "Color Picker",
           "red": "Red",
@@ -47,14 +47,12 @@
           "attack delay": "Attack Delay",
           "attack rotate": "Attack Rotate",
           "back side sampling": "Back Side Sampling",
-          "bind": "Bind",
           "box revise": "Box Revise",
           "click gui only": "Click Gui Only",
           "crystal set dead": "Crystal Set Dead",
           "crystal update delay": "Crystal Update Delay",
           "custom uuid": "Custom UUID",
           "dedicated window": "Dedicated Window",
-          "enable": "Enable",
           "experimental glyph cache": "Experimental Glyph Cache",
           "framebuffer": "Framebuffer",
           "game mode": "Game Mode",
@@ -89,7 +87,6 @@
           "uid": "UID",
           "uuid": "UUID",
           "vertical center sampling": "Vertical Center Sampling",
-          "visible": "Visible",
           "window blur pass": "Window Blur Pass",
           "yaw speed limit": "Yaw Speed Limit"
         },
@@ -99,108 +96,76 @@
           "background blue": "Background Blue",
           "background green": "Background Green",
           "background red": "Background Red",
-          "bind": "Bind",
           "blue": "Blue",
           "blur": "Blur",
-          "enable": "Enable",
           "enabled alpha": "Enabled Alpha",
           "green": "Green",
           "hovered alpha": "Hovered Alpha",
           "primary color": "Primary Color",
           "rainbow": "Rainbow",
           "red": "Red",
-          "unfocused alpha": "Unfocused Alpha",
-          "visible": "Visible"
+          "unfocused alpha": "Unfocused Alpha"
         },
         "hudeditor": {
           "_value": "Hud Editor",
-          "bind": "Bind",
-          "enable": "Enable",
           "fix gui": "Fix Gui",
           "mouse scroll speed": "Mouse Scroll Speed",
           "outline": "Outline",
           "pause game": "Pause Game",
-          "reload": "Reload",
-          "visible": "Visible"
+          "reload": "Reload"
         },
         "hurttimedebug": {
           "_value": "Hurttime Debug",
-          "bind": "Bind",
-          "enable": "Enable",
-          "velocity check": "Velocity Check",
-          "visible": "Visible"
+          "velocity check": "Velocity Check"
         },
         "hyperirc": {
           "_value": "Hyper IRC",
-          "bind": "Bind",
-          "enable": "Enable",
-          "ignore spamming": "Ignore Spamming",
-          "visible": "Visible"
+          "ignore spamming": "Ignore Spamming"
         },
         "packetdebug": {
           "_value": "Packet Debug",
           "all packet namespace": "All Packet Namespace",
-          "bind": "Bind",
           "calc ping average": "Calc Ping Average",
-          "enable": "Enable",
           "flag check": "Flag Check",
           "ping": "Ping",
           "pong": "Pong",
           "self entity velocity update s2c": "Self Entity Velocity Update S2C",
           "translation": "Translation",
-          "translation receive namespace": "Translation Receive Namespace",
-          "visible": "Visible"
+          "translation receive namespace": "Translation Receive Namespace"
         },
         "refreshfontcache": {
           "_value": "Refresh FontCache",
           "atlas index": "Atlas Index",
-          "bind": "Bind",
           "contain char": "Contain Char",
-          "enable": "Enable",
           "show atlas": "Show Atlas",
-          "show static string": "Show Static String",
-          "visible": "Visible"
+          "show static string": "Show Static String"
         },
         "reloadscript": {
-          "_value": "Reload Script",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Reload Script"
         },
         "watermark": {
           "_value": "Watermark",
-          "bind": "Bind",
           "color 1": "Color 1",
-          "color 2": "Color 2",
-          "enable": "Enable",
-          "visible": "Visible"
+          "color 2": "Color 2"
         }
       },
       "combat": {
         "_value": "Combat",
         "automend": {
           "_value": "Auto Mend",
-          "bind": "Bind",
-          "enable": "Enable",
           "switch mode": "Switch Mode",
-          "swing hand": "Swing Hand",
-          "visible": "Visible"
+          "swing hand": "Swing Hand"
         },
         "autototem": {
           "_value": "Auto Totem",
-          "bind": "Bind",
           "check golden apple": "Check Golden Apple",
-          "enable": "Enable",
           "health": "Health",
           "main hand": "Main Hand",
-          "strict": "Strict",
-          "visible": "Visible"
+          "strict": "Strict"
         },
         "feettrap": {
           "_value": "Feet Trap",
-          "bind": "Bind",
           "blocks per tick": "Blocks Per Tick",
-          "enable": "Enable",
           "ender chest": "Ender Chest",
           "extend": "Extend",
           "in air": "In Air",
@@ -210,19 +175,15 @@
           "rotate": "Rotate",
           "rotation speed": "Rotation Speed",
           "toggle on jump": "Toggle On Jump",
-          "toggle on move": "Toggle On Move",
-          "visible": "Visible"
+          "toggle on move": "Toggle On Move"
         },
         "keypearl": {
           "_value": "Key Pearl",
           "activate key": "Activate Key",
-          "bind": "Bind",
           "delay": "Delay",
-          "enable": "Enable",
           "swing hand": "Swing Hand",
           "switch back": "Switch Back",
-          "switch delay": "Switch Delay",
-          "visible": "Visible"
+          "switch delay": "Switch Delay"
         }
       },
       "fight": {
@@ -232,47 +193,33 @@
           "0 tick max damage": "0 Tick Max Damage",
           "0 tick tick": "0 Tick Tick",
           "anti 0 tick": "Anti 0 Tick",
-          "bind": "Bind",
-          "enable": "Enable",
           "min damage": "Min Damage",
           "no me": "No Me",
           "packet": "Packet",
           "place range": "Place Range",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "anticity": {
           "_value": "Anti City",
-          "bind": "Bind",
-          "enable": "Enable",
           "legit": "Legit",
           "on web": "On Web",
           "packet": "Packet",
           "place down": "Place Down",
           "rotate": "Rotate",
-          "strict": "Strict",
-          "visible": "Visible"
+          "strict": "Strict"
         },
         "antipistonaura": {
           "_value": "Anti PistonAura",
-          "bind": "Bind",
-          "enable": "Enable",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "antipush": {
-          "_value": "Anti Push",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Anti Push"
         },
         "autoanchor": {
           "_value": "Auto Anchor",
-          "bind": "Bind",
           "break crystal": "Break Crystal",
           "color": "Color",
           "delay": "Delay",
-          "enable": "Enable",
           "legit": "Legit",
           "line color": "Line Color",
           "line width": "Line Width",
@@ -286,7 +233,6 @@
           "rotate": "Rotate",
           "set air": "Set Air",
           "strict": "Strict",
-          "visible": "Visible",
           "web compat": "Web Compat"
         },
         "autocity": {
@@ -294,15 +240,12 @@
             "12": "1.12"
           },
           "_value": "Auto City",
-          "bind": "Bind",
           "break check": "Break Check",
           "burrow check": "Burrow Check",
-          "enable": "Enable",
           "range": "Range",
           "surround check": "Surround Check",
           "target range": "Target Range",
-          "using check": "Using Check",
-          "visible": "Visible"
+          "using check": "Using Check"
         },
         "autocrystal": {
           "_value": "Auto Crystal",
@@ -311,7 +254,6 @@
           "animals": "Animals",
           "anti weakness": "Anti Weakness",
           "assume instant mine": "Assume Instant Mine",
-          "bind": "Bind",
           "break balance": "Break Balance",
           "break delay": "Break Delay",
           "break max self damage": "Break Max Self Damage",
@@ -324,7 +266,6 @@
           "crystal rotation": "Crystal Rotation",
           "damage priority": "Damage Priority",
           "eating pause": "Eating Pause",
-          "enable": "Enable",
           "fade length": "Fade Length",
           "filled alpha": "Filled Alpha",
           "force place armor rate": "Force Place Armor Rate",
@@ -372,25 +313,19 @@
           "target range": "Target Range",
           "update delay ms": "Update Delay Ms",
           "update movement": "Update Movement",
-          "visible": "Visible",
           "wall range": "Wall Range",
           "yaw speed": "Yaw Speed"
         },
         "autototem": {
           "_value": "Auto Totem",
-          "bind": "Bind",
-          "enable": "Enable",
           "health": "Health",
-          "main hand": "Main Hand",
-          "visible": "Visible"
+          "main hand": "Main Hand"
         },
         "autoweb": {
           "_value": "Auto Web",
           "anti break": "Anti Break",
-          "bind": "Bind",
           "chorus": "Chorus",
           "delay": "Delay",
-          "enable": "Enable",
           "head": "Head",
           "inhead": "Inhead",
           "legit": "Legit",
@@ -406,15 +341,12 @@
           "rotate": "Rotate",
           "strict": "Strict",
           "target range": "Target Range",
-          "visible": "Visible",
           "y detection": "Y Detection",
           "y detection h": "Y Detection H",
           "暴力web": "暴力web"
         },
         "boomhelper": {
           "_value": "Boom Helper",
-          "bind": "Bind",
-          "enable": "Enable",
           "min damage": "Min Damage",
           "packet": "Packet",
           "place delay": "Place Delay",
@@ -422,18 +354,15 @@
           "prediction": "Prediction",
           "prediction tick": "Prediction Tick",
           "radius": "Radius",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "burrow": {
           "_value": "Burrow",
           "attack crystal": "Attack Crystal",
-          "bind": "Bind",
           "center": "Center",
           "delay": "Delay",
           "disable": "Disable",
           "down place": "Down Place",
-          "enable": "Enable",
           "ender chest": "Ender Chest",
           "head place": "Head Place",
           "inventory": "Inventory",
@@ -453,39 +382,27 @@
           "smart up": "Smart Up",
           "spoof move": "Spoof Move",
           "using check": "Using Check",
-          "visible": "Visible",
           "wait": "Wait"
         },
         "burrowbypass": {
           "_value": "Burrow Bypass",
-          "bind": "Bind",
-          "enable": "Enable",
           "no serverside move": "No Serverside Move",
           "position sync": "Position Sync",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "burrowfiller": {
           "_value": "Burrow Filler",
-          "anti break": "Anti Break",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "anti break": "Anti Break"
         },
         "criticals": {
           "_value": "Criticals",
-          "bind": "Bind",
-          "enable": "Enable",
-          "legit": "Legit",
-          "visible": "Visible"
+          "legit": "Legit"
         },
         "holepush": {
           "_value": "Hole Push",
-          "bind": "Bind",
           "crystal attack": "Crystal Attack",
           "debug": "Debug",
           "disable": "Disable",
-          "enable": "Enable",
           "fix facing": "Fix Facing",
           "loop delay": "Loop Delay",
           "page": "Page",
@@ -505,14 +422,11 @@
           "target in web check": "Target In Web Check",
           "target on ground check": "Target On Ground Check",
           "target range": "Target Range",
-          "target surround check count": "Target Surround Check Count",
-          "visible": "Visible"
+          "target surround check count": "Target Surround Check Count"
         },
         "killaura": {
           "_value": "Kill Aura",
-          "bind": "Bind",
           "cooldown": "Cooldown",
-          "enable": "Enable",
           "hostile": "Hostile",
           "mobs": "Mobs",
           "neutral": "Neutral",
@@ -522,17 +436,13 @@
           "range": "Range",
           "rotation": "Rotation",
           "sword only": "Sword Only",
-          "target": "Target",
-          "visible": "Visible"
+          "target": "Target"
         },
         "macespoof": {
           "_value": "Mace Spoof",
-          "bind": "Bind",
           "cancel blocking": "Cancel Blocking",
-          "enable": "Enable",
           "fall distance": "Fall Distance",
-          "mode": "Mode",
-          "visible": "Visible"
+          "mode": "Mode"
         }
       },
       "hud": {
@@ -545,10 +455,8 @@
           "appear on top": "Appear On Top",
           "assssss": "ASSSSSS",
           "background alpha": "Background Alpha",
-          "bind": "Bind",
           "bound only": "Bound Only",
           "color": "Color",
-          "enable": "Enable",
           "hide client": "Hide Client",
           "hide fight": "Hide Fight",
           "hide hud": "Hide Hud",
@@ -563,136 +471,91 @@
           "sort by length": "Sort By Length",
           "suffix": "Suffix",
           "vertical": "Vertical",
-          "visible": "Visible",
           "width": "Width"
         },
         "eventposts": {
           "_value": "Event Posts",
           "__internal__x__": "__internal__X__",
-          "__internal__y__": "__internal__Y__",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "__internal__y__": "__internal__Y__"
         },
         "fpshud": {
           "_value": "FPS Hud",
           "__internal__x__": "__internal__X__",
-          "__internal__y__": "__internal__Y__",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "__internal__y__": "__internal__Y__"
         }
       },
       "miscellaneous": {
         "_value": "Miscellaneous",
         "autologin": {
           "_value": "Auto Login",
-          "bind": "Bind",
           "command": "Command",
-          "enable": "Enable",
-          "use compass": "Use Compass",
-          "visible": "Visible"
+          "use compass": "Use Compass"
         },
         "autoqueue": {
-          "_value": "Auto Queue",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Auto Queue"
         },
         "bowmcbomb": {
-          "_value": "BowMcBomb",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "BowMcBomb"
         },
         "chorusexploit": {
-          "_value": "Chorus Exploit",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Chorus Exploit"
         },
         "clip": {
           "_value": "Clip",
           "auto disable": "Auto Disable",
-          "bind": "Bind",
           "disable delay": "Disable Delay",
-          "enable": "Enable",
-          "timeout": "Timeout",
-          "visible": "Visible"
+          "timeout": "Timeout"
         },
         "fakename": {
           "_value": "Fake Name",
           "auto disable": "Auto Disable",
-          "bind": "Bind",
           "client side": "Client Side",
-          "enable": "Enable",
           "name": "Name",
-          "server side": "Server Side",
-          "visible": "Visible"
+          "server side": "Server Side"
         },
         "fakeplayer": {
           "_value": "Fake Player",
-          "bind": "Bind",
           "copy inventory": "Copy Inventory",
           "copy potions": "Copy Potions",
-          "enable": "Enable",
           "gapple effects": "Gapple Effects",
           "max armor": "Max Armor",
           "play": "Play",
           "player name": "Player Name",
-          "record": "Record",
-          "visible": "Visible"
+          "record": "Record"
         },
         "fastplace": {
-          "_value": "Fast Place",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Fast Place"
         },
         "hitboxdesync": {
-          "_value": "Hitbox Desync",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Hitbox Desync"
         },
         "hitsound": {
           "_value": "Hit Sound",
-          "bind": "Bind",
-          "enable": "Enable",
           "pitch": "Pitch",
           "sound": "Sound",
-          "visible": "Visible",
           "volume": "Volume"
         },
         "middleclick": {
           "_value": "Middle Click",
           "add friend": "Add Friend",
-          "bind": "Bind",
-          "enable": "Enable",
           "pearl": "Pearl",
-          "pearl swap": "Pearl Swap",
-          "visible": "Visible"
+          "pearl swap": "Pearl Swap"
         }
       },
       "movement": {
         "_value": "Movement",
         "blockstrafe": {
           "_value": "Block Strafe",
-          "bind": "Bind",
-          "enable": "Enable",
           "fallback speed": "Fallback Speed",
           "packet": "Packet",
           "place block": "Place Block",
           "rotate": "Rotate",
-          "speed": "Speed",
-          "visible": "Visible"
+          "speed": "Speed"
         },
         "elytrafly": {
           "_value": "Elytra Fly",
-          "bind": "Bind",
           "down factor": "Down Factor",
           "down speed": "Down Speed",
-          "enable": "Enable",
           "instant": "Instant",
           "max speed": "Max Speed",
           "no drag": "No Drag",
@@ -701,8 +564,7 @@
           "timeout": "Timeout",
           "timer": "Timer",
           "up factor": "Up Factor",
-          "up pitch": "Up Pitch",
-          "visible": "Visible"
+          "up pitch": "Up Pitch"
         },
         "elytraflight": {
           "_value": "Elytra Fly",
@@ -710,7 +572,6 @@
           "auto control altitude": "Auto Control Altitude",
           "auto landing": "Auto Landing",
           "base boost pitch": "Base Boost Pitch",
-          "bind": "Bind",
           "block interact": "Block Interact",
           "down speed b": "Down Speed B",
           "down speed c": "Down Speed C",
@@ -721,7 +582,6 @@
           "dynamic down speed c": "Dynamic Down Speed C",
           "easy takeoff": "Easy Takeoff",
           "elytra sounds": "Elytra Sounds",
-          "enable": "Enable",
           "fall speed c": "Fall Speed C",
           "fall speed cr": "Fall Speed CR",
           "fall speed p": "Fall Speed P",
@@ -743,79 +603,58 @@
           "takeoff timer": "Takeoff Timer",
           "up speed b": "Up Speed B",
           "up speed cr": "Up Speed CR",
-          "visible": "Visible",
           "warning threshold": "Warning Threshold"
         },
         "elytraflightnew": {
           "_value": "Elytra Flight New",
-          "bind": "Bind",
           "boost timer": "Boost Timer",
           "down speed": "Down Speed",
           "down speed fast": "Down Speed Fast",
-          "enable": "Enable",
           "fall timer": "Fall Timer",
           "jump timer": "Jump Timer",
           "min takeoff height": "Min Takeoff Height",
           "speed": "Speed",
           "speed fast": "Speed Fast",
           "up speed": "Up Speed",
-          "up speed fast": "Up Speed Fast",
-          "visible": "Visible"
+          "up speed fast": "Up Speed Fast"
         },
         "flight": {
           "_value": "Flight",
           "anti kick": "Anti Kick",
           "anti kick distance": "Anti Kick Distance",
           "anti kick interval": "Anti Kick Interval",
-          "bind": "Bind",
-          "enable": "Enable",
           "horizontal speed": "Horizontal Speed",
           "slow sneaking": "Slow Sneaking",
-          "vertical speed": "Vertical Speed",
-          "visible": "Visible"
+          "vertical speed": "Vertical Speed"
         },
         "guimove": {
           "_value": "Gui Move",
-          "bind": "Bind",
-          "enable": "Enable",
-          "sneak": "Sneak",
-          "visible": "Visible"
+          "sneak": "Sneak"
         },
         "movefix": {
-          "_value": "Move Fix",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Move Fix"
         },
         "movementfix": "Movement Fix",
         "nofall": {
           "_value": "No Fall",
-          "bind": "Bind",
           "distance": "Distance",
-          "enable": "Enable",
           "fall distance": "Fall Distance",
           "grim": "Grim",
-          "mode": "Mode",
-          "visible": "Visible"
+          "mode": "Mode"
         },
         "noslowdown": {
           "_value": "No Slow Down",
-          "bind": "Bind",
           "bow": "Bow",
           "crossbow": "Crossbow",
-          "enable": "Enable",
           "food": "Food",
           "h speed": "H Speed",
           "mode": "Mode",
-          "visible": "Visible",
           "v speed": "V Speed",
           "web": "Web"
         },
         "packetfly": {
           "_value": "Packet Fly",
           "anti kick": "Anti Kick",
-          "bind": "Bind",
-          "enable": "Enable",
           "factor": "Factor",
           "increase ticks": "Increase Ticks",
           "limit": "Limit",
@@ -823,28 +662,19 @@
           "phase": "Phase",
           "speed": "Speed",
           "timer": "Timer",
-          "type": "Type",
-          "visible": "Visible"
+          "type": "Type"
         },
         "safewalk": {
           "_value": "Safe Walk",
-          "bind": "Bind",
-          "eagle": "Eagle",
-          "enable": "Enable",
-          "visible": "Visible"
+          "eagle": "Eagle"
         },
         "sprint": {
           "_value": "Sprint",
-          "bind": "Bind",
-          "enable": "Enable",
-          "limit": "Limit",
-          "visible": "Visible"
+          "limit": "Limit"
         },
         "strafe": {
           "_value": "Strafe",
-          "bind": "Bind",
           "cool down": "Cool Down",
-          "enable": "Enable",
           "explosions": "Explosions",
           "h factor": "H Factor",
           "lag mode": "Lag Mode",
@@ -854,15 +684,12 @@
           "on air speed": "On Air Speed",
           "on ground speed": "On Ground Speed",
           "velocity": "Velocity",
-          "v factor": "V Factor",
-          "visible": "Visible"
+          "v factor": "V Factor"
         },
         "velocity": {
           "_value": "Velocity",
-          "bind": "Bind",
           "block": "Block",
           "debug": "Debug",
-          "enable": "Enable",
           "entity": "Entity",
           "flag wait tick": "Flag Wait Tick",
           "horizontal": "Horizontal",
@@ -872,7 +699,6 @@
           "no push": "No Push",
           "pushable": "Pushable",
           "vertical": "Vertical",
-          "visible": "Visible",
           "wait tick": "Wait Tick"
         }
       },
@@ -880,20 +706,15 @@
         "_value": "Player",
         "antihunger": {
           "_value": "Anti Hunger",
-          "bind": "Bind",
-          "enable": "Enable",
           "on ground": "On Ground",
-          "sprint": "Sprint",
-          "visible": "Visible"
+          "sprint": "Sprint"
         },
         "autoarmor": {
           "_value": "Auto Armor",
-          "bind": "Bind",
           "body": "Body",
           "delay": "Delay",
           "elytra": "Elytra",
           "elytra priority": "Elytra Priority",
-          "enable": "Enable",
           "feet": "Feet",
           "head": "Head",
           "ignore curse": "Ignore Curse",
@@ -902,122 +723,78 @@
           "old version": "Old Version",
           "pause in inventory": "Pause In Inventory",
           "strict": "Strict",
-          "tights": "Tights",
-          "visible": "Visible"
+          "tights": "Tights"
         },
         "autotool": {
           "_value": "Auto Tool",
-          "bind": "Bind",
-          "enable": "Enable",
           "ender chest silk touch": "Ender Chest Silk Touch",
           "save item": "Save Item",
           "silent": "Silent",
-          "swap back": "Swap Back",
-          "visible": "Visible"
+          "swap back": "Swap Back"
         },
         "disabler": {
           "_value": "Disabler",
           "bad packets a": "Bad Packets A",
-          "bind": "Bind",
-          "enable": "Enable",
           "input": "Input",
-          "sprinting": "Sprinting",
-          "visible": "Visible"
+          "sprinting": "Sprinting"
         },
         "automend": {
           "_value": "Auto Mend",
-          "bind": "Bind",
           "debug": "Debug",
           "delay": "Delay",
           "down": "Down",
           "down pitch": "Down Pitch",
-          "enable": "Enable",
           "inventory": "Inventory",
           "no swap": "No Swap",
           "on ground check": "On Ground Check",
           "percent check": "Percent Check",
-          "using check": "Using Check",
-          "visible": "Visible"
+          "using check": "Using Check"
         },
         "autorespawn": {
-          "_value": "Auto Respawn",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Auto Respawn"
         },
         "chatsuffix": {
-          "_value": "Chat Suffix",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Chat Suffix"
         },
         "eatfirst": {
-          "_value": "Eat First",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Eat First"
         },
         "forcesync": {
           "_value": "Force Sync",
-          "bind": "Bind",
-          "enable": "Enable",
           "position": "Position",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "hotbarrefill": {
           "_value": "Hotbar Refill",
-          "bind": "Bind",
-          "enable": "Enable",
           "packet delay": "Packet Delay",
-          "threshold": "Threshold",
-          "visible": "Visible"
+          "threshold": "Threshold"
         },
         "multitask": {
-          "_value": "Multi Task",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Multi Task"
         },
         "noentitytrace": {
           "_value": "No Entity Trace",
-          "bind": "Bind",
-          "enable": "Enable",
           "no sword": "No Sword",
-          "pickaxe only": "Pickaxe Only",
-          "visible": "Visible"
+          "pickaxe only": "Pickaxe Only"
         },
         "norotate": {
-          "_value": "No Rotate",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "No Rotate"
         },
         "noserverslot": {
-          "_value": "No Server Slot",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "No Server Slot"
         },
         "packetcontrol": {
           "_value": "Packet Control",
-          "bind": "Bind",
-          "enable": "Enable",
           "full packets": "Full Packets",
-          "position packets": "Position Packets",
-          "visible": "Visible"
+          "position packets": "Position Packets"
         },
         "packeteat": {
-          "_value": "Packet Eat",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Packet Eat"
         },
         "packetmine": {
           "_value": "Packet Mine",
           "after break": "After Break",
           "await place": "Await Place",
-          "bind": "Bind",
           "box": "Box",
           "bypass ground": "Bypass Ground",
           "bypass time": "Bypass Time",
@@ -1031,7 +808,6 @@
           "distance cancel": "Distance Cancel",
           "double break": "Double Break",
           "double color": "Double Color",
-          "enable": "Enable",
           "end color": "End Color",
           "end rotate": "End Rotate",
           "end swing": "End Swing",
@@ -1062,13 +838,10 @@
           "switch reset": "Switch Reset",
           "switch time": "Switch Time",
           "text": "Text",
-          "visible": "Visible",
           "wait": "Wait"
         },
         "scaffold": {
           "_value": "Scaffold",
-          "bind": "Bind",
-          "enable": "Enable",
           "extend axis": "Extend Axis",
           "extend diagonal": "Extend Diagonal",
           "grim": "Grim",
@@ -1096,28 +869,22 @@
           "tower jump height threshold": "Tower Jump Height Threshold",
           "tower jump motion": "Tower Jump Motion",
           "tower mode": "Tower Mode",
-          "tower place height threshold": "Tower Place Height Threshold",
-          "visible": "Visible"
+          "tower place height threshold": "Tower Place Height Threshold"
         },
         "search": {
           "_value": "Search",
-          "bind": "Bind",
           "block": "Block",
           "chunk type": "Chunk Type",
-          "enable": "Enable",
-          "limit": "Limit",
-          "visible": "Visible"
+          "limit": "Limit"
         },
         "surround": {
           "_value": "Surround",
           "attack crystal": "Attack Crystal",
           "attack crystal using check": "Attack Crystal Using Check",
-          "bind": "Bind",
           "center": "Center",
           "debug": "Debug",
           "disable": "Disable",
           "disable on jump": "Disable On Jump",
-          "enable": "Enable",
           "extend": "Extend",
           "mining check": "Mining Check",
           "on ground check": "On Ground Check",
@@ -1135,64 +902,42 @@
           "rotate": "Rotate",
           "switch mode": "Switch Mode",
           "use ender chest": "Use Ender Chest",
-          "using check": "Using Check",
-          "visible": "Visible"
+          "using check": "Using Check"
         },
         "timer": {
           "_value": "Timer",
-          "bind": "Bind",
-          "enable": "Enable",
           "fix rotate": "Fix Rotate",
           "flag detect": "Flag Detect",
           "lag pause time": "Lag Pause Time",
-          "speed": "Speed",
-          "visible": "Visible"
+          "speed": "Speed"
         }
       },
       "render": {
         "_value": "Render",
         "antialias": {
-          "_value": "Anti Alias",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Anti Alias"
         },
         "aspectratio": {
           "_value": "Aspect Ratio",
-          "bind": "Bind",
-          "enable": "Enable",
-          "ratio": "Ratio",
-          "visible": "Visible"
+          "ratio": "Ratio"
         },
         "crystalchams": {
           "_value": "Crystal Chams",
-          "bind": "Bind",
-          "enable": "Enable",
           "line color": "Line Color",
           "line width": "Line Width",
           "scale": "Scale",
-          "side color": "Side Color",
-          "visible": "Visible"
+          "side color": "Side Color"
         },
         "filter": {
           "_value": "Filter",
-          "base color": "Base Color",
-          "bind": "Bind",
-          "enable": "Enable",
-          "mode": "Mode",
-          "visible": "Visible"
+          "base color": "Base Color"
         },
         "fullbright": {
           "_value": "Fullbright",
-          "bind": "Bind",
-          "enable": "Enable",
-          "mode": "Mode",
-          "visible": "Visible"
+          "mode": "Mode"
         },
         "freecamera": {
           "_value": "Free Camera",
-          "bind": "Bind",
-          "enable": "Enable",
           "show hands": "Show Hands",
           "speed": "Speed",
           "speed scroll sensitivity": "Speed Scroll Sensitivity",
@@ -1200,56 +945,41 @@
           "stay sneaking": "Stay Sneaking",
           "toggle on damage": "Toggle On Damage",
           "toggle on death": "Toggle On Death",
-          "toggle on log": "Toggle On Log",
-          "visible": "Visible"
+          "toggle on log": "Toggle On Log"
         },
         "gameanimation": {
           "_value": "Game Animation",
-          "bind": "Bind",
-          "enable": "Enable",
-          "hotbar": "Hotbar",
-          "visible": "Visible"
+          "hotbar": "Hotbar"
         },
         "nametags": {
           "_value": "Name Tags",
           "background color": "Background Color",
-          "bind": "Bind",
-          "enable": "Enable",
           "height offset": "Height Offset",
           "range": "Range",
           "scale": "Scale",
           "show self": "Show Self",
-          "vanilla name tags": "Vanilla Name Tags",
-          "visible": "Visible"
+          "vanilla name tags": "Vanilla Name Tags"
         },
         "cameraclip": {
           "_value": "Camera Clip",
           "action": "Action",
           "action max distance": "Action Max Distance",
           "action smoothness": "Action Smoothness",
-          "bind": "Bind",
-          "distance": "Distance",
-          "enable": "Enable",
-          "visible": "Visible"
+          "distance": "Distance"
         },
         "nocameraclip": {
-          "_value": "Camera Clip",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Camera Clip"
         },
         "norender": {
           "_value": "No Render",
           "armor": "Armor",
           "arrows": "Arrows",
-          "bind": "Bind",
           "blindness": "Blindness",
           "block overlay": "Block Overlay",
           "campfire": "Campfire",
           "darkness": "Darkness",
           "effect": "Effect",
           "eggs": "Eggs",
-          "enable": "Enable",
           "entity fire": "Entity Fire",
           "explosions": "Explosions",
           "fire overlay": "Fire Overlay",
@@ -1264,32 +994,26 @@
           "potion particles": "Potion Particles",
           "title": "Title",
           "totem": "Totem",
-          "visible": "Visible",
           "water overlay": "Water Overlay",
           "experience orbs": "Experience Orbs"
         },
         "popchams": {
           "_value": "Pop Chams",
-          "bind": "Bind",
-          "enable": "Enable",
           "fade out": "Fade Out",
           "ignore self": "Ignore Self",
           "line color": "Line Color",
           "render time": "Render Time",
           "scale modifier": "Scale Modifier",
           "side color": "Side Color",
-          "visible": "Visible",
           "y modifier": "Y Modifier"
         },
         "shaders": {
           "_value": "Shaders",
           "ambients": "Ambients",
-          "bind": "Bind",
           "chest mode": "Chest Mode",
           "chests": "Chests",
           "creatures": "Creatures",
           "crystals": "Crystals",
-          "enable": "Enable",
           "fill": "Fill",
           "fill alpha": "Fill Alpha",
           "friends": "Friends",
@@ -1312,8 +1036,7 @@
           "smoke glow": "Smoke Glow",
           "smoke octaves": "Smoke Octaves",
           "smoke outline": "Smoke Outline",
-          "smoke outline 2": "Smoke Outline 2",
-          "visible": "Visible"
+          "smoke outline 2": "Smoke Outline 2"
         }
       },
       "script": "Script",
@@ -1321,47 +1044,33 @@
         "_value": "Visual",
         "aspectratio": {
           "_value": "Aspect Ratio",
-          "bind": "Bind",
-          "enable": "Enable",
-          "ratio": "Ratio",
-          "visible": "Visible"
+          "ratio": "Ratio"
         },
         "blockhighlight": {
           "_value": "Block Highlight",
-          "bind": "Bind",
           "color": "Color",
-          "enable": "Enable",
           "line color": "Line Color",
-          "line width": "Line Width",
-          "visible": "Visible"
+          "line width": "Line Width"
         },
         "breakesp": {
           "_value": "Break ESP",
-          "bind": "Bind",
           "color": "Color",
           "debug": "Debug",
-          "enable": "Enable",
           "fade length": "Fade Length",
           "line color": "Line Color",
           "line width": "Line Width",
-          "render mode": "Render Mode",
-          "visible": "Visible"
+          "render mode": "Render Mode"
         },
         "crystaldamage": {
-          "_value": "Crystal Damage",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Crystal Damage"
         },
         "nametags": {
           "_value": "Name Tags",
           "armor": "Armor",
-          "bind": "Bind",
           "count": "Count",
           "distance scale factor": "Distance Scale Factor",
           "drop item count": "Drop Item Count",
           "dura": "Dura",
-          "enable": "Enable",
           "enchantment": "Enchantment",
           "experience": "Experience",
           "hostile mobs": "Hostile Mobs",
@@ -1391,27 +1100,21 @@
           "text alpha": "Text Alpha",
           "text blue": "Text Blue",
           "text green": "Text Green",
-          "text red": "Text Red",
-          "visible": "Visible"
+          "text red": "Text Red"
         },
         "nocameraclip": {
-          "_value": "No Camera Clip",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "No Camera Clip"
         },
         "norender": {
           "_value": "No Render",
           "armor": "Armor",
           "arrows": "Arrows",
-          "bind": "Bind",
           "blindness": "Blindness",
           "block overlay": "Block Overlay",
           "camp fire": "Camp Fire",
           "darkness": "Darkness",
           "effect": "Effect",
           "eggs": "Eggs",
-          "enable": "Enable",
           "entity fire": "Entity Fire",
           "explosions": "Explosions",
           "fire overlay": "Fire Overlay",
@@ -1424,41 +1127,29 @@
           "potions": "Potions",
           "title": "Title",
           "totem": "Totem",
-          "visible": "Visible",
           "water overlay": "Water Overlay",
           "xp": "XP"
         },
         "notification": {
           "_value": "Notification",
           "animation length": "Animation Length",
-          "bind": "Bind",
-          "enable": "Enable",
-          "start y": "Start Y",
-          "visible": "Visible"
+          "start y": "Start Y"
         },
         "placerender": {
           "_value": "Place Render",
-          "bind": "Bind",
           "color": "Color",
           "debug": "Debug",
-          "enable": "Enable",
           "line color": "Line Color",
           "line width": "Line Width",
-          "show time s": "Show Time S",
-          "visible": "Visible"
+          "show time s": "Show Time S"
         },
         "rendertest": {
           "_value": "Render Test",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible",
           "width": "Width"
         },
         "tracers": {
           "_value": "Tracers",
-          "bind": "Bind",
           "color": "Color",
-          "enable": "Enable",
           "friend color": "Friend Color",
           "h align": "H Align",
           "hostile": "Hostile",
@@ -1468,8 +1159,7 @@
           "passive": "Passive",
           "players": "Players",
           "thickness": "Thickness",
-          "v align": "V Align",
-          "visible": "Visible"
+          "v align": "V Align"
         }
       }
     }

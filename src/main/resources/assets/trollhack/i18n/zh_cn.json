@@ -8,6 +8,9 @@
     },
     "modules": {
       "_value": "模块",
+      "bind": "按键绑定",
+      "enable": "开启",
+      "visible": "显示",
       "client": {
         "_value": "客户端",
         "clickgui": {
@@ -15,16 +18,13 @@
           "anime height": "背景图高度",
           "anime offset x": "背景图横轴偏移",
           "anime type": "背景图类型",
-          "bind": "按键",
           "bottom alpha": "底部不透明度",
           "clear buffer": "清除缓冲区",
           "color sync": "颜色同步",
-          "enable": "启用",
           "mouse scroll speed": "鼠标滚轮速度",
           "outline": "边框",
           "pause game": "暂停游戏",
           "reload": "打开时重载",
-          "visible": "可见",
           "scale": "缩放",
           "color picker": "颜色选择器",
           "red": "红",
@@ -48,14 +48,12 @@
           "attack delay": "攻击间隔",
           "attack rotate": "攻击转头",
           "back side sampling": "背面采样",
-          "bind": "按键",
           "box revise": "碰撞箱扩展值修正",
           "click gui only": "只用于配置界面",
           "crystal set dead": "自动移除水晶",
           "crystal update delay": "水晶更新间隔",
           "custom uuid": "自定义UUID",
           "dedicated window": "独立窗口渲染",
-          "enable": "Enable",
           "experimental glyph cache": "字形缓存",
           "framebuffer": "独立帧缓冲",
           "game mode": "游戏模式",
@@ -90,7 +88,6 @@
           "uid": "显示UID",
           "uuid": "自定义UUID",
           "vertical center sampling": "垂直中心采样",
-          "visible": "可见",
           "window blur pass": "窗口模糊深度",
           "yaw speed limit": "水平转头速度限制"
         },
@@ -100,108 +97,76 @@
           "background blue": "背景颜色Blue通道",
           "background green": "背景颜色Green通道",
           "background red": "背景颜色Red通道",
-          "bind": "按键",
           "blue": "Blue通道",
           "blur": "模糊",
-          "enable": "Enable",
           "enabled alpha": "已启用按钮不透明度",
           "green": "Green通道",
           "hovered alpha": "鼠标覆盖按钮不透明度",
           "primary color": "次级颜色",
           "rainbow": "彩虹渐变",
           "red": "Red通道",
-          "unfocused alpha": "鼠标未覆盖按不透明度",
-          "visible": "可见"
+          "unfocused alpha": "鼠标未覆盖按不透明度"
         },
         "hudeditor": {
           "_value": "Hud编辑器",
-          "bind": "按键",
-          "enable": "Enable",
           "fix gui": "修复HUD位置",
           "mouse scroll speed": "鼠标滚轮速度",
           "outline": "边框",
           "pause game": "暂停游戏",
-          "reload": "打开时重载",
-          "visible": "可见"
+          "reload": "打开时重载"
         },
         "hurttimedebug": {
           "_value": "受伤时间调试",
-          "bind": "按键",
-          "enable": "Enable",
-          "velocity check": "速度检测",
-          "visible": "可见"
+          "velocity check": "速度检测"
         },
         "hyperirc": {
           "_value": "Hyper IRC",
-          "bind": "按键",
-          "enable": "Enable",
-          "ignore spamming": "忽略刷屏提醒",
-          "visible": "可见"
+          "ignore spamming": "忽略刷屏提醒"
         },
         "packetdebug": {
           "_value": "数据包调试",
           "all packet namespace": "以命名空间值输出所有收包",
-          "bind": "按键",
           "calc ping average": "计算Ping平均值",
-          "enable": "Enable",
           "flag check": "Ping数据包flag检测",
           "ping": "Ping输出",
           "pong": "Pong输出",
           "self entity velocity update s2c": "自身的EntityVelocityUpdateS2C包输出",
           "translation": "翻译值",
-          "translation receive namespace": "翻译收包命名空间",
-          "visible": "Visible"
+          "translation receive namespace": "翻译收包命名空间"
         },
         "refreshfontcache": {
           "_value": "刷新字体缓存",
           "atlas index": "Atlas编号",
-          "bind": "按键",
           "contain char": "包含的字符",
-          "enable": "Enable",
           "show atlas": "显示Atlas",
-          "show static string": "显示静态字符串",
-          "visible": "可见"
+          "show static string": "显示静态字符串"
         },
         "reloadscript": {
-          "_value": "重载脚本",
-          "bind": "按键",
-          "enable": "Enable",
-          "visible": "可见"
+          "_value": "重载脚本"
         },
         "watermark": {
           "_value": "水印",
-          "bind": "按键",
           "color 1": "颜色1",
-          "color 2": "颜色2",
-          "enable": "Enable",
-          "visible": "可见"
+          "color 2": "颜色2"
         }
       },
       "combat": {
         "_value": "战斗",
         "automend": {
           "_value": "自动修补",
-          "bind": "按键",
-          "enable": "启用",
           "switch mode": "切换模式",
-          "swing hand": "挥动手臂",
-          "visible": "可见"
+          "swing hand": "挥动手臂"
         },
         "autototem": {
           "_value": "自动图腾",
-          "bind": "按键",
           "check golden apple": "检查金苹果",
-          "enable": "启用",
           "health": "生命值",
           "main hand": "主手",
-          "strict": "严格",
-          "visible": "可见"
+          "strict": "严格"
         },
         "feettrap": {
           "_value": "脚部围困",
-          "bind": "按键",
           "blocks per tick": "每刻方块数",
-          "enable": "启用",
           "ender chest": "末影箱",
           "extend": "延伸",
           "in air": "空中放置",
@@ -211,19 +176,15 @@
           "rotate": "旋转",
           "rotation speed": "旋转速度",
           "toggle on jump": "跳跃时关闭",
-          "toggle on move": "移动时关闭",
-          "visible": "可见"
+          "toggle on move": "移动时关闭"
         },
         "keypearl": {
           "_value": "快捷珍珠",
           "activate key": "激活按键",
-          "bind": "按键",
           "delay": "延迟",
-          "enable": "启用",
           "swing hand": "挥动手臂",
           "switch back": "切回物品",
-          "switch delay": "切回延迟",
-          "visible": "可见"
+          "switch delay": "切回延迟"
         }
       },
       "fight": {
@@ -233,47 +194,33 @@
           "0 tick max damage": "0Tick最大伤害",
           "0 tick tick": "0Tick游戏刻",
           "anti 0 tick": "防0Tick",
-          "bind": "按键",
-          "enable": "Enable",
           "min damage": "最小伤害",
           "no me": "忽略自身",
           "packet": "直接发包",
           "place range": "防止范围",
-          "rotate": "转头",
-          "visible": "可见"
+          "rotate": "转头"
         },
         "anticity": {
           "_value": "防自动挖脚",
-          "bind": "按键",
-          "enable": "Enable",
           "legit": "合法",
           "on web": "仅Web",
           "packet": "直接发包",
           "place down": "向下放置",
           "rotate": "转头",
-          "strict": "严格的检测",
-          "visible": "可见"
+          "strict": "严格的检测"
         },
         "antipistonaura": {
           "_value": "防活塞水晶",
-          "bind": "按键",
-          "enable": "Enable",
-          "rotate": "转头",
-          "visible": "可见"
+          "rotate": "转头"
         },
         "antipush": {
-          "_value": "防活塞推人",
-          "bind": "按键",
-          "enable": "Enable",
-          "visible": "可视"
+          "_value": "防活塞推人"
         },
         "autoanchor": {
           "_value": "自动重生锚",
-          "bind": "按键",
           "break crystal": "敲击水晶",
           "color": "颜色",
           "delay": "间隔",
-          "enable": "Enable",
           "legit": "合法",
           "line color": "线条颜色",
           "line width": "线条粗细",
@@ -287,7 +234,6 @@
           "rotate": "转头",
           "set air": "设置为空气方块",
           "strict": "严格的检查",
-          "visible": "可见",
           "web compat": "兼容Web"
         },
         "autocity": {
@@ -295,15 +241,12 @@
             "12": "1.12"
           },
           "_value": "自动挖脚",
-          "bind": "按键",
           "break check": "敲击检测",
           "burrow check": "Burrow检测",
-          "enable": "Enable",
           "range": "范围",
           "surround check": "围脚检测",
           "target range": "目标范围",
-          "using check": "使用物品检测",
-          "visible": "可见"
+          "using check": "使用物品检测"
         },
         "autocrystal": {
           "_value": "Auto Crystal",
@@ -312,7 +255,6 @@
           "animals": "动物",
           "anti weakness": "防虚弱",
           "assume instant mine": "假设秒挖",
-          "bind": "按键",
           "break balance": "敲击平衡",
           "break delay": "敲击间隔",
           "break max self damage": "敲击对自身的最大伤害",
@@ -325,7 +267,6 @@
           "crystal rotation": "转头",
           "damage priority": "伤害优先级",
           "eating pause": "进食时暂停",
-          "enable": "Enable",
           "fade length": "渐变时长",
           "filled alpha": "填充不透明度",
           "force place armor rate": "强制放置护甲阈值",
@@ -373,25 +314,19 @@
           "target range": "Target Range",
           "update delay ms": "Update Delay Ms",
           "update movement": "Update Movement",
-          "visible": "Visible",
           "wall range": "Wall Range",
           "yaw speed": "Yaw Speed"
         },
         "autototem": {
           "_value": "Auto Totem",
-          "bind": "Bind",
-          "enable": "Enable",
           "health": "Health",
-          "main hand": "MainHand",
-          "visible": "Visible"
+          "main hand": "MainHand"
         },
         "autoweb": {
           "_value": "Auto Web",
           "anti break": "antiBreak",
-          "bind": "Bind",
           "chorus": "Chorus",
           "delay": "Delay",
-          "enable": "Enable",
           "head": "Head",
           "inhead": "inhead",
           "legit": "legit",
@@ -407,15 +342,12 @@
           "rotate": "Rotate",
           "strict": "strict",
           "target range": "Target Range",
-          "visible": "Visible",
           "y detection": "Y Detection",
           "y detection h": "Y Detection H",
           "暴力web": "暴力web"
         },
         "boomhelper": {
           "_value": "Boom Helper",
-          "bind": "Bind",
-          "enable": "Enable",
           "min damage": "Min Damage",
           "packet": "Packet",
           "place delay": "Place Delay",
@@ -423,18 +355,15 @@
           "prediction": "Prediction",
           "prediction tick": "Prediction Tick",
           "radius": "Radius",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "burrow": {
           "_value": "卡方块",
           "attack crystal": "Attack Crystal",
-          "bind": "Bind",
           "center": "自动居中",
           "delay": "放置延迟",
           "disable": "自动关闭",
           "down place": "无方块自动向下放置",
-          "enable": "Enable",
           "ender chest": "使用末影箱",
           "head place": "头部放置",
           "inventory": "使用背包物品",
@@ -454,39 +383,27 @@
           "smart up": "智能上升纵轴值",
           "spoof move": "移动欺骗",
           "using check": "物品使用检查",
-          "visible": "Visible",
           "wait": "无法放置时等待"
         },
         "burrowbypass": {
           "_value": "Burrow Bypass",
-          "bind": "Bind",
-          "enable": "Enable",
           "no serverside move": "No Serverside Move",
           "position sync": "Position Sync",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "burrowfiller": {
           "_value": "Burrow Filler",
-          "anti break": "Anti Break",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "anti break": "Anti Break"
         },
         "criticals": {
           "_value": "Criticals",
-          "bind": "Bind",
-          "enable": "Enable",
-          "legit": "Legit",
-          "visible": "Visible"
+          "legit": "Legit"
         },
         "holepush": {
           "_value": "Hole Push",
-          "bind": "Bind",
           "crystal attack": "Crystal Attack",
           "debug": "Debug",
           "disable": "Disable",
-          "enable": "Enable",
           "fix facing": "Fix Facing",
           "loop delay": "LoopDelay",
           "page": "Page",
@@ -506,14 +423,11 @@
           "target in web check": "Target InWeb Check",
           "target on ground check": "Target OnGround Check",
           "target range": "Target Range",
-          "target surround check count": "Target Surround Check Count",
-          "visible": "Visible"
+          "target surround check count": "Target Surround Check Count"
         },
         "killaura": {
           "_value": "Kill Aura",
-          "bind": "Bind",
           "cooldown": "Cooldown",
-          "enable": "Enable",
           "hostile": "Hostile",
           "mobs": "Mobs",
           "neutral": "Neutral",
@@ -523,17 +437,13 @@
           "range": "Range",
           "rotation": "Rotation",
           "sword only": "Sword Only",
-          "target": "Target",
-          "visible": "Visible"
+          "target": "Target"
         },
         "macespoof": {
           "_value": "Mace Spoof",
-          "bind": "Bind",
           "cancel blocking": "Cancel Blocking",
-          "enable": "Enable",
           "fall distance": "Fall Distance",
-          "mode": "Mode",
-          "visible": "Visible"
+          "mode": "Mode"
         }
       },
       "hud": {
@@ -546,10 +456,8 @@
           "appear on top": "Appear On Top",
           "assssss": "ASSSSSS",
           "background alpha": "背景不透明度",
-          "bind": "Bind",
           "bound only": "Bound Only",
           "color": "Color",
-          "enable": "Enable",
           "hide client": "Hide Client",
           "hide fight": "Hide Fight",
           "hide hud": "Hide Hud",
@@ -564,136 +472,91 @@
           "sort by length": "Sort By Length",
           "suffix": "Suffix",
           "vertical": "Vertical",
-          "visible": "Visible",
           "width": "Width"
         },
         "eventposts": {
           "_value": "Event Posts",
           "__internal__x__": "__internal__X__",
-          "__internal__y__": "__internal__Y__",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "__internal__y__": "__internal__Y__"
         },
         "fpshud": {
           "_value": "FPS Hud",
           "__internal__x__": "__internal__X__",
-          "__internal__y__": "__internal__Y__",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "__internal__y__": "__internal__Y__"
         }
       },
       "miscellaneous": {
         "_value": "Miscellaneous",
         "autologin": {
           "_value": "Auto Login",
-          "bind": "Bind",
           "command": "Command",
-          "enable": "Enable",
-          "use compass": "Use Compass",
-          "visible": "Visible"
+          "use compass": "Use Compass"
         },
         "autoqueue": {
-          "_value": "Auto Queue",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Auto Queue"
         },
         "bowmcbomb": {
-          "_value": "BowMcBomb",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "BowMcBomb"
         },
         "chorusexploit": {
-          "_value": "Chorus Exploit",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Chorus Exploit"
         },
         "clip": {
           "_value": "Clip",
           "auto disable": "Auto Disable",
-          "bind": "Bind",
           "disable delay": "Disable Delay",
-          "enable": "Enable",
-          "timeout": "Timeout",
-          "visible": "Visible"
+          "timeout": "Timeout"
         },
         "fakename": {
           "_value": "Fake Name",
           "auto disable": "Auto Disable",
-          "bind": "Bind",
           "client side": "Client Side",
-          "enable": "Enable",
           "name": "Name",
-          "server side": "Server Side",
-          "visible": "Visible"
+          "server side": "Server Side"
         },
         "fakeplayer": {
           "_value": "Fake Player",
-          "bind": "Bind",
           "copy inventory": "Copy Inventory",
           "copy potions": "Copy Potions",
-          "enable": "Enable",
           "gapple effects": "Gapple Effects",
           "max armor": "Max Armor",
           "play": "Play",
           "player name": "Player Name",
-          "record": "Record",
-          "visible": "Visible"
+          "record": "Record"
         },
         "fastplace": {
-          "_value": "Fast Place",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Fast Place"
         },
         "hitboxdesync": {
-          "_value": "Hitbox Desync",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Hitbox Desync"
         },
         "hitsound": {
           "_value": "Hit Sound",
-          "bind": "Bind",
-          "enable": "Enable",
           "pitch": "Pitch",
           "sound": "Sound",
-          "visible": "Visible",
           "volume": "Volume"
         },
         "middleclick": {
           "_value": "Middle Click",
           "add friend": "Add Friend",
-          "bind": "Bind",
-          "enable": "Enable",
           "pearl": "Pearl",
-          "pearl swap": "Pearl Swap",
-          "visible": "Visible"
+          "pearl swap": "Pearl Swap"
         }
       },
       "movement": {
         "_value": "Movement",
         "blockstrafe": {
           "_value": "Block Strafe",
-          "bind": "Bind",
-          "enable": "Enable",
           "fallback speed": "Fallback Speed",
           "packet": "Packet",
           "place block": "Place Block",
           "rotate": "Rotate",
-          "speed": "Speed",
-          "visible": "Visible"
+          "speed": "Speed"
         },
         "elytrafly": {
           "_value": "Elytra Fly",
-          "bind": "Bind",
           "down factor": "Down Factor",
           "down speed": "Down Speed",
-          "enable": "Enable",
           "instant": "Instant",
           "max speed": "Max Speed",
           "no drag": "No Drag",
@@ -702,8 +565,7 @@
           "timeout": "Timeout",
           "timer": "Timer",
           "up factor": "Up Factor",
-          "up pitch": "Up Pitch",
-          "visible": "Visible"
+          "up pitch": "Up Pitch"
         },
         "elytraflight": {
           "_value": "鞘翅飞行",
@@ -711,7 +573,6 @@
           "auto control altitude": "自动控制高度",
           "auto landing": "自动着陆",
           "base boost pitch": "基础加速俯仰角",
-          "bind": "按键",
           "block interact": "方块交互",
           "down speed b": "下降速度 B",
           "down speed c": "下降速度 C",
@@ -722,7 +583,6 @@
           "dynamic down speed c": "动态下降速度 C",
           "easy takeoff": "轻松起飞",
           "elytra sounds": "鞘翅音效",
-          "enable": "启用",
           "fall speed c": "下落速度 C",
           "fall speed cr": "下落速度 CR",
           "fall speed p": "下落速度 P",
@@ -744,79 +604,58 @@
           "takeoff timer": "起飞计时器",
           "up speed b": "上升速度 B",
           "up speed cr": "上升速度 CR",
-          "visible": "可见",
           "warning threshold": "警告阈值"
         },
         "elytraflightnew": {
           "_value": "新版鞘翅飞行",
-          "bind": "按键",
           "boost timer": "加速计时器",
           "down speed": "下降速度",
           "down speed fast": "快速下降速度",
-          "enable": "启用",
           "fall timer": "下落计时器",
           "jump timer": "跳跃计时器",
           "min takeoff height": "最低起飞高度",
           "speed": "速度",
           "speed fast": "快速速度",
           "up speed": "上升速度",
-          "up speed fast": "快速上升速度",
-          "visible": "可见"
+          "up speed fast": "快速上升速度"
         },
         "flight": {
           "_value": "Flight",
           "anti kick": "Anti Kick",
           "anti kick distance": "Anti Kick Distance",
           "anti kick interval": "Anti Kick Interval",
-          "bind": "Bind",
-          "enable": "Enable",
           "horizontal speed": "Horizontal Speed",
           "slow sneaking": "Slow Sneaking",
-          "vertical speed": "Vertical Speed",
-          "visible": "Visible"
+          "vertical speed": "Vertical Speed"
         },
         "guimove": {
           "_value": "Gui Move",
-          "bind": "Bind",
-          "enable": "Enable",
-          "sneak": "Sneak",
-          "visible": "Visible"
+          "sneak": "Sneak"
         },
         "movefix": {
-          "_value": "Move Fix",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Move Fix"
         },
         "movementfix": "Movement Fix",
         "nofall": {
           "_value": "No Fall",
-          "bind": "Bind",
           "distance": "Distance",
-          "enable": "Enable",
           "fall distance": "坠落距离",
           "grim": "Grim",
-          "mode": "模式",
-          "visible": "Visible"
+          "mode": "模式"
         },
         "noslowdown": {
           "_value": "No Slow Down",
-          "bind": "Bind",
           "bow": "弓",
           "crossbow": "弩",
-          "enable": "Enable",
           "food": "食物",
           "h speed": "HSpeed",
           "mode": "Mode",
-          "visible": "Visible",
           "v speed": "VSpeed",
           "web": "Web"
         },
         "packetfly": {
           "_value": "Packet Fly",
           "anti kick": "AntiKick",
-          "bind": "Bind",
-          "enable": "Enable",
           "factor": "Factor",
           "increase ticks": "Increase Ticks",
           "limit": "Limit",
@@ -824,28 +663,19 @@
           "phase": "Phase",
           "speed": "Speed",
           "timer": "Timer",
-          "type": "Type",
-          "visible": "Visible"
+          "type": "Type"
         },
         "safewalk": {
           "_value": "Safe Walk",
-          "bind": "Bind",
-          "eagle": "Eagle",
-          "enable": "Enable",
-          "visible": "Visible"
+          "eagle": "Eagle"
         },
         "sprint": {
           "_value": "Sprint",
-          "bind": "Bind",
-          "enable": "Enable",
-          "limit": "Limit",
-          "visible": "Visible"
+          "limit": "Limit"
         },
         "strafe": {
           "_value": "Strafe",
-          "bind": "Bind",
           "cool down": "CoolDown",
-          "enable": "Enable",
           "explosions": "Explosions",
           "h factor": "H-Factor",
           "lag mode": "Lag Mode",
@@ -855,15 +685,12 @@
           "on air speed": "OnAir Speed",
           "on ground speed": "OnGround Speed",
           "velocity": "Velocity",
-          "v factor": "V-Factor",
-          "visible": "Visible"
+          "v factor": "V-Factor"
         },
         "velocity": {
           "_value": "Velocity",
-          "bind": "Bind",
           "block": "Block",
           "debug": "Debug",
-          "enable": "Enable",
           "entity": "Entity",
           "flag wait tick": "Flag Wait Tick",
           "horizontal": "Horizontal",
@@ -873,7 +700,6 @@
           "no push": "No Push",
           "pushable": "Pushable",
           "vertical": "Vertical",
-          "visible": "Visible",
           "wait tick": "Wait Tick"
         }
       },
@@ -881,20 +707,15 @@
         "_value": "Player",
         "antihunger": {
           "_value": "Anti Hunger",
-          "bind": "Bind",
-          "enable": "Enable",
           "on ground": "on-ground",
-          "sprint": "sprint",
-          "visible": "Visible"
+          "sprint": "sprint"
         },
         "autoarmor": {
           "_value": "Auto Armor",
-          "bind": "Bind",
           "body": "胸甲",
           "delay": "Delay",
           "elytra": "Elytra",
           "elytra priority": "鞘翅优先级",
-          "enable": "Enable",
           "feet": "靴子",
           "head": "头盔",
           "ignore curse": "忽略诅咒",
@@ -903,122 +724,78 @@
           "old version": "旧版本",
           "pause in inventory": "打开背包时暂停",
           "strict": "严格",
-          "tights": "护腿",
-          "visible": "Visible"
+          "tights": "护腿"
         },
         "autotool": {
           "_value": "自动工具",
-          "bind": "按键",
-          "enable": "启用",
           "ender chest silk touch": "末影箱精准采集",
           "save item": "保护物品",
           "silent": "静默切换",
-          "swap back": "切回物品",
-          "visible": "可见"
+          "swap back": "切回物品"
         },
         "disabler": {
           "_value": "反作弊绕过",
           "bad packets a": "BadPackets A",
-          "bind": "按键",
-          "enable": "启用",
           "input": "输入",
-          "sprinting": "疾跑",
-          "visible": "可见"
+          "sprinting": "疾跑"
         },
         "automend": {
           "_value": "Auto Mend",
-          "bind": "Bind",
           "debug": "Debug",
           "delay": "Delay",
           "down": "Down",
           "down pitch": "Down Pitch",
-          "enable": "Enable",
           "inventory": "Inventory",
           "no swap": "No Swap",
           "on ground check": "OnGround Check",
           "percent check": "Percent Check",
-          "using check": "Using Check",
-          "visible": "Visible"
+          "using check": "Using Check"
         },
         "autorespawn": {
-          "_value": "Auto Respawn",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Auto Respawn"
         },
         "chatsuffix": {
-          "_value": "Chat Suffix",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Chat Suffix"
         },
         "eatfirst": {
-          "_value": "Eat First",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Eat First"
         },
         "forcesync": {
           "_value": "Force Sync",
-          "bind": "Bind",
-          "enable": "Enable",
           "position": "Position",
-          "rotate": "Rotate",
-          "visible": "Visible"
+          "rotate": "Rotate"
         },
         "hotbarrefill": {
           "_value": "Hotbar Refill",
-          "bind": "Bind",
-          "enable": "Enable",
           "packet delay": "Packet Delay",
-          "threshold": "Threshold",
-          "visible": "Visible"
+          "threshold": "Threshold"
         },
         "multitask": {
-          "_value": "Multi Task",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Multi Task"
         },
         "noentitytrace": {
           "_value": "No Entity Trace",
-          "bind": "Bind",
-          "enable": "Enable",
           "no sword": "No Sword",
-          "pickaxe only": "Pickaxe Only",
-          "visible": "Visible"
+          "pickaxe only": "Pickaxe Only"
         },
         "norotate": {
-          "_value": "No Rotate",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "No Rotate"
         },
         "noserverslot": {
-          "_value": "No Server Slot",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "No Server Slot"
         },
         "packetcontrol": {
           "_value": "Packet Control",
-          "bind": "Bind",
-          "enable": "Enable",
           "full packets": "Full Packets",
-          "position packets": "Position Packets",
-          "visible": "Visible"
+          "position packets": "Position Packets"
         },
         "packeteat": {
-          "_value": "Packet Eat",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Packet Eat"
         },
         "packetmine": {
           "_value": "Packet Mine",
           "after break": "After Break",
           "await place": "Await Place",
-          "bind": "Bind",
           "box": "Box",
           "bypass ground": "Bypass Ground",
           "bypass time": "Bypass Time",
@@ -1032,7 +809,6 @@
           "distance cancel": "Distance Cancel",
           "double break": "Double Break",
           "double color": "Double Color",
-          "enable": "Enable",
           "end color": "End Color",
           "end rotate": "End Rotate",
           "end swing": "End Swing",
@@ -1063,13 +839,10 @@
           "switch reset": "Switch Reset",
           "switch time": "切换时间",
           "text": "Text",
-          "visible": "Visible",
           "wait": "Wait"
         },
         "scaffold": {
           "_value": "Scaffold",
-          "bind": "Bind",
-          "enable": "Enable",
           "extend axis": "Extend Axis",
           "extend diagonal": "Extend Diagonal",
           "grim": "Grim",
@@ -1097,28 +870,22 @@
           "tower jump height threshold": "Tower Jump Height Threshold",
           "tower jump motion": "Tower Jump Motion",
           "tower mode": "Tower Mode",
-          "tower place height threshold": "Tower Place Height Threshold",
-          "visible": "Visible"
+          "tower place height threshold": "Tower Place Height Threshold"
         },
         "search": {
           "_value": "Search",
-          "bind": "Bind",
           "block": "Block",
           "chunk type": "Chunk Type",
-          "enable": "Enable",
-          "limit": "Limit",
-          "visible": "Visible"
+          "limit": "Limit"
         },
         "surround": {
           "_value": "Surround",
           "attack crystal": "Attack Crystal",
           "attack crystal using check": "Attack Crystal Using Check",
-          "bind": "Bind",
           "center": "Center",
           "debug": "Debug",
           "disable": "Disable",
           "disable on jump": "Disable on Jump",
-          "enable": "Enable",
           "extend": "Extend",
           "mining check": "Mining Check",
           "on ground check": "OnGround Check",
@@ -1136,64 +903,42 @@
           "rotate": "Rotate",
           "switch mode": "Switch Mode",
           "use ender chest": "Use EnderChest",
-          "using check": "Using Check",
-          "visible": "Visible"
+          "using check": "Using Check"
         },
         "timer": {
           "_value": "Timer",
-          "bind": "Bind",
-          "enable": "Enable",
           "fix rotate": "Fix Rotate",
           "flag detect": "Flag Detect",
           "lag pause time": "Lag Pause Time",
-          "speed": "Speed",
-          "visible": "Visible"
+          "speed": "Speed"
         }
       },
       "render": {
         "_value": "渲染",
         "antialias": {
-          "_value": "抗锯齿",
-          "bind": "按键",
-          "enable": "启用",
-          "visible": "可见"
+          "_value": "抗锯齿"
         },
         "aspectratio": {
           "_value": "画面比例",
-          "bind": "按键",
-          "enable": "启用",
-          "ratio": "比例",
-          "visible": "可见"
+          "ratio": "比例"
         },
         "crystalchams": {
           "_value": "水晶透视",
-          "bind": "按键",
-          "enable": "启用",
           "line color": "线条颜色",
           "line width": "线条宽度",
           "scale": "缩放",
-          "side color": "填充颜色",
-          "visible": "可见"
+          "side color": "填充颜色"
         },
         "filter": {
           "_value": "滤镜",
-          "base color": "基础颜色",
-          "bind": "按键",
-          "enable": "启用",
-          "mode": "模式",
-          "visible": "可见"
+          "base color": "基础颜色"
         },
         "fullbright": {
           "_value": "全亮",
-          "bind": "按键",
-          "enable": "启用",
-          "mode": "模式",
-          "visible": "可见"
+          "mode": "模式"
         },
         "freecamera": {
           "_value": "自由视角",
-          "bind": "按键",
-          "enable": "启用",
           "show hands": "显示手部",
           "speed": "速度",
           "speed scroll sensitivity": "滚轮速度灵敏度",
@@ -1201,56 +946,41 @@
           "stay sneaking": "保持潜行",
           "toggle on damage": "受伤时关闭",
           "toggle on death": "死亡时关闭",
-          "toggle on log": "退出服务器时关闭",
-          "visible": "可见"
+          "toggle on log": "退出服务器时关闭"
         },
         "gameanimation": {
           "_value": "游戏动画",
-          "bind": "按键",
-          "enable": "启用",
-          "hotbar": "快捷栏",
-          "visible": "可见"
+          "hotbar": "快捷栏"
         },
         "nametags": {
           "_value": "名称标签",
           "background color": "背景颜色",
-          "bind": "按键",
-          "enable": "启用",
           "height offset": "高度偏移",
           "range": "范围",
           "scale": "缩放",
           "show self": "显示自己",
-          "vanilla name tags": "原版名称标签",
-          "visible": "可见"
+          "vanilla name tags": "原版名称标签"
         },
         "cameraclip": {
           "_value": "视角穿墙",
           "action": "动作平滑",
           "action max distance": "动作最大距离",
           "action smoothness": "动作平滑度",
-          "bind": "按键",
-          "distance": "第三人称距离",
-          "enable": "启用",
-          "visible": "可见"
+          "distance": "第三人称距离"
         },
         "nocameraclip": {
-          "_value": "视角穿墙",
-          "bind": "按键",
-          "enable": "启用",
-          "visible": "可见"
+          "_value": "视角穿墙"
         },
         "norender": {
           "_value": "屏蔽渲染",
           "armor": "盔甲架",
           "arrows": "箭",
-          "bind": "按键",
           "blindness": "失明",
           "block overlay": "方块遮罩",
           "campfire": "营火烟雾",
           "darkness": "黑暗",
           "effect": "状态效果",
           "eggs": "鸡蛋",
-          "enable": "启用",
           "entity fire": "实体火焰",
           "explosions": "爆炸",
           "fire overlay": "火焰遮罩",
@@ -1265,32 +995,26 @@
           "potion particles": "药水粒子",
           "title": "标题",
           "totem": "图腾动画",
-          "visible": "可见",
           "water overlay": "水下遮罩",
           "experience orbs": "经验球"
         },
         "popchams": {
           "_value": "死亡残影",
-          "bind": "按键",
-          "enable": "启用",
           "fade out": "淡出",
           "ignore self": "忽略自己",
           "line color": "线条颜色",
           "render time": "渲染时间",
           "scale modifier": "缩放变化",
           "side color": "填充颜色",
-          "visible": "可见",
           "y modifier": "Y 轴变化"
         },
         "shaders": {
           "_value": "着色器",
           "ambients": "环境生物",
-          "bind": "按键",
           "chest mode": "箱子模式",
           "chests": "箱子",
           "creatures": "生物",
           "crystals": "水晶",
-          "enable": "启用",
           "fill": "填充",
           "fill alpha": "填充透明度",
           "friends": "好友",
@@ -1313,8 +1037,7 @@
           "smoke glow": "烟雾辉光",
           "smoke octaves": "烟雾倍频",
           "smoke outline": "烟雾轮廓",
-          "smoke outline 2": "烟雾轮廓 2",
-          "visible": "可见"
+          "smoke outline 2": "烟雾轮廓 2"
         }
       },
       "script": "Script",
@@ -1322,47 +1045,33 @@
         "_value": "视觉",
         "aspectratio": {
           "_value": "Aspect Ratio",
-          "bind": "Bind",
-          "enable": "Enable",
-          "ratio": "Ratio",
-          "visible": "Visible"
+          "ratio": "Ratio"
         },
         "blockhighlight": {
           "_value": "Block Highlight",
-          "bind": "Bind",
           "color": "Color",
-          "enable": "Enable",
           "line color": "Line Color",
-          "line width": "Line Width",
-          "visible": "Visible"
+          "line width": "Line Width"
         },
         "breakesp": {
           "_value": "Break ESP",
-          "bind": "Bind",
           "color": "Color",
           "debug": "debug",
-          "enable": "Enable",
           "fade length": "FadeLength",
           "line color": "Line Color",
           "line width": "Line Width",
-          "render mode": "Render Mode",
-          "visible": "Visible"
+          "render mode": "Render Mode"
         },
         "crystaldamage": {
-          "_value": "Crystal Damage",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "Crystal Damage"
         },
         "nametags": {
           "_value": "Name Tags",
           "armor": "Armor",
-          "bind": "Bind",
           "count": "Count",
           "distance scale factor": "Distance Scale Factor",
           "drop item count": "Drop Item Count",
           "dura": "Dura",
-          "enable": "Enable",
           "enchantment": "Enchantment",
           "experience": "Experience",
           "hostile mobs": "Hostile Mobs",
@@ -1392,27 +1101,21 @@
           "text alpha": "Text Alpha",
           "text blue": "Text Blue",
           "text green": "Text Green",
-          "text red": "Text Red",
-          "visible": "Visible"
+          "text red": "Text Red"
         },
         "nocameraclip": {
-          "_value": "No Camera Clip",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
+          "_value": "No Camera Clip"
         },
         "norender": {
           "_value": "无渲染",
           "armor": "Armor",
           "arrows": "Arrows",
-          "bind": "Bind",
           "blindness": "Blindness",
           "block overlay": "BlockOverlay",
           "camp fire": "CampFire",
           "darkness": "Darkness",
           "effect": "Effect",
           "eggs": "Eggs",
-          "enable": "Enable",
           "entity fire": "EntityFire",
           "explosions": "Explosions",
           "fire overlay": "FireOverlay",
@@ -1425,41 +1128,29 @@
           "potions": "Potions",
           "title": "Title",
           "totem": "Totem",
-          "visible": "Visible",
           "water overlay": "WaterOverlay",
           "xp": "XP"
         },
         "notification": {
           "_value": "通知",
           "animation length": "动画等级",
-          "bind": "Bind",
-          "enable": "Enable",
-          "start y": "起始纵轴",
-          "visible": "Visible"
+          "start y": "起始纵轴"
         },
         "placerender": {
           "_value": "放置渲染",
-          "bind": "Bind",
           "color": "填充颜色",
           "debug": "调试",
-          "enable": "Enable",
           "line color": "线段颜色",
           "line width": "线段粗细",
-          "show time s": "渲染秒数",
-          "visible": "Visible"
+          "show time s": "渲染秒数"
         },
         "rendertest": {
           "_value": "渲染测试",
-          "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible",
           "width": "线段粗细"
         },
         "tracers": {
           "_value": "线段追踪",
-          "bind": "Bind",
           "color": "Color",
-          "enable": "Enable",
           "friend color": "好友颜色",
           "h align": "HAlign",
           "hostile": "Hostile",
@@ -1469,8 +1160,7 @@
           "passive": "Passive",
           "players": "玩家",
           "thickness": "Thickness",
-          "v align": "VAlign",
-          "visible": "Visible"
+          "v align": "VAlign"
         }
       }
     }

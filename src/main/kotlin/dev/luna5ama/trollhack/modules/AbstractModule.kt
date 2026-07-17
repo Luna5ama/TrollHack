@@ -16,7 +16,6 @@ import dev.luna5ama.trollhack.utils.sound.SoundPack
 import dev.luna5ama.trollhack.config.ConfigCategories
 import dev.luna5ama.trollhack.event.api.IListening
 import dev.luna5ama.trollhack.gui.hud.impl.Notification
-import dev.luna5ama.trollhack.i18n.Lang
 import net.minecraft.ChatFormatting
 import net.minecraft.sounds.SoundSource
 import java.util.concurrent.ConcurrentHashMap
@@ -51,12 +50,16 @@ abstract class AbstractModule(
     val filteredSettings: List<AbstractSetting<*, *>>
         get() = settings.filter { it != enable0 }
 
-    private val enable0 = setting("Enable", false,
-        defaultTranslations = mapOf(Lang.ENGLISH to "Enable", Lang.CHINESE_SIMPLIFIED to "启用"))
-    val bind0 = setting("Bind", KeyBind(keyCode = defaultBind), alwaysActive = true,
-        defaultTranslations = mapOf(Lang.ENGLISH to "Bind", Lang.CHINESE_SIMPLIFIED to "按键"))
-    private val isVisible0 = setting("Visible", true,
-        defaultTranslations = mapOf(Lang.ENGLISH to "Visible", Lang.CHINESE_SIMPLIFIED to "可见"))
+    private val enable0 = setting(
+        ModuleManager.resolve("Enable"), ModuleManager.i18N, false, defaultName = "Enable"
+    )
+    val bind0 = setting(
+        ModuleManager.resolve("Bind"), ModuleManager.i18N, KeyBind(keyCode = defaultBind),
+        defaultName = "Bind", alwaysActive = true
+    )
+    private val isVisible0 = setting(
+        ModuleManager.resolve("Visible"), ModuleManager.i18N, true, defaultName = "Visible"
+    )
 
     var bind by bind0
     var enable by enable0
