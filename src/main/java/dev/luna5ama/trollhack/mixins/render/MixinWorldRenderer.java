@@ -14,6 +14,9 @@ import dev.luna5ama.trollhack.event.impl.render.Render3DEvent;
 import dev.luna5ama.trollhack.event.impl.render.RenderEntityEvent;
 import dev.luna5ama.trollhack.graphics.blaze3d.Render3DScheduler;
 import dev.luna5ama.trollhack.graphics.blaze3d.WorldProjection;
+import dev.luna5ama.trollhack.modules.impl.visual.CrystalChams;
+import dev.luna5ama.trollhack.modules.impl.visual.PopChams;
+import dev.luna5ama.trollhack.modules.impl.visual.Shaders;
 import dev.luna5ama.trollhack.utils.render.EntityRenderStateTracker;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -126,6 +129,10 @@ public abstract class MixinWorldRenderer {
     private void onExtractEntityReturn(Entity entity, float tickDelta, CallbackInfoReturnable<EntityRenderState> cir) {
         EntityRenderState state = cir.getReturnValue();
         if (state != null) {
+            int outlineColor = CrystalChams.outlineArgb(entity);
+            if (outlineColor == 0) outlineColor = PopChams.outlineArgb(entity);
+            if (outlineColor == 0) outlineColor = Shaders.outlineArgb(entity);
+            if (outlineColor != 0) state.outlineColor = outlineColor;
             EntityRenderStateTracker.bind(state, entity);
         }
     }

@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class MixinEntityRenderer<T extends Entity> {
     @ModifyReturnValue(method = "shouldShowName*", at = @At(value = "RETURN"))
     public boolean hasLabel$Tweaker(boolean original) {
-        return original && (!NameTags.INSTANCE.isEnabled());
+        return original && (!NameTags.INSTANCE.isEnabled() || NameTags.INSTANCE.getVanillaNameTags());
     }
 }

@@ -12,13 +12,16 @@ import dev.luna5ama.trollhack.event.impl.player.PlayerMoveEvent
 import dev.luna5ama.trollhack.event.impl.render.Render3DEvent
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
 import dev.luna5ama.trollhack.manager.managers.EntityMovementManager
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.Override
+import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.doSwap
 import dev.luna5ama.trollhack.manager.managers.HotbarSwitchManager.ghostSwitch
 import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.NonNullContext
 import dev.luna5ama.trollhack.utils.compat.clearDirectionalInputCompat
-import dev.luna5ama.trollhack.utils.extension.firstItem
+import dev.luna5ama.trollhack.utils.compat.forwardImpulseCompat
+import dev.luna5ama.trollhack.utils.compat.leftImpulseCompat
 import dev.luna5ama.trollhack.utils.extension.realSpeed
 import dev.luna5ama.trollhack.graphics.ESPRenderer
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
@@ -26,14 +29,17 @@ import dev.luna5ama.trollhack.utils.extension.velocityX
 import dev.luna5ama.trollhack.utils.extension.velocityY
 import dev.luna5ama.trollhack.utils.extension.velocityZ
 import dev.luna5ama.trollhack.utils.extension.yaw
-import dev.luna5ama.trollhack.utils.inventory.HotbarSlot
+import dev.luna5ama.trollhack.utils.inventory.currentHotbarSlot
+import dev.luna5ama.trollhack.utils.inventory.everySlots
 import dev.luna5ama.trollhack.utils.inventory.hotbarSlots
+import dev.luna5ama.trollhack.utils.inventory.offhandSlot
 import dev.luna5ama.trollhack.utils.math.RotationUtils
 import dev.luna5ama.trollhack.utils.math.floorToInt
 import dev.luna5ama.trollhack.utils.math.RotationUtils.getRotationTo
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2d
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
 import dev.luna5ama.trollhack.utils.rotation.Priority
+import dev.luna5ama.trollhack.utils.runSafe
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.world.*
 import dev.luna5ama.trollhack.utils.world.EntityUtils.spoofSneak
@@ -41,8 +47,14 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Input
+import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
 
 object Scaffold : Module(
@@ -51,6 +63,39 @@ object Scaffold : Module(
     description = "Places blocks under you",
     modulePriority = 500
 ) {
+    private enum class BridgeMode(override val displayName: CharSequence) : dev.luna5ama.trollhack.utils.Displayable {
+        TELLY_BRIDGE("TellyBridge"),
+        GOD_BRIDGE("GodBridge")
+    }
+
+    private enum class SwapMode(override val displayName: CharSequence) : dev.luna5ama.trollhack.utils.Displayable {
+        NONE("None"),
+        NORMAL("Normal"),
+        SILENT("Silent"),
+        INV_SWITCH("InvSwitch")
+    }
+
+    private enum class RotationMode(override val displayName: CharSequence) : dev.luna5ama.trollhack.utils.Displayable {
+        RISE("Rise"),
+        HYPIXEL("Hypixel")
+    }
+
+    private enum class RaytraceMode(override val displayName: CharSequence) : dev.luna5ama.trollhack.utils.Displayable {
+        NORMAL("Normal"),
+        STRICT("Strict")
+    }
+
+    private val mode by setting("Mode", BridgeMode.TELLY_BRIDGE)
+    private val swapMode by setting("Swap Mode", SwapMode.NORMAL)
+    private val swapBack by setting("Swap Back", true, { swapMode == SwapMode.NORMAL })
+    private val skipTicks by setting("Skip Ticks", false)
+    private val snap by setting("Snap", false, { mode == BridgeMode.GOD_BRIDGE })
+    private val rotationMode by setting("Rotation Mode", RotationMode.RISE)
+    private val raytraceMode by setting("Raytrace Mode", RaytraceMode.NORMAL)
+    private val rotationSpeed by setting("Rotation Speed", 180, 10..180, 10, { rotationMode == RotationMode.RISE })
+    private val rotationBackSpeed by setting("Rotation Back Speed", 180, 10..180, 10, { mode == BridgeMode.TELLY_BRIDGE })
+    private val tellyTicks by setting("Telly Ticks", 1, 0..6, 1, { mode == BridgeMode.TELLY_BRIDGE })
+
     private val blockPlaceRotation by setting("Rotation", true)
     private val safeWalk by setting("Safe Walk", true)
     private val setbackOnFailure by setting("Setback on Failure", true)
@@ -83,6 +128,11 @@ object Scaffold : Module(
     private val placeTimer = TickTimer()
     private val renderer = ESPRenderer().apply { aFilled = 31; aOutline = 233 }
     private var lastRotation: Vec2f? = null
+    private var airTicks = 0
+    private var yLevel = Int.MIN_VALUE
+    private var rotateCount = 0
+    private var originalHotbarSlot = -1
+    private var tellyAutoJump = false
 
     val shouldSafeWalk: Boolean
         get() = isEnabled && safeWalk
@@ -94,6 +144,11 @@ object Scaffold : Module(
             lastPos = null
             lastSequence = null
             lastRotation = null
+            airTicks = 0
+            yLevel = Int.MIN_VALUE
+            rotateCount = 0
+            tellyAutoJump = false
+            runSafe { restoreNormalSlot() }
             placingPos.clear()
             pendingPlace.clear()
             placeTimer.reset(-69420L)
@@ -118,12 +173,31 @@ object Scaffold : Module(
         }
 
         nonNullHandler<InputUpdateEvent> {
+            tellyAutoJump = false
+            if (mode == BridgeMode.TELLY_BRIDGE && player.onGround() &&
+                !it.movementInput.keyPresses.jump &&
+                (it.movementInput.forwardImpulseCompat != 0.0f || it.movementInput.leftImpulseCompat != 0.0f)
+            ) {
+                tellyAutoJump = true
+                val input = it.movementInput.keyPresses
+                it.movementInput.keyPresses = Input(
+                    input.forward(), input.backward(), input.left(), input.right(),
+                    true, input.shift(), input.sprint()
+                )
+            }
             if (isTowering()) {
                 it.movementInput.clearDirectionalInputCompat()
             }
         }
 
         nonNullHandler<PlayerMoveEvent.Pre>(-9999) {
+            if (player.onGround()) {
+                airTicks = 0
+                yLevel = player.y.floorToInt() - 1
+            } else {
+                airTicks++
+            }
+
             if (!isTowering()) {
                 resetTower()
                 return@nonNullHandler
@@ -176,22 +250,26 @@ object Scaffold : Module(
 
         nonNullHandler<OnUpdateWalkingPlayerEvent.Pre> {
             if (!blockPlaceRotation) return@nonNullHandler
-            var rotated = false
-            lastSequence?.let {
-                for (placeInfo in it) {
-                    if (isSideVisible(player.eyePosition.x, player.eyePosition.y, player.eyePosition.z, placeInfo.pos, placeInfo.direction)) {
-                        if (pendingPlace.containsKey(placeInfo.placedPos.asLong())) continue
-                        val rotation = getRotationTo(placeInfo.hitVec)
-                        lastRotation = rotation
-                        RotationManager.setRotations(rotation, priority = Priority.High)
-                        rotated = true
-                        break
-                    }
-                }
+            val placeInfo = nextPlaceInfo()
+            val shouldRotate = mode == BridgeMode.TELLY_BRIDGE || !isBridgeAir() || !snap
+            if (skipTicks && placeInfo != null) {
+                rotateCount++
+            } else {
+                rotateCount = 0
             }
-            if (!rotated) {
-                val fallbackRotation = lastRotation ?: Vec2f(RotationUtils.normalizeAngle(mc.cameraEntity!!.yaw - 180), 80f)
-                RotationManager.setRotations(fallbackRotation, priority = Priority.High)
+
+            if (mode == BridgeMode.TELLY_BRIDGE && player.onGround()) {
+                val fallback = lastRotation ?: Vec2f(RotationUtils.normalizeAngle(player.yaw - 180.0f), 80.0f)
+                RotationManager.setRotations(fallback, rotationBackSpeed.toDouble(), priority = Priority.High)
+            } else if (placeInfo != null && shouldRotate) {
+                val target = getBridgeRotation(placeInfo)
+                lastRotation = target
+                RotationManager.setRotations(
+                    target,
+                    rotationSpeedForTick(),
+                    raytrace = { rotation -> isRotationValid(rotation, placeInfo, raytraceMode == RaytraceMode.STRICT) },
+                    priority = Priority.High
+                )
             }
         }
 
@@ -217,22 +295,22 @@ object Scaffold : Module(
 
     private fun NonNullContext.runPlacing() {
         if (pendingPlace.size >= maxPendingPlace) return
-        if (!placeTimer.tick(placeDelay)) return
+        if (mode == BridgeMode.TELLY_BRIDGE && !isTowering() && (player.onGround() || airTicks <= tellyTicks)) return
+        if (skipTicks && rotateCount > 8) rotateCount = 1
+        if (!skipTicks && !placeTimer.tick(placeDelay)) return
+        if (skipTicks && !placeTimer.tick(1)) return
 
         lastSequence?.let {
-            val slot = getBlockSlot() ?: return
+            getBlockSlot() ?: return
             for (placeInfo in it) {
                 if (pendingPlace.containsKey(placeInfo.placedPos.asLong())) continue
                 if (isSideVisible(player.eyePosition.x, player.eyePosition.y, player.eyePosition.z, placeInfo.pos, placeInfo.direction)) {
                     if (isTowering() && player.y - placeInfo.placedPos.y <= towerPlaceHeight) return
                     if (blockPlaceRotation && !checkPlaceRotation(placeInfo)) return
-                    player.spoofSneak {
-                        ghostSwitch(slot) {
-                            placeBlock(placeInfo)
-                        }
-                    }
+                    if (!placeWithSwap(placeInfo)) return
                     pendingPlace.put(placeInfo.placedPos.asLong(), System.currentTimeMillis() + placeTimeout)
                     placeTimer.reset()
+                    rotateCount = 0
                     break
                 }
             }
@@ -254,9 +332,113 @@ object Scaffold : Module(
         }
     }
 
-    private fun NonNullContext.getBlockSlot(): HotbarSlot? {
-        return player.hotbarSlots.firstItem<BlockItem, HotbarSlot>()
+    private fun NonNullContext.getBlockSlot(): BlockSelection? {
+        if (isValidBlock(player.offhandSlot.item)) return BlockSelection(player.offhandSlot, InteractionHand.OFF_HAND)
+        if (swapMode == SwapMode.NONE) {
+            return player.currentHotbarSlot.takeIf { isValidBlock(it.item) }
+                ?.let { BlockSelection(it, InteractionHand.MAIN_HAND) }
+        }
+        val slots = if (swapMode == SwapMode.INV_SWITCH) player.everySlots else player.hotbarSlots
+        val slot = slots.firstOrNull { isValidBlock(it.item) } ?: return null
+        return BlockSelection(slot, InteractionHand.MAIN_HAND)
     }
+
+    private fun NonNullContext.placeWithSwap(placeInfo: PlaceInfo): Boolean {
+        val selection = getBlockSlot() ?: return false
+        var placed = false
+        val action = {
+            val rotation = RotationManager.rotation
+            if (!blockPlaceRotation || isRotationValid(rotation, placeInfo, raytraceMode == RaytraceMode.STRICT)) {
+                player.spoofSneak { placeBlock(placeInfo, selection.hand) }
+                placed = true
+            }
+        }
+
+        when (swapMode) {
+            SwapMode.NONE -> {
+                if (selection.hand == InteractionHand.OFF_HAND || selection.slot.index == player.inventory.selectedSlot + 36) {
+                    action()
+                } else return false
+            }
+            SwapMode.NORMAL -> {
+                if (selection.hand == InteractionHand.MAIN_HAND) {
+                    val target = selection.slot.index - 36
+                    if (target !in 0..8) return false
+                    if (player.inventory.selectedSlot != target) {
+                        if (originalHotbarSlot == -1) originalHotbarSlot = player.inventory.selectedSlot
+                        doSwap(target)
+                    }
+                }
+                action()
+            }
+            SwapMode.SILENT -> {
+                if (selection.hand == InteractionHand.OFF_HAND) action()
+                else ghostSwitch(Override.NONE, selection.slot) { action() }
+            }
+            SwapMode.INV_SWITCH -> {
+                if (selection.hand == InteractionHand.OFF_HAND) {
+                    action()
+                } else {
+                    val selected = player.inventory.selectedSlot
+                    if (selection.slot.index != selected + 36) {
+                        interaction.handleInventoryMouseClick(player.containerMenu.containerId, selection.slot.index, selected, ClickType.SWAP, player)
+                        action()
+                        interaction.handleInventoryMouseClick(player.containerMenu.containerId, selection.slot.index, selected, ClickType.SWAP, player)
+                    } else action()
+                }
+            }
+        }
+        return placed
+    }
+
+    private fun NonNullContext.restoreNormalSlot() {
+        if (originalHotbarSlot !in 0..8) return
+        if (swapBack) doSwap(originalHotbarSlot)
+        originalHotbarSlot = -1
+    }
+
+    private fun NonNullContext.nextPlaceInfo(): PlaceInfo? {
+        return lastSequence?.firstOrNull {
+            !pendingPlace.containsKey(it.placedPos.asLong()) &&
+                isSideVisible(player.eyePosition.x, player.eyePosition.y, player.eyePosition.z, it.pos, it.direction)
+        }
+    }
+
+    private fun NonNullContext.getBridgeRotation(placeInfo: PlaceInfo): Vec2f {
+        val direct = getRotationTo(placeInfo.hitVec)
+        if (rotationMode == RotationMode.RISE) return direct
+        return Vec2f(RotationUtils.normalizeAngle(player.yaw - 180.0f), 82.0f)
+    }
+
+    private fun rotationSpeedForTick(): Double {
+        return if (rotationMode == RotationMode.HYPIXEL) {
+            if (airTicks <= 1) 127.0 else 35.0
+        } else rotationSpeed.toDouble()
+    }
+
+    private fun NonNullContext.isRotationValid(rotation: Vec2f, placeInfo: PlaceInfo, strict: Boolean): Boolean {
+        val end = RotationUtils.traceRotation(player.eyePosition, rotation, 6.0)
+        val hit = world.clip(ClipContext(player.eyePosition, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player))
+        return hit is BlockHitResult && hit.blockPos == placeInfo.pos && (!strict || hit.direction == placeInfo.direction)
+    }
+
+    private fun NonNullContext.isBridgeAir(): Boolean {
+        val feetY = bridgeYLevel()
+        return world.getBlockState(BlockPos(player.x.floorToInt(), feetY, player.z.floorToInt())).canBeReplaced()
+    }
+
+    private fun NonNullContext.bridgeYLevel(): Int {
+        val moving = player.input.forwardImpulseCompat != 0.0f || player.input.leftImpulseCompat != 0.0f
+        return if (mode == BridgeMode.TELLY_BRIDGE && yLevel != Int.MIN_VALUE &&
+            (!player.input.keyPresses.jump || tellyAutoJump) && moving && player.fallDistance <= 0.25f
+        ) yLevel else player.y.floorToInt() - 1
+    }
+
+    private fun isValidBlock(stack: net.minecraft.world.item.ItemStack): Boolean {
+        return !stack.isEmpty && stack.item is BlockItem
+    }
+
+    private data class BlockSelection(val slot: Slot, val hand: InteractionHand)
 
     private val towerSides = arrayOf(
         Direction.DOWN,
@@ -271,7 +453,6 @@ object Scaffold : Module(
         lastSequence = null
         renderer.clear()
 
-        val floorY = player.y.floorToInt()
         val sequence = if (isTowering()) {
             val feetPos = world.getGroundPos(player)
             getPlacementSequence(
@@ -281,7 +462,7 @@ object Scaffold : Module(
                 PlacementSearchOption.ENTITY_COLLISION_IGNORE_SELF,
             )
         } else {
-            val feetY = floorY - 1
+            val feetY = bridgeYLevel()
             val feetPos = BlockPos.MutableBlockPos()
             calcSortedOffsets().asSequence()
                 .mapNotNull { getSequence(feetPos.set(it.x.floorToInt(), feetY, it.y.floorToInt())) }
@@ -348,7 +529,7 @@ object Scaffold : Module(
     }
 
     private fun NonNullContext.isTowering(): Boolean {
-        return towerMode && player.input.keyPresses.jump
+        return towerMode && player.input.keyPresses.jump && !tellyAutoJump
     }
 
     context(ctx: NonNullContext)

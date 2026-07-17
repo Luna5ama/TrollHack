@@ -17,6 +17,7 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownExper
 import net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion
 
 object NoRender : Module("No Render", category = Category.RENDER) {
+    val potionEffects by setting("Potion Effects", true)
     val potions by setting("Potions", true)
     val xp by setting("XP", true)
     val arrows by setting("Arrows", true)
@@ -34,7 +35,7 @@ object NoRender : Module("No Render", category = Category.RENDER) {
     val darkness by setting("Darkness", true)
     val fireEntity by setting("EntityFire", true)
     val antiTitle by setting("Title", true)
-    val effect by setting("Effect", true)
+    val effect by setting("Potion Particles", true)
     val elderGuardian by setting("Guardian", true)
     val explosions by setting("Explosions", true)
     val campFire by setting("CampFire", true)

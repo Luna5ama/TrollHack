@@ -307,10 +307,7 @@ public abstract class MixinLocalPlayer extends AbstractClientPlayer {
 
     @Redirect(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z"), require = 0)
     private boolean tickMovementHook(LocalPlayer player) {
-        if (NoSlowDown.INSTANCE.isEnabled()){
-            return false;
-        }
-        return player.isUsingItem();
+        return NoSlowDown.shouldApplySlowdown(player);
     }
 
     /**

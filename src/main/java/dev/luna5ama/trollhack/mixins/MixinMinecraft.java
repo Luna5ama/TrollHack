@@ -8,6 +8,7 @@ import dev.luna5ama.trollhack.event.impl.LoopEvent;
 import dev.luna5ama.trollhack.event.impl.TickEvent;
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent;
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge;
+import dev.luna5ama.trollhack.graphics.blaze3d.Blaze3DPostProcessor;
 import dev.luna5ama.trollhack.manager.managers.ConfigManager;
 import dev.luna5ama.trollhack.manager.managers.ProcessExitHook;
 import dev.luna5ama.trollhack.modules.impl.player.MultiTask;
@@ -73,6 +74,7 @@ abstract class MixinMinecraft {
 
     @Redirect(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;blitToScreen()V"))
     private void onBlitFramebuffer(RenderTarget instance) {
+        Blaze3DPostProcessor.INSTANCE.apply(instance);
         instance.blitToScreen();
     }
 
@@ -140,6 +142,7 @@ abstract class MixinMinecraft {
     @Inject(method = "close", at = @At("HEAD"))
     private void onClose(CallbackInfo ci) {
         TrollHackMod.LOGGER.warn("Shutting down " + TrollHackMod.NAME);
+        Blaze3DPostProcessor.INSTANCE.close();
         SkiaMinecraftBridge.INSTANCE.close();
         ProcessExitHook.INSTANCE.onExit();
         ConfigManager.INSTANCE.save();

@@ -2,18 +2,33 @@ package dev.luna5ama.trollhack.mixins.render;
 
 import dev.luna5ama.trollhack.modules.impl.visual.FullBright;
 import dev.luna5ama.trollhack.modules.impl.visual.NoRender;
+import dev.luna5ama.trollhack.modules.impl.visual.Filter;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(LightTexture.class)
 public class MixinLightTexture {
+    @Shadow @Final private GpuTexture texture;
+
+    @Inject(method = "updateLightTexture", at = @At("HEAD"), cancellable = true)
+    private void applyFilterLightMap(float partialTick, CallbackInfo ci) {
+        if (Filter.INSTANCE.isLightMapMode()) {
+            RenderSystem.getDevice().createCommandEncoder().clearColorTexture(this.texture, Filter.lightMapArgb());
+            ci.cancel();
+        }
+    }
     @ModifyArgs(method = "updateLightTexture", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/shaders/AbstractUniform;set(Lorg/joml/Vector3f;)V"), require = 0)
     private void update(Args args) {
         if (FullBright.INSTANCE.isEnabled()) {

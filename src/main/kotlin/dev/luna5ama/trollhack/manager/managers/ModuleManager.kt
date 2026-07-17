@@ -15,6 +15,9 @@ import dev.luna5ama.trollhack.manager.AbstractManager
 import dev.luna5ama.trollhack.modules.*
 import dev.luna5ama.trollhack.modules.impl.client.*
 import dev.luna5ama.trollhack.modules.impl.combat.AutoTotem
+import dev.luna5ama.trollhack.modules.impl.combat.AutoMend
+import dev.luna5ama.trollhack.modules.impl.combat.FeetTrap
+import dev.luna5ama.trollhack.modules.impl.combat.KeyPearl
 import dev.luna5ama.trollhack.modules.impl.combat.Criticals
 import dev.luna5ama.trollhack.modules.impl.combat.KillAura
 import dev.luna5ama.trollhack.modules.impl.combat.MaceSpoof
@@ -35,7 +38,10 @@ import dev.luna5ama.trollhack.modules.impl.movement.SafeWalk
 import dev.luna5ama.trollhack.modules.impl.movement.Sprint
 import dev.luna5ama.trollhack.modules.impl.movement.Velocity
 import dev.luna5ama.trollhack.modules.impl.player.AntiHunger
+import dev.luna5ama.trollhack.modules.impl.player.AutoArmor
 import dev.luna5ama.trollhack.modules.impl.player.AutoRespawn
+import dev.luna5ama.trollhack.modules.impl.player.AutoTool
+import dev.luna5ama.trollhack.modules.impl.player.Disabler
 import dev.luna5ama.trollhack.modules.impl.player.MultiTask
 import dev.luna5ama.trollhack.modules.impl.player.NoEntityTrace
 import dev.luna5ama.trollhack.modules.impl.player.NoRotate
@@ -43,16 +49,23 @@ import dev.luna5ama.trollhack.modules.impl.player.PacketMine
 import dev.luna5ama.trollhack.modules.impl.player.Scaffold
 import dev.luna5ama.trollhack.modules.impl.player.Search
 import dev.luna5ama.trollhack.modules.impl.visual.AspectRatio
+import dev.luna5ama.trollhack.modules.impl.visual.AntiAlias
 import dev.luna5ama.trollhack.modules.impl.visual.BlockHighlight
 import dev.luna5ama.trollhack.modules.impl.visual.BlueArchiveHalo
 import dev.luna5ama.trollhack.modules.impl.visual.CrystalDamage
+import dev.luna5ama.trollhack.modules.impl.visual.CrystalChams
+import dev.luna5ama.trollhack.modules.impl.visual.Filter
+import dev.luna5ama.trollhack.modules.impl.visual.FreeCamera
 import dev.luna5ama.trollhack.modules.impl.visual.FullBright
+import dev.luna5ama.trollhack.modules.impl.visual.GameAnimation
 import dev.luna5ama.trollhack.modules.impl.visual.NameTags
 import dev.luna5ama.trollhack.modules.impl.visual.NoCameraClip
 import dev.luna5ama.trollhack.modules.impl.visual.NoRender
 import dev.luna5ama.trollhack.modules.impl.visual.PlaceRender
+import dev.luna5ama.trollhack.modules.impl.visual.PopChams
 import dev.luna5ama.trollhack.modules.impl.visual.RenderTest
 import dev.luna5ama.trollhack.modules.impl.visual.Tracers
+import dev.luna5ama.trollhack.modules.impl.visual.Shaders
 import dev.luna5ama.trollhack.modules.impl.visual.valkyrie.Valkyrie
 import dev.luna5ama.trollhack.utils.Profiler
 import dev.luna5ama.trollhack.utils.input.KeyBind
@@ -71,8 +84,11 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         Watermark,
 
         ZealotCrystal,
+        AutoMend,
         AutoTotem,
         Criticals,
+        FeetTrap,
+        KeyPearl,
         KillAura,
         MaceSpoof,
 
@@ -94,7 +110,10 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         Velocity,
 
         AntiHunger,
+        AutoArmor,
         AutoRespawn,
+        AutoTool,
+        Disabler,
         MultiTask,
         NoEntityTrace,
         NoRotate,
@@ -103,18 +122,25 @@ object ModuleManager : AbstractManager(), ILocalizedNameable by LocalizedNameabl
         Search,
 
         Valkyrie,
+        AntiAlias,
         AspectRatio,
         BlockHighlight,
         BlueArchiveHalo,
         CrystalDamage,
+        CrystalChams,
+        Filter,
+        FreeCamera,
         FullBright,
+        GameAnimation,
         NameTags,
         NoCameraClip,
         NoRender,
         Notification,
         PlaceRender,
+        PopChams,
         RenderTest,
         Tracers,
+        Shaders,
 
         ActiveModules,
         HudArrayList,

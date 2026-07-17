@@ -1,10 +1,12 @@
 package dev.luna5ama.trollhack.mixins.render;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge;
 import dev.luna5ama.trollhack.modules.impl.player.NoEntityTrace;
 import dev.luna5ama.trollhack.modules.impl.visual.AspectRatio;
+import dev.luna5ama.trollhack.modules.impl.visual.FreeCamera;
 import dev.luna5ama.trollhack.modules.impl.visual.NoRender;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -27,8 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
-public class MixinGameRenderer {
-    @Shadow private float renderDistance;
+public abstract class MixinGameRenderer {
+    @Shadow public abstract float getDepthFar();
 
     @Inject(
             method = "render",
@@ -68,11 +70,21 @@ public class MixinGameRenderer {
     @Inject(method = "getProjectionMatrix", at = @At("TAIL"), cancellable = true)
     public void getBasicProjectionMatrixHook(float fovDegrees, CallbackInfoReturnable<Matrix4f> cir) {
         if (AspectRatio.INSTANCE.isEnabled()) {
-            PoseStack matrixStack = new PoseStack();
-            matrixStack.last().pose().identity();
-            matrixStack.last().pose().mul(new Matrix4f().setPerspective((float) (fovDegrees * (Math.PI / 180d)), AspectRatio.getRatio(), 0.05f, renderDistance * 4.0f));
-            cir.setReturnValue(matrixStack.last().pose());
+            cir.setReturnValue(new Matrix4f().setPerspective(
+                    (float) (fovDegrees * (Math.PI / 180d)),
+                    AspectRatio.getRatio(),
+                    0.05f,
+                    getDepthFar()
+            ));
         }
+    }
+
+    @ModifyExpressionValue(
+            method = "renderItemInHand",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/CameraType;isFirstPerson()Z")
+    )
+    private boolean renderFreeCameraHands(boolean vanilla) {
+        return FreeCamera.shouldRenderHands(vanilla);
     }
 
     @Inject(method = "pick(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;raycastHitResult(FLnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/HitResult;"), cancellable = true)

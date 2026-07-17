@@ -16,6 +16,7 @@ import dev.luna5ama.trollhack.manager.managers.RotationManager
 import dev.luna5ama.trollhack.mixins.accessor.IPlayerMoveC2SPacketAccessor
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
+import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
 import dev.luna5ama.trollhack.modules.impl.player.PacketMine.SwitchMode.*
 import dev.luna5ama.trollhack.utils.Displayable
 import dev.luna5ama.trollhack.utils.NonNullContext
@@ -68,6 +69,8 @@ import kotlin.math.max
 import kotlin.math.pow
 
 object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
+    private val usingPause by setting("Pause On Use", true)
+    private val onlyMain by setting("Only Main", true, { usingPause })
     private val delay by setting("Delay", 50, 0..500, 25)
     private val damage by setting("Damage", 1.0f, 0.0f..2.0f, 0.01f)
     private val range by setting("Range", 6f, 2f..10f, 0.1f)
@@ -81,7 +84,12 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
     private val checkGround by setting("Check Ground", true)
     private val groundOnly by setting("Ground Only", true)
     private val doubleBreak by setting("Double Break", true)
-    private val pauseWhileUsing by setting("Pause While Using", true)
+    private val fastBypass by setting("Fast Bypass", true)
+    private val clientRemove by setting("Client Remove", true)
+    private val switchDamage by setting("Switch Damage", 95, 0..100, 1)
+    private val switchTime by setting("Switch Time", 100, 0..1000, 10)
+    private val mineDelay by setting("Mine Delay", 300, 0..1000, 10)
+    private val packetDelay by setting("Packet Delay", 200, 0..1000, 10)
     private val swing by setting("Swing", true)
     private val endSwing by setting("End Swing", true)
     private val bypassGround by setting("Bypass Ground", true)
@@ -102,6 +110,10 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
     private val text by setting("Text", true)
     private val box by setting("Box", true)
     private val outline by setting("Outline", true)
+    private val renderMode by setting("Render Mode", RenderMode.SHRINK)
+    private val fading by setting("Fading", true)
+    private val renderTime by setting("Render Time", 100, 0..5000, 50, { fading })
+    private val fadeTime by setting("Fade Time", 200, 0..5000, 50, { fading })
 
     val godBlocks: List<Block> = listOf(
         Blocks.COMMAND_BLOCK,
@@ -129,8 +141,16 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
     private var breakNumber = 0
     private var startMine = false
     private val delayTimer = TickTimer()
+    private val mineTimer = TickTimer()
+    private val packetTimer = TickTimer()
+    private val switchTimer = TickTimer()
     private val placeTimer = TickTimer()
     private var sendGroundPacket = false
+    private var delayedPacketPos: BlockPos? = null
+    private var switchPending = false
+    private var restoreSlot = -1
+    private var restoreClientSlot = false
+    private var mainAirSince = -1L
     private val df = DecimalFormat("0.0")
 
     init {
@@ -138,6 +158,11 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
             startMine = false
             breakPos = null
             secondPos = null
+            delayedPacketPos = null
+            switchPending = false
+            restoreSlot = -1
+            restoreClientSlot = false
+            mainAirSince = -1L
         }
 
         nonNullHandler<Skia2DEvent> { event ->
@@ -183,7 +208,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                         secondPos = null
                     } else {
                         val size = secondAnim.getAndUpdate(100f)
-                        val renderBox = AABB(pos).scale(size / 2)
+                        val renderScale = renderScale(size)
+                        val renderBox = AABB(pos).scale(renderScale)
                         if (box) {
                             Render3DScheduler.addFilledBox(renderBox, doubleColor, through = true)
                         }
@@ -203,15 +229,19 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                     progress = (firstTimer.passed / breakTime).toInt().toDouble()
                     breakLength1 = getBreakTime(pos, slot).toFloat()
                     val size = firstAnim.getAndUpdate(100f)
-                    val color = interpolateColor(size / 100f)
-                    val renderBox = AABB(pos).scale(size / 2)
+                    val progressFactor = (size / 100f).coerceIn(0f, 1f)
+                    val color = interpolateColor(progressFactor)
+                    val fadeFactor = if (fading && firstTimer.passed > breakTime + renderTime) {
+                        1f - ((firstTimer.passed - breakTime - renderTime).toFloat() / fadeTime.coerceAtLeast(1)).coerceIn(0f, 1f)
+                    } else 1f
+                    val renderBox = AABB(pos).scale(renderScale(size))
                     if (box) {
-                        Render3DScheduler.addFilledBox(renderBox, color, through = true)
+                        Render3DScheduler.addFilledBox(renderBox, color.alpha((color.a * fadeFactor).toInt()), through = true)
                     }
                     if (outline) {
                         Render3DScheduler.addOutlineBox(
                             renderBox,
-                            color.alpha(255),
+                            color.alpha((255 * fadeFactor).toInt()),
                             thickness = 1.0f,
                             through = true
                         )
@@ -226,8 +256,9 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
 
         nonNullHandler<PlayerClickBlockEvent> { event ->
             if (!player.isCreative) {
-                mine(event.pos)
                 event.cancel()
+                if (!mineTimer.tickAndReset(mineDelay)) return@nonNullHandler
+                mine(event.pos)
             }
         }
         
@@ -277,8 +308,11 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
         }
 
         onDisabled {
+            restoreSwitchedSlot()
             startMine = false
             breakPos = null
+            secondPos = null
+            delayedPacketPos = null
         }
     }
 
@@ -308,6 +342,21 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
 
     context(ctx: NonNullContext)
     private fun update(): Unit = ctx.run {
+        if (switchPending && switchTimer.tick(switchTime)) {
+            restoreSwitchedSlot()
+        }
+        delayedPacketPos?.let { delayedPos ->
+            if (packetTimer.tick(packetDelay)) {
+                netHandler.send(
+                    ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,
+                        delayedPos,
+                        BlockUtils.getClickSide(delayedPos) ?: Direction.DOWN
+                    )
+                )
+                delayedPacketPos = null
+            }
+        }
         if (player.isDeadOrDying) {
             secondPos = null
         }
@@ -345,7 +394,7 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
             startMine = false
             return
         }
-        if (pauseWhileUsing && player.isUsingItem) {
+        if (usingPause && player.isUsingItem && (!onlyMain || player.usingItemHand == InteractionHand.MAIN_HAND)) {
             return
         }
         if (player.eyePosition.distanceToSqr(pos.center) > range.sq) {
@@ -361,6 +410,10 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
             return
         }
         val slot = getTool(pos) ?: player.hotbarSlots[HotbarSwitchManager.serverSideHotbar]
+        val breakProgress = (firstTimer.passed / getBreakTime(pos, slot)).coerceIn(0.0, 1.0)
+        if (!switchPending && breakProgress * 100.0 >= switchDamage) {
+            beginTimedSwitch(slot)
+        }
 
         if (isAir(pos)) {
             if (shouldCrystal(pos)) {
@@ -419,6 +472,9 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                         BlockUtils.getClickSide(pos) ?: return
                     )
                 )
+                if (clientRemove && !isAir(pos)) {
+                    interaction.destroyBlock(pos)
+                }
                 breakNumber++
                 delayTimer.reset()
                 if (afterBreak && shouldCrystal(pos)) {
@@ -462,6 +518,15 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                 BlockUtils.getClickSide(pos) ?: return
             )
         )
+        if (fastBypass) {
+            netHandler.send(
+                ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
+                    BlockPos.containing(player.x, 321.0, player.z),
+                    Direction.DOWN
+                )
+            )
+        }
         if (doubleBreak) {
             if (secondPos == null || isAir(secondPos!!)) {
                 val slot = getTool(pos) ?: player.hotbarSlots[HotbarSwitchManager.serverSideHotbar]
@@ -471,20 +536,8 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                 secondTimer.reset()
                 secondPos = pos
             }
-            netHandler.send(
-                ServerboundPlayerActionPacket(
-                    ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,
-                    pos,
-                    BlockUtils.getClickSide(pos) ?: return
-                )
-            )
-            netHandler.send(
-                ServerboundPlayerActionPacket(
-                    ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
-                    pos,
-                    BlockUtils.getClickSide(pos) ?: return
-                )
-            )
+            delayedPacketPos = pos
+            packetTimer.reset()
         }
         if (swing) {
             player.swing(InteractionHand.MAIN_HAND)
@@ -515,6 +568,50 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
                 HotbarSwitchManager.ghostSwitch(slot, func)
             }
         }
+    }
+
+    context(ctx: NonNullContext)
+    private fun beginTimedSwitch(slot: Slot): Unit = ctx.run {
+        val hotbarSlot = slot as? HotbarSlot ?: return
+        val target = hotbarSlot.hotbarSlot
+        when (switchMode) {
+            NONE, INVENTORY -> return
+            LEGIT -> {
+                restoreSlot = player.inventory.selectedSlot
+                restoreClientSlot = true
+                swapToSlot(hotbarSlot)
+            }
+            GHOST -> {
+                restoreSlot = HotbarSwitchManager.serverSideHotbar
+                restoreClientSlot = false
+                netHandler.send(ServerboundSetCarriedItemPacket(target))
+            }
+        }
+        if (restoreSlot == target) {
+            restoreSlot = -1
+            restoreClientSlot = false
+            return
+        }
+        switchPending = true
+        switchTimer.reset()
+    }
+
+    private fun restoreSwitchedSlot() {
+        val slot = restoreSlot
+        if (!switchPending || slot !in 0..8) {
+            switchPending = false
+            restoreSlot = -1
+            restoreClientSlot = false
+            return
+        }
+        val player = mc.player
+        if (restoreClientSlot && player != null) {
+            player.inventory.selectedSlot = slot
+        }
+        mc.connection?.send(ServerboundSetCarriedItemPacket(slot))
+        switchPending = false
+        restoreSlot = -1
+        restoreClientSlot = false
     }
 
     context(ctx: NonNullContext)
@@ -714,5 +811,21 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
 
     private enum class SwitchMode : Displayable {
         NONE, LEGIT, GHOST, INVENTORY
+    }
+
+    private enum class RenderMode(override val displayName: CharSequence) : Displayable {
+        BOX("Box"),
+        NORMAL("Normal"),
+        SHRINK("Shrink"),
+        GROW("Grow")
+    }
+
+    private fun renderScale(size: Float): Float {
+        val progress = (size / 100f).coerceIn(0f, 1f)
+        return when (renderMode) {
+            RenderMode.BOX, RenderMode.NORMAL -> 1.0f
+            RenderMode.SHRINK -> progress
+            RenderMode.GROW -> 1.0f + progress
+        }
     }
 }
