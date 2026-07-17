@@ -28,11 +28,15 @@ import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.utils.extension.velocityX
 import dev.luna5ama.trollhack.utils.extension.velocityY
 import dev.luna5ama.trollhack.utils.extension.velocityZ
+import dev.luna5ama.trollhack.utils.extension.isHotbarSlot
+import dev.luna5ama.trollhack.utils.extension.pitch
 import dev.luna5ama.trollhack.utils.extension.yaw
+import dev.luna5ama.trollhack.utils.inventory.blockBlacklist
 import dev.luna5ama.trollhack.utils.inventory.currentHotbarSlot
-import dev.luna5ama.trollhack.utils.inventory.everySlots
 import dev.luna5ama.trollhack.utils.inventory.hotbarSlots
 import dev.luna5ama.trollhack.utils.inventory.offhandSlot
+import dev.luna5ama.trollhack.utils.inventory.SlotRanges
+import dev.luna5ama.trollhack.utils.inventory.slots
 import dev.luna5ama.trollhack.utils.math.RotationUtils
 import dev.luna5ama.trollhack.utils.math.floorToInt
 import dev.luna5ama.trollhack.utils.math.RotationUtils.getRotationTo
@@ -49,13 +53,17 @@ import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Input
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.StandingAndWallBlockItem
+import net.minecraft.world.level.block.*
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
+import kotlin.math.abs
 
 object Scaffold : Module(
     name = "Scaffold",
@@ -163,11 +171,17 @@ object Scaffold : Module(
             towerFailTimer.reset()
         }
 
-        nonNullHandler<WorldEvent.ClientBlockUpdate> {
-            if (setbackOnFailure && pendingPlace.remove(it.pos.asLong()) != -1L && it.newState.canBeReplaced()) {
+        nonNullHandler<WorldEvent.ServerBlockUpdate> {
+            val wasPending = pendingPlace.remove(it.pos.asLong()) != -1L
+            if (setbackOnFailure && wasPending && it.newState.canBeReplaced()) {
                 sendSetbackPacket()
             }
 
+            if (!placingPos.contains(it.pos.asLong())) return@nonNullHandler
+            updateSequence()
+        }
+
+        nonNullHandler<WorldEvent.ClientBlockUpdate> {
             if (!placingPos.contains(it.pos.asLong())) return@nonNullHandler
             updateSequence()
         }
@@ -233,11 +247,10 @@ object Scaffold : Module(
             }
 
             val currentTime = System.currentTimeMillis()
-            val prevSize = pendingPlace.size
-            pendingPlace.values.removeIf {
+            val expired = pendingPlace.values.removeIf {
                 it < currentTime
             }
-            if (setbackOnFailure && pendingPlace.size > prevSize) {
+            if (setbackOnFailure && expired) {
                 sendSetbackPacket()
                 return@nonNullHandler
             }
@@ -251,7 +264,7 @@ object Scaffold : Module(
         nonNullHandler<OnUpdateWalkingPlayerEvent.Pre> {
             if (!blockPlaceRotation) return@nonNullHandler
             val placeInfo = nextPlaceInfo()
-            val shouldRotate = mode == BridgeMode.TELLY_BRIDGE || !isBridgeAir() || !snap
+            val shouldRotate = mode == BridgeMode.TELLY_BRIDGE || isBridgeAir() || !snap
             if (skipTicks && placeInfo != null) {
                 rotateCount++
             } else {
@@ -259,7 +272,7 @@ object Scaffold : Module(
             }
 
             if (mode == BridgeMode.TELLY_BRIDGE && player.onGround()) {
-                val fallback = lastRotation ?: Vec2f(RotationUtils.normalizeAngle(player.yaw - 180.0f), 80.0f)
+                val fallback = Vec2f(player.yaw, lastRotation?.y ?: player.pitch)
                 RotationManager.setRotations(fallback, rotationBackSpeed.toDouble(), priority = Priority.High)
             } else if (placeInfo != null && shouldRotate) {
                 val target = getBridgeRotation(placeInfo)
@@ -304,9 +317,8 @@ object Scaffold : Module(
             getBlockSlot() ?: return
             for (placeInfo in it) {
                 if (pendingPlace.containsKey(placeInfo.placedPos.asLong())) continue
-                if (isSideVisible(player.eyePosition.x, player.eyePosition.y, player.eyePosition.z, placeInfo.pos, placeInfo.direction)) {
+                if (isPlaceInfoUsable(placeInfo)) {
                     if (isTowering() && player.y - placeInfo.placedPos.y <= towerPlaceHeight) return
-                    if (blockPlaceRotation && !checkPlaceRotation(placeInfo)) return
                     if (!placeWithSwap(placeInfo)) return
                     pendingPlace.put(placeInfo.placedPos.asLong(), System.currentTimeMillis() + placeTimeout)
                     placeTimer.reset()
@@ -334,36 +346,57 @@ object Scaffold : Module(
 
     private fun NonNullContext.getBlockSlot(): BlockSelection? {
         if (isValidBlock(player.offhandSlot.item)) return BlockSelection(player.offhandSlot, InteractionHand.OFF_HAND)
-        if (swapMode == SwapMode.NONE) {
-            return player.currentHotbarSlot.takeIf { isValidBlock(it.item) }
-                ?.let { BlockSelection(it, InteractionHand.MAIN_HAND) }
+        if (isValidBlock(player.currentHotbarSlot.item)) {
+            return BlockSelection(player.currentHotbarSlot, InteractionHand.MAIN_HAND)
         }
-        val slots = if (swapMode == SwapMode.INV_SWITCH) player.everySlots else player.hotbarSlots
-        val slot = slots.firstOrNull { isValidBlock(it.item) } ?: return null
+        if (swapMode == SwapMode.NONE) {
+            return null
+        }
+        val candidates = if (swapMode == SwapMode.INV_SWITCH) player.slots else player.hotbarSlots
+        val slot = candidates.firstOrNull { isValidBlock(it.item) } ?: return null
         return BlockSelection(slot, InteractionHand.MAIN_HAND)
     }
 
     private fun NonNullContext.placeWithSwap(placeInfo: PlaceInfo): Boolean {
         val selection = getBlockSlot() ?: return false
-        var placed = false
-        val action = {
+        val action = action@{
             val rotation = RotationManager.rotation
-            if (!blockPlaceRotation || isRotationValid(rotation, placeInfo, raytraceMode == RaytraceMode.STRICT)) {
-                player.spoofSneak { placeBlock(placeInfo, selection.hand) }
-                placed = true
+            if (blockPlaceRotation && !isRotationValid(rotation, placeInfo, raytraceMode == RaytraceMode.STRICT)) {
+                return@action false
             }
+
+            val hand = selection.hand
+            if (!isValidBlock(player.getItemInHand(hand))) return@action false
+
+            var consumesAction = false
+            val useItem = {
+                consumesAction = interaction.useItemOn(
+                    player,
+                    hand,
+                    BlockHitResult(placeInfo.hitVec, placeInfo.direction, placeInfo.pos, false)
+                ).consumesAction()
+            }
+            if (blockBlacklist.contains(world.getBlockState(placeInfo.pos).block)) {
+                player.spoofSneak(useItem)
+            } else {
+                useItem()
+            }
+            if (!consumesAction) return@action false
+
+            player.swing(hand)
+            true
         }
 
-        when (swapMode) {
+        return when (swapMode) {
             SwapMode.NONE -> {
-                if (selection.hand == InteractionHand.OFF_HAND || selection.slot.index == player.inventory.selectedSlot + 36) {
-                    action()
-                } else return false
+                if (selection.hand == InteractionHand.MAIN_HAND &&
+                    selection.slot.getContainerSlot() != player.inventory.selectedSlot
+                ) false else action()
             }
             SwapMode.NORMAL -> {
                 if (selection.hand == InteractionHand.MAIN_HAND) {
-                    val target = selection.slot.index - 36
-                    if (target !in 0..8) return false
+                    val target = selection.slot.getContainerSlot()
+                    if (target !in SlotRanges.HOTBAR) return false
                     if (player.inventory.selectedSlot != target) {
                         if (originalHotbarSlot == -1) originalHotbarSlot = player.inventory.selectedSlot
                         doSwap(target)
@@ -372,23 +405,47 @@ object Scaffold : Module(
                 action()
             }
             SwapMode.SILENT -> {
-                if (selection.hand == InteractionHand.OFF_HAND) action()
-                else ghostSwitch(Override.NONE, selection.slot) { action() }
+                if (selection.hand == InteractionHand.OFF_HAND) {
+                    action()
+                } else {
+                    if (!selection.slot.isHotbarSlot) return false
+                    var placed = false
+                    ghostSwitch(Override.NONE, selection.slot) { placed = action() }
+                    placed
+                }
             }
             SwapMode.INV_SWITCH -> {
                 if (selection.hand == InteractionHand.OFF_HAND) {
                     action()
                 } else {
+                    val inventorySlot = selection.slot.getContainerSlot()
                     val selected = player.inventory.selectedSlot
-                    if (selection.slot.index != selected + 36) {
-                        interaction.handleInventoryMouseClick(player.containerMenu.containerId, selection.slot.index, selected, ClickType.SWAP, player)
+                    if (inventorySlot == selected) return action()
+
+                    val menuSlot = SlotRanges.indexToId(inventorySlot)
+                    if (menuSlot < 0) return false
+
+                    interaction.handleContainerInput(
+                        player.containerMenu.containerId,
+                        menuSlot,
+                        selected,
+                        ContainerInput.SWAP,
+                        player
+                    )
+                    try {
                         action()
-                        interaction.handleInventoryMouseClick(player.containerMenu.containerId, selection.slot.index, selected, ClickType.SWAP, player)
-                    } else action()
+                    } finally {
+                        interaction.handleContainerInput(
+                            player.containerMenu.containerId,
+                            menuSlot,
+                            selected,
+                            ContainerInput.SWAP,
+                            player
+                        )
+                    }
                 }
             }
         }
-        return placed
     }
 
     private fun NonNullContext.restoreNormalSlot() {
@@ -400,14 +457,33 @@ object Scaffold : Module(
     private fun NonNullContext.nextPlaceInfo(): PlaceInfo? {
         return lastSequence?.firstOrNull {
             !pendingPlace.containsKey(it.placedPos.asLong()) &&
-                isSideVisible(player.eyePosition.x, player.eyePosition.y, player.eyePosition.z, it.pos, it.direction)
+                isPlaceInfoUsable(it)
         }
     }
 
     private fun NonNullContext.getBridgeRotation(placeInfo: PlaceInfo): Vec2f {
+        val previous = lastRotation
+            ?: return Vec2f(RotationUtils.normalizeAngle(player.yaw - 135.0f), 82.0f)
+        if (!isBridgeAir()) return previous
+
         val direct = getRotationTo(placeInfo.hitVec)
-        if (rotationMode == RotationMode.RISE) return direct
-        return Vec2f(RotationUtils.normalizeAngle(player.yaw - 180.0f), 82.0f)
+        val strict = raytraceMode == RaytraceMode.STRICT
+        val yawCandidates = listOf(-135.0f, -90.0f, -45.0f, 0.0f, 45.0f, 90.0f, 135.0f, 180.0f, direct.x)
+            .sortedBy { abs(RotationUtils.normalizeAngle(player.yaw - 180.0f - it)) }
+
+        for (yaw in yawCandidates) {
+            for (pitch in floatArrayOf(75.0f, 82.0f, 87.0f)) {
+                val candidate = Vec2f(yaw, pitch)
+                if (isRotationValid(candidate, placeInfo, strict)) return candidate
+            }
+
+            for (pitch in -90 until 90) {
+                val candidate = Vec2f(yaw, pitch.toFloat())
+                if (isRotationValid(candidate, placeInfo, strict)) return candidate
+            }
+        }
+
+        return direct
     }
 
     private fun rotationSpeedForTick(): Double {
@@ -417,9 +493,25 @@ object Scaffold : Module(
     }
 
     private fun NonNullContext.isRotationValid(rotation: Vec2f, placeInfo: PlaceInfo, strict: Boolean): Boolean {
-        val end = RotationUtils.traceRotation(player.eyePosition, rotation, 6.0)
+        val end = RotationUtils.traceRotation(player.eyePosition, rotation, 4.5)
         val hit = world.clip(ClipContext(player.eyePosition, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player))
         return hit is BlockHitResult && hit.blockPos == placeInfo.pos && (!strict || hit.direction == placeInfo.direction)
+    }
+
+    private fun NonNullContext.isPlaceInfoUsable(placeInfo: PlaceInfo): Boolean {
+        if (placeInfo.dist > 4.5 || !world.getBlockState(placeInfo.placedPos).canBeReplaced()) return false
+
+        val anchorState = world.getBlockState(placeInfo.pos)
+        if (anchorState.canBeReplaced() || anchorState.getCollisionShape(world, placeInfo.pos).isEmpty) return false
+        if (anchorState.getMenuProvider(world, placeInfo.pos) != null) return false
+
+        return isSideVisible(
+            player.eyePosition.x,
+            player.eyePosition.y,
+            player.eyePosition.z,
+            placeInfo.pos,
+            placeInfo.direction
+        )
     }
 
     private fun NonNullContext.isBridgeAir(): Boolean {
@@ -434,9 +526,69 @@ object Scaffold : Module(
         ) yLevel else player.y.floorToInt() - 1
     }
 
-    private fun isValidBlock(stack: net.minecraft.world.item.ItemStack): Boolean {
-        return !stack.isEmpty && stack.item is BlockItem
+    private fun isValidBlock(stack: ItemStack): Boolean {
+        if (stack.isEmpty || stack.item !is BlockItem || stack.item is StandingAndWallBlockItem) return false
+        val name = stack.displayName.string
+        if (name.contains("Click") || name.contains("\u70b9\u51fb")) return false
+
+        val block = (stack.item as BlockItem).block
+        if (block is FlowerBlock || block is BushBlock || block is NetherFungusBlock ||
+            block is CropBlock || block is SlabBlock
+        ) return false
+
+        return block !in blacklistedBlocks
     }
+
+    // Matches Epsilon 26.1.2's scaffold filter so utility and unstable blocks are never selected first.
+    private val blacklistedBlocks = setOf(
+        Blocks.AIR,
+        Blocks.WATER,
+        Blocks.LAVA,
+        Blocks.ENCHANTING_TABLE,
+        Blocks.GLASS_PANE,
+        Blocks.IRON_BARS,
+        Blocks.SNOW,
+        Blocks.COAL_ORE,
+        Blocks.DIAMOND_ORE,
+        Blocks.EMERALD_ORE,
+        Blocks.CHEST,
+        Blocks.TRAPPED_CHEST,
+        Blocks.TORCH,
+        Blocks.ANVIL,
+        Blocks.NOTE_BLOCK,
+        Blocks.JUKEBOX,
+        Blocks.TNT,
+        Blocks.GOLD_ORE,
+        Blocks.IRON_ORE,
+        Blocks.LAPIS_ORE,
+        Blocks.STONE_PRESSURE_PLATE,
+        Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE,
+        Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE,
+        Blocks.STONE_BUTTON,
+        Blocks.LEVER,
+        Blocks.TALL_GRASS,
+        Blocks.TRIPWIRE,
+        Blocks.TRIPWIRE_HOOK,
+        Blocks.RAIL,
+        Blocks.CORNFLOWER,
+        Blocks.RED_MUSHROOM,
+        Blocks.BROWN_MUSHROOM,
+        Blocks.VINE,
+        Blocks.SUNFLOWER,
+        Blocks.LADDER,
+        Blocks.FURNACE,
+        Blocks.SAND,
+        Blocks.CACTUS,
+        Blocks.DISPENSER,
+        Blocks.DROPPER,
+        Blocks.CRAFTING_TABLE,
+        Blocks.COBWEB,
+        Blocks.PUMPKIN,
+        Blocks.COBBLESTONE_WALL,
+        Blocks.OAK_FENCE,
+        Blocks.REDSTONE_TORCH,
+        Blocks.FLOWER_POT
+    )
 
     private data class BlockSelection(val slot: Slot, val hand: InteractionHand)
 
@@ -451,6 +603,7 @@ object Scaffold : Module(
     private fun NonNullContext.updateSequence() {
         lastPos = player.position()
         lastSequence = null
+        placingPos.clear()
         renderer.clear()
 
         val sequence = if (isTowering()) {
@@ -459,6 +612,8 @@ object Scaffold : Module(
                 feetPos,
                 maxDepth,
                 towerSides,
+                scaffoldRangeOption,
+                scaffoldAnchorOption,
                 PlacementSearchOption.ENTITY_COLLISION_IGNORE_SELF,
             )
         } else {
@@ -524,8 +679,20 @@ object Scaffold : Module(
         return getPlacementSequence(
             feetPos,
             maxDepth,
+            scaffoldRangeOption,
+            scaffoldAnchorOption,
             PlacementSearchOption.ENTITY_COLLISION,
         )
+    }
+
+    private val scaffoldRangeOption = PlacementSearchOption { from, side, _ ->
+        player.eyePosition.distanceToSqr(getHitVec(from, side)) <= 4.5 * 4.5
+    }
+
+    private val scaffoldAnchorOption = PlacementSearchOption { from, _, _ ->
+        val state = world.getBlockState(from)
+        state.canBeReplaced() ||
+            (!state.getCollisionShape(world, from).isEmpty && state.getMenuProvider(world, from) == null)
     }
 
     private fun NonNullContext.isTowering(): Boolean {

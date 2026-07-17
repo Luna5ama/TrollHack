@@ -22,14 +22,17 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LevelTargetBundle;
+import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,10 +51,10 @@ public abstract class MixinWorldRenderer {
     @Shadow @Final private LevelTargetBundle targets;
 
     @Inject(
-            method = "renderLevel(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/Camera;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;Z)V",
+            method = "renderLevel(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/renderer/state/level/CameraRenderState;Lorg/joml/Matrix4fc;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZLnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/LevelRenderer;addLateDebugPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/state/CameraRenderState;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Matrix4f;)V",
+                    target = "Lnet/minecraft/client/renderer/LevelRenderer;addLateDebugPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Matrix4fc;)V",
                     shift = At.Shift.BEFORE
             ),
             require = 1
@@ -60,13 +63,12 @@ public abstract class MixinWorldRenderer {
             GraphicsResourceAllocator allocator,
             DeltaTracker deltaTracker,
             boolean renderBlockOutline,
-            Camera camera,
-            Matrix4f viewMatrix,
-            Matrix4f projectionMatrix,
-            Matrix4f cullProjectionMatrix,
+            CameraRenderState cameraState,
+            Matrix4fc viewMatrix,
             GpuBufferSlice fogBuffer,
             Vector4f fogColor,
             boolean renderSky,
+            ChunkSectionsToRender chunkSectionsToRender,
             CallbackInfo ci,
             @Local FrameGraphBuilder frameGraphBuilder
     ) {
@@ -74,8 +76,8 @@ public abstract class MixinWorldRenderer {
         this.targets.main = framePass.readsAndWrites(this.targets.main);
         ResourceHandle<RenderTarget> targetHandle = this.targets.main;
         Matrix4f capturedViewMatrix = new Matrix4f(viewMatrix);
-        Matrix4f capturedProjectionMatrix = new Matrix4f(projectionMatrix);
-        Vec3 cameraPosition = camera.position();
+        Matrix4f capturedProjectionMatrix = new Matrix4f(cameraState.projectionMatrix);
+        Vec3 cameraPosition = cameraState.pos;
         float tickDelta = deltaTracker.getGameTimeDeltaPartialTick(false);
 
         framePass.executes(() -> {

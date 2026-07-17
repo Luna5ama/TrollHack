@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.entity.Entity
 import net.minecraft.core.BlockPos
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal
 import net.minecraft.world.entity.player.Player
@@ -91,7 +91,7 @@ object CombatUtil {
                 priority = Priority.High
             )
         }
-        netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
+        netHandler.send(ServerboundAttackPacket(crystal.id))
         player.resetAttackStrengthTicker()
         player.swing(InteractionHand.MAIN_HAND)
     }

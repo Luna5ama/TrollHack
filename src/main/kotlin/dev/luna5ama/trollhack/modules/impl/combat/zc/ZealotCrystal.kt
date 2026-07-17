@@ -68,7 +68,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.network.protocol.game.ServerboundSwingPacket
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket
 import net.minecraft.sounds.SoundEvents
@@ -747,9 +747,8 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
         swingMode.swingHand(this, hand)
     }
 
-    private fun attackPacket(entityID: Int): ServerboundInteractPacket {
-        val packet = ServerboundInteractPacket(entityID, false, ServerboundInteractPacket.ATTACK_ACTION)
-        return packet
+    private fun attackPacket(entityID: Int): ServerboundAttackPacket {
+        return ServerboundAttackPacket(entityID)
     }
 
     private fun Player.isWeaknessActive(): Boolean {

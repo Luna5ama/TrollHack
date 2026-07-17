@@ -9,9 +9,11 @@ import dev.luna5ama.trollhack.event.impl.TickEvent;
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent;
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge;
 import dev.luna5ama.trollhack.graphics.blaze3d.Blaze3DPostProcessor;
+import dev.luna5ama.trollhack.graphics.blaze3d.ShaderHolder;
 import dev.luna5ama.trollhack.manager.managers.ConfigManager;
 import dev.luna5ama.trollhack.manager.managers.ProcessExitHook;
 import dev.luna5ama.trollhack.modules.impl.player.MultiTask;
+import dev.luna5ama.trollhack.modules.impl.player.NoEntityTrace;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
@@ -19,8 +21,10 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Final;
@@ -46,6 +50,22 @@ abstract class MixinMinecraft {
         return System.currentTimeMillis();
     }
 
+    @Redirect(
+            method = "pick(F)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;raycastHitResult(FLnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/HitResult;"
+            )
+    )
+    private HitResult raycastForPick(LocalPlayer player, float partialTicks, Entity cameraEntity) {
+        if (NoEntityTrace.INSTANCE.isEnabled()
+                && (player.getMainHandItem().is(ItemTags.PICKAXES) || !NoEntityTrace.INSTANCE.getPonly())
+                && (!player.getMainHandItem().is(ItemTags.SWORDS) || !NoEntityTrace.INSTANCE.getNoSword())) {
+            return cameraEntity.pick(player.blockInteractionRange(), partialTicks, false);
+        }
+        return player.raycastHitResult(partialTicks, cameraEntity);
+    }
+
     @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/metrics/profiling/MetricsRecorder;startTick()V"))
     private void onLoopStart(CallbackInfo ci) {
         TrollHackMod.INSTANCE.getProfiler().clear();
@@ -67,19 +87,15 @@ abstract class MixinMinecraft {
         LoopEvent.Tick.INSTANCE.post();
     }
 
-    @Redirect(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/FramerateLimitTracker;getFramerateLimit()I"))
+    @Redirect(method = "renderFrame(Z)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/FramerateLimitTracker;getFramerateLimit()I"))
     private int updateFpsLimit(FramerateLimitTracker instance) {
         return RenderSystem.INSTANCE.getCurrentMaxFps(Minecraft.getInstance().options.framerateLimit().get());
     }
 
-    @Redirect(method = "runTick", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;blitToScreen()V"))
+    @Redirect(method = "renderFrame(Z)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;blitToScreen()V"))
     private void onBlitFramebuffer(RenderTarget instance) {
         Blaze3DPostProcessor.INSTANCE.apply(instance);
         instance.blitToScreen();
-    }
-
-    @Redirect(method = "runTick", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;yield()V"))
-    private void onThreadYield() {
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -128,7 +144,7 @@ abstract class MixinMinecraft {
         WorldEvent.Unload.INSTANCE.post();
     }
 
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/thread/ReentrantBlockableEventLoop;<init>(Ljava/lang/String;)V", shift = At.Shift.AFTER))
+    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/thread/ReentrantBlockableEventLoop;<init>(Ljava/lang/String;Z)V", shift = At.Shift.AFTER))
     private void onInitPre(GameConfig gameConfig, CallbackInfo ci) {
         TrollHackMod.INSTANCE.initializePre();
     }
@@ -142,6 +158,7 @@ abstract class MixinMinecraft {
     @Inject(method = "close", at = @At("HEAD"))
     private void onClose(CallbackInfo ci) {
         TrollHackMod.LOGGER.warn("Shutting down " + TrollHackMod.NAME);
+        ShaderHolder.close();
         Blaze3DPostProcessor.INSTANCE.close();
         SkiaMinecraftBridge.INSTANCE.close();
         ProcessExitHook.INSTANCE.onExit();

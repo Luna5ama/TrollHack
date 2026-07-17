@@ -9,14 +9,16 @@ import dev.luna5ama.trollhack.manager.AbstractManager
 import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.Displayable
 import dev.luna5ama.trollhack.utils.NonNullContext
+import dev.luna5ama.trollhack.utils.extension.hotbarIndex
 import dev.luna5ama.trollhack.utils.extension.isHotbarSlot
 import dev.luna5ama.trollhack.utils.inventory.SlotRanges
 import dev.luna5ama.trollhack.utils.inventory.hotbarSlots
 import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 
@@ -59,7 +61,7 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
     context(ctx: NonNullContext)
     fun ghostSwitch(override: Override, slot: Slot, block: () -> Unit): Unit = ctx.run {
         synchronized(InventoryManager) {
-            if (slot.index != serverSideHotbar) {
+            if (slot.hotbarIndex != serverSideHotbar) {
                 override.mode.run {
                     switch(slot, block)
                 }
@@ -82,22 +84,37 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
         netHandler.send(ServerboundSetCarriedItemPacket(slot))
     }
 
+    private fun NonNullContext.menuSlotId(slot: Slot): Int {
+        val menu = player.containerMenu
+        val current = menu.slots.getOrNull(slot.index)
+        if (current != null && current.container === slot.container &&
+            current.getContainerSlot() == slot.getContainerSlot()
+        ) {
+            return slot.index
+        }
+
+        if (slot.container !is Inventory) return -1
+        return SlotRanges.indexToId(slot.getContainerSlot())
+    }
+
     context(ctx: NonNullContext)
     fun ghostSwitch(override: Override, slot: Int, block: () -> Unit): Unit = ctx.run {
-        ghostSwitch(override, player.inventoryMenu.getSlot(slot), block)
+        val menuSlot = SlotRanges.indexToId(slot)
+        if (menuSlot < 0) return@run
+        ghostSwitch(override, player.containerMenu.getSlot(menuSlot), block)
     }
 
     enum class BypassMode : Displayable {
         NONE {
             override fun NonNullContext.switch(targetSlot: Slot, block: () -> Unit) {
-                if (!targetSlot.isHotbarSlot && targetSlot.index !in 36..45) {
+                if (!targetSlot.isHotbarSlot) {
                     SWAP.run {
                         switch(targetSlot, block)
                         return
                     }
                 }
 
-                val targetId = if (targetSlot.isHotbarSlot) targetSlot.index else targetSlot.index - 36
+                val targetId = targetSlot.hotbarIndex
                 val prevSlot = serverSideHotbar
                 player.inventory.selectedSlot = targetId
                 netHandler.send(ServerboundSetCarriedItemPacket(targetId))
@@ -108,18 +125,19 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
         },
         MOVE {
             override fun NonNullContext.switch(targetSlot: Slot, block: () -> Unit) {
-                val hotbarSlots = player.hotbarSlots
                 val inventoryContainer = player.containerMenu
-                val targetItem = targetSlot.item
+                val targetId = menuSlotId(targetSlot)
+                val hotbarId = SlotRanges.indexToId(serverSideHotbar)
+                if (targetId < 0 || hotbarId < 0) return
 
                 netHandler.send(
                     ServerboundContainerClickPacket(
                         inventoryContainer.containerId,
                         inventoryContainer.incrementStateId(),
-                        targetSlot.index.toShort(),
+                        targetId.toShort(),
                         0.toByte(),
-                        ClickType.PICKUP,
-                        Int2ObjectArrayMap(mapOf(targetSlot.index to HashedStack.EMPTY)),
+                        ContainerInput.PICKUP,
+                        Int2ObjectArrayMap(mapOf(targetId to HashedStack.EMPTY)),
                         HashedStack.EMPTY
                     )
                 )
@@ -127,10 +145,10 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
                     ServerboundContainerClickPacket(
                         inventoryContainer.containerId,
                         inventoryContainer.incrementStateId(),
-                        hotbarSlots[serverSideHotbar].index.toShort(),
+                        hotbarId.toShort(),
                         0.toByte(),
-                        ClickType.PICKUP,
-                        Int2ObjectArrayMap(mapOf(hotbarSlots[serverSideHotbar].index to HashedStack.EMPTY)),
+                        ContainerInput.PICKUP,
+                        Int2ObjectArrayMap(mapOf(hotbarId to HashedStack.EMPTY)),
                         HashedStack.EMPTY
                     )
                 )
@@ -141,10 +159,10 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
                     ServerboundContainerClickPacket(
                         inventoryContainer.containerId,
                         inventoryContainer.incrementStateId(),
-                        hotbarSlots[serverSideHotbar].index.toShort(),
+                        hotbarId.toShort(),
                         0.toByte(),
-                        ClickType.PICKUP,
-                        Int2ObjectArrayMap(mapOf(hotbarSlots[serverSideHotbar].index to HashedStack.EMPTY)),
+                        ContainerInput.PICKUP,
+                        Int2ObjectArrayMap(mapOf(hotbarId to HashedStack.EMPTY)),
                         HashedStack.EMPTY
                     )
                 )
@@ -152,10 +170,10 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
                     ServerboundContainerClickPacket(
                         inventoryContainer.containerId,
                         inventoryContainer.incrementStateId(),
-                        targetSlot.index.toShort(),
+                        targetId.toShort(),
                         0.toByte(),
-                        ClickType.PICKUP,
-                        Int2ObjectArrayMap(mapOf(targetSlot.index to HashedStack.EMPTY)),
+                        ContainerInput.PICKUP,
+                        Int2ObjectArrayMap(mapOf(targetId to HashedStack.EMPTY)),
                         HashedStack.EMPTY
                     )
                 )
@@ -163,34 +181,37 @@ object HotbarSwitchManager : AbstractManager(), AlwaysListening {
         },
         SWAP {
             override fun NonNullContext.switch(targetSlot: Slot, block: () -> Unit) {
+                val targetId = menuSlotId(targetSlot)
+                if (targetId < 0) return
                 if (ClientSettings.inventorySwapBypass) {
-                    interaction.handleInventoryMouseClick(player.containerMenu.containerId, targetSlot.index, 0,
-                        ClickType.PICKUP, player)
+                    interaction.handleContainerInput(player.containerMenu.containerId, targetId, 0,
+                        ContainerInput.PICKUP, player)
                 } else {
-                    interaction.handleInventoryMouseClick(player.containerMenu.containerId,
-                        targetSlot.index, 0, ClickType.SWAP, player)
+                    interaction.handleContainerInput(player.containerMenu.containerId,
+                        targetId, serverSideHotbar, ContainerInput.SWAP, player)
                 }
                 block.invoke()
                 if (ClientSettings.inventorySwapBypass) {
-                    interaction.handleInventoryMouseClick(player.containerMenu.containerId, targetSlot.index, 0, ClickType.PICKUP, player)
+                    interaction.handleContainerInput(player.containerMenu.containerId, targetId, 0, ContainerInput.PICKUP, player)
                 } else {
-                    interaction.handleInventoryMouseClick(player.containerMenu.containerId,
-                        targetSlot.index, 0, ClickType.SWAP, player)
+                    interaction.handleContainerInput(player.containerMenu.containerId,
+                        targetId, serverSideHotbar, ContainerInput.SWAP, player)
                 }
             }
         },
         PICK {
             override fun NonNullContext.switch(targetSlot: Slot, block: () -> Unit) {
-                if (targetSlot.index == SlotRanges.OFFHAND || targetSlot.index !in SlotRanges.HOTBAR) {
+                if (!targetSlot.isHotbarSlot) {
                     SWAP.run {
                         switch(targetSlot, block)
                         return
                     }
                 }
-                val number = targetSlot.index
-                interaction.handleInventoryMouseClick(player.containerMenu.containerId, number, 0, ClickType.PICKUP, player)
+                val number = menuSlotId(targetSlot)
+                if (number < 0) return
+                interaction.handleContainerInput(player.containerMenu.containerId, number, 0, ContainerInput.PICKUP, player)
                 block.invoke()
-                interaction.handleInventoryMouseClick(player.containerMenu.containerId, number, 0, ClickType.PICKUP, player)
+                interaction.handleContainerInput(player.containerMenu.containerId, number, 0, ContainerInput.PICKUP, player)
             }
         };
 

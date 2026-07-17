@@ -3,7 +3,7 @@ package dev.luna5ama.trollhack.gui
 import dev.luna5ama.trollhack.graphics.skia.SkiaMinecraftBridge
 import dev.luna5ama.trollhack.modules.impl.client.HudEditor
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
@@ -21,11 +21,11 @@ object TrollHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
 
     override fun isPauseScreen() = HudEditor.pauseGame
 
-    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun extractRenderState(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
         SkiaMinecraftBridge.sendPointerMove(pointerX(mouseX.toDouble()), pointerY(mouseY.toDouble()))
     }
 
-    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) = Unit
+    override fun extractBackground(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) = Unit
 
     override fun mouseMoved(mouseX: Double, mouseY: Double) {
         SkiaMinecraftBridge.sendPointerMove(pointerX(mouseX), pointerY(mouseY))
@@ -69,7 +69,7 @@ object TrollHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
         SkiaMinecraftBridge.sendKey(event.key(), pressed = false, modifiers = event.modifiers())
 
     override fun charTyped(event: CharacterEvent): Boolean =
-        SkiaMinecraftBridge.sendCharacter(event.codepoint(), event.modifiers())
+        SkiaMinecraftBridge.sendCharacter(event.codepoint())
 
     override fun removed() {
         TrollHackCompose.hide()

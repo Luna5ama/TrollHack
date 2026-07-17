@@ -10,4 +10,4 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper
 fun ItemStack.getEnchantmentLevel(enchantment: ResourceKey<Enchantment>) =
     EnchantmentHelper.getItemEnchantmentLevel(enchantment.entry, this)
 
-val Item.isFood get() = this.components.get(DataComponents.FOOD) != null
+val Item.isFood get() = this.components().get(DataComponents.FOOD) != null

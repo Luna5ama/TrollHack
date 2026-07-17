@@ -36,10 +36,9 @@ configurations.named("include") {
 }
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.layered { officialMojangMappings() })
-    modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.api)
-    modImplementation(libs.fabric.language.kotlin)
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
+    implementation(libs.fabric.language.kotlin)
 
     implementation(libs.reflections)
     implementation(libs.compose.desktop)
@@ -56,7 +55,7 @@ dependencies {
 kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_24)
         apiVersion.set(KotlinVersion.KOTLIN_2_4)
         languageVersion.set(KotlinVersion.KOTLIN_2_4)
         jvmDefault.set(JvmDefaultMode.ENABLE)
@@ -78,7 +77,6 @@ tasks.named<Jar>("sourcesJar") {
 loom {
     val aw = rootProject.file("src/main/resources/$modId.accesswidener")
     if (aw.exists()) accessWidenerPath.set(aw)
-    mixin { defaultRefmapName.set("$modId.refmap.json") }
     runs {
         named("client") {
             client()

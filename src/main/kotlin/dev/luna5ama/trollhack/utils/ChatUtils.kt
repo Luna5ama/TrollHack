@@ -43,18 +43,17 @@ object ChatUtils {
 
     fun sendMessage(message: String) {
         runSafe {
-            player.displayClientMessage(
+            player.sendSystemMessage(
                 messagePrefix.copy()
                     .append(Component.literal(" "))
-                    .append(Component.literal(translateAlternateColorCodes(message)).withStyle(ChatFormatting.RESET)),
-                false
+                    .append(Component.literal(translateAlternateColorCodes(message)).withStyle(ChatFormatting.RESET))
             )
         }
     }
 
     fun sendRawMessage(message: String) {
         runSafe {
-            player.displayClientMessage(Component.literal(message), false)
+            player.sendSystemMessage(Component.literal(message))
         }
     }
 

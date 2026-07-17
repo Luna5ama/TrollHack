@@ -332,7 +332,7 @@ fun interface PlacementSearchOption {
 
         @JvmField
         val ENTITY_COLLISION_IGNORE_SELF = PlacementSearchOption { _, _, to ->
-            EntityManager.checkNoEntityCollision(to)
+            EntityManager.checkNoEntityCollision(AABB(to), player)
         }
     }
 }

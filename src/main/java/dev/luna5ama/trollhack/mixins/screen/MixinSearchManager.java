@@ -12,7 +12,10 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(value = SessionSearchTrees.class, priority = 990)
 abstract class MixinSearchManager {
-    @ModifyExpressionValue(method = "method_60363", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;getString()Ljava/lang/String;"))
+    @ModifyExpressionValue(
+            method = "lambda$getTooltipLines$1(Lnet/minecraft/network/chat/Component;)Ljava/lang/String;",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;getString()Ljava/lang/String;")
+    )
     private static String addFallbackTranslationsToSearchTooltips(String original, Component tooltip) {
         if (Config.getInstance() == null) return original;
         if (!Config.getInstance().multilingualItemSearch) return original;

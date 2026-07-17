@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.core.BlockPos
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket
 import net.minecraft.server.level.ServerLevel
@@ -44,10 +44,8 @@ object MaceSpoof : Module("Mace Spoof", category = Category.COMBAT) {
 
         nonNullHandler<PacketEvent.Send>(priority = 114514) {
             val packet = it.packet
-            if (packet is ServerboundInteractPacket && mode == Mode.VANILLA) {
-                val interactType = packet.action.type
-                if (interactType == ServerboundInteractPacket.ActionType.ATTACK
-                    && player.mainHandItem.item == Items.MACE
+            if (packet is ServerboundAttackPacket && mode == Mode.VANILLA) {
+                if (player.mainHandItem.item == Items.MACE
                     && world.getEntity(packet.entityId) is LivingEntity) {
                     val targetEntity = world.getEntity(packet.entityId) as LivingEntity
 

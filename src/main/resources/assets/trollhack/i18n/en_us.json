@@ -1182,6 +1182,13 @@
           "mode": "Mode",
           "visible": "Visible"
         },
+        "fullbright": {
+          "_value": "Fullbright",
+          "bind": "Bind",
+          "enable": "Enable",
+          "mode": "Mode",
+          "visible": "Visible"
+        },
         "freecamera": {
           "_value": "Free Camera",
           "bind": "Bind",
@@ -1284,7 +1291,11 @@
           "crystals": "Crystals",
           "enable": "Enable",
           "fill": "Fill",
+          "fill alpha": "Fill Alpha",
           "friends": "Friends",
+          "gradient": "Gradient",
+          "gradient alpha": "Gradient Alpha",
+          "gradient factor": "Gradient Factor",
           "hands": "Hands",
           "hands mode": "Hands Mode",
           "line width": "Line Width",
@@ -1294,7 +1305,14 @@
           "others": "Others",
           "outline": "Outline",
           "players": "Players",
+          "quality": "Quality",
           "self": "Self",
+          "smoke fill": "Smoke Fill",
+          "smoke fill 2": "Smoke Fill 2",
+          "smoke glow": "Smoke Glow",
+          "smoke octaves": "Smoke Octaves",
+          "smoke outline": "Smoke Outline",
+          "smoke outline 2": "Smoke Outline 2",
           "visible": "Visible"
         }
       },
@@ -1332,13 +1350,6 @@
         "crystaldamage": {
           "_value": "Crystal Damage",
           "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
-        },
-        "fullbright": {
-          "_value": "Full Bright",
-          "bind": "Bind",
-          "color": "Color",
           "enable": "Enable",
           "visible": "Visible"
         },

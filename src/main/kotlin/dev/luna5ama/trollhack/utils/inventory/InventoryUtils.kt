@@ -20,7 +20,7 @@ import dev.luna5ama.trollhack.modules.impl.client.ClientSettings
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
 import dev.luna5ama.trollhack.utils.NonNullContext
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -243,18 +243,18 @@ internal object InventoryUtils {
                 return
             }
 
-            interaction.handleInventoryMouseClick(
+            interaction.handleContainerInput(
                 player.containerMenu.containerId,
                 slot,
                 0,
-                ClickType.PICKUP,
+                ContainerInput.PICKUP,
                 player
             )
-        } else interaction.handleInventoryMouseClick(
+        } else interaction.handleContainerInput(
             player.containerMenu.containerId,
             slot,
             selectedSlot,
-            ClickType.SWAP,
+            ContainerInput.SWAP,
             player
         )
     }

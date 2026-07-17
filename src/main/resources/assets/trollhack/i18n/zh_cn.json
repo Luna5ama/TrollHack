@@ -1183,6 +1183,13 @@
           "mode": "模式",
           "visible": "可见"
         },
+        "fullbright": {
+          "_value": "全亮",
+          "bind": "按键",
+          "enable": "启用",
+          "mode": "模式",
+          "visible": "可见"
+        },
         "freecamera": {
           "_value": "自由视角",
           "bind": "按键",
@@ -1285,7 +1292,11 @@
           "crystals": "水晶",
           "enable": "启用",
           "fill": "填充",
+          "fill alpha": "填充透明度",
           "friends": "好友",
+          "gradient": "渐变缩放",
+          "gradient alpha": "渐变透明度",
+          "gradient factor": "渐变因子",
           "hands": "手部",
           "hands mode": "手部模式",
           "line width": "线条宽度",
@@ -1295,7 +1306,14 @@
           "others": "其他实体",
           "outline": "轮廓",
           "players": "玩家",
+          "quality": "质量",
           "self": "自己",
+          "smoke fill": "烟雾填充",
+          "smoke fill 2": "烟雾填充 2",
+          "smoke glow": "烟雾辉光",
+          "smoke octaves": "烟雾倍频",
+          "smoke outline": "烟雾轮廓",
+          "smoke outline 2": "烟雾轮廓 2",
           "visible": "可见"
         }
       },
@@ -1333,13 +1351,6 @@
         "crystaldamage": {
           "_value": "Crystal Damage",
           "bind": "Bind",
-          "enable": "Enable",
-          "visible": "Visible"
-        },
-        "fullbright": {
-          "_value": "Full Bright",
-          "bind": "Bind",
-          "color": "Color",
           "enable": "Enable",
           "visible": "Visible"
         },

@@ -55,7 +55,7 @@ public abstract class MixinKeyboard {
             var language = languageManager.getLanguage(config.previousLanguage);
             var noLanguage = config.previousLanguage.equals(TrollHackMod.NO_LANGUAGE);
             if (language == null && !noLanguage) {
-                minecraft.gui.getChat().addMessage(Component.translatable("debug.reload_languages.switch.failure"));
+                minecraft.gui.getChat().addClientSystemMessage(Component.translatable("debug.reload_languages.switch.failure"));
             } else {
                 TrollHackMod.ClientLanguageReload.INSTANCE.setLanguage(config.previousLanguage, config.previousFallbacks);
                 var languages = new ArrayList<Component>() {{
@@ -77,15 +77,11 @@ public abstract class MixinKeyboard {
         }
     }
 
-    @Inject(method = "handleDebugKeys", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/components/ChatComponent;addMessage(Lnet/minecraft/network/chat/Component;)V",
-            ordinal = 6, shift = At.Shift.AFTER), require = 0)
-    private void onProcessF3$addHelp(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
-        minecraft.gui.getChat().addMessage(Component.translatable("debug.reload_languages.help"));
-    }
-
     @Inject(method = "handleDebugKeys", at = @At("RETURN"), cancellable = true)
     private void onProcessF3(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (event.key() == GLFW.GLFW_KEY_Q) {
+            minecraft.gui.getChat().addClientSystemMessage(Component.translatable("debug.reload_languages.help"));
+        }
         if (event.key() == GLFW.GLFW_KEY_J) {
             processLanguageReloadKeys();
             cir.setReturnValue(true);

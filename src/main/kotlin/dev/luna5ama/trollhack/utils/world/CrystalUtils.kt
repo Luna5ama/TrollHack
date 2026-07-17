@@ -25,7 +25,7 @@ import dev.luna5ama.trollhack.utils.math.vectors.VectorUtils.setAndAdd
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.rotation.Priority
 import net.minecraft.core.BlockPos
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -81,7 +81,7 @@ object CrystalUtils {
                 priority = Priority.High
             )
         }
-        netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
+        netHandler.send(ServerboundAttackPacket(crystal.id))
         player.swing(InteractionHand.MAIN_HAND)
     }
 

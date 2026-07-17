@@ -53,7 +53,7 @@ fun NonNullContext.swapToItem(item: Item, predicate: Predicate<ItemStack>? = nul
  * Swap the selected hotbar slot to [hotbarSlot]
  */
 fun NonNullContext.swapToSlot(hotbarSlot: HotbarSlot) {
-    swapToSlot(hotbarSlot.hotbarSlot - 36)
+    swapToSlot(hotbarSlot.hotbarSlot)
 }
 
 /**

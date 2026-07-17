@@ -2,7 +2,7 @@ package dev.luna5ama.trollhack.language
 
 import dev.luna5ama.trollhack.interfaces.ILanguageOptionsScreen
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
@@ -91,8 +91,8 @@ open class LanguageEntry(
         refreshListsAction.run()
     }
 
-    override fun renderContent(
-        context: GuiGraphics,
+    override fun extractContent(
+        context: GuiGraphicsExtractor,
         mouseX: Int,
         mouseY: Int,
         hovered: Boolean,
@@ -115,14 +115,14 @@ open class LanguageEntry(
                     button.x = buttonX
                     button.y = buttonY
                     button.visible = true
-                    button.render(context, mouseX, mouseY, tickDelta)
+                    button.extractRenderState(context, mouseX, mouseY, tickDelta)
                 },
                 x, y
             )
             if ((hovered || isFocused) && isDefault()) renderDefaultLanguageTooltip(context, x, y)
         }
-        context.drawString(client.font, language.name(), x + 29, y + 3, 0xFFFFFF)
-        context.drawString(client.font, language.region(), x + 29, y + 14, 0x808080)
+        context.text(client.font, language.name(), x + 29, y + 3, 0xFFFFFF)
+        context.text(client.font, language.region(), x + 29, y + 14, 0x808080)
     }
 
     private fun renderButtons(renderer: ButtonRenderer, x: Int, y: Int) {
@@ -137,7 +137,7 @@ open class LanguageEntry(
         } else renderer.render(addButton, x + 7, y)
     }
 
-    private fun renderDefaultLanguageTooltip(context: GuiGraphics, x: Int, y: Int) {
+    private fun renderDefaultLanguageTooltip(context: GuiGraphicsExtractor, x: Int, y: Int) {
         val tooltip = client.font.split(DEFAULT_LANGUAGE_TOOLTIP, parentList.rowWidth - 6)
         context.setTooltipForNextFrame(client.font, tooltip, x + 3, y + parentList.rowHeight + 4)
     }

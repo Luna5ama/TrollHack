@@ -1,4 +1,5 @@
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins {
     `java-library`
@@ -20,6 +21,7 @@ val neoForgeVersion = catalogVersion("neoforge")
 val neoForgeLoaderVersionRange = catalogVersion("neoforge-loader-range")
 val kotlinForForgeVersion = catalogVersion("kotlinforge")
 val javaVersion = catalogVersion("java")
+val jvmTargetVersion = catalogVersion("jvm-target")
 
 base {
     archivesName.set("${modId}-${project.name}-${minecraftVersion}")
@@ -33,7 +35,18 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
-    google()
+    maven("https://maven.aliyun.com/repository/google") {
+        content {
+            includeGroupByRegex("androidx\\..*")
+            includeGroupByRegex("com\\.android(\\..*)?")
+        }
+    }
+    google {
+        content {
+            includeGroupByRegex("androidx\\..*")
+            includeGroupByRegex("com\\.android(\\..*)?")
+        }
+    }
     maven("https://maven.fabricmc.net")
     maven("https://maven.neoforged.net/releases")
     maven("https://thedarkcolour.github.io/KotlinForForge/")
@@ -43,7 +56,15 @@ repositories {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    options.release.set(javaVersion.toInt())
+    options.release.set(jvmTargetVersion.toInt())
+}
+
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { configurationName ->
+        configurations.named(configurationName) {
+            attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, javaVersion.toInt())
+        }
+    }
 }
 
 tasks.named<ProcessResources>("processResources") {

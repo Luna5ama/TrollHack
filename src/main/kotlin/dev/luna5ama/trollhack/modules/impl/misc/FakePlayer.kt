@@ -38,7 +38,7 @@ import dev.luna5ama.trollhack.utils.extension.velocityY
 import dev.luna5ama.trollhack.utils.extension.velocityZ
 import dev.luna5ama.trollhack.utils.math.vectors.Vec2f
 import dev.luna5ama.trollhack.utils.runSafe
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
@@ -139,11 +139,9 @@ internal object FakePlayer : Module("Fake Player", category = Category.MISC), He
 
         nonNullHandler<PacketEvent.Send>(Int.MIN_VALUE) {
             when (it.packet) {
-                is ServerboundInteractPacket -> {
+                is ServerboundAttackPacket -> {
                     val packet = it.packet
-                    if (packet.action.type == ServerboundInteractPacket.ActionType.ATTACK
-                        && packet.entityId == ENTITY_ID
-                    ) {
+                    if (packet.entityId == ENTITY_ID) {
                         it.cancel()
                     }
                 }

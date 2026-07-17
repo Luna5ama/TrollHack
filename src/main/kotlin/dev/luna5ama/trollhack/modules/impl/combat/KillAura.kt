@@ -18,7 +18,7 @@ import dev.luna5ama.trollhack.utils.rotation.Priority
 import dev.luna5ama.trollhack.utils.runSafe
 import dev.luna5ama.trollhack.utils.timing.TickTimer
 import dev.luna5ama.trollhack.utils.world.EntityUtils
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -89,11 +89,7 @@ object KillAura : Module("Kill Aura", category = Category.COMBAT) {
         }
         val target = target ?: return
 
-        netHandler.send(
-            ServerboundInteractPacket.createAttackPacket(
-                target, player.isShiftKeyDown
-            )
-        )
+        netHandler.send(ServerboundAttackPacket(target.id))
 
         player.resetAttackStrengthTicker()
         player.swing(InteractionHand.MAIN_HAND)

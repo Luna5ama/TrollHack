@@ -1,9 +1,9 @@
 package dev.luna5ama.trollhack.mixins.render;
 
 import com.mojang.blaze3d.platform.DisplayData;
-import com.mojang.blaze3d.platform.ScreenManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.platform.WindowEventHandler;
+import com.mojang.blaze3d.systems.GpuBackend;
 import dev.luna5ama.trollhack.TrollHackMod;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
@@ -21,7 +21,7 @@ public class MixinWindow {
     @Shadow @Final private long handle;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
-    public void hookInit$Return(WindowEventHandler eventHandler, ScreenManager screenManager, DisplayData displayData, String preferredFullscreenVideoMode, String title, CallbackInfo ci) {
+    public void hookInit$Return(WindowEventHandler eventHandler, DisplayData displayData, String preferredFullscreenVideoMode, String title, GpuBackend gpuBackend, CallbackInfo ci) {
         // hacky method to move the window to the top of the screen
         glfwSetWindowAttrib(handle, GLFW_FOCUS_ON_SHOW, 1);
         glfwShowWindow(handle);

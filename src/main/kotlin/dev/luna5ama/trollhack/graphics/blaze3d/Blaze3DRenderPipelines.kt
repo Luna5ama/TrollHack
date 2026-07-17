@@ -1,8 +1,10 @@
 package dev.luna5ama.trollhack.graphics.blaze3d
 
 import com.mojang.blaze3d.pipeline.BlendFunction
+import com.mojang.blaze3d.pipeline.ColorTargetState
+import com.mojang.blaze3d.pipeline.DepthStencilState
 import com.mojang.blaze3d.pipeline.RenderPipeline
-import com.mojang.blaze3d.platform.DepthTestFunction
+import com.mojang.blaze3d.platform.CompareOp
 import com.mojang.blaze3d.shaders.UniformType
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.VertexFormat
@@ -15,9 +17,8 @@ object Blaze3DRenderPipelines {
         .withFragmentShader(id("core/esp_fill"))
         .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
         .withUniform("Projection", UniformType.UNIFORM_BUFFER)
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
         .withCull(false)
-        .withDepthWrite(false)
         .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
         .buildSnippet()
 
@@ -27,34 +28,33 @@ object Blaze3DRenderPipelines {
         .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
         .withUniform("Projection", UniformType.UNIFORM_BUFFER)
         .withUniform("Globals", UniformType.UNIFORM_BUFFER)
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
         .withCull(false)
-        .withDepthWrite(false)
         .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH, VertexFormat.Mode.LINES)
         .buildSnippet()
 
     @JvmField
     val FILL_DEPTH: RenderPipeline = RenderPipeline.builder(fillSnippet)
         .withLocation(id("pipeline/esp_fill_depth"))
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+        .withDepthStencilState(DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .build()
 
     @JvmField
     val FILL_THROUGH: RenderPipeline = RenderPipeline.builder(fillSnippet)
         .withLocation(id("pipeline/esp_fill_through"))
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+        .withDepthStencilState(DepthStencilState(CompareOp.ALWAYS_PASS, false))
         .build()
 
     @JvmField
     val LINE_DEPTH: RenderPipeline = RenderPipeline.builder(lineSnippet)
         .withLocation(id("pipeline/esp_line_depth"))
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+        .withDepthStencilState(DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .build()
 
     @JvmField
     val LINE_THROUGH: RenderPipeline = RenderPipeline.builder(lineSnippet)
         .withLocation(id("pipeline/esp_line_through"))
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+        .withDepthStencilState(DepthStencilState(CompareOp.ALWAYS_PASS, false))
         .build()
 
     private fun id(path: String): Identifier = Identifier.fromNamespaceAndPath(Metadata.ID, path)

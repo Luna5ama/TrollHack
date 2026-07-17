@@ -52,7 +52,7 @@ dependencies {
 kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_24)
         apiVersion.set(KotlinVersion.KOTLIN_2_4)
         languageVersion.set(KotlinVersion.KOTLIN_2_4)
         jvmDefault.set(JvmDefaultMode.ENABLE)

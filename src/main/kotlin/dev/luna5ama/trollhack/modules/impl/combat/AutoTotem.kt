@@ -5,7 +5,7 @@ import dev.luna5ama.trollhack.event.impl.TickEvent
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.Items
 
 object AutoTotem : Module("Auto Totem", category = Category.COMBAT) {
@@ -25,14 +25,14 @@ object AutoTotem : Module("Auto Totem", category = Category.COMBAT) {
             val menu = player.inventoryMenu
 
             if (!strict) {
-                interaction.handleInventoryMouseClick(menu.containerId, menuSlot, 40, ClickType.SWAP, player)
+                interaction.handleContainerInput(menu.containerId, menuSlot, 40, ContainerInput.SWAP, player)
                 return@nonNullHandler
             }
 
-            interaction.handleInventoryMouseClick(menu.containerId, menuSlot, 0, ClickType.PICKUP, player)
-            interaction.handleInventoryMouseClick(menu.containerId, 45, 0, ClickType.PICKUP, player)
+            interaction.handleContainerInput(menu.containerId, menuSlot, 0, ContainerInput.PICKUP, player)
+            interaction.handleContainerInput(menu.containerId, 45, 0, ContainerInput.PICKUP, player)
             if (!menu.carried.isEmpty) {
-                interaction.handleInventoryMouseClick(menu.containerId, menuSlot, 0, ClickType.PICKUP, player)
+                interaction.handleContainerInput(menu.containerId, menuSlot, 0, ContainerInput.PICKUP, player)
             }
         }
     }

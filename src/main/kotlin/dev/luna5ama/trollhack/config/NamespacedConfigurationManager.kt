@@ -59,12 +59,15 @@ class NamespacedConfigurationManager(override val name: CharSequence) : Nameable
                         it.absolutePath.removeSuffix(".json")
                             .removePrefix(namedFolder.absolutePath)
                             .removePrefix("/")
+                            .replace('\\', '/')
+                            .lowercase()
                     }
                 namedConfigurations.forEach { named ->
                     if (named.excluded) return@forEach // FIXME
                     supervisor {
                         try {
-                            val jsonText = namedConfigJsons[named.nameAsString]?.readText()
+                            val configKey = named.nameAsString.replace('\\', '/').lowercase()
+                            val jsonText = namedConfigJsons[configKey]?.readText()
                                 ?: throw RuntimeException(namedFolder.absolutePath)
                             val json = JsonParser.parseString(jsonText).asJsonObject
                             readJsonObject(json, named)

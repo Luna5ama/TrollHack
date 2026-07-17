@@ -45,7 +45,7 @@ import net.minecraft.client.gui.screens.ChatScreen
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
@@ -635,7 +635,7 @@ object PacketMine : Module("Packet Mine", category = Category.PLAYER) {
     context(ctx: NonNullContext)
     private fun attackCrystal(crystal: Entity, rotate: Boolean, usingPause: Boolean): Unit = ctx.run {
         if (usingPause && player.usingItemHand != null) return
-        netHandler.send(ServerboundInteractPacket.createAttackPacket(crystal, player.isShiftKeyDown))
+        netHandler.send(ServerboundAttackPacket(crystal.id))
         player.resetAttackStrengthTicker()
     }
 

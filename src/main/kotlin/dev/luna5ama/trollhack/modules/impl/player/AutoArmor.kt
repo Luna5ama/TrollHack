@@ -20,7 +20,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.ai.attributes.Attributes
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.enchantment.Enchantments
@@ -79,10 +79,10 @@ object AutoArmor : Module("Auto Armor", category = Category.PLAYER) {
 
                     val armorMenuSlot = 8 - slot.index
                     val menu = player.inventoryMenu
-                    interaction.handleInventoryMouseClick(menu.containerId, inventorySlot, 0, ClickType.PICKUP, player)
-                    interaction.handleInventoryMouseClick(menu.containerId, armorMenuSlot, 0, ClickType.PICKUP, player)
+                    interaction.handleContainerInput(menu.containerId, inventorySlot, 0, ContainerInput.PICKUP, player)
+                    interaction.handleContainerInput(menu.containerId, armorMenuSlot, 0, ContainerInput.PICKUP, player)
                     if (currentProtection != -1) {
-                        interaction.handleInventoryMouseClick(menu.containerId, inventorySlot, 0, ClickType.PICKUP, player)
+                        interaction.handleContainerInput(menu.containerId, inventorySlot, 0, ContainerInput.PICKUP, player)
                     }
                     netHandler.send(ServerboundContainerClosePacket(menu.containerId))
                 }

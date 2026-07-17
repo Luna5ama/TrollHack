@@ -1,16 +1,17 @@
 [versions]
-java = "21"
-minecraft = "1.21.11"
-minecraft-range = "[1.21.11]"
-neoform = "1.21.11-20251209.172050"
-neoforge = "21.11.42"
+java = "25"
+jvm-target = "24"
+minecraft = "26.1.2"
+minecraft-range = "[26.1.2]"
+neoform = "26.1.2-1"
+neoforge = "26.1.2.76"
 neoforge-loader-range = "[4,)"
-fabric-api = "0.141.4+1.21.11"
-fabric-loader = "0.19.3"
+fabric-api = "0.150.0+26.1.2"
+fabric-loader = "0.19.2"
 fabric-kotlin = "1.13.12+kotlin.2.4.0"
 kotlin = "2.4.0"
 kotlinforge = "6.3.0"
-fabric-loom = "1.17.13"
+fabric-loom = "1.15.5"
 neoforged-moddev = "2.0.140"
 foojay = "1.0.0"
 compose = "1.11.1"
@@ -18,8 +19,8 @@ skiko = "0.144.6"
 mixin = "0.8.5"
 coroutines = "1.11.0"
 reflections = "0.10.2"
-mixinextras = "0.4.1"
-asm = "9.6"
+mixinextras = "0.5.3"
+asm = "9.8"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -42,6 +43,6 @@ reflections = { module = "org.reflections:reflections", version.ref = "reflectio
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
-fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
 neoforged-moddev = { id = "net.neoforged.moddev", version.ref = "neoforged-moddev" }
 foojay = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay" }
