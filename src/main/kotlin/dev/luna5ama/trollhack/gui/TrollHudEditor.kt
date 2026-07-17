@@ -13,8 +13,8 @@ import org.lwjgl.glfw.GLFW
 
 object TrollHudEditor : Screen(Component.literal("TrollHack HudEditor")) {
     fun open() {
-        TrollHackCompose.show(TrollHackCompose.Mode.HUD_EDITOR)
         mc.setScreen(this)
+        TrollHackCompose.show(TrollHackCompose.Mode.HUD_EDITOR)
     }
 
     fun reloadPanel() = TrollHackCompose.refresh()

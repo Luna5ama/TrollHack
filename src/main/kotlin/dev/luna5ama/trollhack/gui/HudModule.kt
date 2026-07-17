@@ -10,6 +10,7 @@ import org.lwjgl.glfw.GLFW
 abstract class HudModule(
     name: CharSequence,
     description: CharSequence = "",
+    val hudCategory: HudCategory = HudCategory.CLIENT,
     hidden: Boolean = false,
     enableByDefault: Boolean = false,
     alwaysEnable: Boolean = false,
@@ -32,4 +33,12 @@ abstract class HudModule(
             _y_normalized = value / RS.scaledHeightF
         }
         get() = _y_normalized * RS.scaledHeightF
+}
+
+enum class HudCategory(val displayName: String) {
+    CLIENT("Client"),
+    COMBAT("Combat"),
+    PLAYER("Player"),
+    WORLD("World"),
+    MISC("Misc")
 }

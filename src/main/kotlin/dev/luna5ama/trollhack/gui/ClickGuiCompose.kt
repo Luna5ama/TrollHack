@@ -125,7 +125,6 @@ private val legacyCategoryOrder = listOf(
     Category.MOVEMENT,
     Category.RENDER,
     Category.CLIENT,
-    Category.HUD,
 )
 
 @Composable
@@ -237,7 +236,7 @@ private fun CategoryWindow(category: Category, guiScale: Float) {
 }
 
 @Composable
-private fun ModuleEntry(module: AbstractModule, guiScale: Float) {
+internal fun ModuleEntry(module: AbstractModule, guiScale: Float) {
     TrollHackCompose.observeRevision()
     var rootPosition by remember(module) { mutableStateOf(Offset.Zero) }
     var rowWidth by remember(module) { mutableStateOf(0) }
@@ -302,7 +301,7 @@ private fun ModuleEntry(module: AbstractModule, guiScale: Float) {
 }
 
 @Composable
-private fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth: Int, viewportHeight: Int) {
+internal fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth: Int, viewportHeight: Int) {
     TrollHackCompose.observeRevision()
     val density = LocalDensity.current.density
     val visibleCount = module.filteredSettings.count { it.isVisible }

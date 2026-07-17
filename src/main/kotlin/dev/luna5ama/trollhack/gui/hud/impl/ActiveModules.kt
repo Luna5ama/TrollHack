@@ -1,6 +1,7 @@
 package dev.luna5ama.trollhack.gui.hud.impl
 
 import dev.luna5ama.trollhack.gui.HudModule
+import dev.luna5ama.trollhack.gui.HudCategory
 import dev.luna5ama.trollhack.manager.managers.ModuleManager
 import dev.luna5ama.trollhack.modules.AbstractModule
 import dev.luna5ama.trollhack.modules.Category
@@ -11,7 +12,8 @@ import org.lwjgl.glfw.GLFW.GLFW_KEY_UNKNOWN
 
 object ActiveModules : HudModule(
     name = "Active Modules",
-    description = "List of enabled modules"
+    description = "List of enabled modules",
+    hudCategory = HudCategory.CLIENT
 ) {
     private var dockingH by setting("Docking H", HAlign.RIGHT)
     private var dockingV by setting("Docking V", VAlign.TOP)

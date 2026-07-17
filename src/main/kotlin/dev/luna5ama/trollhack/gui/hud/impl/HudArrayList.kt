@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.gui.hud.impl
 
 import dev.luna5ama.trollhack.config.settings.BooleanSetting
 import dev.luna5ama.trollhack.gui.HudModule
+import dev.luna5ama.trollhack.gui.HudCategory
 import dev.luna5ama.trollhack.graphics.color.ColorRGBA
 import dev.luna5ama.trollhack.manager.managers.GuiManager
 import dev.luna5ama.trollhack.manager.managers.ModuleManager
@@ -10,7 +11,7 @@ import dev.luna5ama.trollhack.modules.Module
 import dev.luna5ama.trollhack.utils.Displayable
 import org.lwjgl.glfw.GLFW
 
-object HudArrayList : HudModule("Array List") {
+object HudArrayList : HudModule("Array List", hudCategory = HudCategory.CLIENT) {
     private val prefix by setting("Prefix", " [")
     private val suffix by setting("Suffix", "]")
     private val animationLength by setting("Animation Length", 500, 0..1000, 100)

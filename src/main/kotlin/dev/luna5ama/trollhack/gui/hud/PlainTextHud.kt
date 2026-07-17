@@ -1,11 +1,13 @@
 package dev.luna5ama.trollhack.gui.hud
 
 import dev.luna5ama.trollhack.gui.HudModule
+import dev.luna5ama.trollhack.gui.HudCategory
 import org.lwjgl.glfw.GLFW
 
 abstract class PlainTextHud(
     name: CharSequence,
     description: CharSequence = "",
+    hudCategory: HudCategory = HudCategory.MISC,
     hidden: Boolean = false,
     enableByDefault: Boolean = false,
     alwaysEnable: Boolean = false,
@@ -16,6 +18,7 @@ abstract class PlainTextHud(
 ) : HudModule(
     name,
     description,
+    hudCategory,
     hidden,
     enableByDefault,
     alwaysEnable,

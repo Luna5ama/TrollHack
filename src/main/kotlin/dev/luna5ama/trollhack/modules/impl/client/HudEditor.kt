@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.modules.impl.client
 
 import dev.luna5ama.trollhack.event.api.handler
 import dev.luna5ama.trollhack.event.impl.world.WorldEvent
+import dev.luna5ama.trollhack.gui.TrollHackCompose
 import dev.luna5ama.trollhack.gui.TrollHudEditor
 import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
@@ -21,10 +22,12 @@ object HudEditor : Module("Hud Editor", category = Category.CLIENT, defaultBind 
         }
 
         onEnabled {
+            ClickGui.disable()
             TrollHudEditor.open()
         }
 
         onDisabled {
+            TrollHackCompose.hide()
             if (mc.screen === TrollHudEditor) mc.setScreen(null)
         }
     }

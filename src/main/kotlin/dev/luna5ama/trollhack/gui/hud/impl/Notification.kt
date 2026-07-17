@@ -1,11 +1,13 @@
 package dev.luna5ama.trollhack.gui.hud.impl
 
 import dev.luna5ama.trollhack.gui.HudModule
+import dev.luna5ama.trollhack.gui.HudCategory
 import dev.luna5ama.trollhack.utils.math.vectors.HAlign
 
 object Notification : HudModule(
     name = "Notification",
-    description = "Client notifications"
+    description = "Client notifications",
+    hudCategory = HudCategory.CLIENT
 ) {
     private var dockingH by setting("Docking H", HAlign.LEFT)
     val moduleToggle by setting("Module Toggle", true)
