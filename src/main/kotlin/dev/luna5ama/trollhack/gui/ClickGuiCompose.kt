@@ -130,7 +130,7 @@ private val legacyCategoryOrder = listOf(
 @Composable
 internal fun ClickGuiContent() {
     TrollHackCompose.observeRevision()
-    val guiScale = ClickGui.scale / 100f
+    val guiScale = ClickGui.scale
     BoxWithConstraints(
         Modifier.fillMaxSize().pointerInput(Unit) {
             awaitPointerEventScope {
@@ -205,7 +205,7 @@ private fun CategoryWindow(category: Category, guiScale: Float) {
         label = "Legacy category height"
     )
     val modules = ModuleManager.getModulesByCategory(category).filter {
-        ClickGuiState.search.isBlank() || it.nameAsString.contains(ClickGuiState.search, true) ||
+        ClickGuiState.search.isBlank() || it.localizedName.contains(ClickGuiState.search, true) ||
             it.alias.any { alias -> alias.contains(ClickGuiState.search, true) }
     }
 
@@ -219,7 +219,7 @@ private fun CategoryWindow(category: Category, guiScale: Float) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                legacyCategoryName(category),
+                category.localizedName,
                 modifier = Modifier.weight(1f),
                 color = LegacyPalette.Text,
                 fontSize = 9.sp,
@@ -289,7 +289,7 @@ internal fun ModuleEntry(module: AbstractModule, guiScale: Float) {
             Box(Modifier.fillMaxWidth(fillProgress).fillMaxHeight().background(LegacyPalette.Enabled))
         }
         Text(
-            module.nameAsString,
+            module.localizedName,
             modifier = Modifier.padding(horizontal = 6.dp),
             color = LegacyPalette.Text,
             fontSize = 8.5.sp,
@@ -357,7 +357,7 @@ internal fun BoxScope.ModuleSettingsWindow(module: AbstractModule, viewportWidth
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text(
-                    module.nameAsString,
+                    module.localizedName,
                     color = LegacyPalette.Text,
                     fontSize = 8.5.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -398,5 +398,3 @@ internal object LegacyPalette {
     val Text = Color(255, 250, 253, 255)
     val TextMuted = Color(255, 250, 253, 190)
 }
-
-private fun legacyCategoryName(category: Category) = category.displayString

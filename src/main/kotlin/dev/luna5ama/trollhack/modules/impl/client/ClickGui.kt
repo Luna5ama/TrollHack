@@ -9,7 +9,16 @@ import dev.luna5ama.trollhack.utils.MinecraftWrapper.mc
 import org.lwjgl.glfw.GLFW
 
 object ClickGui : Module("Click Gui", category = Category.CLIENT, defaultBind = GLFW.GLFW_KEY_I) {
-    val scale by setting("Scale", 100, 50..400, 5)
+    val scaleSetting = setting(
+        "Scale",
+        1.00f,
+        0.50f..4.00f,
+        0.05f,
+        transformer = { _, value ->
+            (if (value > 4.00f) value / 100.00f else value).coerceIn(0.50f, 4.00f)
+        }
+    )
+    val scale by scaleSetting
     val pauseGame by setting("Pause Game", false)
     init {
         handler<WorldEvent.Load> {

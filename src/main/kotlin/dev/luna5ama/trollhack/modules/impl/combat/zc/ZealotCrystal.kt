@@ -97,7 +97,7 @@ object ZealotCrystal : Module("Zealot Crystal", category = Category.COMBAT) {
 
     private val players by setting("Players", true, { page == Page.General })
     private val animals by setting("Animals", true, { page == Page.General })
-    private val mobs by setting("mobs", true, { page == Page.General })
+    private val mobs by setting("Mobs", true, { page == Page.General })
     private val maxTargets by setting("Max Targets", 5, 1..10, 1, { page == Page.General })
     private val targetRange by setting("Target Range", 16.0f, 0.0f..32.0f, 1.0f, { page == Page.General })
     private val yawSpeed by setting("Yaw Speed", 45.0f, 5.0f..180.0f, 5.0f, { page == Page.General })

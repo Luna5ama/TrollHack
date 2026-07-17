@@ -41,7 +41,7 @@ abstract class AbstractSetSetting<E>(
                 add(element2String(it))
             }
         }
-        json.add(nameAsString, array)
+        json.add(defaultName, array)
     }
 
     abstract fun element2String(element: E): String

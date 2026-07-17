@@ -6,7 +6,10 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 open class I18NText(
-    val translateKey: String, private val i18N: I18N, var defaultText: String = translateKey
+    val translateKey: String,
+    private val i18N: I18N,
+    var defaultText: String = translateKey,
+    private val fallback: I18NText? = null
 ) : ReadOnlyProperty<Any?, String>, PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, String>> {
     private val localizedTexts = mutableMapOf<Lang, String>()
 
@@ -29,6 +32,8 @@ open class I18NText(
     }
 
     operator fun get(lang: Lang): String {
-        return localizedTexts[lang] ?: localizedTexts[Lang.ENGLISH] ?: defaultText
+        return translatedText(lang) ?: fallback?.translatedText(lang) ?: defaultText
     }
+
+    private fun translatedText(lang: Lang): String? = localizedTexts[lang] ?: localizedTexts[Lang.ENGLISH]
 }

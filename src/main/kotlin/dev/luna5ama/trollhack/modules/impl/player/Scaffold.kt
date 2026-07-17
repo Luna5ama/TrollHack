@@ -98,8 +98,8 @@ object Scaffold : Module(
 
     private val blockPlaceRotation by setting("Rotation", true)
     private val safeWalk by setting("Safe Walk", true)
-    private val setbackOnFailure by setting("Setback on Failure", true)
-    private val setbackOnFalling by setting("Setback on Falling", true)
+    private val setbackOnFailure by setting("Setback On Failure", true)
+    private val setbackOnFalling by setting("Setback On Falling", true)
     private val grimMode by setting("Grim",false)
     private val towerMode by setting("Tower Mode", true)
     private val towerMotion by setting("Tower Jump Motion", 0.42f, 0.0f..1.0f, 0.01f, { _ -> towerMode })

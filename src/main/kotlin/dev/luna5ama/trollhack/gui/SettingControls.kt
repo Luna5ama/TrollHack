@@ -52,6 +52,7 @@ import dev.luna5ama.trollhack.config.settings.StringListSetting
 import dev.luna5ama.trollhack.config.settings.StringSetSetting
 import dev.luna5ama.trollhack.config.settings.StringSetting
 import dev.luna5ama.trollhack.modules.AbstractModule
+import dev.luna5ama.trollhack.modules.impl.client.ClickGui
 import dev.luna5ama.trollhack.utils.Displayable
 import java.util.Locale
 import kotlin.math.round
@@ -253,7 +254,7 @@ private fun RangedControl(setting: AbstractRangedSetting<*, *>, revision: Int, i
             verticalAlignment = Alignment.CenterVertically
         ) {
             SettingName(setting, Modifier.weight(1f))
-            LegacyValue(formatSettingValue(visualValue))
+            LegacyValue(formatSettingValue(setting, visualValue))
         }
     }
 }
@@ -434,8 +435,9 @@ private fun setRangedSetting(setting: AbstractRangedSetting<*, *>, ratio: Float)
     }
 }
 
-private fun formatSettingValue(value: Any?) = when (value) {
-    is Float -> String.format(Locale.ROOT, "%.3f", value).trimEnd('0').trimEnd('.')
-    is Double -> String.format(Locale.ROOT, "%.3f", value).trimEnd('0').trimEnd('.')
+private fun formatSettingValue(setting: AbstractSetting<*, *>, value: Any?) = when {
+    setting === ClickGui.scaleSetting && value is Number -> String.format(Locale.ROOT, "%.2f", value.toDouble())
+    value is Float -> String.format(Locale.ROOT, "%.3f", value).trimEnd('0').trimEnd('.')
+    value is Double -> String.format(Locale.ROOT, "%.3f", value).trimEnd('0').trimEnd('.')
     else -> value.toString()
 }

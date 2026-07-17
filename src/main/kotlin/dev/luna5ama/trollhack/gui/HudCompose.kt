@@ -64,7 +64,7 @@ internal fun HudEditorContent() {
     TrollHackCompose.observeRevision()
     val hudModules = ModuleManager.getModulesByCategory(Category.HUD).filterIsInstance<HudModule>()
     val modulesByCategory = hudModules.groupBy { it.hudCategory }
-    val guiScale = ClickGui.scale / 100f
+    val guiScale = ClickGui.scale
     BoxWithConstraints(
         Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.25f)).pointerInput(Unit) {
             awaitPointerEventScope {

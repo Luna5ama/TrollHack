@@ -13,8 +13,8 @@ object AntiHunger : Module(
     "Reduces (does NOT remove) hunger consumption.",
     Category.PLAYER
 ) {
-    private val sprint by setting("sprint",true)
-    private val onGround by setting("on-ground", true)
+    private val sprint by setting("Sprint",true)
+    private val onGround by setting("On Ground", true)
 
     init {
         nonNullHandler<PacketEvent.Send> {

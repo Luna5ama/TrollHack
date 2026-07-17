@@ -25,6 +25,6 @@ class StringSetting(
     }
 
     override fun writeJson(json: JsonObject) {
-        json.addProperty(nameAsString, value)
+        json.addProperty(defaultName, value)
     }
 }

@@ -19,7 +19,7 @@ object PlaceRender : Module("Place Render", category = Category.RENDER) {
     private val color by setting("Color", ColorRGBA.WHITE.alpha(128))
     private val lineColor by setting("Line Color", ColorRGBA.WHITE)
     private val lineWidth by setting("Line Width", 1.0f, 0.1f..4.0f)
-    private val debug by setting("debug", false)
+    private val debug by setting("Debug", false)
     private val animation = BlockEasingRender(BlockPos.ZERO, 500f, 500f)
     private val timer = TickTimer()
 

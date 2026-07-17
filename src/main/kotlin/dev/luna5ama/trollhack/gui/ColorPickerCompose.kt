@@ -216,7 +216,7 @@ internal fun ColorPickerWindow(
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                "Color Picker",
+                clickGuiText("color picker", "Color Picker"),
                 color = LegacyPalette.Text,
                 fontSize = 8.5.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -272,41 +272,41 @@ internal fun ColorPickerWindow(
         )
 
         ColorPickerSlider(
-            "Red",
+            clickGuiText("red", "Red"),
             draft.r,
             Modifier.offset(120.dp, 16.dp)
         ) { setChannel(0, it) }
         ColorPickerSlider(
-            "Green",
+            clickGuiText("green", "Green"),
             draft.g,
             Modifier.offset(120.dp, 30.dp)
         ) { setChannel(1, it) }
         ColorPickerSlider(
-            "Blue",
+            clickGuiText("blue", "Blue"),
             draft.b,
             Modifier.offset(120.dp, 44.dp)
         ) { setChannel(2, it) }
         ColorPickerSlider(
-            "Alpha",
+            clickGuiText("alpha", "Alpha"),
             draft.a,
             Modifier.offset(120.dp, 58.dp)
         ) { setChannel(3, it) }
 
         ColorPickerButton(
-            "Okay",
+            clickGuiText("okay", "Okay"),
             Modifier.offset(198.dp, 72.dp)
         ) {
             applyDraft()
             ClickGuiState.closeColorPicker()
         }
         ColorPickerButton(
-            "Cancel",
+            clickGuiText("cancel", "Cancel"),
             Modifier.offset(198.dp, 86.dp)
         ) {
             ClickGuiState.closeColorPicker()
         }
         ColorPickerButton(
-            "Apply",
+            clickGuiText("apply", "Apply"),
             Modifier.offset(198.dp, 100.dp)
         ) {
             applyDraft()

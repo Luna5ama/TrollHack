@@ -12,7 +12,7 @@ import dev.luna5ama.trollhack.config.ConfigCategories
 
 object FriendManager : AbstractManager(), ILocalizedNameable by LocalizedNameable(resolve("friends"), i18N),
     Configurable by Configurable.NamedConfigurable("Friends", ConfigCategories.FRIENDS) {
-    var friends by setting("friend_names", listOf()); private set
+    var friends by setting("Friend Names", listOf()); private set
 
     fun isFriend(name: CharSequence) = name.toString() in friends
 

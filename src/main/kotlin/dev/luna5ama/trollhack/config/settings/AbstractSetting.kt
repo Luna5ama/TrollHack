@@ -2,6 +2,7 @@ package dev.luna5ama.trollhack.config.settings
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import dev.luna5ama.trollhack.config.normalizeSettingName
 import dev.luna5ama.trollhack.i18n.I18N
 import dev.luna5ama.trollhack.utils.*
 import dev.luna5ama.trollhack.i18n.LocalizedNameable
@@ -43,7 +44,15 @@ abstract class AbstractSetting<V, S : AbstractSetting<V, S>>(
         this.value = value
     }
 
-    open fun chooseJsonElement(json: JsonObject): JsonElement? = json[nameAsString] ?: json[translateKey]
+    open fun chooseJsonElement(json: JsonObject): JsonElement? {
+        return json[defaultName] ?: json[nameAsString] ?: json[translateKey]
+        ?: json.entrySet().firstOrNull { (key, _) ->
+            normalizeSettingName(key).replace(" ", "").equals(
+                normalizeSettingName(defaultName).replace(" ", ""),
+                ignoreCase = true
+            )
+        }?.value
+    }
 
     abstract fun writeJson(json: JsonObject)
     abstract fun readJson(json: JsonElement)

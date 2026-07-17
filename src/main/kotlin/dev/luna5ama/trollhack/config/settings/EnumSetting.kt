@@ -42,6 +42,6 @@ class EnumSetting<E>(
     }
 
     override fun writeJson(json: JsonObject) {
-        json.addProperty(nameAsString, value.displayName.toString())
+        json.addProperty(defaultName, value.displayName.toString())
     }
 }

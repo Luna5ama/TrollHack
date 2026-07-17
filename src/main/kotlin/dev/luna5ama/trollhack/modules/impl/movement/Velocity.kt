@@ -30,7 +30,7 @@ object Velocity : Module("Velocity", category = Category.MOVEMENT), Helper {
     private val horizontal by setting("Horizontal", 0.0f, -5.0f..5.0f, 0.05f)
     private val vertical by setting("Vertical", 0.0f, -5.0f..5.0f, 0.05f)
     private val waitTickFlag by setting("Flag Wait Tick", 30, 1..60, 1)
-    private val minHurtTime by setting("Min HurtTime", 8, 0..10, 1)
+    private val minHurtTime by setting("Min Hurt Time", 8, 0..10, 1)
     private val noPush = setting("No Push", true)
     private val entity by setting("Entity", true, noPush.visibility)
     private val liquid by setting("Liquid", true, noPush.visibility)

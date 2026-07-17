@@ -15,7 +15,7 @@ object PacketDebug : Module("Packet Debug", category = Category.CLIENT) {
     private val ping by setting("Ping", false)
     private val pong by setting("Pong", false)
     private val allPacketNameSpace by setting("All Packet Namespace",false)
-    private val entityVelocityUpdateS2CPacket by setting("Self EntityVelocityUpdateS2C",false)
+    private val entityVelocityUpdateS2CPacket by setting("Self Entity Velocity Update S2C",false)
     private val calcPingAverage by setting("Calc Ping Average",true, { ping })
     private val flagCheck by setting("Flag Check",false)
     private val translationPacketNameSpace by setting("Translation Receive Namespace",true)

@@ -26,7 +26,7 @@ object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
     val backSideSampling by setting("Back Side Sampling", true, { page == Page.DMG_CALC })
 
     val ghostHandBypass by setting("Ghost Switch Bypass", HotbarSwitchManager.BypassMode.NONE, { page == Page.BYPASS })
-    val antiWeaknessBypass by setting("AntiWeakness Bypass", HotbarSwitchManager.Override.DEFAULT, { page == Page.BYPASS })
+    val antiWeaknessBypass by setting("Anti Weakness Bypass", HotbarSwitchManager.Override.DEFAULT, { page == Page.BYPASS })
     val placeRotationBoundingBoxGrow by setting("Place Rotation Bounding Box Grow", 0.1, 0.0..1.0, 0.01, { page == Page.BYPASS })
     val placeStrictRotation by setting("Place Strict Rotation", true, { page == Page.BYPASS })
     val placeMaxAngle by setting("Place Max Angle", 87, { page == Page.BYPASS })
@@ -62,8 +62,8 @@ object ClientSettings : Module("Client Settings", category = Category.CLIENT) {
     val clientLanguage by setting("Client Language", "en_us", { page == Page.MISC })
 
     val lowVersion by setting("1.12",false)
-    val attackDelay by setting("AttackDelay", 0.2, 0.0..1.0, 0.01, { page == Page.COMBAT })
-    val attackRotate by setting("AttackRotate", true, { page == Page.COMBAT })
+    val attackDelay by setting("Attack Delay", 0.2, 0.0..1.0, 0.01, { page == Page.COMBAT })
+    val attackRotate by setting("Attack Rotate", true, { page == Page.COMBAT })
 
     private enum class Page(override val displayName: CharSequence) : Displayable {
         RENDER("Render"),

@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 object NoSlowDown : Module("No Slow Down", "no slow down", Category.MOVEMENT) {
     // 保留 TrollHack 原有蛛网减速兼容设置，同时不影响 Epsilon 的物品减速模式。
     val web by setting("Web", true)
-    val horizontalSpeed by setting("HSpeed", 0.7, 0.0..1.0, 0.01, { web })
-    val verticalSpeed by setting("VSpeed", 0.7, 0.0..1.0, 0.01, { web })
+    val horizontalSpeed by setting("H Speed", 0.7, 0.0..1.0, 0.01, { web })
+    val verticalSpeed by setting("V Speed", 0.7, 0.0..1.0, 0.01, { web })
     private val mode by setting("Mode", Mode.VANILLA)
     private val food by setting("Food", true)
     private val bow by setting("Bow", true)

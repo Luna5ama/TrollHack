@@ -13,7 +13,7 @@ import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
 import net.minecraft.world.entity.player.Input
 
 object Disabler : Module("Disabler", category = Category.PLAYER) {
-    private val badPacketsA by setting("BadPacketsA", true)
+    private val badPacketsA by setting("Bad Packets A", true)
     private val sprinting by setting("Sprinting", true)
     private val input by setting("Input", true)
 

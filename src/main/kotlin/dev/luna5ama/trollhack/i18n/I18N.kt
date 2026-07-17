@@ -16,10 +16,13 @@ class I18N(languageFiles: Map<Lang, String>, private val lang: () -> Lang) {
         update(languageFiles)
     }
 
-    operator fun get(translateKey: String, defaultText: String = translateKey): I18NText =
-        texts.computeIfAbsent(translateKey.hashCode(), Int2ObjectFunction {
-            I18NText(translateKey, this, defaultText)
+    operator fun get(translateKey: String, defaultText: String = translateKey): I18NText {
+        val legacyKey = translateKey.replace(" ", "")
+        val fallback = if (legacyKey == translateKey) null else texts[legacyKey.hashCode()]
+        return texts.computeIfAbsent(translateKey.hashCode(), Int2ObjectFunction {
+            I18NText(translateKey, this, defaultText, fallback)
         }).also { it.defaultText = defaultText }
+    }
 
     fun update(languageFiles: Map<Lang, String>) {
         languageFiles.forEach { (lang, file) ->

@@ -40,6 +40,6 @@ class BindSetting(
     }
 
     override fun writeJson(json: JsonObject) {
-        json.addProperty(nameAsString, value.keyCode)
+        json.addProperty(defaultName, value.keyCode)
     }
 }

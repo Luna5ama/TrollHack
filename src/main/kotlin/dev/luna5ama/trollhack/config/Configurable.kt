@@ -13,6 +13,33 @@ import dev.luna5ama.trollhack.utils.input.KeyBind
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KProperty
 
+private val settingSeparator = Regex("[_-]+")
+private val settingAcronymBoundary = Regex("([A-Z]+)([A-Z][a-z])")
+private val settingWordBoundary = Regex("([a-z])([A-Z])")
+private val settingNumberBoundary = Regex("([a-z])(\\d+)")
+private val settingNumberWordBoundary = Regex("(\\d)([A-Z][a-z])")
+private val settingDimensionBoundary = Regex("(\\d)x (\\d)")
+
+internal fun normalizeSettingName(name: String): String {
+    if (name.startsWith("__internal__")) return name
+
+    return name
+        .replace(settingSeparator, " ")
+        .replace(settingAcronymBoundary, "$1 $2")
+        .replace(settingWordBoundary, "$1 $2")
+        .replace(settingNumberBoundary, "$1 $2")
+        .replace(settingNumberWordBoundary, "$1 $2")
+        .replace(settingDimensionBoundary, "$1x$2")
+        .trim()
+        .split(Regex(" +"))
+        .joinToString(" ") { word ->
+            word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
+}
+
+private fun ILocalizedNameable.resolveSetting(name: String) =
+    "$translateKey.${normalizeSettingName(name).lowercase()}"
+
 interface Configurable {
     val excluded: Boolean get() = false
     val configCategory: String
@@ -25,10 +52,10 @@ interface Configurable {
         visibility: Predicate<Unit> = always(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-        title: () -> String = { defaultName }
-    ) = setting(LabelSetting(translateKey, i18N, description, visibility, defaultName, title)).apply {
+        title: () -> String = { normalizeSettingName(defaultName) }
+    ) = setting(LabelSetting(translateKey, i18N, description, visibility, normalizeSettingName(defaultName), title)).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -40,8 +67,8 @@ interface Configurable {
         description: String = "",
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap()
-    ) = label(resolve(name), i18N, description, visibility, defaultName, defaultTranslations) {
-        val localizedName = i18N[resolve(name), defaultName][ClientSettings.modLanguage]
+    ) = label(resolveSetting(name), i18N, description, visibility, defaultName, defaultTranslations) {
+        val localizedName = i18N[resolveSetting(name), normalizeSettingName(defaultName)][ClientSettings.modLanguage]
         if (concatWithName) localizedName + ": " + title() else title()
     }
 
@@ -56,9 +83,9 @@ interface Configurable {
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
         alwaysActive: Boolean = false
-    ) = setting(BindSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName, alwaysActive)).apply {
+    ) = setting(BindSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName), alwaysActive)).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -72,7 +99,7 @@ interface Configurable {
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
         alwaysActive: Boolean = false
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations, alwaysActive)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations, alwaysActive)
 
     fun setting(
         translateKey: String,
@@ -84,9 +111,9 @@ interface Configurable {
         transformer: Combiner<String> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(StringSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(StringSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -99,7 +126,7 @@ interface Configurable {
         transformer: Combiner<String> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
     fun setting(
         translateKey: String,
@@ -111,9 +138,9 @@ interface Configurable {
         transformer: Combiner<Boolean> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(BooleanSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(BooleanSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -126,7 +153,7 @@ interface Configurable {
         transformer: Combiner<Boolean> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
     fun <E> setting(
         translateKey: String,
@@ -139,9 +166,9 @@ interface Configurable {
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
     ) : EnumSetting<E> where E : Enum<E>, E : Displayable =
-        setting(EnumSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+        setting(EnumSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
             defaultTranslations.forEach { (lang, text) ->
-                i18N[translateKey][lang] = text
+                i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
             }
         }
 
@@ -155,7 +182,7 @@ interface Configurable {
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
     ) : EnumSetting<E> where E : Enum<E>, E : Displayable =
-        setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+        setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
 
     fun setting(
@@ -168,9 +195,9 @@ interface Configurable {
         transformer: Combiner<List<String>> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(StringListSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(StringListSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -183,7 +210,7 @@ interface Configurable {
         transformer: Combiner<List<String>> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
 
     fun setting(
@@ -196,9 +223,9 @@ interface Configurable {
         transformer: Combiner<Set<String>> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(StringSetSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(StringSetSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -211,7 +238,7 @@ interface Configurable {
         transformer: Combiner<Set<String>> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
 
     fun setting(
@@ -224,9 +251,9 @@ interface Configurable {
         transformer: Combiner<ColorRGBA> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(ColorSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(ColorSetting(translateKey, i18N, defaultValue, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -239,7 +266,7 @@ interface Configurable {
         transformer: Combiner<ColorRGBA> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
     fun setting(
         translateKey: String,
@@ -253,9 +280,9 @@ interface Configurable {
         transformer: Combiner<Int> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(IntSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(IntSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -270,7 +297,7 @@ interface Configurable {
         transformer: Combiner<Int> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
     fun setting(
         translateKey: String,
@@ -284,9 +311,9 @@ interface Configurable {
         transformer: Combiner<Long> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(LongSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(LongSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -301,7 +328,7 @@ interface Configurable {
         transformer: Combiner<Long> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
     fun setting(
         translateKey: String,
@@ -315,9 +342,9 @@ interface Configurable {
         transformer: Combiner<Float> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(FloatSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(FloatSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -332,7 +359,7 @@ interface Configurable {
         transformer: Combiner<Float> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
     fun setting(
         translateKey: String,
@@ -346,9 +373,9 @@ interface Configurable {
         transformer: Combiner<Double> = reflBi(),
         defaultName: String = translateKey,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(DoubleSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, defaultName)).apply {
+    ) = setting(DoubleSetting(translateKey, i18N, defaultValue, range, step, description, visibility, onModified.toMutableList(), transformer, normalizeSettingName(defaultName))).apply {
         defaultTranslations.forEach { (lang, text) ->
-            i18N[translateKey][lang] = text
+            i18N[translateKey][lang] = if (lang == Lang.ENGLISH) normalizeSettingName(text) else text
         }
     }
 
@@ -363,7 +390,7 @@ interface Configurable {
         transformer: Combiner<Double> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, range, step, visibility, description, onModified.toMutableList(), transformer, defaultName, defaultTranslations)
 
 
     fun setting(
@@ -405,7 +432,7 @@ interface Configurable {
         transformer: Combiner<Int> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified, transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified, transformer, defaultName, defaultTranslations)
 
 
     fun setting(
@@ -447,7 +474,7 @@ interface Configurable {
         transformer: Combiner<Float> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified, transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified, transformer, defaultName, defaultTranslations)
     
     
     fun setting(
@@ -489,7 +516,7 @@ interface Configurable {
         transformer: Combiner<Double> = reflBi(),
         defaultName: String = name,
         defaultTranslations: Map<Lang, String> = emptyMap(),
-    ) = setting(resolve(name), i18N, defaultValue, visibility, description, onModified, transformer, defaultName, defaultTranslations)
+    ) = setting(resolveSetting(name), i18N, defaultValue, visibility, description, onModified, transformer, defaultName, defaultTranslations)
     
     fun <S : AbstractSetting<*, *>> setting(setting: S): S
 

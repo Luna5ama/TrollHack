@@ -22,7 +22,7 @@ class ColorSetting(
     defaultName
 ) {
     override fun writeJson(json: JsonObject) {
-        json.addProperty(nameAsString, value.toString())
+        json.addProperty(defaultName, value.toString())
     }
 
     override fun readJson(json: JsonElement) {

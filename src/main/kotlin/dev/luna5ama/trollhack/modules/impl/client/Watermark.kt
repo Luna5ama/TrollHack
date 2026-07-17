@@ -7,8 +7,8 @@ import dev.luna5ama.trollhack.modules.Category
 import dev.luna5ama.trollhack.modules.Module
 
 object Watermark : Module("Watermark", category = Category.CLIENT) {
-    private val color1 by setting("Color1", ColorRGBA.WHITE)
-    private val color2 by setting("Color2", ColorRGBA.BLACK)
+    private val color1 by setting("Color 1", ColorRGBA.WHITE)
+    private val color2 by setting("Color 2", ColorRGBA.BLACK)
 
     init {
         nonNullHandler<Skia2DEvent> {

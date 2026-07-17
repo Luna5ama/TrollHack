@@ -11,7 +11,7 @@ import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
-object TrollClickGui : Screen(Component.literal("TrollHack ClickGui")) {
+object TrollClickGui : Screen(Component.literal(ClickGui.localizedName)) {
     private var ignoreOpeningBindPress = false
 
     fun open() {
